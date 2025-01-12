@@ -25,12 +25,14 @@ import org.springframework.test.context.TestPropertySource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 //TODO (left on 10/01/2025): Junit Tests run in a transaction, default behaviour needed for 'dirty context' and cleanups.
-// if need to replicate a non-transactional scenario make Propagation NOT_SUPPORTED
+// if need to replicate a non-transactional scenario make Propagation NOT_SUPPORTED,
+// not preferred though you might compromise the transactional integrity of rest of your buisiness logic
+
 
 @DataJpaTest
 @Import(value = {GuideEntityServiceImpl.class, AuditingConfig.class, PostgresConfiguration.class, GuideEntities.class, StudentEntities.class, HotelEntities.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestPropertySource(locations = {"/application-test.properties", "/junit-platform.properties"}, properties = {
+@TestPropertySource(locations = {"/application-test.properties"}, properties = {
         "logging.level.root=off",
         "spring.jpa.hibernate.ddl-auto=none",
         "spring.jpa.properties.hibernate.format_sql=true",

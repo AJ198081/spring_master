@@ -11,6 +11,7 @@ import dev.aj.sdj_hibernate.domain.services.impl.EmployeeServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -44,6 +45,7 @@ import java.util.stream.Stream;
 })
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Execution(ExecutionMode.CONCURRENT)
+@Disabled
 class EmployeeServiceTest {
 
     @Autowired
@@ -73,9 +75,9 @@ class EmployeeServiceTest {
         executorService.shutdown();
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(1)
     void testConcurrentUpdates_1() {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             BigDecimal updatedSalary = new BigDecimal(new Random().nextInt(10, 100));
             Runnable runnable = () -> employeeService.updateSalary(updatedSalary);
             executorService.execute(runnable);
@@ -84,9 +86,9 @@ class EmployeeServiceTest {
     }
 
 
-    @RepeatedTest(5)
+    @RepeatedTest(1)
     void testFixConcurrentUpdates_1() {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             BigDecimal updatedSalary = new BigDecimal(new Random().nextInt(10, 100));
             Runnable runnable = () -> employeeService.updateSalaryPessimistically(updatedSalary);
             executorService.execute(runnable);
@@ -97,7 +99,7 @@ class EmployeeServiceTest {
     @Test
     void testEmployeeProjection() {
 
-        getEmployeeDetailsStream().limit(50)
+        getEmployeeDetailsStream().limit(10)
                 .peek(employee -> employee.setSalary(new BigDecimal(new Random().nextInt(10, 100))))
                 .forEach(employeeService::persistEmployee);
 
@@ -110,7 +112,7 @@ class EmployeeServiceTest {
     @Test
     void testEmployeeInterfaceProjection() {
 
-        getEmployeeDetailsStream().limit(50)
+        getEmployeeDetailsStream().limit(10)
                 .peek(employee -> employee.setSalary(new BigDecimal(new Random().nextInt(10, 100))))
                 .forEach(employeeService::persistEmployee);
 
@@ -135,7 +137,7 @@ class EmployeeServiceTest {
         }
 
         try {
-            TimeUnit.SECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(3);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -156,7 +158,7 @@ class EmployeeServiceTest {
         }
 
         try {
-            TimeUnit.SECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(3);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

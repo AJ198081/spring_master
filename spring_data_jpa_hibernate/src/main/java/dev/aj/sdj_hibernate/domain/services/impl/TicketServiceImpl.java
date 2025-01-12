@@ -56,17 +56,17 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticketingRequest = ticketMapper.ticketDtoToTicket(ticketDto);
 
 //        Hikari publishes connections stats every 30 seconds
-        TimeUnit.SECONDS.sleep(40);
+        TimeUnit.SECONDS.sleep(31);
 
         Ticket issuedTicket = ticketRepository.save(ticketingRequest);
 
-        TimeUnit.SECONDS.sleep(40);
+        TimeUnit.SECONDS.sleep(31);
 
         log.info("Ticket issued: {}", issuedTicket);
     }
 
     // readOnly ensures hibernate doesn't do 'dirty checking' at the end of a transaction, hence runtime leverage optimisations
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     public Long testDirtyCheckingAndAutoCommitting() {
         Ticket firstAvailableTicket = ticketRepository.findAll().getFirst();

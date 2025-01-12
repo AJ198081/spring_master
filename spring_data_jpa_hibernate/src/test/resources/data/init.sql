@@ -1,6 +1,8 @@
 create schema if not exists sys_org;
 alter schema sys_org owner to admin;
 
+set search_path = 'sys_org';
+
 drop table if exists sys_org.student;
 drop table if exists sys_org.hotel;
 drop table if exists sys_org.guide;

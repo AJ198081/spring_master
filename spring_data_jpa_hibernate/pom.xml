@@ -12,7 +12,7 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <name>spring_data_jpa_hibernate</name>
-    <description>spring_data_jpa_hibernate</description>
+    <description>Everything Spring Data JPA - sandbox</description>
 
     <packaging>jar</packaging>
 
