@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: 'hibernate_container'
+    restart: no
+    environment:
+      - 'POSTGRES_DB=hibernate_jpa'
+      - 'POSTGRES_USER=admin'
+      - 'POSTGRES_PASSWORD=password'
+    ports:
+      - '5442:5432'

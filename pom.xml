@@ -20,6 +20,7 @@
 
     <modules>
         <module>spring_data_jpa_hibernate</module>
+        <module>hibernate_jpa</module>
     </modules>
 
     <properties>
