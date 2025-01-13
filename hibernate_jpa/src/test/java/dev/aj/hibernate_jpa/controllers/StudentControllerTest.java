@@ -9,7 +9,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {PostgresTestContainerConfiguration.class, TestDataConfig.class})
 @TestPropertySource(locations = {"/application-test.properties"}, properties = {
         "spring.jpa.properties.hibernate.format_sql=true",
@@ -33,16 +35,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StudentControllerTest {
 
     @Autowired
-    private RestClient restClient;
-
-    @Autowired
     private Faker faker;
 
     private List<Student> initiallySavedStudents;
+    @LocalServerPort
+    private int port;
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
+    @Autowired
+    private RestClient.Builder restClientBuilder;
+
+    private RestClient restClient;
 
     @BeforeAll
     void beforeAll() {
+
+        restClient = restClientBuilder.baseUrl(String.format("http://localhost:%d/%s", port, contextPath))
+                .defaultHeader("Content-Type", "application/json")
+                .defaultHeader("Accept", "application/json")
+                .build();
+
         List<Student> initialStudents = getStudentStream().limit(5).toList();
+
         initiallySavedStudents = restClient.post()
                 .uri("/student/list")
                 .body(initialStudents)

@@ -8,11 +8,14 @@ import dev.aj.hibernate_jpa.entities.dtos.EmployeeDTO;
 import dev.aj.hibernate_jpa.entities.mappers.EmployeeCreateMapper;
 import dev.aj.hibernate_jpa.repositories.impl.EmployeeDaoImpl;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +26,7 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 import java.util.stream.Stream;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {PostgresTestContainerConfiguration.class, TestDataConfig.class})
 @TestPropertySource(locations = {"/application-test.properties"}, properties = {
         "spring.jpa.hibernate.ddl-auto=create",
@@ -38,9 +41,6 @@ class EmployeeControllerTest {
     private Faker faker;
 
     @Autowired
-    private RestClient restClient;
-
-    @Autowired
     private EmployeeCreateMapper employeeCreateMapper;
 
     @Autowired
@@ -48,8 +48,23 @@ class EmployeeControllerTest {
 
     private EmployeeDTO createdEmployee;
 
+    @LocalServerPort
+    private int port;
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
+    @Autowired
+    private RestClient.Builder restClientBuilder;
+
+    private RestClient restClient;
+
     @BeforeAll
     void beforeAll() {
+        restClient = restClientBuilder.baseUrl(String.format("http://localhost:%d/%s", port, contextPath))
+                .defaultHeader("Content-Type", "application/json")
+                .defaultHeader("Accept", "application/json")
+                .build();
 
         EmployeeCreateDTO employeeCreateDTO = getEmployeeStream().limit(1).findFirst().orElseThrow();
 
@@ -60,6 +75,11 @@ class EmployeeControllerTest {
                 .toEntity(EmployeeDTO.class);
 
         createdEmployee = createdEmployeeResponse.getBody();
+    }
+
+    @AfterAll
+    void afterAll() {
+
     }
 
     private Stream<EmployeeCreateDTO> getEmployeeStream() {
