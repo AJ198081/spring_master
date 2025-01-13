@@ -1,0 +1,37 @@
+package dev.aj.hibernate_jpa.entities;
+
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+@Entity
+@Table(name = "employee", schema = "sc_hibernate")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@EntityListeners(AuditingEntityListener.class)
+public class Employee {
+
+    @Id
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.SEQUENCE)
+    private Long id;
+
+    private String firstName;
+    private String lastName;
+    private String email;
+
+    @Embedded
+    @Builder.Default
+    private AuditMetaData auditMetaData = new AuditMetaData();
+}

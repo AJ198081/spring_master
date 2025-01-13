@@ -21,4 +21,6 @@ public interface StudentService {
     Student findStudentByLastNameOrEmailLike(String partialLastName, String partialPhoneNumber);
 
     Student updateExistingStudent(Student existingStudent);
+
+    List<Student> saveListOfStudents(List<Student> students);
 }

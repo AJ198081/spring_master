@@ -174,7 +174,6 @@
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
                         <arg>-Amapstruct.defaultComponentModel=spring</arg>
-                        <arg>-Amapstruct.defaultInjectionStrategy=constructor</arg>
                         <arg>-Amapstruct.unmappedTargetPolicy=WARN</arg>
                         <arg>-Amapstruct.unmappedSourcePolicy=WARN</arg>
                     </compilerArgs>

@@ -25,7 +25,7 @@ public class StudentDaoImpl implements StudentDao {
     @Override
     @Transactional
     public List<Student> saveAllStudents(List<Student> students) {
-        students.forEach(student -> entityManager.persist(student));
+        students.forEach(entityManager::persist);
         return students;
     }
 
@@ -50,9 +50,8 @@ public class StudentDaoImpl implements StudentDao {
     @Override
     @Transactional
     public int deleteAllStudents() {
-       int numberOdDeletedStudents = entityManager.createQuery("delete from Student")
-                .executeUpdate();
-       return numberOdDeletedStudents;
+        return entityManager.createQuery("delete from Student")
+                 .executeUpdate();
     }
 
     @Override

@@ -24,10 +24,9 @@ public class TestDataConfig {
 
     @Bean
     public RestClient restClient(RestClient.Builder builder) {
-        builder.baseUrl(String.format("http://localhost:%d/%s", serverPort, contextPath))
-                .defaultHeader("content-type", "application/json")
-                .defaultHeader("accept", "application/json");
-
-        return builder.build();
+        return builder.baseUrl(String.format("http://localhost:%d/%s", serverPort, contextPath))
+                .defaultHeader("Content-Type", "application/json")
+                .defaultHeader("Accept", "application/json")
+                .build();
     }
 }

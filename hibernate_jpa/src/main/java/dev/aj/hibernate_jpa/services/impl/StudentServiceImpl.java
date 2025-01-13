@@ -31,7 +31,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student findStudentById(Long id) {
-        return studentDao.findById(id);
+        Student retrievedStudent = studentDao.findById(id);
+        if(retrievedStudent == null) {
+            throw new IllegalArgumentException(String.format("Unable to find student with id: %d", id));
+        }
+        return retrievedStudent;
     }
 
     @Override
@@ -63,6 +67,11 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student updateExistingStudent(Student existingStudent) {
         return studentDao.updateStudent(existingStudent);
+    }
+
+    @Override
+    public List<Student> saveListOfStudents(List<Student> students) {
+        return studentDao.saveAllStudents(students);
     }
 
 }
