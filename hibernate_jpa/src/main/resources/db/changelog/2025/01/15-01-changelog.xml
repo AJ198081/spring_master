@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="1736922777676-1" author="AJ">
+        <createSequence incrementBy="50" schemaName="sc_hibernate" sequenceName="employee_seq" startValue="1"/>
+    </changeSet>
+
+    <changeSet id="1736922777676-2" author="AJ">
+        <createSequence incrementBy="50" schemaName="public" sequenceName="security_user_seq" startValue="1000"/>
+    </changeSet>
+
+    <changeSet id="1736922777676-3" author="AJ">
+        <createSequence incrementBy="50" schemaName="sc_hibernate" sequenceName="student_seq" startValue="1"/>
+    </changeSet>
+
+    <changeSet id="1736922777676-4" author="AJ">
+        <createTable schemaName="sc_hibernate" tableName="employee">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_employee"/>
+            </column>
+            <column name="first_name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="last_modified_by" type="VARCHAR(255)"/>
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1736922777676-5" author="AJ">
+        <createTable schemaName="public" tableName="users">
+            <column name="security_user_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
+            </column>
+            <column name="username" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(40)"/>
+            <column defaultValueBoolean="false" name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="account_non_expired" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="account_non_locked" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="credentials_non_expired" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1736922777676-6" author="AJ">
+        <createTable schemaName="sc_hibernate" tableName="student">
+            <column name="student_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_student"/>
+            </column>
+            <column name="first_name" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="VARCHAR(15)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1736922777676-7" author="AJ">
+        <addUniqueConstraint columnNames="username" constraintName="uc_users_username" schemaName="public"
+                             tableName="users"/>
+    </changeSet>
+
+</databaseChangeLog>

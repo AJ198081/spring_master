@@ -55,6 +55,9 @@ class StudentControllerTest {
         restClient = restClientBuilder.baseUrl(String.format("http://localhost:%d/%s", port, contextPath))
                 .defaultHeader("Content-Type", "application/json")
                 .defaultHeader("Accept", "application/json")
+//                TL:password USER - Ctrl Alt 6
+//                .defaultHeader("Authorization", "Basic VEw6cGFzc3dvcmQ=")
+                .defaultHeader("Authorization", "Basic UFc6cGFzc3dvcmQ=")
                 .build();
 
         List<Student> initialStudents = getStudentStream().limit(5).toList();

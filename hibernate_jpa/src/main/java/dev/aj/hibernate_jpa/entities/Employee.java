@@ -1,5 +1,6 @@
 package dev.aj.hibernate_jpa.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -27,8 +28,13 @@ public class Employee {
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.SEQUENCE)
     private Long id;
 
+    @Column(nullable = false, columnDefinition = "VARCHAR(60)")
     private String firstName;
+
+    @Column(nullable = false, columnDefinition = "VARCHAR(60)")
     private String lastName;
+
+    @Column(nullable = false, columnDefinition = "VARCHAR(100)")
     private String email;
 
     @Embedded

@@ -12,12 +12,16 @@
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>hibernate_jpa</name>
-	<description>Hibernate concepts - ready to explore further</description>
+	<description>Spring Web, Hibernate and associated test concepts - ready to explore further</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 	</dependencies>
 </project>

@@ -2,6 +2,7 @@ package dev.aj.hibernate_jpa.controllers;
 
 import com.github.javafaker.Faker;
 import dev.aj.hibernate_jpa.PostgresTestContainerConfiguration;
+import dev.aj.hibernate_jpa.SecurityUserInit;
 import dev.aj.hibernate_jpa.TestDataConfig;
 import dev.aj.hibernate_jpa.entities.dtos.EmployeeCreateDTO;
 import dev.aj.hibernate_jpa.entities.dtos.EmployeeDTO;
@@ -27,12 +28,16 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {PostgresTestContainerConfiguration.class, TestDataConfig.class})
+@Import(value = {PostgresTestContainerConfiguration.class, TestDataConfig.class, SecurityUserInit.class})
 @TestPropertySource(locations = {"/application-test.properties"}, properties = {
+        "spring.docker.compose.enabled=false",
+        "spring.liquibase.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create",
         "spring.jpa.properties.hibernate.format_sql=true",
         "spring.jpa.properties.hibernate.show_sql=true",
-        "logging.level.org.hibernate.orm.jdbc.bind=trace"
+        "logging.level.org.hibernate.orm.jdbc.bind=trace",
+        "logging.level.root=off",
+//        "logging.level.org.springframework.*=trace"
 })
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EmployeeControllerTest {
@@ -64,6 +69,10 @@ class EmployeeControllerTest {
         restClient = restClientBuilder.baseUrl(String.format("http://localhost:%d/%s", port, contextPath))
                 .defaultHeader("Content-Type", "application/json")
                 .defaultHeader("Accept", "application/json")
+                // PW:password - ADMIN
+                .defaultHeader("Authorization", "Basic UFc6cGFzc3dvcmQ=")
+                // TL:password - USER
+//                .defaultHeader("Authorization", "Basic VEw6cGFzc3dvcmQ=")
                 .build();
 
         EmployeeCreateDTO employeeCreateDTO = getEmployeeStream().limit(1).findFirst().orElseThrow();

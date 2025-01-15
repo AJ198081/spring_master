@@ -4,9 +4,10 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <include file="db/changelog/2025/01/01-schema-creation.xml"/>
-    <include file="db/changelog/2025/01/15-01-changelog.xml"/>
-    <include file="db/changelog/2025/01/15-02-changelog.xml"/>
-    <include file="db/changelog/2025/01/15-03-changelog.xml"/>
-
+    <changeSet id="0" author="admin">
+        <sql>
+            create schema if not exists sc_hibernate;
+            alter schema sc_hibernate owner to admin;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
