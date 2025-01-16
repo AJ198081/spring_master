@@ -27,6 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {PostgresTestContainerConfiguration.class, TestDataConfig.class})
 @TestPropertySource(locations = {"/application-test.properties"}, properties = {
+        "spring.docker.compose.enabled=false",
+        "spring.liquibase.enabled=false",
         "spring.jpa.properties.hibernate.format_sql=true",
         "spring.jpa.properties.hibernate.show_sql=true",
         "logging.level.org.hibernate.orm.jdbc.bind=trace"

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="1737020039450-1" author="AJ">
+        <createSequence incrementBy="50" schemaName="public" sequenceName="security_user_seq" startValue="1000"/>
+    </changeSet>
+
+    <changeSet id="1737020039496-1" author="AJ">
+        <createSequence incrementBy="50" schemaName="sc_hibernate" sequenceName="employee_seq" startValue="1"/>
+    </changeSet>
+
+    <changeSet id="1737020039496-2" author="AJ">
+        <createSequence incrementBy="50" schemaName="sc_hibernate" sequenceName="student_seq" startValue="1"/>
+    </changeSet>
+
+    <changeSet id="1737020039450-2" author="AJ">
+        <createTable tableName="users" schemaName="public">
+            <column name="security_user_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
+            </column>
+            <column name="username" type="VARCHAR(40)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(68)"/>
+            <column defaultValueBoolean="false" name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="account_non_expired" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="account_non_locked" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="credentials_non_expired" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="created_date" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1737020039496-3" author="AJ">
+        <createTable schemaName="sc_hibernate" tableName="employee">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_employee"/>
+            </column>
+            <column name="first_name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="created_date" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_date" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1737020039496-4" author="AJ">
+        <createTable schemaName="sc_hibernate" tableName="student">
+            <column name="student_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_student"/>
+            </column>
+            <column name="first_name" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="VARCHAR(15)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1737020207323-1" author="AJ">
+        <createTable tableName="authorities" schemaName="public">
+            <column name="authority" type="varchar(50)" />
+            <column name="username" type="varchar(50)" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1737020564058-1" author="AJ">
+        <addForeignKeyConstraint
+                baseTableSchemaName="public"
+                baseTableName="authorities"
+                baseColumnNames="username"
+                constraintName="fk_username_authorities"
+                referencedTableSchemaName="public"
+                referencedTableName="users"
+                referencedColumnNames="username" />
+    </changeSet>
+
+</databaseChangeLog>

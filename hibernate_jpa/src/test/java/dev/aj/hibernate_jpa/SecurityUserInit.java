@@ -7,6 +7,7 @@ import dev.aj.hibernate_jpa.repositories.impl.SecurityUserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,7 @@ public class SecurityUserInit {
 
     private final Faker faker;
     private final SecurityUserRepository securityUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostConstruct
     void initSecurityUser() {
@@ -34,23 +36,22 @@ public class SecurityUserInit {
         securityUserRepository.saveAll(List.of(
                 SecurityUser.builder()
                         .username("TL")
-                        .password("{noop}password")
+                        .password(passwordEncoder.encode("password"))
                         .authorities(List.of("ROLE_USER"))
                         .build(),
                 SecurityUser.builder()
                         .username("PW")
-                        .password("{noop}password")
+                        .password(passwordEncoder.encode("password"))
                         .authorities(List.of("ROLE_ADMIN"))
                         .build()
         ));
-
     }
 
     private Stream<SecurityUser> getSecurityUsers() {
 
         return Stream.generate(() -> SecurityUser.builder()
                 .username(faker.name().username())
-                .password("{noop}".concat(faker.internet().password()))
+                .password(passwordEncoder.encode(faker.internet().password()))
                 .authorities(getAuthorities())
                 .build()
         );
@@ -63,6 +64,4 @@ public class SecurityUserInit {
                 .map(RoleLevel::toString)
                 .toList();
     }
-
-
 }

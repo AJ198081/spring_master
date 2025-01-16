@@ -13,19 +13,19 @@ import java.time.ZonedDateTime;
 public class AuditMetaData {
 
     @CreatedBy
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false, columnDefinition = "VARCHAR(50)")
     private String createdBy;
 
     @LastModifiedBy
-    @Column(insertable = false)
+    @Column(insertable = false, columnDefinition = "VARCHAR(50)")
     private String lastModifiedBy;
 
     @CreatedDate
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private ZonedDateTime createdDate;
 
     @LastModifiedDate
-    @Column(insertable = false)
+    @Column(insertable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private ZonedDateTime lastModifiedDate;
 
 }

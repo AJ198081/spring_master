@@ -37,7 +37,7 @@ public class SecurityUser implements UserDetails {
     @Column(nullable = false, unique = true, name = "username", columnDefinition = "VARCHAR(40)")
     private String username;
 
-    @Column(columnDefinition = "VARCHAR(40)")
+    @Column(columnDefinition = "VARCHAR(68)")
     private String password;
 
     @Embedded

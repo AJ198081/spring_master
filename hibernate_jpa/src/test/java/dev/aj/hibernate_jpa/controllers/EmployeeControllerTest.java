@@ -169,8 +169,8 @@ class EmployeeControllerTest {
     @Test
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
             statements = {
-                    "insert into sc_hibernate.employee (email, first_name, last_name, id)" +
-                            " values ('abg@gmail.com', 'M', 'P', 1000)"
+                    "insert into sc_hibernate.employee (email, first_name, last_name, id, created_date, created_by)" +
+                            " values ('abg@gmail.com', 'M', 'P', 1000, '2025-01-16T20:50:56.818762900+11:00', 'AJ')"
             })
     void deleteEmployee() {
         ResponseEntity<Void> deleteResponse = restClient.delete()
