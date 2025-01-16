@@ -1,6 +1,7 @@
 package dev.aj.hibernate_jpa.repositories;
 
 import dev.aj.hibernate_jpa.entities.Employee;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface EmployeeDao {
 
     Employee update(Long id, Employee employeeToUpdate);
 
+    @Transactional
     void delete(Long id);
 
     List<Employee> createMultiple(List<Employee> employeesToBeCreated);

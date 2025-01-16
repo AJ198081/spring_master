@@ -47,8 +47,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
-        entityManager.createQuery("delete from Employee e where e.id=:id");
+        entityManager.createQuery("delete from Employee e where e.id=:id")
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     @Override

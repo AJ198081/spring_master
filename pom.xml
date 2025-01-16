@@ -21,6 +21,7 @@
     <modules>
         <module>spring_data_jpa_hibernate</module>
         <module>hibernate_jpa</module>
+        <module>spring_mvc</module>
     </modules>
 
     <properties>
