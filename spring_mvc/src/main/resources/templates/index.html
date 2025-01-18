@@ -23,10 +23,17 @@
                 </div>
 
                 <!-- Last Name -->
-                <div class="mb-3">
+                <div class="mb-3 form-group">
                     <label for="lastName" class="form-label">Last Name</label>
                     <input type="text" id="lastName" th:field="*{lastName}" class="form-control"
                            placeholder="Enter your last name">
+                    <span class="form-text"
+                          th:if="${#fields.hasErrors('lastName')}"
+                    >
+                            <span th:each="err : ${#fields.errors('lastName')}" th:text="${err}"
+                                class="text-danger">
+                            </span>
+                    </span>
                 </div>
 
                 <!-- Email -->
@@ -85,7 +92,8 @@
                 <div class="mb-3">
                     <label for="os" class="form-label">Operating Systems</label>
                     <div class="row">
-                        <input type="checkbox" id="os" class="form-check col mx-auto" th:multiple="${operatingSystems.size() > 3}"
+                        <input type="checkbox" id="os" class="form-check col mx-auto"
+                               th:multiple="${operatingSystems.size() > 3}"
                                th:field="*{operatingSystem}"
                                th:each="availableOS: ${operatingSystems}"
                                th:value="${availableOS}"
@@ -95,10 +103,18 @@
                 </div>
 
                 <!-- Password -->
-                <div class="mb-3">
+                <div class="mb-3 form-group">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" id="password" th:field="*{password}" class="form-control"
                            placeholder="Enter your password">
+
+                    <span class="form-text"
+                          th:if="${#fields.hasErrors('password')}"
+                    >
+                            <span th:each="err : ${#fields.errors('password')}" th:text="${err}"
+                                  class="text-danger">
+                            </span>
+                    </span>
                 </div>
 
                 <!-- Submit Button -->
