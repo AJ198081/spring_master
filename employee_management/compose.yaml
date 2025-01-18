@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: 'hibernate_container'
+    restart: no
+    environment:
+      - 'POSTGRES_DB=hibernate_jpa'
+      - 'POSTGRES_USER=admin'
+      - 'POSTGRES_PASSWORD=password'
+    ports:
+      - '5444:5432'
+    volumes:
+      - ./src/test/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
