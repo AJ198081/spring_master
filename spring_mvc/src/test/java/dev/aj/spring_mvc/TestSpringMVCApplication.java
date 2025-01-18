@@ -2,7 +2,7 @@ package dev.aj.spring_mvc;
 
 import org.springframework.boot.SpringApplication;
 
-public class TestHibernateJpaApplication {
+public class TestSpringMVCApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.from(SpringMvcApplication::main)
