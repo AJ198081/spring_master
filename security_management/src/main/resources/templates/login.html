@@ -14,7 +14,7 @@
     <div th:class="container"><h1 class="text-info">Login</h1></div>
 </nav>
 <div class="container">
-    <form th:action="@{/authenticate}" method="post" autocomplete="on">
+    <form th:action="@{/security/authenticate}" method="post" autocomplete="on">
         <div th:if="${param.logout}" class="text-center">
             <hr>
             <i class="text-success">You have successfully logged out.</i>

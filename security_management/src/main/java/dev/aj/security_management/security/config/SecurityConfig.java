@@ -41,23 +41,29 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "/security/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/security/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/security/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/management/leader").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/management/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        .anyRequest().denyAll()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(form -> form
                         .loginPage("/security/login")
-                        .loginProcessingUrl("/authenticate") //Spring Security will auto create this mapping
+                        .loginProcessingUrl("/security/authenticate") //Spring Security will auto create this controller mapping
                         .permitAll()
                         .successForwardUrl("/security/home")
                 )
                 .logout(logout -> logout
                         .logoutUrl("/security/logout")
                         .permitAll()
+                )
+                .exceptionHandling(configurer -> configurer
+                        .accessDeniedPage("/security/access-denied")
                 )
                 .build();
     }
