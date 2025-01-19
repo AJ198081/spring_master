@@ -49,6 +49,7 @@ public class MVCController {
     @InitBinder
     public void initBinder(org.springframework.web.bind.WebDataBinder binder) {
         StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
+//      binder.setValidator(null);
         binder.registerCustomEditor(String.class, stringTrimmerEditor);
     }
 

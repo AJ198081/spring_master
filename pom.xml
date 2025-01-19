@@ -23,6 +23,7 @@
         <module>hibernate_jpa</module>
         <module>spring_mvc</module>
         <module>employee_management</module>
+        <module>security_management</module>
     </modules>
 
     <properties>
@@ -34,7 +35,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -132,6 +136,12 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -175,9 +185,9 @@
                     </annotationProcessorPaths>
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
-                        <arg>-Amapstruct.defaultComponentModel=spring</arg>
-                        <arg>-Amapstruct.unmappedTargetPolicy=WARN</arg>
-                        <arg>-Amapstruct.unmappedSourcePolicy=WARN</arg>
+<!--                        <arg>-Amapstruct.defaultComponentModel=spring</arg>-->
+<!--                        <arg>-Amapstruct.unmappedTargetPolicy=WARN</arg>-->
+<!--                        <arg>-Amapstruct.unmappedSourcePolicy=WARN</arg>-->
                     </compilerArgs>
                 </configuration>
             </plugin>
