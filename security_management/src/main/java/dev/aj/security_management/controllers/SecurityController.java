@@ -21,6 +21,11 @@ public class SecurityController {
         return "login";
     }
 
+    @GetMapping(path = "/log-out")
+    public String logout() {
+        return "redirect:/security/login?logout";
+    }
+
     @RequestMapping(path = {"/home"}, method = {GET, POST})
     public String home(Model model) {
 

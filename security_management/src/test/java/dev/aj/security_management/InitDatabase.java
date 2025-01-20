@@ -23,14 +23,14 @@ public class InitDatabase {
 
         List<SecurityUser> securityUsers = List.of(
                 SecurityUser.builder()
-                        .username("TL")
-                        .password(passwordEncoder.encode("password"))
-                        .authorities(List.of("ROLE_USER"))
-                        .build(),
-                SecurityUser.builder()
                         .username("PW")
                         .password(passwordEncoder.encode("password"))
                         .authorities(List.of("ROLE_ADMIN"))
+                        .build(),
+                SecurityUser.builder()
+                        .username("TL")
+                        .password(passwordEncoder.encode("password"))
+                        .authorities(List.of("ROLE_USER"))
                         .build(),
                 SecurityUser.builder()
                         .username("AJ")

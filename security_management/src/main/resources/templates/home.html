@@ -22,8 +22,9 @@
             <span th:class="mx-2" th:text="${#authentication.getAuthorities()}">Role</span>-->
             <span class="mx-2" th:text="${username}">Username</span>
             <span class="mx-2"  th:text="${roles}">Role</span>
-            <a type="submit" class="btn btn-danger mx-2" th:href="@{/security/logout}">Logout <i
-                    class="bi bi-box-arrow-in-right"></i></a>
+            <form th:action="@{/security/logout}" method="post" class="mx-2 d-inline">
+                <button type="submit" class="btn btn-danger">Logout <i class="bi bi-box-arrow-in-right"></i></button>
+            </form>
         </span>
     </div>
 </nav>
