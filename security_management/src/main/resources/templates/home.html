@@ -31,9 +31,12 @@
 <div class="container">
     <h2 th:class="mt-3">Welcome to Spring Security Management</h2>
     <p>
-        <a th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}" th:href="@{/management/leader}" class="btn btn-primary">Leaders Management</a>
-        <a th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" th:href="@{/management/admin}" class="btn btn-primary">Admin Management</a>
-        <a th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}" th:href="@{/management/admin}" class="btn btn-primary">Users shouldn't view the target resource</a>
+<!--        <a th:if="${#authorization.expression('hasRole(''ROLE_MANAGER'')')}" th:href="@{/management/leader}" class="btn btn-primary">Leaders Management</a>-->
+        <a sec:authorize="hasRole('ROLE_MANAGER')" th:href="@{/management/leader}" class="btn btn-primary">Leaders Management</a>
+<!--        <a th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" th:href="@{/management/admin}" class="btn btn-primary">Admin Management</a>-->
+        <a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/management/admin}" class="btn btn-primary">Admin Management</a>
+<!--        <a th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}" th:href="@{/management/admin}" class="btn btn-primary">Users shouldn't view the target resource</a>-->
+        <a sec:authorize="hasRole('ROLE_USER')" th:href="@{/management/admin}" class="btn btn-primary">Users shouldn't view the target resource</a>
     </p>
 </div>
 
