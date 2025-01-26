@@ -24,6 +24,8 @@
         <module>spring_mvc</module>
         <module>employee_management</module>
         <module>security_management</module>
+        <module>blog_server</module>
+        <module>full_stack_v1</module>
     </modules>
 
     <properties>

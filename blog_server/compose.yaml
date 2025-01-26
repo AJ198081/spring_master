@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: 'blog_management_container'
+    restart: no
+    environment:
+      - 'POSTGRES_DB=blog_management_database'
+      - 'POSTGRES_USER=admin'
+      - 'POSTGRES_PASSWORD=password'
+    ports:
+      - '5447:5432'
+    volumes:
+      - ./src/test/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
