@@ -1,12 +1,18 @@
+import {NavBar} from "./components/NavBar.tsx";
+import {ExploreTopBooks} from "./components/HomePage/ExploreTopBooks.tsx";
+import {Carousel} from "./components/HomePage/Carousel.tsx";
+import {Child} from "./scratches/Child.tsx";
 
 function App() {
 
-    const element_name = "rest_assured_it_will_work";
-
-  return (<div className="container">
-          <div className={"text-capitalize"}>{element_name.replace(/_/g, " ")}</div>
-    </div>
-  )
+    return (
+        <>
+            <NavBar/>
+            <ExploreTopBooks />
+            <Carousel />
+            <Child color="blue" />
+        </>
+);
 }
 
 export default App

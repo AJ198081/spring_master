@@ -26,6 +26,7 @@
         <module>security_management</module>
         <module>blog_server</module>
         <module>full_stack_v1</module>
+        <module>full_stack_v2</module>
     </modules>
 
     <properties>
