@@ -30,6 +30,7 @@ public class TestConfig {
     public RestClient restClient() {
         return RestClient.builder()
                 .baseUrl("http://localhost:%d".formatted(port))
+                .defaultHeader(HttpHeaders.ORIGIN, "http://localhost:%d".formatted(port))
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
