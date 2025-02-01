@@ -13,22 +13,22 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 public class PostgresTestContainerConfiguration {
 
-	@Bean
-	@ServiceConnection
-	PostgreSQLContainer<?> postgresContainer() {
-		return new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"))
-				.withDatabaseName("full_stack_v2_management")
-				.withUsername("admin")
-				.withPassword("password")
-				.withAccessToHost(true)
-				.withReuse(true)
-				.withExposedPorts(5432)
-				.withInitScript("db/init.sql")
-				.withCreateContainerCmdModifier(createContainerCmd -> {
-					createContainerCmd.withHostConfig(new HostConfig().withPortBindings(
-							new PortBinding(Ports.Binding.bindPort(5453), new ExposedPort(5432))
-					));
-				});
-	}
+    @Bean
+    @ServiceConnection
+    PostgreSQLContainer<?> postgresContainer() {
+        return new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"))
+                .withDatabaseName("full_stack_v2_management")
+                .withUsername("admin")
+                .withPassword("password")
+                .withAccessToHost(true)
+                .withReuse(true)
+                .withExposedPorts(5432)
+                .withInitScript("db/init.sql")
+                .withCreateContainerCmdModifier(createContainerCmd -> {
+                    createContainerCmd.withHostConfig(new HostConfig().withPortBindings(
+                            new PortBinding(Ports.Binding.bindPort(5453), new ExposedPort(5432))
+                    ));
+                });
+    }
 
 }

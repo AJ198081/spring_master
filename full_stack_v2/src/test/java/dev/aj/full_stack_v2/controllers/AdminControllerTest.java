@@ -112,7 +112,8 @@ class AdminControllerTest {
         ResponseEntity<List<SecurityUser>> usersResponse = restClient.get()
                 .uri("/users")
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {});
+                .toEntity(new ParameterizedTypeReference<>() {
+                });
 
         SecurityUser securityUser = Objects.requireNonNull(usersResponse.getBody())
                 .stream()

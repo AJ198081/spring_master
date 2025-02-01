@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 @TestConfiguration(proxyBeanMethods = false)
-@Profile( "test")
+@Profile("test")
 @RequiredArgsConstructor
 public class TestConfig {
 

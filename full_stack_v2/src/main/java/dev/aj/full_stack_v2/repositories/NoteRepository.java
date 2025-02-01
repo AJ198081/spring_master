@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {
     Note findNoteById(Long id);
+
     List<Note> findAllByOwnerUsername(String username);
 }

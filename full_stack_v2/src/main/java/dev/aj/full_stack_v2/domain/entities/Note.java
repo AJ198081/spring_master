@@ -22,7 +22,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(name = "notes")
 @AllArgsConstructor
 @NoArgsConstructor(force = true, access = AccessLevel.PUBLIC)
-@Getter @Setter
+@Getter
+@Setter
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Note {

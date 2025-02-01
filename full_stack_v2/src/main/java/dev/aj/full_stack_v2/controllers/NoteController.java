@@ -4,7 +4,6 @@ import dev.aj.full_stack_v2.domain.entities.Note;
 import dev.aj.full_stack_v2.services.NoteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,7 +48,7 @@ public class NoteController {
 
     @DeleteMapping(path = "/{noteId}")
     public ResponseEntity<HttpStatus> deleteNoteForUser(@AuthenticationPrincipal UserDetails userDetails,
-                                                  @PathVariable Long noteId) {
+                                                        @PathVariable Long noteId) {
         noteService.deleteNoteForUser(userDetails.getUsername(), noteId);
         return ResponseEntity.accepted().build();
     }
