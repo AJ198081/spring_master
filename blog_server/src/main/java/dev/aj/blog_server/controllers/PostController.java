@@ -3,7 +3,9 @@ package dev.aj.blog_server.controllers;
 import dev.aj.blog_server.domain.entities.Post;
 import dev.aj.blog_server.repositories.PostRepository;
 import dev.aj.blog_server.services.PostService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,8 +34,11 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Post post) {
-        return ResponseEntity.ok(postService.save(post));
+    public ResponseEntity<Post> createPost(@RequestBody Post post, HttpServletRequest request) {
+
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "%s://%s:%d".formatted(request.getScheme(), request.getServerName(), request.getServerPort()));
+        return ResponseEntity.ok().body(postService.save(post));
     }
 
 }

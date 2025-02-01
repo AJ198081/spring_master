@@ -3,9 +3,7 @@ package dev.aj.full_stack_v2.controllers;
 import com.github.javafaker.Faker;
 import dev.aj.full_stack_v2.PostgresTestContainerConfiguration;
 import dev.aj.full_stack_v2.TestConfig;
-import dev.aj.full_stack_v2.TestSecurityConfig;
 import dev.aj.full_stack_v2.domain.entities.Note;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -27,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import({PostgresTestContainerConfiguration.class, TestSecurityConfig.class, TestConfig.class})
+@Import({PostgresTestContainerConfiguration.class, TestConfig.class})
 @TestPropertySource(locations = "/application-test.properties", properties = {
         "logging.level.org.springframework.security=trace"
 })

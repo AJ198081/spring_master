@@ -27,6 +27,7 @@ public class JpaAuditingConfig {
 
     @Bean
     DateTimeProvider dateTimeProvider() {
+
         return () -> Optional.of(ZonedDateTime.now());
     }
 }

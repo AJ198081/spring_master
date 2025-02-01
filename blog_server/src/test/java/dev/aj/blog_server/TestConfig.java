@@ -30,15 +30,17 @@ public class TestConfig {
     public RestClient restClient() {
         return RestClient.builder()
                 .baseUrl("http://localhost:%d".formatted(port))
-                .defaultHeader(HttpHeaders.ORIGIN, "http://localhost:%d".formatted(port))
+                .defaultHeader(HttpHeaders.ORIGIN, "http://localhost:%d".formatted(port + 10))
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
     @Bean
     public Stream<Post> generateStreamOfPosts(Faker faker) {
+
         return Stream.generate(() -> Post.builder()
-                .title(faker.lorem().sentence())
+                .title(faker.lorem().characters(10, 50, true, true))
+                .description(faker.lorem().paragraph())
                 .build());
     }
 

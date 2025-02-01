@@ -25,7 +25,7 @@ public class Comment {
     @SequenceGenerator(name = "comment_id_seq_generator", sequenceName = "comment_id_seq", schema = "bm_schema", allocationSize = 10, initialValue = 1000)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, columnDefinition = "TEXT")
     private String text;
 
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)

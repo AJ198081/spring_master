@@ -28,13 +28,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class PostControllerTest {
 
     @Autowired
-    private Stream<Post> postStream;
-
-    @Autowired
-    private Stream<Comment> commentStream;
-
-    @Autowired
     private RestClient restClient;
+
+    @Autowired
+    private TestConfig testConfig;
+    @Autowired
+    private Faker faker;
 
     @Test
     void getPosts() {
@@ -42,7 +41,7 @@ class PostControllerTest {
 
     @Test
     void createPostWithoutComments() {
-        Post post = postStream.limit(1).findFirst().orElseThrow();
+        Post post = testConfig.generateStreamOfPosts(faker).limit(1).findFirst().orElseThrow();
 
         ResponseEntity<Post> entity = restClient.post()
                 .uri("/posts")
@@ -57,8 +56,8 @@ class PostControllerTest {
 
     @Test
     void createPostWithComments() {
-        Post post = postStream.limit(1).findFirst().orElseThrow();
-        Comment comment = commentStream.limit(1).findFirst().orElseThrow();
+        Post post = testConfig.generateStreamOfPosts(faker).limit(1).findFirst().orElseThrow();
+        Comment comment = testConfig.generateStreamOfComments(faker).limit(1).findFirst().orElseThrow();
         Set<Comment> comments = new HashSet<>();
         comments.add(comment);
         post.setComments(comments);

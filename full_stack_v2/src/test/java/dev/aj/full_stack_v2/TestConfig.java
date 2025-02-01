@@ -2,19 +2,26 @@ package dev.aj.full_stack_v2;
 
 import com.github.javafaker.Faker;
 import dev.aj.full_stack_v2.domain.entities.Note;
+import dev.aj.full_stack_v2.domain.entities.security.SecurityUser;
+import dev.aj.full_stack_v2.repositories.SecurityUserRepository;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestClient;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
 @TestConfiguration(proxyBeanMethods = false)
 @Profile( "test")
+@RequiredArgsConstructor
 public class TestConfig {
 
     @Value("${security.username: a}")
@@ -22,6 +29,10 @@ public class TestConfig {
 
     @Value("${security.password: p}")
     private String securityPassword;
+
+    private final SecurityUserRepository securityUserRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public Faker faker() {
@@ -45,5 +56,23 @@ public class TestConfig {
                 .build();
     }
 
+    @PostConstruct
+    public void init() {
+        if (securityUserRepository.count() > 0) {
+            return;
+        }
+        securityUserRepository.saveAll(List.of(
+                SecurityUser.builder()
+                        .username(securityUserName)
+                        .password(passwordEncoder.encode(securityPassword))
+                        .authorities(List.of("ROLE_USER"))
+                        .build(),
+                SecurityUser.builder()
+                        .username("AJ")
+                        .password(passwordEncoder.encode(securityPassword))
+                        .authorities(List.of("ROLE_ADMIN"))
+                        .build()
+        ));
+    }
 
 }

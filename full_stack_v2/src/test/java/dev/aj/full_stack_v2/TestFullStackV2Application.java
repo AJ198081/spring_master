@@ -6,8 +6,8 @@ class TestFullStackV2Application {
 
     public static void main(String[] args) {
         SpringApplication.from(FullStackV2Application::main)
+                .with(PostgresTestContainerConfiguration.class, TestConfig.class)
                 .withAdditionalProfiles("test")
-                .with(PostgresTestContainerConfiguration.class, TestSecurityConfig.class)
                 .run(args);
     }
 }
