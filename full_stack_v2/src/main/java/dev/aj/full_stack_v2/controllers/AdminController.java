@@ -33,6 +33,7 @@ public class AdminController {
     @GetMapping(path = "/users")
 //    @Secured(value = {"ROLE_ADMIN", "ROLE_USER"})
     @PreAuthorize(value = "hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")  // Both are synonymous
+//    @Secured(value = {"ROLE_ADMIN"})
     public ResponseEntity<List<SecurityUser>> getUsers() {
         List<SecurityUser> users = securityUserService.getAllUsersInDatabase();
 
@@ -46,7 +47,7 @@ public class AdminController {
         }
 
         try {
-            securityUsers = objectMapper.readValue(jsonResponse, new TypeReference<List<SecurityUser>>() {
+            securityUsers = objectMapper.readValue(jsonResponse, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

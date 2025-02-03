@@ -13,17 +13,15 @@ import java.io.IOException;
 @Configuration
 public class GrantedAuthorityToStringDeserializer {
 
-/*
-    @Bean
+ /*   @Bean
     Jackson2ObjectMapperBuilderCustomizer customizer() {
         return builder -> builder.deserializerByType(GrantedAuthority.class, new JsonDeserializer<String>() {
             @Override
             public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
-                return p.readValueAs(String.class);
+                return p.getValueAsString().toUpperCase();
             }
         });
-    }
-*/
+    }*/
 
     @Bean
     Jackson2ObjectMapperBuilderCustomizer customizer2() {
@@ -35,4 +33,5 @@ public class GrantedAuthorityToStringDeserializer {
                     }
                 });
     }
+
 }

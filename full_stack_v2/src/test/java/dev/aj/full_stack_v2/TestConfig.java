@@ -65,12 +65,12 @@ public class TestConfig {
                 SecurityUser.builder()
                         .username(securityUserName)
                         .password(passwordEncoder.encode(securityPassword))
-                        .authorities(List.of("ROLE_USER"))
+                        .roles(List.of("ROLE_USER"))
                         .build(),
                 SecurityUser.builder()
                         .username("AJ")
                         .password(passwordEncoder.encode(securityPassword))
-                        .authorities(List.of("ROLE_ADMIN"))
+                        .roles(List.of("ROLE_ADMIN"))
                         .build()
         ));
     }
