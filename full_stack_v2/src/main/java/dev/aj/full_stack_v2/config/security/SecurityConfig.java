@@ -59,8 +59,7 @@ public class SecurityConfig {
                 .addFilterBefore(loggingFilter, BasicAuthenticationFilter.class)
                 .csrf(csrf -> csrf
                                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//                        .ignoringRequestMatchers("/api/admin/role", "/api/admin/user")
-                                .ignoringRequestMatchers("/api/admin/**", "/api/auth/public/**")
+                                .ignoringRequestMatchers("/api/admin/**", "/api/notes/**", "/api/auth/public/**")
                 )
                 .exceptionHandling(exceptionHandler ->
                         exceptionHandler

@@ -1,6 +1,5 @@
 package dev.aj.full_stack_v2.config.security.controller;
 
-import com.github.javafaker.Faker;
 import dev.aj.full_stack_v2.PostgresTestContainerConfiguration;
 import dev.aj.full_stack_v2.TestConfig;
 import dev.aj.full_stack_v2.domain.dto.LoginRequest;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -51,7 +49,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void throwsExceptionWhenCallingAuthenticateUser() {
+    void successfullyAuthenticatesUserAndGetsJwtToken() {
 
         ResponseEntity<LoginResponse> loginResponse = restClient.post()
                 .uri("/login")
@@ -63,6 +61,12 @@ class AuthControllerTest {
                 .toEntity(LoginResponse.class);
 
         assertThat(loginResponse.getStatusCode()).isEqualTo(ResponseEntity.status(200).build().getStatusCode());
-
+        assertThat(loginResponse.getBody()).isNotNull()
+                .satisfies(response -> {
+                    assertThat(response.username()).isEqualTo(securityUsername);
+                    assertThat(response.jwtToken()).isNotBlank();
+                    assertThat(response.jwtToken().split("\\.").length).isEqualTo(3);
+                    assertThat(response.roles()).containsExactly("ROLE_USER");
+                });
     }
 }
