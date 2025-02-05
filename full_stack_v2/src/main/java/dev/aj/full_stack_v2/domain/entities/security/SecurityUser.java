@@ -54,8 +54,8 @@ public class SecurityUser implements UserDetails, CredentialsContainer {
     @CollectionTable(name = "authorities", schema = "public", joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"))
     @MapKeyColumn(name = "username")
     @Column(name = "authority", columnDefinition = "VARCHAR(40)")
-    @JsonProperty("roles")
-    private List<String> roles = new ArrayList<>();
+    @JsonProperty("authorities")
+    private List<String> authorities = new ArrayList<>();
 
     @Builder.Default
     private String twoFactorSecret = null;
@@ -87,9 +87,10 @@ public class SecurityUser implements UserDetails, CredentialsContainer {
     private boolean credentialsNonExpired = true;
 
     @Override
+//    @JsonDeserialize(as = ArrayList.class, contentAs = SimpleGrantedAuthority.class)
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(SimpleGrantedAuthority::new).toList();
+        return authorities.stream().map(SimpleGrantedAuthority::new).toList();
     }
 
     @Override

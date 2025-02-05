@@ -1,7 +1,5 @@
 package dev.aj.full_stack_v2.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.aj.full_stack_v2.domain.entities.security.SecurityUser;
 import dev.aj.full_stack_v2.services.impl.SecurityUserService;
@@ -36,6 +34,7 @@ public class AdminController {
 //    @Secured(value = {"ROLE_ADMIN"})
     public ResponseEntity<List<SecurityUser>> getUsers() {
         List<SecurityUser> users = securityUserService.getAllUsersInDatabase();
+/*
 
         String jsonResponse;
         List<SecurityUser> securityUsers;
@@ -54,6 +53,7 @@ public class AdminController {
         }
 
         users = securityUsers;
+*/
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("X-User-Count", String.valueOf(users.size()));

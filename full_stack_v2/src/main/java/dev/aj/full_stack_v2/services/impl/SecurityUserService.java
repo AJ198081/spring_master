@@ -89,7 +89,7 @@ public class SecurityUserService implements UserDetailsManager {
         }
 
         if (userToBeUpdated.getAuthorities() != null) {
-            existingUser.setRoles(userToBeUpdated.getAuthorities().stream()
+            existingUser.setAuthorities(userToBeUpdated.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList());
         }
@@ -106,7 +106,7 @@ public class SecurityUserService implements UserDetailsManager {
         SecurityUser existingUser = securityUserRepository.findByUsername(username);
         List<String> roles = new ArrayList<>();
         roles.add(role);
-        existingUser.setRoles(roles);
+        existingUser.setAuthorities(roles);
         securityUserRepository.save(existingUser);
 
         return role;

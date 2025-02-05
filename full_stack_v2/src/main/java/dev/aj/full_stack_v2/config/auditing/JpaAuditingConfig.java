@@ -19,7 +19,9 @@ public class JpaAuditingConfig {
         return () -> {
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 return Optional.of("AJ");
-            } else {
+            } else if (SecurityContextHolder.getContext().getAuthentication().getPrincipal().equals("anonymousUser")) {
+                return Optional.of("REGISTRATION");
+            }else {
                 return Optional.of(SecurityContextHolder.getContext().getAuthentication().getName());
             }
         };
@@ -27,7 +29,6 @@ public class JpaAuditingConfig {
 
     @Bean
     DateTimeProvider dateTimeProvider() {
-
         return () -> Optional.of(ZonedDateTime.now());
     }
 }

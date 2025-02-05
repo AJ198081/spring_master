@@ -33,3 +33,9 @@ build/
 .vscode/
 
 *.csv
+
+**/frontend/.idea
+**/frontend/node_modules/**
+**/frontend/package-lock.json
+
+**/node_modules/**

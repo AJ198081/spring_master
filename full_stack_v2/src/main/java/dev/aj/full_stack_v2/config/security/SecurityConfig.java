@@ -48,8 +48,7 @@ public class SecurityConfig {
 
         return httpSecurity
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/test1").permitAll()
-                        .requestMatchers("/api/auth/public/login", "/api/auth/public/signup").permitAll()
+                        .requestMatchers("/api/auth/public/login", "/api/auth/public/signup", "/api/csrf-token/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/admin/role").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
