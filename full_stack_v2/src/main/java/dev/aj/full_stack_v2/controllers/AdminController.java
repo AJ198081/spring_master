@@ -34,32 +34,18 @@ public class AdminController {
 //    @Secured(value = {"ROLE_ADMIN"})
     public ResponseEntity<List<SecurityUser>> getUsers() {
         List<SecurityUser> users = securityUserService.getAllUsersInDatabase();
-/*
-
-        String jsonResponse;
-        List<SecurityUser> securityUsers;
-
-        try {
-            jsonResponse = objectMapper.writeValueAsString(users);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            securityUsers = objectMapper.readValue(jsonResponse, new TypeReference<>() {
-            });
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        users = securityUsers;
-*/
-
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("X-User-Count", String.valueOf(users.size()));
 
         return ResponseEntity.ok().headers(httpHeaders).body(users);
     }
+
+    @GetMapping(path = "/user")
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<SecurityUser> getUser(@AuthenticationPrincipal SecurityUser currentUser) {
+        return ResponseEntity.ok(currentUser);
+    }
+
 
     @PostMapping(path = "user")
     public ResponseEntity<SecurityUser> createUser(@RequestBody SecurityUser securityUser) {
