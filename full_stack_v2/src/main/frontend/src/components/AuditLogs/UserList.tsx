@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import {AxiosInstance} from "../../services/api.js";
-import { DataGrid } from "@mui/x-data-grid";
+import {DataGrid} from "@mui/x-data-grid";
 import toast from "react-hot-toast";
-import { Blocks } from "react-loader-spinner";
-import Errors from "../Errors.js";
+import {Blocks} from "react-loader-spinner";
+import {Errors} from "../Errors.js";
 import moment from "moment";
-import { Link } from "react-router-dom";
-import { MdOutlineEmail } from "react-icons/md";
-import { MdDateRange } from "react-icons/md";
+import {Link} from "react-router-dom";
+import {MdDateRange, MdOutlineEmail} from "react-icons/md";
 
 //Material ui data grid has used for the table
 //initialize the columns for the tables and (field) value is used to show data in a specific column dynamically
@@ -41,7 +40,7 @@ export const userListsColumns = [
             return (
                 <div className=" flex  items-center justify-center  gap-1 ">
           <span>
-            <MdOutlineEmail className="text-slate-700 text-lg" />
+            <MdOutlineEmail className="text-slate-700 text-lg"/>
           </span>
                     <span>{params?.row?.email}</span>
                 </div>
@@ -63,7 +62,7 @@ export const userListsColumns = [
             return (
                 <div className=" flex justify-center  items-center  gap-1 ">
           <span>
-            <MdDateRange className="text-slate-700 text-lg" />
+            <MdDateRange className="text-slate-700 text-lg"/>
           </span>
                     <span>{params?.row?.created}</span>
                 </div>
@@ -148,7 +147,7 @@ export const UserList = () => {
     });
 
     if (error) {
-        return <Errors message={error} />;
+        return <Errors message={error}/>;
     }
 
     return (

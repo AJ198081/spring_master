@@ -1,12 +1,12 @@
 import {ReactNode} from "react";
 import {BrandItem} from "./BrandItem";
 
-import { IoIosPartlySunny } from "react-icons/io";
-import { AiOutlineGlobal } from "react-icons/ai";
-import { MdOutlineSecurity } from "react-icons/md";
-import { SiPythonanywhere } from "react-icons/si";
-import { TbPackageExport } from "react-icons/tb";
-import { FcAssistant } from "react-icons/fc";
+import {IoIosPartlySunny} from "react-icons/io";
+import {AiOutlineGlobal} from "react-icons/ai";
+import {MdOutlineSecurity} from "react-icons/md";
+import {SiPythonanywhere} from "react-icons/si";
+import {TbPackageExport} from "react-icons/tb";
+import {FcAssistant} from "react-icons/fc";
 
 export const Brands = (): ReactNode => {
     return (

@@ -1,22 +1,21 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import {useEffect, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import {AxiosInstance} from "../services/api";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+import {FcGoogle} from "react-icons/fc";
+import {FaGithub} from "react-icons/fa";
 import Divider from "@mui/material/Divider";
 import {Button} from "./Button";
 import {InputField} from "./InputField";
-import { useForm } from "react-hook-form";
+import {useForm} from "react-hook-form";
 import toast from "react-hot-toast";
-import { useEffect } from "react";
 import {useApiContext} from "../hooks/ApiContextHook.ts";
 
 export const Signup = () => {
-    const apiUrl = import.meta.env.VITE_FULL_STACK_V2_BASE_URL;
-    const [role, setRole] = useState();
-    const [loading, setLoading] = useState(false);
+    const apiUrl: string = import.meta.env.VITE_FULL_STACK_V2_BASE_URL;
+    const [role, setRole] = useState<string>();
+    const [loading, setLoading] = useState<boolean>(false);
     // Access the token and setToken function using the useMyContext hook from the ContextProvider
-    const { token } = useApiContext();
+    const {token} = useApiContext();
     const navigate = useNavigate();
 
     //react hook form initialization
@@ -25,7 +24,7 @@ export const Signup = () => {
         handleSubmit,
         reset,
         setError,
-        formState: { errors },
+        formState: {errors},
     } = useForm({
         defaultValues: {
             username: "",
@@ -39,8 +38,8 @@ export const Signup = () => {
         setRole("ROLE_USER");
     }, []);
 
-    const onSubmitHandler = async (data) => {
-        const { username, email, password } = data;
+    const onSubmitHandler = async (data: { username: string; email: string; password: string; }) => {
+        const {username, email, password} = data;
         const sendData = {
             username,
             email,
@@ -63,11 +62,11 @@ export const Signup = () => {
             if (
                 error?.response?.data?.message === "Error: Username is already taken!"
             ) {
-                setError("username", { message: "username is already taken" });
+                setError("username", {message: "username is already taken"});
             } else if (
                 error?.response?.data?.message === "Error: Email is already in use!"
             ) {
-                setError("email", { message: "Email is already in use" });
+                setError("email", {message: "Email is already in use"});
             }
         } finally {
             setLoading(false);
@@ -98,7 +97,7 @@ export const Signup = () => {
                             className="flex gap-1 items-center justify-center flex-1 border p-2 shadow-sm shadow-slate-200 rounded-md hover:bg-slate-300 transition-all duration-300"
                         >
               <span>
-                <FcGoogle className="text-2xl" />
+                <FcGoogle className="text-2xl"/>
               </span>
                             <span className="font-semibold sm:text-customText text-xs">
                 Login with Google
@@ -109,7 +108,7 @@ export const Signup = () => {
                             className="flex gap-1 items-center justify-center flex-1 border p-2 shadow-sm shadow-slate-200 rounded-md hover:bg-slate-300 transition-all duration-300"
                         >
               <span>
-                <FaGithub className="text-2xl" />
+                <FaGithub className="text-2xl"/>
               </span>
                             <span className="font-semibold sm:text-customText text-xs">
                 Login with Github
@@ -155,9 +154,8 @@ export const Signup = () => {
                 </div>
                 <Button
                     disabled={loading}
-                    onClickhandler={() => {}}
                     className="bg-customRed font-semibold flex justify-center text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
-                    type="text"
+                    type="button"
                 >
                     {loading ? <span>Loading...</span> : "Register"}
                 </Button>

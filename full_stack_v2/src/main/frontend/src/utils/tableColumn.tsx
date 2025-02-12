@@ -12,7 +12,7 @@ export const auditLogscolumn = [
 
         headerClassName: "text-black font-semibold border",
         cellClassName: "text-slate-700 font-normal  border",
-        renderHeader: (params) => <span className="ps-10">Action</span>,
+        renderHeader: () => <span className="ps-10">Action</span>,
     },
 
     {
@@ -25,7 +25,7 @@ export const auditLogscolumn = [
         align: "center",
         headerClassName: "text-black font-semibold border",
         cellClassName: "text-slate-700 font-normal  border",
-        renderHeader: (params) => <span className="ps-10">UserName</span>,
+        renderHeader: () => <span className="ps-10">UserName</span>,
     },
 
     {
@@ -38,8 +38,8 @@ export const auditLogscolumn = [
         align: "center",
         headerClassName: "text-black font-semibold border",
         cellClassName: "text-slate-700 font-normal  border",
-        renderHeader: (params) => <span className="ps-10">TimeStamp</span>,
-        renderCell: (params) => {
+        renderHeader: () => <span className="ps-10">TimeStamp</span>,
+        renderCell: (params: { row: { timestamp: string | number }; }) => {
             return (
                 <div className=" flex  items-center justify-center  gap-1 ">
                 <span>
@@ -60,7 +60,7 @@ export const auditLogscolumn = [
         align: "center",
         headerClassName: "text-black font-semibold border",
         cellClassName: "text-slate-700 font-normal  border",
-        renderHeader: (params) => <span>NoteId</span>,
+        renderHeader: () => <span>NoteId</span>,
     },
     {
         field: "note",
@@ -72,8 +72,8 @@ export const auditLogscolumn = [
         align: "center",
         headerClassName: "text-black font-semibold ",
         cellClassName: "text-slate-700 font-normal  ",
-        renderHeader: (params) => <span className="ps-10">Note Content</span>,
-        renderCell: (params) => {
+        renderHeader: () => <span className="ps-10">Note Content</span>,
+        renderCell: (params: { value: string; }) => {
             const contens = JSON.parse(params?.value)?.content;
 
             const response = auditLogsTruncateTexts(contens, 50);

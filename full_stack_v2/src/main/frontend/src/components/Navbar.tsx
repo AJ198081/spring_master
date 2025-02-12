@@ -1,8 +1,15 @@
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import {useState} from "react";
 import {useApiContext} from "../hooks/ApiContextHook.ts";
+import {RxCross2} from "react-icons/rx";
+import {IoMenu} from "react-icons/io5";
 
 export const Navbar = () => {
     const navigate = useNavigate();
+
+    //handle the header opening and closing menu for the tablet/mobile device
+    const [headerToggle, setHeaderToggle] = useState<boolean>(false);
+    const pathName = useLocation().pathname;
 
     const {
         token,
@@ -10,86 +17,125 @@ export const Navbar = () => {
         isAdmin,
         setIsAdmin,
         setCurrentUser,
-        setOpenSidebar,
     } = useApiContext();
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('isAdmin');
-        localStorage.removeItem('USER');
-        localStorage.removeItem('CSRF_TOKEN');
-
+        localStorage.removeItem("JWT_TOKEN"); // Updated to remove token from localStorage
+        localStorage.removeItem("USER"); // Remove user details as well
+        localStorage.removeItem("CSRF_TOKEN");
+        localStorage.removeItem("IS_ADMIN");
         setToken(null);
-        setIsAdmin(false);
         setCurrentUser(null);
-        setOpenSidebar(false);
-        navigate('/login');
-    }
+        setIsAdmin(false);
+        navigate("/login");
+    };
 
-    return (<nav className="navbar navbar-expand-lg bg-body-tertiary">
-        <div className="container-fluid">
-            <a className="navbar-brand" href="#">Home</a>
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                    {token && (<>
-                        <li className="nav-item">
-                            <Link to={"/notes"}>
-                                <a className="nav-link" aria-current="page">My Notes</a>
+    return (
+        <header className="h-headerHeight z-50 text-textColor bg-headerColor shadow-sm  flex items-center sticky top-0">
+            <nav className="sm:px-10 px-4 flex w-full h-full items-center justify-between">
+                <Link to="/">
+                    {" "}
+                    <h3 className=" font-dancingScript text-logoText">Secure Notes</h3>
+                </Link>
+                <ul
+                    className={`lg:static  absolute left-0  top-16 w-full lg:w-fit lg:px-0 sm:px-10 px-4  lg:bg-transparent bg-headerColor   ${
+                        headerToggle
+                            ? "min-h-fit max-h-navbarHeight lg:py-0 py-4 shadow-md shadow-slate-700 lg:shadow-none"
+                            : "h-0 overflow-hidden "
+                    }  lg:h-auto transition-all duration-100 font-montserrat text-textColor flex lg:flex-row flex-col lg:gap-8 gap-2`}
+                >
+                    {token && (
+                        <>
+                            <Link to="/notes">
+                                <li
+                                    className={` ${
+                                        pathName === "/notes" ? "font-semibold " : ""
+                                    } py-2 cursor-pointer  hover:text-slate-300 `}
+                                >
+                                    My Notes
+                                </li>
                             </Link>
-                        </li>
-
-                        <li className="nav-item">
-                            <Link to={"/create-note"}>
-                                <a className="nav-link" aria-current="page">Create Note</a>
+                            <Link to="/create-note">
+                                <li
+                                    className={` py-2 cursor-pointer  hover:text-slate-300 ${
+                                        pathName === "/create-note" ? "font-semibold " : ""
+                                    } `}
+                                >
+                                    Create Note
+                                </li>
                             </Link>
-                        </li>
-                    </>)}
+                        </>
+                    )}
 
-                    <Link to={"/contact"}>
-                        <li className="nav-item">
-                            <a className="nav-link" aria-current="page">Contact</a>
+                    <Link to="/contact">
+                        <li
+                            className={`${
+                                pathName === "/contact" ? "font-semibold " : ""
+                            } py-2 cursor-pointer hover:text-slate-300`}
+                        >
+                            Contact
                         </li>
                     </Link>
 
-                    <Link to={"/about"}>
-                        <li className="nav-item">
-                            <a className="nav-link" aria-current="page">About</a>
+                    <Link to="/about">
+                        <li
+                            className={`py-2 cursor-pointer hover:text-slate-300 ${
+                                pathName === "/about" ? "font-semibold " : ""
+                            }`}
+                        >
+                            About
                         </li>
                     </Link>
 
                     {token ? (
                         <>
-                            <Link to={"/profile"}>
-                                <li className="nav-item">
-                                    <a className="nav-link" aria-current="page">Profile</a>
+                            <Link to="/profile">
+                                <li
+                                    className={` py-2 cursor-pointer  hover:text-slate-300 ${
+                                        pathName === "/profile" ? "font-semibold " : ""
+                                    }`}
+                                >
+                                    Profile
                                 </li>
-                            </Link>
-                            {isAdmin && (<Link to={"/admin/users"}>
-                                <li className="nav-item">
-                                    <a className="nav-link" aria-current="page">Admin</a>
-                                </li>
-                            </Link>)}
-                            <button className="btn btn-outline-danger" onClick={handleLogout}>Logout</button>
+                            </Link>{" "}
+                            {isAdmin && (
+                                <Link to="/admin/users">
+                                    <li
+                                        className={` py-2 cursor-pointer uppercase   hover:text-slate-300 ${
+                                            pathName.startsWith("/admin") ? "font-semibold " : ""
+                                        }`}
+                                    >
+                                        Admin
+                                    </li>
+                                </Link>
+                            )}
+                            <button
+                                onClick={handleLogout}
+                                className="w-24 text-center bg-customRed font-semibold px-4 py-2 rounded-sm cursor-pointer hover:text-slate-300"
+                            >
+                                LogOut
+                            </button>
                         </>
-                    )
-                    : (
-                        <Link to={"/signup"}>
-                            <li className="nav-item">
-                                Signup
+                    ) : (
+                        <Link to="/signup">
+                            <li className="w-24 text-center bg-btnColor font-semibold px-4 py-2 rounded-sm cursor-pointer hover:text-slate-300">
+                                SignUp
                             </li>
                         </Link>
-                        )}
+                    )}
                 </ul>
-                <form className="d-flex" role="search">
-                    <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-                    <button className="btn btn-outline-success" type="submit">Search</button>
-                </form>
-            </div>
-        </div>
-    </nav>);
+                <span
+                    onClick={() => setHeaderToggle(!headerToggle)}
+                    className="lg:hidden block cursor-pointer text-textColor  shadow-md hover:text-slate-400"
+                >
+          {headerToggle ? (
+              <RxCross2 className=" text-2xl"/>
+          ) : (
+              <IoMenu className=" text-2xl"/>
+          )}
+        </span>
+            </nav>
+        </header>
+
+    );
 }

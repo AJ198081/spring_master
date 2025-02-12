@@ -1,20 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {useCallback, useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 import {AxiosInstance} from "../services/api";
 import "react-quill/dist/quill.snow.css";
-import { Blocks } from "react-loader-spinner";
+import {Blocks} from "react-loader-spinner";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 import moment from "moment";
-import { DataGrid } from "@mui/x-data-grid";
+import {DataGrid} from "@mui/x-data-grid";
 import {Button} from "./Button";
 import {Errors} from "./Errors";
 import toast from "react-hot-toast";
 import {Modals} from "./PopModal";
-import { auditLogscolumn } from "../utils/tableColumn";
+import {auditLogscolumn} from "../utils/tableColumn";
 
 export const NoteDetails = () => {
-    const { id } = useParams();
+    const {id} = useParams();
     //open modal for deleteing a note
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -111,7 +110,7 @@ export const NoteDetails = () => {
     //if there is an error
 
     if (error) {
-        return <Errors message={error} />;
+        return <Errors message={error}/>;
     }
 
     const handleChange = (content, delta, source, editor) => {
@@ -126,7 +125,7 @@ export const NoteDetails = () => {
 
         try {
             setNoteEditLoader(true);
-            const noteData = { content: editorContent };
+            const noteData = {content: editorContent};
             await AxiosInstance.put(`/notes/${id}`, noteData);
             toast.success("Note update successful");
             setEditEnable(false);
@@ -218,7 +217,7 @@ export const NoteDetails = () => {
                                                             header: [1, 2, 3, 4, 5, 6],
                                                         },
                                                     ],
-                                                    [{ size: [] }],
+                                                    [{size: []}],
                                                     [
                                                         "bold",
                                                         "italic",
@@ -227,10 +226,10 @@ export const NoteDetails = () => {
                                                         "blockquote",
                                                     ],
                                                     [
-                                                        { list: "ordered" },
-                                                        { list: "bullet" },
-                                                        { indent: "-1" },
-                                                        { indent: "+1" },
+                                                        {list: "ordered"},
+                                                        {list: "bullet"},
+                                                        {indent: "-1"},
+                                                        {indent: "+1"},
                                                     ],
                                                     ["clean"], // Moved "clean" into its own array
                                                 ],
@@ -254,7 +253,7 @@ export const NoteDetails = () => {
                                 <>
                                     <p
                                         className=" text-slate-900 ql-editor"
-                                        dangerouslySetInnerHTML={{ __html: note?.parsedContent }}
+                                        dangerouslySetInnerHTML={{__html: note?.parsedContent}}
                                     ></p>
 
                                     {isAdmin && (
@@ -288,7 +287,7 @@ export const NoteDetails = () => {
                     )}
                 </>
             </div>
-            <Modals open={modalOpen} setOpen={setModalOpen} noteId={id} />
+            <Modals open={modalOpen} setOpen={setModalOpen} noteId={id}/>
         </div>
     );
 };

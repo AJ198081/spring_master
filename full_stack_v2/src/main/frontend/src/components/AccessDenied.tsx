@@ -1,5 +1,5 @@
-import { FaExclamationTriangle } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import {FaExclamationTriangle} from "react-icons/fa";
+import {useNavigate} from "react-router-dom";
 
 export const AccessDenied = () => {
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ export const AccessDenied = () => {
         <div className="flex items-center justify-center min-h-[calc(100vh-74px)] bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4 text-center">
                 <div className="text-yellow-500 text-6xl mb-4 flex justify-center items-center">
-                    <FaExclamationTriangle />
+                    <FaExclamationTriangle/>
                 </div>
                 <h1 className="text-3xl font-bold mb-2">Access Denied</h1>
                 <p className="text-gray-600 mb-4">

@@ -1,19 +1,19 @@
-import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import {useCallback, useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
 import {AxiosInstance} from "../../services/api";
-import { useForm } from "react-hook-form";
+import {useForm} from "react-hook-form";
 import {InputField} from "../InputField";
-import { Blocks } from "react-loader-spinner";
+import {Blocks} from "react-loader-spinner";
 import {Button} from "../Button";
 import toast from "react-hot-toast";
-import Errors from "../Errors";
+import {Errors} from "../Errors";
 
 export const UserDetails = () => {
     const {
         register,
         handleSubmit,
         setValue,
-        formState: { errors },
+        formState: {errors},
     } = useForm({
         defaultValues: {
             username: "",
@@ -27,7 +27,7 @@ export const UserDetails = () => {
     const [updateRoleLoader, setUpdateRoleLoader] = useState(false);
     const [passwordLoader, setPasswordLoader] = useState(false);
 
-    const { userId } = useParams();
+    const {userId} = useParams();
     const [user, setUser] = useState(null);
     const [roles, setRoles] = useState([]);
     const [selectedRole, setSelectedRole] = useState("");
@@ -127,7 +127,7 @@ export const UserDetails = () => {
     };
 
     const handleCheckboxChange = async (e, updateUrl) => {
-        const { name, checked } = e.target;
+        const {name, checked} = e.target;
 
         let message = null;
         if (name === "lock") {
@@ -162,7 +162,7 @@ export const UserDetails = () => {
     };
 
     if (error) {
-        return <Errors message={error} />;
+        return <Errors message={error}/>;
     }
 
     return (
@@ -191,7 +191,7 @@ export const UserDetails = () => {
                         <div>
                             <h1 className="text-slate-800 text-2xl font-bold  pb-4">
                                 Profile Information
-                                <hr />
+                                <hr/>
                             </h1>
                             <form
                                 className="flex  flex-col  gap-2  "
@@ -270,7 +270,7 @@ export const UserDetails = () => {
                     <div className="lg:w-[70%] sm:w-[90%] w-full  mx-auto shadow-lg shadow-gray-300 p-8 rounded-md">
                         <h1 className="text-slate-800 text-2xl font-bold  pb-4">
                             Admin Actions
-                            <hr />
+                            <hr/>
                         </h1>
 
                         <div className="py-4 flex sm:flex-row flex-col sm:items-center items-start gap-4">
@@ -302,7 +302,7 @@ export const UserDetails = () => {
                             </button>
                         </div>
 
-                        <hr className="py-2" />
+                        <hr className="py-2"/>
                         <div className="flex flex-col gap-4 py-4">
                             <div className="flex items-center gap-2">
                                 <label className="text-slate-600 text-sm font-semibold uppercase">

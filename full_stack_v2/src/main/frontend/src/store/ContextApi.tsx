@@ -1,5 +1,16 @@
 import {createContext} from "react";
-import {ContextApiInterface} from "./ApiContext.tsx";
+import {SecurityUser} from "../types/Types.ts";
+
+export interface ContextApiInterface {
+    token: string | null;
+    setToken: (token: string | null) => void;
+    currentUser: SecurityUser | null;
+    setCurrentUser: (user: SecurityUser | null) => void;
+    openSidebar: boolean;
+    setOpenSidebar: (openSidebar: boolean) => void;
+    isAdmin: boolean;
+    setIsAdmin: (isAdmin: boolean) => void;
+}
 
 const initialContextApiValue: ContextApiInterface = {
     token: null,

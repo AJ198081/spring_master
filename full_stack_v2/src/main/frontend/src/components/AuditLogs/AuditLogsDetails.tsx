@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import {useCallback, useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
 import {AxiosInstance} from "../../services/api";
-import { DataGrid } from "@mui/x-data-grid";
-import { Blocks } from "react-loader-spinner";
-import Errors from "../Errors.js";
+import {DataGrid} from "@mui/x-data-grid";
+import {Blocks} from "react-loader-spinner";
+import {Errors} from "../Errors.js";
 import moment from "moment";
 
 //importing the the columns from the auditlogs
-import { auditLogscolumn } from "../../utils/tableColumn.js";
+import {auditLogscolumn} from "../../utils/tableColumn.js";
 
 export const AuditLogsDetails = () => {
-    const { noteId } = useParams();
+    const {noteId} = useParams();
     const [auditLogs, setAuditLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -18,7 +18,7 @@ export const AuditLogsDetails = () => {
     const fetchSingleAuditLogs = useCallback(async () => {
         setLoading(true);
         try {
-            const { data } = await AxiosInstance.get(`/audit/note/${noteId}`);
+            const {data} = await AxiosInstance.get(`/audit/note/${noteId}`);
 
             setAuditLogs(data);
         } catch (err) {
@@ -55,7 +55,7 @@ export const AuditLogsDetails = () => {
     });
 
     if (error) {
-        return <Errors message={error} />;
+        return <Errors message={error}/>;
     }
 
     return (
@@ -88,7 +88,7 @@ export const AuditLogsDetails = () => {
             ) : (
                 <>
                     {auditLogs.length === 0 ? (
-                        <Errors message="Invalid NoteId" />
+                        <Errors message="Invalid NoteId"/>
                     ) : (
                         <>
                             {" "}

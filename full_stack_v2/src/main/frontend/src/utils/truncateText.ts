@@ -1,6 +1,6 @@
-import { htmlToText } from "html-to-text";
+import {htmlToText} from "html-to-text";
 
-export const auditLogsTruncateTexts = (text, length = 25) => {
+export const auditLogsTruncateTexts = (text: string, length = 25) => {
     const plainText = htmlToText(text, {
         wordwrap: false, // Prevent automatic line wrapping
     });
@@ -10,7 +10,7 @@ export const auditLogsTruncateTexts = (text, length = 25) => {
     return plainText.substring(0, length) + ".....";
 };
 
-export const truncateText = (text) => {
+export const truncateText = (text: string) => {
     if (text.length < 300) return text;
 
     return text.substring(0, 300) + ".....";

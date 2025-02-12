@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import {useEffect, useState} from "react";
 import {AxiosInstance} from "../services/api";
 import Avatar from "@mui/material/Avatar";
 import Accordion from "@mui/material/Accordion";
@@ -6,19 +6,19 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import {InputField} from "./InputField";
-import { useForm } from "react-hook-form";
+import {useForm} from "react-hook-form";
 import {Button} from "./Button";
 import Switch from "@mui/material/Switch";
 import toast from "react-hot-toast";
-import { jwtDecode } from "jwt-decode";
-import { Blocks } from "react-loader-spinner";
+import {jwtDecode} from "jwt-decode";
+import {Blocks} from "react-loader-spinner";
 import moment from "moment";
 import {Errors} from "./Errors";
 import {useApiContext} from "../hooks/ApiContextHook.ts";
 
 export const UserProfile = () => {
     // Access the currentUser and token hook using the useMyContext custom hook from the ContextProvider
-    const { currentUser, token } = useApiContext();
+    const {currentUser, token} = useApiContext();
     //set the loggin session from the token
     const [loginSession, setLoginSession] = useState(null);
 
@@ -49,7 +49,7 @@ export const UserProfile = () => {
         handleSubmit,
         setValue,
 
-        formState: { errors },
+        formState: {errors},
     } = useForm({
         defaultValues: {
             username: currentUser?.username,
@@ -286,7 +286,7 @@ export const UserProfile = () => {
     };
 
     if (pageError) {
-        return <Errors message={pageError} />;
+        return <Errors message={pageError}/>;
     }
 
     //two function for opening and closing the according
@@ -322,7 +322,8 @@ export const UserProfile = () => {
             ) : (
                 <>
                     {" "}
-                    <div className="xl:w-[70%] lg:w-[80%] sm:w-[90%] w-full sm:mx-auto sm:px-0 px-4   min-h-[500px] flex lg:flex-row flex-col gap-4 ">
+                    <div
+                        className="xl:w-[70%] lg:w-[80%] sm:w-[90%] w-full sm:mx-auto sm:px-0 px-4   min-h-[500px] flex lg:flex-row flex-col gap-4 ">
                         <div className="flex-1  flex flex-col shadow-lg shadow-gray-300 gap-2 px-4 py-6">
                             <div className="flex flex-col items-center gap-2   ">
                                 <Avatar
@@ -353,7 +354,7 @@ export const UserProfile = () => {
                                         <AccordionSummary
                                             className="shadow-md shadow-gray-300"
                                             onClick={onOpenAccountHandler}
-                                            expandIcon={<ArrowDropDownIcon />}
+                                            expandIcon={<ArrowDropDownIcon/>}
                                             aria-controls="panel1-content"
                                             id="panel1-header"
                                         >
@@ -415,7 +416,7 @@ export const UserProfile = () => {
                                             <AccordionSummary
                                                 className="shadow-md shadow-gray-300"
                                                 onClick={onOpenSettingHandler}
-                                                expandIcon={<ArrowDropDownIcon />}
+                                                expandIcon={<ArrowDropDownIcon/>}
                                                 aria-controls="panel1-content"
                                                 id="panel1-header"
                                             >
@@ -432,9 +433,10 @@ export const UserProfile = () => {
                                                         <Switch
                                                             checked={accountExpired}
                                                             onChange={handleAccountExpiryStatus}
-                                                            inputProps={{ "aria-label": "controlled" }}
+                                                            inputProps={{"aria-label": "controlled"}}
                                                         />
-                                                    </div>{" "}
+                                                    </div>
+                                                    {" "}
                                                     <div>
                                                         <h3 className="text-slate-700 font-customWeight text-sm ">
                                                             Account Locked
@@ -442,9 +444,10 @@ export const UserProfile = () => {
                                                         <Switch
                                                             checked={accountLocked}
                                                             onChange={handleAccountLockStatus}
-                                                            inputProps={{ "aria-label": "controlled" }}
+                                                            inputProps={{"aria-label": "controlled"}}
                                                         />
-                                                    </div>{" "}
+                                                    </div>
+                                                    {" "}
                                                     <div>
                                                         <h3 className="text-slate-700 font-customWeight text-sm ">
                                                             Account Enabled
@@ -452,7 +455,7 @@ export const UserProfile = () => {
                                                         <Switch
                                                             checked={accountEnabled}
                                                             onChange={handleAccountEnabledStatus}
-                                                            inputProps={{ "aria-label": "controlled" }}
+                                                            inputProps={{"aria-label": "controlled"}}
                                                         />
                                                     </div>
                                                     <>
@@ -460,7 +463,8 @@ export const UserProfile = () => {
                                                             <h3 className="text-slate-700 font-customWeight text-sm ">
                                                                 Credential Setting
                                                             </h3>
-                                                            <div className="shadow-gray-300 shadow-md px-4 py-4 rounded-md">
+                                                            <div
+                                                                className="shadow-gray-300 shadow-md px-4 py-4 rounded-md">
                                                                 <p className="text-slate-700  text-sm ">
                                                                     Your credential will expired{" "}
                                                                     <span>{credentialExpireDate}</span>
@@ -475,7 +479,7 @@ export const UserProfile = () => {
                                                         <Switch
                                                             checked={credentialExpired}
                                                             onChange={handleCredentialExpiredStatus}
-                                                            inputProps={{ "aria-label": "controlled" }}
+                                                            inputProps={{"aria-label": "controlled"}}
                                                         />
                                                     </div>
                                                 </div>
@@ -489,7 +493,7 @@ export const UserProfile = () => {
                                         </h3>
                                         <div className="shadow-md shadow-gray-300 px-4 py-2 rounded-md">
                                             <p className="text-slate-700 text-sm">
-                                                Your Last LogIn Session when you are loggedin <br />
+                                                Your Last LogIn Session when you are loggedin <br/>
                                                 <span>{loginSession}</span>
                                             </p>
                                         </div>
@@ -541,7 +545,7 @@ export const UserProfile = () => {
                                 <div className="py-3">
                                     <Accordion>
                                         <AccordionSummary
-                                            expandIcon={<ArrowDropDownIcon />}
+                                            expandIcon={<ArrowDropDownIcon/>}
                                             aria-controls="panel1-content"
                                             id="panel1-header"
                                         >
@@ -551,7 +555,7 @@ export const UserProfile = () => {
                                         </AccordionSummary>
                                         <AccordionDetails>
                                             <div className="">
-                                                <img src={qrCodeUrl} alt="QR Code" />
+                                                <img src={qrCodeUrl} alt="QR Code"/>
                                                 <div className="flex items-center  gap-2  mt-4">
                                                     <input
                                                         type="text"

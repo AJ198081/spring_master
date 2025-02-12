@@ -4,19 +4,6 @@ import toast from "react-hot-toast";
 import {SecurityUser} from "../types/Types.ts";
 import {ContextApi} from "./ContextApi.tsx";
 
-export interface ContextApiInterface {
-    token: string | null;
-    setToken: (token: string | null) => void;
-    currentUser: SecurityUser | null;
-    setCurrentUser: (user: SecurityUser | null) => void;
-    openSidebar: boolean;
-    setOpenSidebar: (openSidebar: boolean) => void;
-    isAdmin: boolean;
-    setIsAdmin: (isAdmin: boolean) => void;
-}
-
-
-
 export const ContextProvider = ({children}: {children: ReactNode}) => {
 
     const tokenValue = localStorage.getItem('token');

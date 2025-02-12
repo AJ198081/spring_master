@@ -1,26 +1,25 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {AxiosInstance} from "../services/api";
-import { useForm } from "react-hook-form";
+import {useForm} from "react-hook-form";
 import {InputField} from "./InputField";
 import {Button} from "./Button";
-import { Divider } from "@mui/material";
+import {Divider} from "@mui/material";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import {Link, useNavigate} from "react-router-dom";
 import {useApiContext} from "../hooks/ApiContextHook.ts";
 
 export const ForgotPassword = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     // Access the token  using the useMyContext hook from the ContextProvider
-    const { token } = useApiContext();
+    const {token} = useApiContext();
 
     //react hook form initialization
     const {
         register,
         handleSubmit,
         reset,
-        formState: { errors },
+        formState: {errors},
     } = useForm({
         defaultValues: {
             email: "",
@@ -28,9 +27,9 @@ export const ForgotPassword = () => {
         mode: "onTouched",
     });
 
-    const onPasswordForgotHandler = async (data) => {
+    const onPasswordForgotHandler = async (data: { email: string; }) => {
         //destructuring email from the data object
-        const { email } = data;
+        const {email} = data;
 
         try {
             setLoading(true);
@@ -49,6 +48,7 @@ export const ForgotPassword = () => {
             //showing success message
             toast.success("Password reset email sent! Check your inbox.");
         } catch (error) {
+            console.log(error);
             toast.error("Error sending password reset email. Please try again.");
         } finally {
             setLoading(false);
@@ -90,9 +90,8 @@ export const ForgotPassword = () => {
                 </div>
                 <Button
                     disabled={loading}
-                    onClickhandler={() => {}}
                     className="bg-customRed font-semibold text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
-                    type="text"
+                    type="button"
                 >
                     {loading ? <span>Loading...</span> : "Send"}
                 </Button>

@@ -1,15 +1,14 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import {Fragment, useEffect, useState} from "react";
+import {useForm} from "react-hook-form";
+import {Link, useNavigate} from "react-router-dom";
 import {AxiosInstance} from "../services/api";
-import { jwtDecode } from "jwt-decode";
-import InputField from "../InputField/InputField";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+import {jwtDecode, JwtPayload} from "jwt-decode";
+import {InputField} from "./InputField";
+import {FcGoogle} from "react-icons/fc";
+import {FaGithub} from "react-icons/fa";
 import Divider from "@mui/material/Divider";
 import {Button} from "./Button";
 import toast from "react-hot-toast";
-import { useEffect } from "react";
 import {useApiContext} from "../hooks/ApiContextHook.ts";
 
 export const Login = () => {
@@ -18,7 +17,7 @@ export const Login = () => {
     const [jwtToken, setJwtToken] = useState("");
     const [loading, setLoading] = useState(false);
     // Access the token and setToken function using the useMyContext hook from the ContextProvider
-    const { setToken, token } = useApiContext();
+    const {setToken, token} = useApiContext();
     const navigate = useNavigate();
 
     //react hook form initialization
@@ -26,7 +25,7 @@ export const Login = () => {
         register,
         handleSubmit,
         reset,
-        formState: { errors },
+        formState: {errors},
     } = useForm({
         defaultValues: {
             username: "",
@@ -36,7 +35,8 @@ export const Login = () => {
         mode: "onTouched",
     });
 
-    const handleSuccessfulLogin = (token, decodedToken) => {
+    const handleSuccessfulLogin = (token: string, decodedToken: JwtPayload) => {
+        console.log("DecodedToken: ", decodedToken);
         const user = {
             username: decodedToken.sub,
             roles: decodedToken.roles ? decodedToken.roles.split(",") : [],
@@ -119,7 +119,7 @@ export const Login = () => {
     return (
         <div className="min-h-[calc(100vh-74px)] flex justify-center items-center">
             {step === 1 ? (
-                <React.Fragment>
+                <Fragment>
                     <form
                         onSubmit={handleSubmit(onLoginHandler)}
                         className="sm:w-[450px] w-[360px]  shadow-custom py-8 sm:px-8 px-4"
@@ -133,22 +133,22 @@ export const Login = () => {
                             </p>
                             <div className="flex items-center justify-between gap-1 py-5 ">
                                 <Link
-                                    to={`${apiUrl}/oauth2/authorization/google`}
+                                    to={`${import.meta.env.VITE_FULL_STACK_V2_BASE_URL}/oauth2/authorization/google`}
                                     className="flex gap-1 items-center justify-center flex-1 border p-2 shadow-sm shadow-slate-200 rounded-md hover:bg-slate-300 transition-all duration-300"
                                 >
                   <span>
-                    <FcGoogle className="text-2xl" />
+                    <FcGoogle className="text-2xl"/>
                   </span>
                                     <span className="font-semibold sm:text-customText text-xs">
                     Login with Google
                   </span>
                                 </Link>
                                 <Link
-                                    to={`${apiUrl}/oauth2/authorization/github`}
+                                    to={`${import.meta.env.VITE_FULL_STACK_V2_BASE_URL}/oauth2/authorization/github`}
                                     className="flex gap-1 items-center justify-center flex-1 border p-2 shadow-sm shadow-slate-200 rounded-md hover:bg-slate-300 transition-all duration-300"
                                 >
                   <span>
-                    <FaGithub className="text-2xl" />
+                    <FaGithub className="text-2xl"/>
                   </span>
                                     <span className="font-semibold sm:text-customText text-xs">
                     Login with Github
@@ -183,7 +183,8 @@ export const Login = () => {
                         </div>
                         <Button
                             disabled={loading}
-                            onClickhandler={() => {}}
+                            onClickhandler={() => {
+                            }}
                             className="bg-customRed font-semibold text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
                             type="text"
                         >
@@ -208,9 +209,9 @@ export const Login = () => {
                             </Link>
                         </p>
                     </form>
-                </React.Fragment>
+                </Fragment>
             ) : (
-                <React.Fragment>
+                <Fragment>
                     <form
                         onSubmit={handleSubmit(onVerify2FaHandler)}
                         className="sm:w-[450px] w-[360px]  shadow-custom py-8 sm:px-8 px-4"
@@ -240,14 +241,13 @@ export const Login = () => {
                         </div>
                         <Button
                             disabled={loading}
-                            onClickhandler={() => {}}
                             className="bg-customRed font-semibold text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
-                            type="text"
+                            type="button"
                         >
                             {loading ? <span>Loading...</span> : "Verify 2FA"}
                         </Button>
                     </form>
-                </React.Fragment>
+                </Fragment>
             )}
         </div>
     );

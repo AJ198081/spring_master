@@ -1,8 +1,8 @@
-import { useState } from "react";
+import {useState} from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { MdNoteAlt } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import {MdNoteAlt} from "react-icons/md";
+import {useNavigate} from "react-router-dom";
 import {AxiosInstance} from "../services/api";
 import {Button} from "./Button";
 import toast from "react-hot-toast";
@@ -24,7 +24,7 @@ export const CreateNote = () => {
         }
         try {
             setLoading(true);
-            const noteData = { content: editorContent };
+            const noteData = {content: editorContent};
             await AxiosInstance.post("/notes", noteData);
             toast.success("Note create successful");
             navigate("/notes");
@@ -41,7 +41,7 @@ export const CreateNote = () => {
                 <h1 className="font-montserrat  text-slate-800 sm:text-4xl text-2xl font-semibold ">
                     Create New Note
                 </h1>
-                <MdNoteAlt className="text-slate-700 text-4xl" />
+                <MdNoteAlt className="text-slate-700 text-4xl"/>
             </div>
 
             <div className="h-72 sm:mb-20  lg:mb-14 mb-28 ">
@@ -56,13 +56,13 @@ export const CreateNote = () => {
                                     header: [1, 2, 3, 4, 5, 6],
                                 },
                             ],
-                            [{ size: [] }],
+                            [{size: []}],
                             ["bold", "italic", "underline", "strike", "blockquote"],
                             [
-                                { list: "ordered" },
-                                { list: "bullet" },
-                                { indent: "-1" },
-                                { indent: "+1" },
+                                {list: "ordered"},
+                                {list: "bullet"},
+                                {indent: "-1"},
+                                {indent: "+1"},
                             ],
                             ["clean"],
                         ],

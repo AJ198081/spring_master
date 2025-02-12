@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import {useEffect} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode';
 import {useApiContext} from "../hooks/ApiContextHook.ts";
 
 export const OAuth2RedirectHandler = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { setToken, setIsAdmin } = useApiContext();
+    const {setToken, setIsAdmin} = useApiContext();
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);

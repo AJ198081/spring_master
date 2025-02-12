@@ -1,5 +1,5 @@
 import {ReactNode} from "react";
-import { Navigate } from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import {useApiContext} from "./../hooks/ApiContextHook.ts";
 
 interface ProtectedRouteProps {
@@ -7,15 +7,15 @@ interface ProtectedRouteProps {
     adminPage: boolean;
 }
 
-export const ProtectedRoute = ({ children, adminPage }: ProtectedRouteProps) => {
-    const { token, isAdmin } = useApiContext();
+export const ProtectedRoute = ({children, adminPage}: ProtectedRouteProps) => {
+    const {token, isAdmin} = useApiContext();
 
     if (!token) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/login"/>;
     }
 
     if (token && adminPage && !isAdmin) {
-        return <Navigate to="/access-denied" />;
+        return <Navigate to="/access-denied"/>;
     }
 
     return children;

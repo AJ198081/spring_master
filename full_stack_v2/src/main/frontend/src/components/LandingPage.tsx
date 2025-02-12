@@ -35,7 +35,7 @@ export const LandingPage = () => {
                     The #1 secure note-taking app.
                 </h3>
                 <p className="text-slate-700 text-center sm:w-[80%] w-[90%] mx-auto">
-                    Manage your notes effortlessly and securely. Just type, save, and
+                    Manage your notes effortlessly and securely. Just type, save, &
                     access them from anywhere with robust encryption and seamless
                     synchronization.
                 </p>
@@ -49,13 +49,13 @@ export const LandingPage = () => {
                         <>
                             <Link to="/create-note">
                                 <Button
-                                    className="sm:w-52 w-44 bg-customRed font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
+                                    className="sm:w-52 w-44 bg-red-600 font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
                                     Create Note
                                 </Button>
                             </Link>
                             <Link to="/notes">
                                 <Button
-                                    className="sm:w-52 w-44 bg-btnColor font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
+                                    className="sm:w-52 w-44 bg-blue-700 font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
                                     My Notes
                                 </Button>
                             </Link>

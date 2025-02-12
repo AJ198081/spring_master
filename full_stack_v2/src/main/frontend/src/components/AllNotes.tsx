@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
 import {AxiosInstance} from "../services/api";
 import {NoteItems} from "./NoteItems";
-import { FiFilePlus } from "react-icons/fi";
-import { Blocks } from "react-loader-spinner";
+import {FiFilePlus} from "react-icons/fi";
+import {Blocks} from "react-loader-spinner";
 import {Errors} from "./Errors";
 
 export const AllNotes = () => {
@@ -36,7 +36,7 @@ export const AllNotes = () => {
 
     //to show an errors
     if (error) {
-        return <Errors message={error} />;
+        return <Errors message={error}/>;
     }
 
     return (
@@ -75,8 +75,9 @@ export const AllNotes = () => {
                                     </p>
                                     <div className="w-full flex justify-center">
                                         <Link to="/create-note">
-                                            <button className="flex items-center px-4 py-2 bg-btnColor text-white rounded  focus:outline-none focus:ring-2 focus:ring-blue-300">
-                                                <FiFilePlus className="mr-2" size={24} />
+                                            <button
+                                                className="flex items-center px-4 py-2 bg-btnColor text-white rounded  focus:outline-none focus:ring-2 focus:ring-blue-300">
+                                                <FiFilePlus className="mr-2" size={24}/>
                                                 Create New Note
                                             </button>
                                         </Link>
@@ -85,9 +86,10 @@ export const AllNotes = () => {
                             </div>
                         ) : (
                             <>
-                                <div className="pt-10 grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-y-10 gap-x-5 justify-center">
+                                <div
+                                    className="pt-10 grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-y-10 gap-x-5 justify-center">
                                     {notes.map((item) => (
-                                        <NoteItems key={item.id} {...item} id={item.id} />
+                                        <NoteItems key={item.id} {...item} id={item.id}/>
                                     ))}
                                 </div>
                             </>

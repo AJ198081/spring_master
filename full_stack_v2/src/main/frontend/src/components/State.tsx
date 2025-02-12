@@ -11,7 +11,8 @@ export const State = () => {
                     <span className="text-slate-600 text-center sm:text-sm text-xs ">
             High Conversion Rate
           </span>
-                </div>{" "}
+                </div>
+                {" "}
                 <div className="flex flex-1 flex-col items-center justify-center gap-2">
           <span className="sm:text-4xl text-logoText text-slate-700 font-bold">
             42x
@@ -19,7 +20,8 @@ export const State = () => {
                     <span className="text-slate-600 text-center  sm:text-sm text-xs">
             Faster Impression
           </span>
-                </div>{" "}
+                </div>
+                {" "}
                 <div className="flex flex-1 flex-col items-center justify-center gap-2">
           <span className="sm:text-4xl text-logoText text-slate-700 font-bold">
             300%
@@ -49,7 +51,7 @@ export const State = () => {
                         <li>2x faster note retrieval</li>
                     </ul>
                     <div className="flex-1 overflow-hidden">
-                        <CardSlider />
+                        <CardSlider/>
                     </div>
                 </div>
             </div>

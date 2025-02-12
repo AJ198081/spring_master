@@ -1,7 +1,7 @@
-import { AiOutlineWarning } from "react-icons/ai";
+import {AiOutlineWarning} from "react-icons/ai";
 import Modal from "@mui/material/Modal";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {AxiosInstance} from "../services/api";
 import {useState} from "react";
 
@@ -11,7 +11,7 @@ interface ModalProps {
     noteId: number;
 }
 
-export function Modals({ open, setOpen, noteId } : ModalProps) {
+export function Modals({open, setOpen, noteId}: ModalProps) {
     const navigate = useNavigate();
     const [noteDeleteLoader, setNoteDeleteLoader] = useState(false);
 
@@ -40,7 +40,7 @@ export function Modals({ open, setOpen, noteId } : ModalProps) {
                 <div className="flex justify-center items-center h-full">
                     <div className="w-96 bg-headerColor rounded-lg shadow-xl max-w-md  px-6 py-10 m-4">
                         <div className="flex flex-col items-center justify-center">
-                            <AiOutlineWarning className="text-red-600 text-2xl" />
+                            <AiOutlineWarning className="text-red-600 text-2xl"/>
                         </div>
                         <p className="mt-4 text-white text-center">
                             Are you sure you want to delete this note?

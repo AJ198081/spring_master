@@ -15,12 +15,12 @@ AxiosInstance.interceptors.response.use(response => {
     if (response.config.url) {
         console.log(response.config.url);
         if (response.config.url.includes('login')) {
-            localStorage.removeItem('token');
+            localStorage.removeItem('JWT_TOKEN');
         }
     }
 
     if (response.status === 200) {
-        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('JWT_TOKEN', response.data.token);
     }
 
     return response;
@@ -30,9 +30,9 @@ AxiosInstance.interceptors.response.use(response => {
 
 AxiosInstance.interceptors.request.use(config => {
 
-    if (localStorage.getItem('token') !== null) {
-        console.log(localStorage.getItem('token'))
-        config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+    if (localStorage.getItem('JWT_TOKEN') !== null) {
+        console.log(localStorage.getItem('JWT_TOKEN'))
+        config.headers.Authorization = `Bearer ${localStorage.getItem('JWT_TOKEN')}`;
     }
 
     if (localStorage.getItem('CSRF_TOKEN') !== null) {

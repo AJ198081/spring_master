@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import {useState} from "react";
+import {Link, useSearchParams} from "react-router-dom";
 import {AxiosInstance} from "../services/api";
-import { useForm } from "react-hook-form";
-import { Divider } from "@mui/material";
+import {useForm} from "react-hook-form";
+import {Divider} from "@mui/material";
 import {InputField} from "./InputField";
 import toast from "react-hot-toast";
 import {Button} from "./Button";
@@ -12,7 +12,7 @@ export const ResetPassword = () => {
         register,
         handleSubmit,
         reset,
-        formState: { errors },
+        formState: {errors},
     } = useForm({
         defaultValues: {
             email: "",
@@ -24,7 +24,7 @@ export const ResetPassword = () => {
     const [searchParams] = useSearchParams();
 
     const handleResetPassword = async (data) => {
-        const { password } = data;
+        const {password} = data;
 
         const token = searchParams.get("token");
 
@@ -42,6 +42,7 @@ export const ResetPassword = () => {
             toast.success("Password reset successful! You can now log in.");
             reset();
         } catch (error) {
+            console.log(error);
             toast.error("Error resetting password. Please try again.");
         } finally {
             setLoading(false);
@@ -79,9 +80,8 @@ export const ResetPassword = () => {
                 </div>
                 <Button
                     disabled={loading}
-                    onClickhandler={() => {}}
                     className="bg-customRed font-semibold text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
-                    type="text"
+                    type="button"
                 >
                     {loading ? <span>Loading...</span> : "Submit"}
                 </Button>
