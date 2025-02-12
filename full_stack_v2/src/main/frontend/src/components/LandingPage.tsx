@@ -64,13 +64,13 @@ export const LandingPage = () => {
                         <>
                             <Link to="/login">
                                 <Button
-                                    className="sm:w-52 w-44 bg-customRed font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
+                                    className="sm:w-52 w-44 bg-red-600 font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
                                     SignIn
                                 </Button>
                             </Link>
                             <Link to="/signup">
                                 <Button
-                                    className="sm:w-52 w-44 bg-btnColor font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
+                                    className="sm:w-52 w-44 bg-blue-700 font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
                                     SignUp
                                 </Button>
                             </Link>

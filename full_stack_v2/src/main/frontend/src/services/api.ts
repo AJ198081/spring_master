@@ -30,16 +30,24 @@ AxiosInstance.interceptors.response.use(response => {
 
 AxiosInstance.interceptors.request.use(config => {
 
+    console.log(`${config.method} ${config.url}`);
+
     if (localStorage.getItem('JWT_TOKEN') !== null) {
         console.log(localStorage.getItem('JWT_TOKEN'))
         config.headers.Authorization = `Bearer ${localStorage.getItem('JWT_TOKEN')}`;
     }
 
-    if (localStorage.getItem('CSRF_TOKEN') !== null) {
+    if (localStorage.getItem('CSRF_TOKEN') !== null || localStorage.getItem('CSRF_TOKEN') === undefined) {
         config.headers['X-CSRF-TOKEN'] = localStorage.getItem('CSRF_TOKEN');
     } else {
-        axios.get(`${import.meta.env.VITE_FULLSTACK_V2_BASE_URL}/api/csrf-token`)
+        const csrfUrl = `${import.meta.env.VITE_FULL_STACK_V2_BASE_URL}/api/csrf-token`;
+        console.log("CSRF URL: ", csrfUrl);
+        axios.get(csrfUrl)
             .then(response => {
+                console.log("CSRF TOKEN: ", response.data.token);
+                console.log("CSRF TOKEN TYPE: ", typeof response.data.token);
+                console.log("CSRF TOKEN LENGTH: ", response.data.token.length);
+                console.log("Response: ", response.data);
                 localStorage.setItem('CSRF_TOKEN', response.data.token);
                 config.headers['X-CSRF-TOKEN'] = response.data.token;
             })

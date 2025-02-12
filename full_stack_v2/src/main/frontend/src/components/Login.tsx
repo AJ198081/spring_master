@@ -54,7 +54,7 @@ export const Login = () => {
     const onLoginHandler = async (data) => {
         try {
             setLoading(true);
-            const response = await AxiosInstance.post("/auth/public/signin", data);
+            const response = await AxiosInstance.post("/auth/public/login", data);
 
             //showing success message with react hot toast
             toast.success("Login Successful");
@@ -183,10 +183,9 @@ export const Login = () => {
                         </div>
                         <Button
                             disabled={loading}
-                            onClickhandler={() => {
-                            }}
-                            className="bg-customRed font-semibold text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
-                            type="text"
+                            onClickHandler={() => {console.log("Login clicked")}}
+                            className="bg-amber-700 font-semibold text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
+                            type="submit"
                         >
                             {loading ? <span>Loading...</span> : "LogIn"}
                         </Button>
