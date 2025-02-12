@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authorization.AuthorizationManagers;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -55,7 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/admin/role")
                             .hasRole("ADMIN")
                         .requestMatchers("/api/csrf-token","/api/auth/public/login", "/api/auth/public/signup")
-                        .permitAll()
+                            .permitAll()
                         .anyRequest()
                             .authenticated()
                 )

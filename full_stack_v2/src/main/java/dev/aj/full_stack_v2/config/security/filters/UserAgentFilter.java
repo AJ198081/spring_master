@@ -21,7 +21,7 @@ public class UserAgentFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String browser = request.getHeader(HttpHeaders.USER_AGENT);
         log.info("User Agent: {}", browser);
-        if (browser.contains("Mozilla")) {
+        if (!browser.contains("Mozilla")) {
             response.sendError(HttpStatus.CONFLICT.value(), "Invalid User Agent");
             return;
         }

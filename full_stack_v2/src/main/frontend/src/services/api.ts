@@ -13,16 +13,11 @@ export const AxiosInstance = axios.create({
 AxiosInstance.interceptors.response.use(response => {
 
     if (response.config.url) {
-        console.log(response.config.url);
-        if (response.config.url.includes('login')) {
+        if (response.config.url.includes('login') && response.status === 200) {
             localStorage.removeItem('JWT_TOKEN');
+            localStorage.setItem('JWT_TOKEN', response.data.jwtToken);
         }
     }
-
-    if (response.status === 200) {
-        localStorage.setItem('JWT_TOKEN', response.data.token);
-    }
-
     return response;
 }, error => {
     return Promise.reject(error);
