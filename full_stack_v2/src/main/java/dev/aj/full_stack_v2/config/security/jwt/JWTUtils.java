@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +47,7 @@ public class JWTUtils {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .claim("roles", userDetails.getAuthorities())
+                .claim("username", userDetails.getUsername().concat(" the great"))
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusMillis(jwtExpirationInMs)))
                 .signWith(key())
@@ -52,7 +55,7 @@ public class JWTUtils {
     }
 
     private Key key() {
-        byte[] base64DecodedSecret = Decoders.BASE64.decode(jwtSecret);
+//        byte[] base64DecodedSecret = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(Encoders.BASE64.encode(jwtSecret.getBytes()).getBytes());
     }
 
