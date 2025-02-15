@@ -11,6 +11,8 @@ export const ExpenseList = ({columns, data}: ExpenseListProps) => {
     const table: MRT_TableInstance<ExpenseResponse> = useMantineReactTable({columns, data});
 
     return <div>
-        <MantineReactTable table={table}/>
+        <MantineReactTable
+            table={table}
+        />
     </div>;
 }

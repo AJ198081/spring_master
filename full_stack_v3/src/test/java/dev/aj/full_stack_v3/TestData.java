@@ -28,7 +28,7 @@ public class TestData {
                 .name(faker.letterify("Expense-???", true))
                 .date(faker.date()
                         .between(
-                                Date.from(LocalDate.now().minusDays(30).atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                                Date.from(LocalDate.now().minusDays(365).atStartOfDay(ZoneId.systemDefault()).toInstant()),
                                 Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant())
                         ).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
                 .note(faker.lorem().sentence())

@@ -5,13 +5,10 @@ export interface ExpenseResponse {
     name: string;
     note: string;
     category: string;
-    date: string;
+    date: string | Date;
     amount: number;
 }
 
-export interface Error {
-    message: string;
-}
 
 export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     {
@@ -24,7 +21,7 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     },
     {
         accessorKey: 'note',
-        header: 'Note'
+        header: 'Note / Description '
     },
     {
         accessorKey: 'category',
@@ -32,7 +29,11 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     },
     {
         accessorKey: 'date',
-        header: 'Date'
+        header: 'Date',
+        filterVariant: "date-range",
+        sortingFn: "datetime",
+        enableColumnFilterModes: false,
+        Cell: ({cell}) => cell.getValue<Date>()?.toLocaleDateString()
     },
     {
         accessorKey: 'amount',
