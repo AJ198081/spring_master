@@ -29,6 +29,5 @@ public class ExpenseController {
     public ResponseEntity<List<ExpenseResponse>> saveExpenses(@RequestBody List<ExpenseRequest> expensesRequest) {
         return ResponseEntity.ok(expenseService.saveExpenses(expensesRequest));
     }
-
 }
 

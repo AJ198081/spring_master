@@ -1,5 +1,5 @@
-import {MantineReactTable, MRT_ColumnDef, useMantineReactTable} from "mantine-react-table";
-import {ExpenseResponse} from "../type/Types.ts";
+import {MantineReactTable, MRT_ColumnDef, MRT_TableInstance, useMantineReactTable} from "mantine-react-table";
+import {ExpenseResponse} from "../domain/Types.ts";
 
 export interface ExpenseListProps {
     columns: MRT_ColumnDef<ExpenseResponse>[];
@@ -8,8 +8,9 @@ export interface ExpenseListProps {
 
 export const ExpenseList = ({columns, data}: ExpenseListProps) => {
 
-    const table = useMantineReactTable({columns, data});
+    const table: MRT_TableInstance<ExpenseResponse> = useMantineReactTable({columns, data});
 
-    return <div className={'my-2'}><MantineReactTable table={table}/></div>;
-
+    return <div>
+        <MantineReactTable table={table}/>
+    </div>;
 }

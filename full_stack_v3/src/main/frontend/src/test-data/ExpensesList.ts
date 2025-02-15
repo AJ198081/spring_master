@@ -1,4 +1,4 @@
-import {ExpenseResponse} from "../type/Types.ts";
+import {ExpenseResponse} from "../domain/Types.ts";
 
 export const expensesList: ExpenseResponse[] = [
     

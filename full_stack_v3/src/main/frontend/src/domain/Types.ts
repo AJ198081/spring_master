@@ -1,3 +1,5 @@
+import {MRT_ColumnDef} from "mantine-react-table";
+
 export interface ExpenseResponse {
     expenseId: string;
     name: string;
@@ -7,7 +9,11 @@ export interface ExpenseResponse {
     amount: number;
 }
 
-export const columnsDescription = [
+export interface Error {
+    message: string;
+}
+
+export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     {
         accessorKey: 'expenseId',
         header: 'ID'
