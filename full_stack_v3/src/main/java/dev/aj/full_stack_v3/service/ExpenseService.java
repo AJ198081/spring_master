@@ -13,4 +13,6 @@ public interface ExpenseService {
     List<ExpenseResponse> saveExpenses(List<ExpenseRequest> randomExpenseSamples);
 
     ExpenseResponse updateExpense(UUID expenseId, ExpenseRequest expenseRequest);
+
+    void deleteExpense(UUID expenseId);
 }

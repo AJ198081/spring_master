@@ -5,6 +5,7 @@ import dev.aj.full_stack_v3.domain.dto.ExpenseResponse;
 import dev.aj.full_stack_v3.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +37,12 @@ public class ExpenseController {
     @PutMapping(path = "/{expenseId}")
     public ResponseEntity<ExpenseResponse> updateExpense(@RequestBody ExpenseRequest expenseRequest, @PathVariable UUID expenseId) {
         return ResponseEntity.ok(expenseService.updateExpense(expenseId, expenseRequest));
+    }
+
+    @DeleteMapping(path = "/{expenseId}")
+    public ResponseEntity<Void> deleteExpense(@PathVariable UUID expenseId) {
+        expenseService.deleteExpense(expenseId);
+        return ResponseEntity.ok().build();
     }
 }
 
