@@ -3,6 +3,10 @@ import {Dashboard} from "./pages/Dashboard.tsx";
 import {IconContext} from 'react-icons';
 import {Navbar} from "./components/Navbar.tsx";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {Login} from "./pages/authentication/Login.tsx";
+import {Logout} from "./pages/authentication/Logout.tsx";
+import {Registration} from "./pages/authentication/Registration.tsx";
+import {NewExpense} from "./components/NewExpense.tsx";
 
 function App() {
 
@@ -16,7 +20,11 @@ function App() {
                 <BrowserRouter>
                     <Navbar/>
                     <Routes>
-                        <Route path={'/'} element={<Dashboard/>} />
+                        <Route path={'/'} index={true} element={<Dashboard/>}/>
+                        <Route path={'/login'} element={<Login/>}/>
+                        <Route path={'/logout'} element={<Logout/>}/>
+                        <Route path={'/register'} element={<Registration/>}/>
+                        <Route path={'/new'} element={<NewExpense/>}/>
                     </Routes>
                 </BrowserRouter>
             </MantineProvider>

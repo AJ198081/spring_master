@@ -1,4 +1,5 @@
 import {MRT_ColumnDef} from "mantine-react-table";
+import {currencyFormatter, dateFormatter} from "../utils/Formatter.ts";
 
 export interface ExpenseResponse {
     expenseId: string;
@@ -25,7 +26,9 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     },
     {
         accessorKey: 'category',
-        header: 'Category'
+        header: 'Category',
+        filterVariant: "multi-select",
+        sortingFn: "textCaseSensitive",
     },
     {
         accessorKey: 'date',
@@ -33,10 +36,17 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
         filterVariant: "date-range",
         sortingFn: "datetime",
         enableColumnFilterModes: false,
-        Cell: ({cell}) => cell.getValue<Date>()?.toLocaleDateString()
+        Cell: ({cell}) => {
+            return dateFormatter.format(cell.getValue<Date>());
+        }
     },
     {
         accessorKey: 'amount',
-        header: 'Amount'
+        header: 'Amount',
+        filterVariant: "range",
+        sortingFn: "currency",
+        Cell: ({cell}) => {
+            return currencyFormatter.format(cell.getValue<number>());
+        }
     }
 ];

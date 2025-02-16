@@ -1,12 +1,18 @@
-import { IoWalletSharp } from "react-icons/io5";
-import { NavLink } from "react-router-dom";
+import {IoWalletSharp} from "react-icons/io5";
+import {Link, NavLink, useNavigate} from "react-router-dom";
+import {useState} from "react";
 
 export const Navbar = () => {
+
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+
+    const navigateTo = useNavigate();
+
     return <nav className="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
         <div className="container-fluid">
-            <a className="navbar-brand" href="#">
+            <Link className="navbar-brand" to={"/"}>
                 <IoWalletSharp size={'2em'} color={'lightblue'}/>
-            </a>
+            </Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
                     aria-label="Toggle navigation">
@@ -15,15 +21,35 @@ export const Navbar = () => {
 
             <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div className="navbar-nav">
-                    <NavLink to={"/"} className={"nav-link active"}>Dashboard</NavLink>
-                    <a className="nav-link" href="#">Features</a>
-                    <a className="nav-link" href="#">Pricing</a>
+                    <NavLink to={"/"} className={"nav-link"}>Dashboard</NavLink>
+                    <NavLink className="nav-link" to={'/new'}>New Expense</NavLink>
                 </div>
             </div>
         </div>
         <div className="d-flex me-3" role={"button"}>
-            <button className="btn btn-primary">Login</button>
-            <button className="btn btn-danger d-none">Logout</button>
+            <button
+                className={`btn btn-outline-primary mx-1 ${isLoggedIn ? 'd-none' : ''}`}
+                onClick={() => {
+                    navigateTo('/login');
+                    setIsLoggedIn(true);
+
+                }
+            }
+            >
+                Login
+            </button>
+            <Link to={'/register'}
+                  className={`btn btn-outline-info mx-1 ${isLoggedIn ? 'd-none' : ''}`}
+            >
+                Register
+            </Link>
+            <button className={`btn btn-outline-danger ${isLoggedIn ? '' : 'd-none'}`}
+                    onClick={() => {
+                        setIsLoggedIn(false);
+                        navigateTo('/logout');
+                    }}>
+                Logout
+            </button>
         </div>
 
     </nav>;

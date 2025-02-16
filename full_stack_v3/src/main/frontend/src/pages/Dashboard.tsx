@@ -3,6 +3,7 @@ import {columnsDescription, ExpenseResponse} from "../domain/Types.ts";
 import {ExpenseList} from "../components/ExpenseList.tsx";
 import {MRT_ColumnDef} from "mantine-react-table";
 import {useExpenses} from "../useExpenses.ts";
+import {Spinner} from "../components/common/Spinner.tsx";
 
 export const Dashboard = (): ReactNode => {
 
@@ -13,7 +14,7 @@ export const Dashboard = (): ReactNode => {
     return <div className={'container'}>
         {
             isLoading
-                ? <p>Awaiting .....</p>
+                ? <Spinner textColor={'text-primary'}/>
                 : errors === null
                     ? <ExpenseList columns={columns} data={expenses}/>
                     : <p>`Error fetching data - ${errors.name} occurred with ${errors.message}`</p>
