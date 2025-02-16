@@ -10,11 +10,11 @@ export const CurrentDateTime = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setNow(dayjs().utc(false).format('dddd, DD/MM/YYYY HH:mm:ss'));
+            setNow(dayjs().utc(false).format('ddd, DD/MM/YYYY HH:mm:ss'));
         }, 1000);
 
         return () => clearInterval(interval);
     }, [])
 
-    return <div>{now}</div>;
+    return <div className={'text-info'}>{now}</div>;
 }

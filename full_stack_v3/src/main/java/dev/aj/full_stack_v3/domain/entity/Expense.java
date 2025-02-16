@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -33,8 +35,8 @@ public class Expense {
     private String name;
     private String note;
     private String category;
-    private String date;
-    private String amount;
+    private LocalDate date;
+    private BigDecimal amount;
 
     @Builder.Default
     @Embedded

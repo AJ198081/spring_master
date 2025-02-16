@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +46,25 @@ public class ExpenseServiceImpl implements ExpenseService {
         List<Expense> expenses = expenseRepository.saveAll(expenseMapper.requestsToExpenses(expenseRequests));
 
         return expenseMapper.expenseListToResponseList(expenses);
+    }
+
+    @Override
+    @Transactional
+    public ExpenseResponse updateExpense(UUID expenseId, ExpenseRequest expenseRequest) {
+
+        Expense existingExpense = expenseRepository.findByExpenseId(expenseId).stream()
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("ExpenseID %s not found".formatted(expenseId)));
+
+        existingExpense.setName(expenseRequest.getName());
+        existingExpense.setNote(expenseRequest.getNote());
+        existingExpense.setAmount(expenseRequest.getAmount());
+        existingExpense.setDate(expenseRequest.getDate());
+        existingExpense.setCategory(expenseRequest.getCategory());
+
+        return expenseMapper.expenseToResponse(
+                expenseRepository.save(existingExpense)
+        );
     }
 
 }

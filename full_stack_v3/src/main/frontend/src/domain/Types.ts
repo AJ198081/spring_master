@@ -1,6 +1,15 @@
 import {MRT_ColumnDef} from "mantine-react-table";
 import {currencyFormatter, dateFormatter} from "../utils/Formatter.ts";
 
+
+export interface ExpenseRequest {
+    name: string;
+    note: string;
+    category: string;
+    date: string;
+    amount: string;
+}
+
 export interface ExpenseResponse {
     expenseId: string;
     name: string;

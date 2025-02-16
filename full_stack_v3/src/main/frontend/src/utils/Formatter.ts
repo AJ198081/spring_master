@@ -7,7 +7,7 @@ export function stringToDateObject(dateString: string, format = 'YYYY-MM-DD'): D
     return dayjs(dateString, format).toDate()
 }
 
-let currencyName = '';
+let currencyName: string;
 
 switch (navigator.language) {
     case 'en-GB':
@@ -34,7 +34,7 @@ export const getBrowserTimeZone = () => {
 
 export const dateFormatter = new Intl.DateTimeFormat(navigator.language, {
     dateStyle: 'short',
-    timeStyle: 'long',
+    // timeStyle: 'long',
     timeZone: getBrowserTimeZone()
 });
 

@@ -18,7 +18,7 @@ export const DashboardStatus = ({useName = 'AJ Bhandal', totalExpenses}: Dashboa
         </div>
 
         <div className={'d-flex justify-content-between'}>
-            <div>Welcome, <span className={'text-bg-light fs-5'}>{useName}</span></div>
+            <div>Welcome, <span className={'text-bg-light fs-5 text-dark-emphasis'}>{useName}</span></div>
             <CurrentDateTime/>
         </div>
     </div>;

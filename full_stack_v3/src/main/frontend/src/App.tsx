@@ -7,6 +7,7 @@ import {Login} from "./pages/authentication/Login.tsx";
 import {Logout} from "./pages/authentication/Logout.tsx";
 import {Registration} from "./pages/authentication/Registration.tsx";
 import {NewExpense} from "./components/NewExpense.tsx";
+import {ExpenseDetails} from "./components/ExpenseDetails.tsx";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
                         <Route path={'/logout'} element={<Logout/>}/>
                         <Route path={'/register'} element={<Registration/>}/>
                         <Route path={'/new'} element={<NewExpense/>}/>
+                        <Route path={'/view/:expenseId'} element={<ExpenseDetails />} />
                     </Routes>
                 </BrowserRouter>
             </MantineProvider>
