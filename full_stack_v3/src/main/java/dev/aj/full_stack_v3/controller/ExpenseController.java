@@ -5,6 +5,7 @@ import dev.aj.full_stack_v3.domain.dto.ExpenseResponse;
 import dev.aj.full_stack_v3.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,9 +30,14 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
 
-    @PostMapping
-    public ResponseEntity<List<ExpenseResponse>> saveExpenses(@RequestBody List<ExpenseRequest> expensesRequest) {
+    @PostMapping(path = "/bulk")
+    public ResponseEntity<List<ExpenseResponse>> saveExpenses(@Validated @RequestBody List<ExpenseRequest> expensesRequest) {
         return ResponseEntity.ok(expenseService.saveExpenses(expensesRequest));
+    }
+
+    @PostMapping
+    public ResponseEntity<ExpenseResponse> saveExpense(@Validated @RequestBody ExpenseRequest expenseRequest) {
+        return ResponseEntity.ok(expenseService.saveExpense(expenseRequest));
     }
 
     @PutMapping(path = "/{expenseId}")
@@ -44,5 +50,7 @@ public class ExpenseController {
         expenseService.deleteExpense(expenseId);
         return ResponseEntity.ok().build();
     }
+
+
 }
 

@@ -3,7 +3,6 @@ package dev.aj.full_stack_v3.controller;
 import dev.aj.full_stack_v3.PostgresTCConfig;
 import dev.aj.full_stack_v3.TestConfig;
 import dev.aj.full_stack_v3.TestData;
-import dev.aj.full_stack_v3.config.AuditingConfig;
 import dev.aj.full_stack_v3.domain.dto.ExpenseRequest;
 import dev.aj.full_stack_v3.domain.dto.ExpenseResponse;
 import dev.aj.full_stack_v3.service.ExpenseService;
@@ -22,6 +21,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -61,6 +61,7 @@ class ExpenseControllerTest {
                 .toList();
 
         List<ExpenseResponse> savedExpenses = expenseService.saveExpenses(randomExpenseSamples);
+        System.out.printf("Persisted %d expenses%n", savedExpenses.size());
     }
 
 
@@ -74,13 +75,14 @@ class ExpenseControllerTest {
 
         assertThat(responseEntity.getStatusCode()).is(new Condition<>(HttpStatusCode::is2xxSuccessful, "is 200 OK"));
         assertThat(responseEntity.getBody()).isNotNull();
-        assertThat(responseEntity.getBody().size()).isGreaterThanOrEqualTo(EXPENSE_SAMPLES_LIMIT);
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).size()).isGreaterThanOrEqualTo(EXPENSE_SAMPLES_LIMIT);
 
     }
 
     @Test
     void saveExpenses() {
         ResponseEntity<List<ExpenseResponse>> responseEntity = restClient.post()
+                .uri("/bulk")
                 .body(testData.getExpenseStream().limit(2).toList())
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
@@ -88,6 +90,6 @@ class ExpenseControllerTest {
 
         assertThat(responseEntity.getStatusCode()).is(new Condition<>(HttpStatusCode::is2xxSuccessful, "is 200 OK"));
         assertThat(responseEntity.getBody()).isNotNull();
-        assertThat(responseEntity.getBody().size()).isEqualTo(2);
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).size()).isEqualTo(2);
     }
 }

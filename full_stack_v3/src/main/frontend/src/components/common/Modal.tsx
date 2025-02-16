@@ -1,3 +1,74 @@
+export interface ModalProps {
+    triggerButtonClass?: string;
+    triggerButtonLabel: string;
+    modalHeader: string;
+    modalBody: string;
+    cancelButtonLabel: string;
+    confirmButtonLabel: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+}
+
+export const Modal = ({
+                          triggerButtonClass = '',
+                          triggerButtonLabel = 'Delete',
+                          modalHeader = 'Delete Expense',
+                          modalBody = 'Are you sure you want to delete this expense?',
+                          cancelButtonLabel = 'Cancel',
+                          confirmButtonLabel = 'Delete',
+                          onConfirm,
+                      }: ModalProps) => {
+
+    return <>
+        <button className={`btn ${triggerButtonClass}`}
+                data-bs-toggle="modal"
+                data-bs-target="#staticBackdrop"
+        >
+            {triggerButtonLabel}
+        </button>
+
+        <div className="modal fade"
+             id="staticBackdrop"
+             data-bs-backdrop="static"
+             data-bs-keyboard="false"
+             tabIndex={-1}
+             aria-labelledby="staticBackdropLabel"
+             aria-hidden="true">
+            <div className="modal-dialog">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h1 className="modal-title fs-5 text-danger" id="staticBackdropLabel">
+                            {modalHeader}
+
+                        </h1>
+                        <button type="button"
+                                className="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                    <div className="modal-body">
+                        {modalBody}
+                    </div>
+                    <div className="modal-footer">
+                        <button type="button" className="btn btn-secondary"
+                                data-bs-dismiss="modal">{cancelButtonLabel}</button>
+                        <button type="button"
+                                className="btn btn-danger"
+                                data-bs-dismiss="modal"
+                                onClick={onConfirm}
+                        >
+                            {confirmButtonLabel}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>
+}
+
+
+/*
 import {createPortal} from "react-dom";
 import {ForwardedRef, forwardRef, ReactNode, useImperativeHandle, useRef} from "react";
 
@@ -68,4 +139,4 @@ const Modal = ({
     );
 };
 
-export default forwardRef<DialogRef, ModalProps>(Modal);
+export default forwardRef<DialogRef, ModalProps>(Modal);*/

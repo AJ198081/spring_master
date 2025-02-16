@@ -75,4 +75,10 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     }
 
+    @Override
+    public ExpenseResponse saveExpense(ExpenseRequest expenseRequest) {
+        Expense expense = expenseMapper.requestToExpense(expenseRequest);
+        return expenseMapper.expenseToResponse(expenseRepository.save(expense));
+    }
+
 }

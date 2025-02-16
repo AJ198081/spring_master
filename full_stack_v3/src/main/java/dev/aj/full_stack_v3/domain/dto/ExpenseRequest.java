@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v3.domain.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class ExpenseRequest {
+
+    @NotBlank
     private String name;
     private String note;
     private String category;
