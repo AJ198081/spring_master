@@ -6,17 +6,12 @@ export interface ExpenseRequest {
     name: string;
     note: string;
     category: string;
-    date: string;
+    date: string | Date;
     amount: string;
 }
 
-export interface ExpenseResponse {
+export interface ExpenseResponse extends ExpenseRequest {
     expenseId: string;
-    name: string;
-    note: string;
-    category: string;
-    date: string | Date;
-    amount: number;
 }
 
 

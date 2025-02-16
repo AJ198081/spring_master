@@ -7,6 +7,8 @@ export function stringToDateObject(dateString: string, format = 'YYYY-MM-DD'): D
     return dayjs(dateString, format).toDate()
 }
 
+
+
 let currencyName: string;
 
 switch (navigator.language) {
