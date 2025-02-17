@@ -1,5 +1,7 @@
 package dev.aj.full_stack_v3.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +21,9 @@ public class ExpenseRequest {
     private String name;
     private String note;
     private String category;
+
+    @JsonProperty("date")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate date;
     private BigDecimal amount;
 }

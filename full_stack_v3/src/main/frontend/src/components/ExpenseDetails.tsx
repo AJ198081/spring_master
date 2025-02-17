@@ -1,10 +1,11 @@
 import {useLocation, useNavigate} from "react-router-dom";
 import {ExpenseRequest, ExpenseResponse} from "../domain/Types.ts";
-import {dateFormatter} from "../utils/Formatter.ts";
+import {currencyFormatter, dateFormatter, dateToString} from "../utils/Formatter.ts";
 import {ChangeEvent, ChangeEventHandler, useState} from "react";
 import {AxiosInstance} from "../service/api-client.ts";
 import dayjs from "dayjs";
 import {Modal} from "./common/Modal.tsx";
+import toast from "react-hot-toast";
 
 
 export const ExpenseDetails = () => {
@@ -23,22 +24,41 @@ export const ExpenseDetails = () => {
         });
     }
 
-    const updateExpense = (currentExpense: ExpenseResponse) => {
-        AxiosInstance.put(`/api/v1/expenses/${currentExpense.expenseId}`, updatedExpense)
-            .then(response => {
-                console.log(response.data);
-            })
-            .catch(error => console.log(error))
-            .finally(() => navigateTo("/"));
+    const updateExpense = async (currentExpense: ExpenseResponse) => {
+        try {
+
+            updatedExpense.date = dayjs(updatedExpense.date).format('DD/MM/YYYY');
+
+            const updatePromise = AxiosInstance.put(`/api/v1/expenses/${currentExpense.expenseId}`, updatedExpense);
+
+            await toast.promise(updatePromise, {
+                loading: 'Updating expense...',
+                success: 'Expense updated successfully',
+                error: 'Error updating expense'
+            });
+
+            await updatePromise;
+        } catch (error) {
+            console.log(error);
+        } finally {
+            navigateTo("/");
+        }
     };
 
-    const deleteExpense = (expenseId: string) => {
-        AxiosInstance.delete(`/api/v1/expenses/${expenseId}`)
-            .then(response => {
-                console.log(response.data);
-            })
-            .catch(error => console.log(error))
-            .finally(() => navigateTo("/"));
+    const deleteExpense = async (expense: ExpenseResponse) => {
+        try {
+            const deletePromise = AxiosInstance.delete(`/api/v1/expenses/${expense.expenseId}`);
+            await toast.promise(deletePromise, {
+                loading: `Deleting expense ${expense.name} of ${currencyFormatter.format(Number(expense.amount))} from ${dateToString(expense.date as Date, 'DD/MM/YYYY')}...`,
+                success: 'Expense deleted successfully',
+                error: 'Error deleting expense'
+            });
+            await deletePromise;
+        } catch (error) {
+            console.log(error);
+        } finally {
+            navigateTo("/");
+        }
     };
 
     return (
@@ -122,12 +142,10 @@ export const ExpenseDetails = () => {
                         modalBody={'Are you sure you want to delete this expense?'}
                         cancelButtonLabel={'Cancel'}
                         confirmButtonLabel={'Delete'}
-                        onConfirm={() => deleteExpense(currentExpense.expenseId)}
+                        onConfirm={() => deleteExpense(currentExpense)}
                     />
                     <button className={`btn btn-outline-primary ${editMode ? '' : 'd-none'}`}
-                            onClick={() => {
-                                updateExpense(currentExpense);
-                            }}>
+                            onClick={() => updateExpense(currentExpense)}>
                         Save
                     </button>
                     <button className={`btn btn-outline-danger ms-2 ${editMode ? '' : 'd-none'}`}

@@ -25,6 +25,11 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
 
+    @PostMapping
+    public ResponseEntity<ExpenseResponse> saveExpense(@Validated @RequestBody ExpenseRequest expenseRequest) {
+        return ResponseEntity.ok(expenseService.saveExpense(expenseRequest));
+    }
+
     @GetMapping
     public ResponseEntity<List<ExpenseResponse>> getExpenses() {
         return ResponseEntity.ok(expenseService.getAllExpenses());
@@ -35,14 +40,10 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.saveExpenses(expensesRequest));
     }
 
-    @PostMapping
-    public ResponseEntity<ExpenseResponse> saveExpense(@Validated @RequestBody ExpenseRequest expenseRequest) {
-        return ResponseEntity.ok(expenseService.saveExpense(expenseRequest));
-    }
-
     @PutMapping(path = "/{expenseId}")
     public ResponseEntity<ExpenseResponse> updateExpense(@RequestBody ExpenseRequest expenseRequest, @PathVariable UUID expenseId) {
-        return ResponseEntity.ok(expenseService.updateExpense(expenseId, expenseRequest));
+        ExpenseResponse updatedExpenseResponse = expenseService.updateExpense(expenseId, expenseRequest);
+        return ResponseEntity.ok(updatedExpenseResponse);
     }
 
     @DeleteMapping(path = "/{expenseId}")

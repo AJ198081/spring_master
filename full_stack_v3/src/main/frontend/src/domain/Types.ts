@@ -18,7 +18,7 @@ export interface ExpenseResponse extends ExpenseRequest {
 export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     {
         accessorKey: 'expenseId',
-        header: 'ID'
+        header: 'ID',
     },
     {
         accessorKey: 'name',
@@ -31,7 +31,7 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     {
         accessorKey: 'category',
         header: 'Category',
-        filterVariant: "multi-select",
+        filterVariant: "text",
         sortingFn: "textCaseSensitive",
     },
     {

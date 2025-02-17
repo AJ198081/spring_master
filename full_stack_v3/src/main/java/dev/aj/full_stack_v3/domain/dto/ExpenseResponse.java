@@ -15,8 +15,8 @@ import java.time.LocalDate;
 public class ExpenseResponse {
     private String expenseId;
     private String name;
-    private String note;
     private String category;
+    private String note;
     private LocalDate date;
     private BigDecimal amount;
 }

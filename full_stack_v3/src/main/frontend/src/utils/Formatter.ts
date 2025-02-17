@@ -7,7 +7,9 @@ export function stringToDateObject(dateString: string, format = 'YYYY-MM-DD'): D
     return dayjs(dateString, format).toDate()
 }
 
-
+export function dateToString(date: Date, format = 'YYYY-MM-DD'): string {
+    return dayjs(date).format(format)
+}
 
 let currencyName: string;
 

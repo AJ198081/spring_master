@@ -12,17 +12,25 @@ export interface ExpenseListProps {
 export const ExpenseList = ({columns, data}: ExpenseListProps) => {
 
     const navigateTo = useNavigate();
+    const priorityColumns = ['ID', 'Name', 'Amount'];
+
+    columns
+        .sort((a, b) => {
+            const comparisonValue = a.header.localeCompare(b.header);
+            return priorityColumns.includes(a.header) && priorityColumns.includes(b.header)
+                ? priorityColumns.indexOf(a.header) - priorityColumns.indexOf(b.header)
+                : priorityColumns.includes(a.header)
+                    ? -1
+                    : priorityColumns.includes(b.header)
+                        ? 1
+                        : comparisonValue;
+        });
 
     const table: MRT_TableInstance<ExpenseResponse> = useMantineReactTable({
         columns,
         data,
         mantineTableBodyRowProps: ({row}) => ({
             onClick: (_event: MouseEvent<HTMLTableRowElement>) => (
-                /*<Link to={{
-                    pathname: `/expenses/${row.original.expenseId}`,
-                    search: `?name=${row.original.name}`,
-                }}
-                />*/
                 navigateTo(`/view/${row.original.expenseId}`, {
                     state: {expense: row.original}
                 })
@@ -32,7 +40,7 @@ export const ExpenseList = ({columns, data}: ExpenseListProps) => {
     });
 
     const totalExpenses = table.getFilteredRowModel().rows
-        .map(row => row.original.amount)
+        .map(row => parseFloat(row.original.amount))
         .reduce((acc, curr) => acc + curr, 0);
 
     return <div>

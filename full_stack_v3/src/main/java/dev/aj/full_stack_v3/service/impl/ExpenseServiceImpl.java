@@ -69,6 +69,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public void deleteExpense(UUID expenseId) {
+
         expenseRepository.findByExpenseId(expenseId).stream()
                 .findFirst()
                 .ifPresent(expenseRepository::delete);

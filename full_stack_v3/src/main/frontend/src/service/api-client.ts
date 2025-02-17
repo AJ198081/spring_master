@@ -14,6 +14,7 @@ AxiosInstance.interceptors.request.use(
         return config;
     },
     (error: AxiosError) => {
+        console.log(`Error whilst accessing ${error.config?.url} and message is ${error.message}`);
         return Promise.reject(error);
     }
 );

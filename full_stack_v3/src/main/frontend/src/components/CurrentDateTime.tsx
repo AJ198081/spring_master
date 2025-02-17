@@ -16,5 +16,5 @@ export const CurrentDateTime = () => {
         return () => clearInterval(interval);
     }, [])
 
-    return <div className={'text-info'}>{now}</div>;
+    return <div className={'text-dark-emphasis'}>{now}</div>;
 }
