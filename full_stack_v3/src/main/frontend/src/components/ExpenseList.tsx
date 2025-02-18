@@ -3,6 +3,8 @@ import {ExpenseResponse} from "../domain/Types.ts";
 import {DashboardStatus} from "./DashboardStatus.tsx";
 import {MouseEvent} from "react";
 import {useNavigate} from "react-router-dom";
+import {Button} from "@mantine/core";
+import toast from "react-hot-toast";
 
 export interface ExpenseListProps {
     columns: MRT_ColumnDef<ExpenseResponse>[];
@@ -45,6 +47,22 @@ export const ExpenseList = ({columns, data}: ExpenseListProps) => {
         },
         enableRowSelection: true,
         enableStickyHeader: true,
+        renderTopToolbarCustomActions: ({table}) => (
+            <Button
+                className={'bg-success-subtle text-dark'}
+                onClick={() => {
+                    const selectedRows = table.getSelectedRowModel().rows;
+                    const extractedRows = selectedRows.map(row => row.original);
+                    navigator.clipboard.writeText(JSON.stringify(extractedRows))
+                        .then(() => toast.success('Selected rows copied to clipboard!', {
+                            position: 'top-right',
+                            duration: 4000
+                        }));
+                }}
+            >
+                {'Copy selected row/s to clipboard'}
+            </Button>
+        )
     });
 
     const totalExpenses = table.getFilteredRowModel().rows
