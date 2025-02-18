@@ -16,6 +16,15 @@ export interface ExpenseResponse extends ExpenseRequest {
     expenseId: string;
 }
 
+export const categoryOptions = [
+    'Food',
+    'Transportation',
+    'Entertainment',
+    'Shopping',
+    'Health',
+    'Other'
+];
+
 export const expenseSchemaValidations = object({
     name: string()
         .min(2, 'Expense name can not be less than 2 character')

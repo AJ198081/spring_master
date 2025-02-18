@@ -1,10 +1,11 @@
 import {useFormik} from "formik";
 import dayjs from "dayjs";
 import {AxiosInstance} from "../service/api-client.ts";
-import {ExpenseRequest, expenseSchemaValidations} from "../domain/Types.ts";
+import {categoryOptions, ExpenseRequest, expenseSchemaValidations} from "../domain/Types.ts";
 import toast from "react-hot-toast";
 import {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
+import {CategorySelect} from "./CategoryDropdown.tsx";
 
 export const AddExpense = () => {
 
@@ -107,19 +108,17 @@ export const AddExpense = () => {
                             {errors.note}
                         </div>}
                     </div>
-                    <div className="mb-3">
-                        <label htmlFor="category" className="form-label">Category</label>
-                        <input type="text"
-                               id="category"
-                               className={`form-control ${errors.category && touched.category ? 'is-invalid' : ''}`}
-                               value={values.category}
-                               onChange={handleChange}
-                               onBlur={handleBlur}
-                               placeholder="Expense category"/>
-                        {touched.note && <div className="invalid-feedback">
-                            {errors.category}
-                        </div>}
-                    </div>
+
+                    <CategorySelect
+                        valueList={categoryOptions}
+                        label={'Expense category'}
+                        selectLabel={'Select category'}
+                        value={values.category}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.category}
+                        touched={touched.category}
+                    />
 
                     <div className="mb-3">
                         <label htmlFor="date" className="form-label">Date</label>

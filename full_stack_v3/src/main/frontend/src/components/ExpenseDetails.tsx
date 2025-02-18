@@ -1,5 +1,5 @@
 import {useLocation, useNavigate} from "react-router-dom";
-import {ExpenseRequest, ExpenseResponse} from "../domain/Types.ts";
+import {categoryOptions, ExpenseRequest, ExpenseResponse} from "../domain/Types.ts";
 import {currencyFormatter, dateFormatter, dateToString} from "../utils/Formatter.ts";
 import {ChangeEvent, ChangeEventHandler, useState} from "react";
 import {AxiosInstance} from "../service/api-client.ts";
@@ -15,7 +15,7 @@ export const ExpenseDetails = () => {
     const navigateTo = useNavigate();
     const [updatedExpense, setUpdatedExpense] = useState<ExpenseRequest>(currentExpense);
 
-    const updateExpenseState: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const updateExpenseState: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setUpdatedExpense(prevState => {
             return {
                 ...prevState,
@@ -122,10 +122,16 @@ export const ExpenseDetails = () => {
                             <th scope="col">Category</th>
                             <td>
                                 {editMode
-                                    ? <input type="text" className="form-control"
-                                             name={'category'}
-                                             onChange={updateExpenseState}
-                                             defaultValue={currentExpense.category}/>
+                                    ? <select className="form-control"
+                                              name={'category'}
+                                              onChange={updateExpenseState}
+                                              defaultValue={currentExpense.category}>
+                                        <option value={currentExpense.category}>{currentExpense.category}</option>
+                                        {categoryOptions
+                                            .filter(category => category !== currentExpense.category)
+                                            .map(category => <option key={category} value={category}>{category}</option>)
+                                        }
+                                    </select>
                                     : currentExpense.category}
                             </td>
                         </tr>
