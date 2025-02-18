@@ -37,6 +37,14 @@ export const ExpenseList = ({columns, data}: ExpenseListProps) => {
             ),
             sx: {cursor: "pointer"}
         }),
+        initialState: {
+            columnOrder: [
+                ...columns.map(column => column.header),
+                'mrt-row-select'
+            ],
+        },
+        enableRowSelection: true,
+        enableStickyHeader: true,
     });
 
     const totalExpenses = table.getFilteredRowModel().rows
