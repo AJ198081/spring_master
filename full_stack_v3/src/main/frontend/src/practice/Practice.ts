@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 console.log(navigator.languages);
 
 console.log(navigator.language);
@@ -5,7 +7,6 @@ console.log(navigator.language);
 console.log(navigator)
 
 navigator.language
-navigator
 
 Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -56,5 +57,8 @@ console.log(
         currencyDisplay: 'symbol'
     }).format(number)
 );
+
+
+dayjs().format('DD/MM/YYYY');
 
 

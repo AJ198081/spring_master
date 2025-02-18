@@ -12,6 +12,7 @@ export const AddExpense = () => {
 
 
     const createExpense = async (values: ExpenseRequest) => {
+
         const expenseRequest: ExpenseRequest = {
             name: values.name,
             note: values.note,
@@ -48,10 +49,10 @@ export const AddExpense = () => {
     const {values, errors, touched, handleChange, handleSubmit, resetForm, handleBlur} = useFormik({
         initialValues: {
             name: '',
-            note: '',
+            note: 'Default notes',
             category: '',
             amount: '',
-            date: ''
+            date: dayjs().utc(true).format('YYYY-MM-DD'),
         },
         onSubmit: createExpense,
         validationSchema: expenseSchemaValidations,
@@ -83,6 +84,7 @@ export const AddExpense = () => {
                             className={`form-control ${errors.note && touched.note ? 'is-invalid' : ''}`}
                             id="note"
                             value={values.note}
+                            defaultValue={"Notes left blank"}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             rows={3}

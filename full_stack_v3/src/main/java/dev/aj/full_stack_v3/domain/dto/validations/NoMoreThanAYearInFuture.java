@@ -28,7 +28,8 @@ public @interface NoMoreThanAYearInFuture {
                 return true;
             }
 
-            LocalDate maxAllowedDate = LocalDate.now().plusDays(1);
+            LocalDate maxAllowedDate = LocalDate.now().plusYears(1);
+
             return !value.isAfter(maxAllowedDate);
         }
 

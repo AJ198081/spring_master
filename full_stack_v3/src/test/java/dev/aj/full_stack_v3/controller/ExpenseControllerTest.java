@@ -113,7 +113,7 @@ class ExpenseControllerTest {
     void expenseRequestWithValidDatePersistsSuccessfully() {
         ExpenseRequest expenseRequest = testData.getExpenseStream().findFirst().orElseThrow();
 
-        expenseRequest.setDate(LocalDate.now().plusDays(1));
+        expenseRequest.setDate(LocalDate.now().plusYears(1).minusDays(1));
 
         ResponseEntity<ExpenseResponse> responseEntity = restClient.post()
                 .body(expenseRequest)
