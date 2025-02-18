@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     List<Expense> findByExpenseId(UUID expenseId);
+
 }

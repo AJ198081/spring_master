@@ -7,6 +7,7 @@ import dev.aj.full_stack_v3.domain.dto.ExpenseRequest;
 import dev.aj.full_stack_v3.domain.dto.ExpenseResponse;
 import dev.aj.full_stack_v3.service.ExpenseService;
 import org.assertj.core.api.Condition;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -18,8 +19,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -91,5 +94,32 @@ class ExpenseControllerTest {
         assertThat(responseEntity.getStatusCode()).is(new Condition<>(HttpStatusCode::is2xxSuccessful, "is 200 OK"));
         assertThat(responseEntity.getBody()).isNotNull();
         assertThat(Objects.requireNonNull(responseEntity.getBody()).size()).isEqualTo(2);
+    }
+
+    @Test
+    void expenseRequestWithInvalidDateThrowsException() {
+        ExpenseRequest expenseRequest = testData.getExpenseStream().findFirst().orElseThrow();
+
+        expenseRequest.setDate(LocalDate.now().plusYears(1).plusDays(1));
+
+         var responseSpec = restClient.post()
+                .body(expenseRequest)
+                .retrieve();
+
+        Assertions.assertThrows(HttpClientErrorException.class, () -> responseSpec.toEntity(ExpenseResponse.class));
+    }
+
+    @Test
+    void expenseRequestWithValidDatePersistsSuccessfully() {
+        ExpenseRequest expenseRequest = testData.getExpenseStream().findFirst().orElseThrow();
+
+        expenseRequest.setDate(LocalDate.now().plusDays(1));
+
+        ResponseEntity<ExpenseResponse> responseEntity = restClient.post()
+                .body(expenseRequest)
+                .retrieve()
+                .toEntity(ExpenseResponse.class);
+
+        assertThat(responseEntity.getStatusCode()).is(new Condition<>(HttpStatusCode::is2xxSuccessful, "is 200 OK"));
     }
 }
