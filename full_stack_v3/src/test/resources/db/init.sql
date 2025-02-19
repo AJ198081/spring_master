@@ -1,5 +1,8 @@
 CREATE SCHEMA IF NOT EXISTS expense;
-SET search_path TO expense;
+
+CREATE SCHEMA IF NOT EXISTS security;
+
+SET search_path TO expense, security;
 
 
 /*create table if not exists users(

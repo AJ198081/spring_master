@@ -1,6 +1,6 @@
 import {MRT_ColumnDef} from "mantine-react-table";
 import {currencyFormatter, dateFormatter} from "../utils/Formatter.ts";
-import {date, number, object, string} from "yup";
+import {date, number, object, string, ref} from "yup";
 import dayjs from "dayjs";
 
 
@@ -45,6 +45,67 @@ export const expenseSchemaValidations = object({
         .max(dayjs().add(1, 'year').toDate(), 'Expense date can not be more than a year in future')
         .required('Expense Date is required')
 });
+
+export interface UserRegistrationRequest {
+    firstname: string;
+    lastname: string;
+    email: string;
+    username: string;
+    password: string;
+    confirmpassword: string;
+}
+
+export interface UserRegistrationResponse extends Omit<UserRegistrationRequest, 'password' | 'confirmpassword'> {
+    userId: string;
+}
+
+export const UserRegistrationRequestSchemaValidations = object({
+    firstname: string()
+        .min(2, 'First name can not be less than 2 character')
+        .max(50, 'First name can not be more than 255 character')
+        .required('First name is required'),
+
+    lastname: string()
+        .min(2, 'Last name can not be less than 2 character')
+        .max(50, 'Last name can not be more than 255 character')
+        .required('Last name is required'),
+
+    email: string()
+        .email('Email is not valid')
+        .required('Email is required'),
+
+    username: string()
+        .min(2, 'Username can not be less than 2 character')
+        .max(50, 'Username can not be more than 255 character')
+        .required('Username is required'),
+
+    password: string()
+        .required('Password is required')
+        .min(8, 'Password must be at least 8 characters long')
+        .max(50, 'Password must be at most 50 characters long')
+        .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+        .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .matches(/[0-9]/, 'Password must contain at least one number')
+        .matches(
+            /[!@#$%^&*(),.?":{}|<>]/,
+            'Password must contain at least one special character'
+        ),
+
+    confirmpassword: string()
+        .oneOf([ref('password')], 'Passwords must match')
+        .required('Confirm password is required'),
+});
+
+export const initialUserRegistrationRequest: UserRegistrationRequest = {
+    firstname: '',
+    lastname: '',
+    email: '',
+    username: '',
+    password: '',
+    confirmpassword: ''
+};
+
+
 
 export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     {

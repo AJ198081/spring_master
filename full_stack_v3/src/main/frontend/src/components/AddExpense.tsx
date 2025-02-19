@@ -104,8 +104,8 @@ export const AddExpense = () => {
                                onChange={handleChange}
                                onBlur={handleBlur}
                                placeholder="Expense amount"/>
-                        {touched.note && <div className="invalid-feedback">
-                            {errors.note}
+                        {touched.amount && <div className="invalid-feedback">
+                            {errors.amount}
                         </div>}
                     </div>
 
@@ -129,7 +129,7 @@ export const AddExpense = () => {
                                onChange={handleChange}
                                onBlur={handleBlur}
                                placeholder={dayjs().format('DD/MM/YYYY')}/>
-                        {touched.note && <div className="invalid-feedback">
+                        {touched.date && <div className="invalid-feedback">
                             {errors.date}
                         </div>}
                     </div>

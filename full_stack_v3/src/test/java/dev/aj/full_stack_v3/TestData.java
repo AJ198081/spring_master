@@ -2,6 +2,7 @@ package dev.aj.full_stack_v3;
 
 import com.github.javafaker.Faker;
 import dev.aj.full_stack_v3.domain.dto.ExpenseRequest;
+import dev.aj.full_stack_v3.domain.dto.UserRegistrationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +35,17 @@ public class TestData {
                 .note(faker.lorem().sentence())
                 .category(categories.get(faker.random().nextInt(categories.size())))
                 .amount(new BigDecimal(faker.numerify("###.##")))
+                .build());
+    }
+
+    @Bean
+    public Stream<UserRegistrationRequest> getUserRegistrationRequestStream() {
+        return Stream.generate(() -> UserRegistrationRequest.builder()
+                .firstName(faker.name().firstName())
+                .lastName(faker.name().lastName())
+                .username(faker.name().username())
+                .password(faker.internet().password())
+                .email(faker.internet().emailAddress())
                 .build());
     }
 
