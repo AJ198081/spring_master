@@ -50,7 +50,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void register() {
+    void successfullyRegistersUserWithValidRegistrationRequest() {
 
         UserRegistrationRequest testUserRequest = testData.getUserRegistrationRequestStream()
                 .findFirst()
@@ -85,4 +85,75 @@ class AuthControllerTest {
                 .usingRecursiveComparison()
                 .isEqualTo(registrationResponse.getBody());
     }
+
+
+    @Test
+    void invalidEmailRegistrationRequestThrowsBadRequest() {
+        UserRegistrationRequest testUserRequest = testData.getUserRegistrationRequestStream()
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Unable to generate test data"));
+
+        UserRegistrationRequest invalidEmail = UserRegistrationRequest.builder()
+                .firstName(testUserRequest.getFirstName())
+                .lastName(testUserRequest.getLastName())
+                .email("pw")
+                .username(testUserRequest.getUsername())
+                .password(testUserRequest.getPassword())
+                .build();
+
+        RestClient.ResponseSpec responseSpecification = restClient.post()
+                .uri("/register")
+                .body(invalidEmail)
+                .retrieve();
+
+        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.client.HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
+    }
+
+    @Test
+    void invalidPasswordRegistrationRequestThrowsBadRequest() {
+
+        UserRegistrationRequest testUserRequest = testData.getUserRegistrationRequestStream()
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Unable to generate test data"));
+
+        UserRegistrationRequest invalidPassword = UserRegistrationRequest.builder()
+                .firstName(testUserRequest.getFirstName())
+                .lastName(testUserRequest.getLastName())
+                .email(testUserRequest.getEmail())
+                .username(testUserRequest.getUsername())
+                .password("abg2389@!")
+                .build();
+
+        RestClient.ResponseSpec responseSpecification = restClient.post()
+                .uri("/register")
+                .body(invalidPassword)
+                .retrieve();
+
+        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.client.HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
+    }
+
+    @Test
+    void invalidUsernameRegistrationRequestThrowsBadRequest() {
+
+        UserRegistrationRequest testUserRequest = testData.getUserRegistrationRequestStream()
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Unable to generate test data"));
+
+        UserRegistrationRequest invalidUsername = UserRegistrationRequest.builder()
+                .firstName(testUserRequest.getFirstName())
+                .lastName(testUserRequest.getLastName())
+                .email(testUserRequest.getEmail())
+                .username("Ab1!")
+                .password(testUserRequest.getPassword())
+                .build();
+
+        RestClient.ResponseSpec responseSpecification = restClient.post()
+                .uri("/register")
+                .body(invalidUsername)
+                .retrieve();
+
+        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.client.HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
+    }
+
+
 }

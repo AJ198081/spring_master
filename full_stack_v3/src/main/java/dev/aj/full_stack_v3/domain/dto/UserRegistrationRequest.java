@@ -24,7 +24,7 @@ public class UserRegistrationRequest {
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;
 
-    @Size(min = 2, max = 50, message = "Username must be between 2 and 50 characters")
+    @Size(min = 5, max = 50, message = "Username must be between 5 and 50 characters")
     private String username;
 
     @Size(min = 2, max = 50, message = "Email must be between 2 and 50 characters")
@@ -32,6 +32,6 @@ public class UserRegistrationRequest {
     private String email;
 
     @Size(min = 8, message = "Password must be at least 8 characters")
-    @ValidPassword
+    @ValidPassword(passwordValidityRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,50}$")
     private String password;
 }

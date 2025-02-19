@@ -11,7 +11,7 @@ export const DashboardStatus = ({useName = 'AJ Bhandal', totalExpenses}: Dashboa
         <div className={'text-center'}>
             <h5>Total expenses</h5>
             <h3>
-                <span className={'badge rounded-pill bg-info text-dark'}>
+                <span className={'badge rounded-pill bg-info-subtle text-dark'}>
                     {currencyFormatter.format(totalExpenses)}
                 </span>
             </h3>

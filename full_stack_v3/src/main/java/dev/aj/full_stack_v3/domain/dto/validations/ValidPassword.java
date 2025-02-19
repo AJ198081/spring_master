@@ -15,6 +15,9 @@ import java.lang.annotation.Target;
 public @interface ValidPassword {
     String message() default "Password must be at least 8, at most 50 characters long and contain at least one digit, one lowercase letter and one uppercase letter";
 
+    String passwordValidityRegex() default "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8}$";
+
+
     Class<?>[] groups() default {};
     Class<?>[] payload() default {};
 

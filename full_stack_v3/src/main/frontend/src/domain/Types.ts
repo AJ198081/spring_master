@@ -75,8 +75,8 @@ export const UserRegistrationRequestSchemaValidations = object({
         .required('Email is required'),
 
     username: string()
-        .min(2, 'Username can not be less than 2 character')
-        .max(50, 'Username can not be more than 255 character')
+        .min(5, 'Username can not be less than 5 character')
+        .max(50, 'Username can not be more than 50 character')
         .required('Username is required'),
 
     password: string()
