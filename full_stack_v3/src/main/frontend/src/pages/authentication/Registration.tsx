@@ -120,10 +120,10 @@ export const Registration = (): ReactNode => {
                     </div>
 
                     <div className="mb-3">
-                        <label htmlFor="cpassword" className="form-label">Confirm password</label>
+                        <label htmlFor="confirmpassword" className="form-label">Confirm password</label>
                         <input type="password"
-                               id="cpassword"
-                               autoComplete={"current-password"}
+                               id="confirmpassword"
+                               name="confirmpassword"
                                className={`form-control ${errors.confirmpassword && touched.confirmpassword ? 'is-invalid' : ''}`}
                                value={values.confirmpassword}
                                onChange={handleChange}

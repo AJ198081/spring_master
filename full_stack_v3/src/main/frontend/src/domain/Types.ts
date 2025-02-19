@@ -62,12 +62,12 @@ export interface UserRegistrationResponse extends Omit<UserRegistrationRequest, 
 export const UserRegistrationRequestSchemaValidations = object({
     firstname: string()
         .min(2, 'First name can not be less than 2 character')
-        .max(50, 'First name can not be more than 255 character')
+        .max(50, 'First name can not be more than 50 character')
         .required('First name is required'),
 
     lastname: string()
         .min(2, 'Last name can not be less than 2 character')
-        .max(50, 'Last name can not be more than 255 character')
+        .max(50, 'Last name can not be more than 50 character')
         .required('Last name is required'),
 
     email: string()
@@ -87,8 +87,8 @@ export const UserRegistrationRequestSchemaValidations = object({
         .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
         .matches(/[0-9]/, 'Password must contain at least one number')
         .matches(
-            /[!@#$%^&*(),.?":{}|<>]/,
-            'Password must contain at least one special character'
+            /[!@#$%^&*]/,
+            'Password must contain at least one special (!@#$%^&*) character'
         ),
 
     confirmpassword: string()

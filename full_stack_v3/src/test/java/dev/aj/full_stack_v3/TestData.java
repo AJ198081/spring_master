@@ -44,7 +44,7 @@ public class TestData {
                 .firstName(faker.name().firstName())
                 .lastName(faker.name().lastName())
                 .username(faker.name().username())
-                .password(faker.internet().password())
+                .password(faker.internet().password(8, 50, true, true, true))
                 .email(faker.internet().emailAddress())
                 .build());
     }
