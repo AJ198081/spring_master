@@ -9,9 +9,10 @@ import toast from "react-hot-toast";
 export interface ExpenseListProps {
     columns: MRT_ColumnDef<ExpenseResponse>[];
     data: ExpenseResponse[];
+    userName: string;
 }
 
-export const ExpenseList = ({columns, data}: ExpenseListProps) => {
+export const ExpenseList = ({columns, data, userName}: ExpenseListProps) => {
 
     const navigateTo = useNavigate();
     const priorityColumns = ['ID', 'Name', 'Amount'];
@@ -70,7 +71,7 @@ export const ExpenseList = ({columns, data}: ExpenseListProps) => {
         .reduce((acc, curr) => acc + curr, 0);
 
     return <div>
-        <DashboardStatus totalExpenses={totalExpenses}/>
+        <DashboardStatus userName={userName} totalExpenses={totalExpenses}/>
         <MantineReactTable
             table={table}
         />

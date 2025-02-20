@@ -1,10 +1,11 @@
 import {IoWalletSharp} from "react-icons/io5";
 import {Link, NavLink, useNavigate} from "react-router-dom";
-import {useState} from "react";
+import {useContext} from "react";
+import {UserAuthenticationContext} from "../contexts/UserAuthenticationContext.tsx";
 
 export const Navbar = () => {
 
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+    const { isAuthenticated} = useContext(UserAuthenticationContext)
 
     const navigateTo = useNavigate();
 
@@ -28,24 +29,21 @@ export const Navbar = () => {
         </div>
         <div className="d-flex me-3" role={"button"}>
             <button
-                className={`btn btn-outline-primary mx-1 ${isLoggedIn ? 'd-none' : ''}`}
+                className={`btn btn-outline-primary mx-1 ${isAuthenticated ? 'd-none' : ''}`}
                 onClick={() => {
                     navigateTo('/login');
-                    setIsLoggedIn(true);
-
                 }
             }
             >
                 Login
             </button>
             <Link to={'/register'}
-                  className={`btn btn-outline-info mx-1 ${isLoggedIn ? 'd-none' : ''}`}
+                  className={`btn btn-outline-info mx-1 ${isAuthenticated ? 'd-none' : ''}`}
             >
                 Register
             </Link>
-            <button className={`btn btn-outline-danger ${isLoggedIn ? '' : 'd-none'}`}
+            <button className={`btn btn-outline-danger ${isAuthenticated ? '' : 'd-none'}`}
                     onClick={() => {
-                        setIsLoggedIn(false);
                         navigateTo('/logout');
                     }}>
                 Logout

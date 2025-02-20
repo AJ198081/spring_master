@@ -2,11 +2,12 @@ import {CurrentDateTime} from "./CurrentDateTime.tsx";
 import {currencyFormatter} from "../utils/Formatter.ts";
 
 export interface DashboardStatusProps {
-    useName?: string;
+    userName: string;
     totalExpenses: number;
 }
 
-export const DashboardStatus = ({useName = 'AJ Bhandal', totalExpenses}: DashboardStatusProps) => {
+export const DashboardStatus = ({userName, totalExpenses}: DashboardStatusProps) => {
+
     return <div className={'m-3'}>
         <div className={'text-center'}>
             <h5>Total expenses</h5>
@@ -18,7 +19,7 @@ export const DashboardStatus = ({useName = 'AJ Bhandal', totalExpenses}: Dashboa
         </div>
 
         <div className={'d-flex justify-content-between'}>
-            <div>Welcome, <span className={'text-bg-light fs-5 text-dark-emphasis'}>{useName}</span></div>
+            <div>Welcome <span className={'fst-italic text-dark-emphasis'}>{userName}</span></div>
             <CurrentDateTime/>
         </div>
     </div>;

@@ -28,9 +28,10 @@ AxiosInstance.interceptors.response.use(
     (error: AxiosError) => {
         if (error.response) {
             switch (error.response.status) {
+                case 400:
                 case 401:
                     window.location.href = "/login";
-                    break
+                    break;
                 case 403:
                     console.log(` 403 whilst accessing ${error.config?.url}`);
                     break;

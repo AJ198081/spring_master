@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v3.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.aj.full_stack_v3.domain.dto.validations.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -19,9 +20,11 @@ import org.springframework.stereotype.Service;
 public class UserRegistrationRequest {
 
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
+    @JsonProperty("firstname")
     private String firstName;
 
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
+    @JsonProperty("lastname")
     private String lastName;
 
     @Size(min = 5, max = 50, message = "Username must be between 5 and 50 characters")

@@ -1,5 +1,7 @@
 package dev.aj.full_stack_v3.controller;
 
+import dev.aj.full_stack_v3.domain.dto.UserLoginRequest;
+import dev.aj.full_stack_v3.domain.dto.UserLoginResponse;
 import dev.aj.full_stack_v3.domain.dto.UserRegistrationRequest;
 import dev.aj.full_stack_v3.domain.dto.UserRegistrationResponse;
 import dev.aj.full_stack_v3.service.UserService;
@@ -45,6 +47,11 @@ public class AuthController {
     @GetMapping("/{username}")
     public ResponseEntity<UserRegistrationResponse> getUserByName(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserByUsername(username));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserLoginResponse> loginRequest(@RequestBody @Validated UserLoginRequest userLoginRequest) {
+        return ResponseEntity.ok(userService.loginUser(userLoginRequest));
     }
 
 

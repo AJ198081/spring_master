@@ -4,18 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.aj.full_stack_v3.domain.dto.ExpenseRequest;
 import dev.aj.full_stack_v3.domain.dto.ExpenseResponse;
-import dev.aj.full_stack_v3.domain.entity.AuditMetaData;
 import dev.aj.full_stack_v3.domain.entity.Expense;
 import dev.aj.full_stack_v3.domain.mapper.ExpenseMapper;
 import dev.aj.full_stack_v3.repository.ExpenseRepository;
 import dev.aj.full_stack_v3.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;

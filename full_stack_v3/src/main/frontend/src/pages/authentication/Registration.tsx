@@ -3,20 +3,33 @@ import {useNavigate} from "react-router-dom";
 import {
     initialUserRegistrationRequest,
     UserRegistrationRequest,
-    UserRegistrationRequestSchemaValidations
+    UserRegistrationRequestSchemaValidations,
+    UserRegistrationResponse
 } from "../../domain/Types.ts";
 import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
 import {GoQuestion} from "react-icons/go";
+import {AxiosInstance} from "../../service/api-client.ts";
+import toast from "react-hot-toast";
 
 export const Registration = (): ReactNode => {
 
     const navigateTo = useNavigate();
 
-
     const registerUser = async (values: UserRegistrationRequest) => {
-        console.log(values);
-        navigateTo("/login");
+        AxiosInstance.post('/api/v1/auth/register', values)
+            .then(response => {
+                let registrationData = response.data as UserRegistrationResponse;
+                console.log(registrationData.userId);
+                toast.success(`Registration successful - User ID - ${registrationData.userId} assigned to ${registrationData.username}`, {
+                    duration: 10000,
+                });
+            })
+            .catch(error => {
+                toast.error(error.response.data.message);
+            }).finally(() => {
+            navigateTo("/login");
+        });
     };
 
     const {values, errors, touched, handleChange, handleSubmit, resetForm, handleBlur} = useFormik({

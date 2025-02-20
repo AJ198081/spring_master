@@ -85,7 +85,6 @@ export const AddExpense = () => {
                             className={`form-control ${errors.note && touched.note ? 'is-invalid' : ''}`}
                             id="note"
                             value={values.note}
-                            defaultValue={"Notes left blank"}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             rows={3}

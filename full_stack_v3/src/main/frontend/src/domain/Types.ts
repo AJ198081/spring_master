@@ -2,6 +2,7 @@ import {MRT_ColumnDef} from "mantine-react-table";
 import {currencyFormatter, dateFormatter} from "../utils/Formatter.ts";
 import {date, number, object, string, ref} from "yup";
 import dayjs from "dayjs";
+import {JwtPayload} from "jwt-decode";
 
 
 export interface ExpenseRequest {
@@ -105,6 +106,43 @@ export const initialUserRegistrationRequest: UserRegistrationRequest = {
     confirmpassword: ''
 };
 
+export interface UserLoginRequest {
+    username: string;
+    password: string;
+}
+
+export interface UserLoginResponse {
+    token: string;
+}
+
+export const initialUserLoginRequest: UserLoginRequest = {
+    username: '',
+    password: ''
+}
+
+export const UserLoginRequestSchemaValidation = object({
+    username: string()
+        .required('Username is required'),
+    password: string()
+        .required('Password is required')
+        .min(8, 'Passwords are at least 8 characters long')
+        .max(50, 'Passwords are at most 50 characters long')
+        .matches(/[a-z]/, 'Passwords contain at least one lowercase letter')
+        .matches(/[A-Z]/, 'Passwords contain at least one uppercase letter')
+        .matches(/[0-9]/, 'Passwords contain at least one number')
+        .matches(
+            /[!@#$%^&*]/,
+            'Password usually contain at least one special (!@#$%^&*) character'
+        )
+})
+
+export interface CustomJwtPayload extends JwtPayload {
+    lastName: string;
+    firstName: string;
+    email: string;
+    username: string;
+    roles: string;
+}
 
 
 export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
