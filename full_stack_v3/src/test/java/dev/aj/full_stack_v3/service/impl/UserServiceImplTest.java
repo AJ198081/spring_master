@@ -5,6 +5,7 @@ import dev.aj.full_stack_v3.TestConfig;
 import dev.aj.full_stack_v3.TestData;
 import dev.aj.full_stack_v3.domain.dto.UserRegistrationRequest;
 import org.assertj.core.api.Assertions;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -12,9 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -26,6 +32,9 @@ class UserServiceImplTest {
 
     @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private TestData testData;
@@ -50,7 +59,7 @@ class UserServiceImplTest {
         UserDetails userDetails = userService.loadUserByUsername(firstUserRequest.getUsername());
 
         Assertions.assertThat(userDetails.getUsername()).isEqualTo(firstUserRequest.getUsername());
-        Assertions.assertThat(userDetails.getPassword()).isEqualTo(firstUserRequest.getPassword());
+        assertTrue(passwordEncoder.matches(firstUserRequest.getPassword(), userDetails.getPassword()));
     }
 
     @Test
