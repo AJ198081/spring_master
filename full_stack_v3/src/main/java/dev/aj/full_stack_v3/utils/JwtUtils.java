@@ -1,6 +1,8 @@
 package dev.aj.full_stack_v3.utils;
 
+import dev.aj.full_stack_v3.domain.dto.SecurityUser;
 import dev.aj.full_stack_v3.domain.entity.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -40,7 +42,7 @@ public class JwtUtils {
             return null;
         }
 
-        public String generateTokeFromUser(User user) {
+        public String generateTokenFromUser(User user) {
             return Jwts.builder()
                     .subject(user.getUsername())
                     .claim("roles", user.getRole())
@@ -54,7 +56,32 @@ public class JwtUtils {
                     .compact();
         }
 
-        private Key key() {
+        public SecurityUser getSecurityUserFromToken(String jwtToken) {
+            Claims payload = Jwts.parser()
+                    .verifyWith((SecretKey) key())
+                    .build()
+                    .parseSignedClaims(jwtToken)
+                    .getPayload();
+
+
+            User user = getUserFromJwtClaims(payload);
+
+
+            return new SecurityUser(user);
+        }
+
+    private User getUserFromJwtClaims(Claims payload) {
+        return User.builder()
+                .username(payload.getSubject())
+                .firstName(payload.get("firstName", String.class))
+                .lastName(payload.get("lastName", String.class))
+                .email(payload.get("email", String.class))
+                .role(payload.get("roles", String.class))
+                .build();
+    }
+
+
+    private Key key() {
 //        byte[] base64DecodedSecret = Decoders.BASE64.decode(jwtSecret);
             return Keys.hmacShaKeyFor(Encoders.BASE64.encode(jwtSecret.getBytes()).getBytes());
         }

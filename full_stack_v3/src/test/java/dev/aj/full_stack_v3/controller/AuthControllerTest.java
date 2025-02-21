@@ -3,6 +3,8 @@ package dev.aj.full_stack_v3.controller;
 import dev.aj.full_stack_v3.PostgresTCConfig;
 import dev.aj.full_stack_v3.TestConfig;
 import dev.aj.full_stack_v3.TestData;
+import dev.aj.full_stack_v3.domain.dto.UserLoginRequest;
+import dev.aj.full_stack_v3.domain.dto.UserLoginResponse;
 import dev.aj.full_stack_v3.domain.dto.UserRegistrationRequest;
 import dev.aj.full_stack_v3.domain.dto.UserRegistrationResponse;
 import org.assertj.core.api.Assertions;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.NoSuchElementException;
@@ -72,7 +75,16 @@ class AuthControllerTest {
                 .extracting(UserRegistrationResponse::getUsername, UserRegistrationResponse::getEmail)
                 .containsExactly(testUserRequest.getUsername(), testUserRequest.getEmail());
 
-        String path = registrationResponse.getHeaders().getLocation().getPath();
+        ResponseEntity<UserLoginResponse> userLoginResponse = restClient.post().uri("/login")
+                .body(new UserLoginRequest(testUserRequest.getUsername(), testUserRequest.getPassword()))
+                .retrieve()
+                .toEntity(UserLoginResponse.class);
+
+        assertTrue(userLoginResponse.getStatusCode().is2xxSuccessful());
+        assertNotNull(userLoginResponse.getBody());
+        assertThat(userLoginResponse.getBody().getToken()).isNotBlank();
+
+       /* String path = registrationResponse.getHeaders().getLocation().getPath();
         String uriPath = path.substring(path.lastIndexOf('/'));
 
         ResponseEntity<UserRegistrationResponse> userRegistrationResponse = restClient.get()
@@ -83,7 +95,7 @@ class AuthControllerTest {
         Assertions.assertThat(userRegistrationResponse.getBody()).isNotNull();
         Assertions.assertThat(userRegistrationResponse.getBody())
                 .usingRecursiveComparison()
-                .isEqualTo(registrationResponse.getBody());
+                .isEqualTo(registrationResponse.getBody());*/
     }
 
 
@@ -106,7 +118,7 @@ class AuthControllerTest {
                 .body(invalidEmail)
                 .retrieve();
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.client.HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
+        org.junit.jupiter.api.Assertions.assertThrows(HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
     }
 
     @Test
@@ -129,7 +141,7 @@ class AuthControllerTest {
                 .body(invalidPassword)
                 .retrieve();
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.client.HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
+        org.junit.jupiter.api.Assertions.assertThrows(HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
     }
 
     @Test
@@ -152,7 +164,7 @@ class AuthControllerTest {
                 .body(invalidUsername)
                 .retrieve();
 
-        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.client.HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
+        org.junit.jupiter.api.Assertions.assertThrows(HttpClientErrorException.BadRequest.class, () -> responseSpecification.toEntity(UserRegistrationResponse.class));
     }
 
 

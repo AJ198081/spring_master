@@ -106,30 +106,29 @@ export const Registration = (): ReactNode => {
 
                     <div className="mb-3">
                         <label htmlFor="password" className="form-label">Password</label>
-
                         <div className={'input-group'}>
                             <input type="password"
                                    id="password"
-                                   autoComplete={"current-password"}
+                                   name="password"
                                    className={`form-control ${errors.password && touched.password ? 'is-invalid' : ''}`}
                                    value={values.password}
                                    onChange={handleChange}
                                    onBlur={handleBlur}
                                    placeholder="Enter password"/>
-
                             <Tooltip
                                 className={'input-group-text'}
-                                label={'Must container at least one uppercase, one lowercase, one number, one special and min 8 characters'}
+                                label={'Must contain at least one uppercase, one lowercase, one number, one special character, and be at least 8 characters long'}
                             >
                                 <span>
-                                <GoQuestion/>
+                                    <GoQuestion/>
                                 </span>
                             </Tooltip>
                         </div>
-
-                        {touched.password && <div className="invalid-feedback">
-                            {errors.password}
-                        </div>}
+                        {touched.password && errors.password &&
+                            <div className="invalid-feedback d-block">
+                                {errors.password}
+                            </div>
+                        }
                     </div>
 
                     <div className="mb-3">

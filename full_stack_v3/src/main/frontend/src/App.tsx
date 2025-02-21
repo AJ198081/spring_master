@@ -10,6 +10,7 @@ import {ExpenseDetails} from "./components/ExpenseDetails.tsx";
 import {ToasterComponent} from "./components/common/Toaster.tsx";
 import {AddExpense} from "./components/AddExpense.tsx";
 import {UserAuthenticationProvider} from "./contexts/UserAuthenticationProvider.tsx";
+import {ProtectedRoute} from "./pages/authentication/ProtectedRoute.tsx";
 
 function App() {
 
@@ -29,8 +30,11 @@ function App() {
                             <Route path={'/login'} element={<Login/>}/>
                             <Route path={'/logout'} element={<Logout/>}/>
                             <Route path={'/register'} element={<Registration/>}/>
-                            <Route path={'/new'} element={<AddExpense/>}/>
-                            <Route path={'/view/:expenseId'} element={<ExpenseDetails/>}/>
+                                <Route path={'/new'} element={
+                                    <ProtectedRoute><AddExpense/></ProtectedRoute>
+                                }/>
+                                <Route path={'/view/:expenseId'} element={
+                                    <ProtectedRoute><ExpenseDetails/></ProtectedRoute>}/>
                         </Routes>
                     </BrowserRouter>
                 </MantineProvider>

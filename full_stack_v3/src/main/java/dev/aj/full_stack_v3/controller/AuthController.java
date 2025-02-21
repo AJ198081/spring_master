@@ -4,10 +4,13 @@ import dev.aj.full_stack_v3.domain.dto.UserLoginRequest;
 import dev.aj.full_stack_v3.domain.dto.UserLoginResponse;
 import dev.aj.full_stack_v3.domain.dto.UserRegistrationRequest;
 import dev.aj.full_stack_v3.domain.dto.UserRegistrationResponse;
+import dev.aj.full_stack_v3.domain.mapper.UserMapper;
 import dev.aj.full_stack_v3.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +29,8 @@ import java.net.URI;
 public class AuthController {
 
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final UserMapper userMapper;
 
     @PostMapping("/register")
     public ResponseEntity<UserRegistrationResponse> register(@RequestBody @Validated UserRegistrationRequest userRegistrationRequest) {
@@ -51,7 +56,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponse> loginRequest(@RequestBody @Validated UserLoginRequest userLoginRequest) {
-        return ResponseEntity.ok(userService.loginUser(userLoginRequest));
+        Authentication authentication = authenticationManager.authenticate(userMapper.userLoginRequestToUsernamePasswordAuthenticationToken(userLoginRequest));
+        return ResponseEntity.ok(userService.loginUser(authentication));
     }
 
 

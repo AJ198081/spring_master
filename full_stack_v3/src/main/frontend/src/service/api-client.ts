@@ -21,7 +21,6 @@ AxiosInstance.interceptors.request.use(
 
 AxiosInstance.interceptors.response.use(
     (response: AxiosResponse) => {
-
         return response;
     },
 
