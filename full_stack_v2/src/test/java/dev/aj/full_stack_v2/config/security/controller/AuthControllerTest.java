@@ -2,6 +2,7 @@ package dev.aj.full_stack_v2.config.security.controller;
 
 import com.github.javafaker.Faker;
 import dev.aj.full_stack_v2.PostgresTestContainerConfiguration;
+import dev.aj.full_stack_v2.SecurityConfigForTesting;
 import dev.aj.full_stack_v2.TestConfig;
 import dev.aj.full_stack_v2.domain.dto.LoginRequest;
 import dev.aj.full_stack_v2.domain.dto.LoginResponse;
@@ -29,7 +30,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import({PostgresTestContainerConfiguration.class, TestConfig.class})
+@Import({PostgresTestContainerConfiguration.class, TestConfig.class, SecurityConfigForTesting.class,})
 @TestPropertySource(properties = {
         "logging.level.org.springframework.security=trace"
 })

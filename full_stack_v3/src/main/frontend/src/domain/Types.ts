@@ -10,7 +10,7 @@ export interface ExpenseRequest {
     note: string;
     category: string;
     date: string | Date;
-    amount: string;
+    amount: number;
 }
 
 export interface ExpenseResponse extends ExpenseRequest {

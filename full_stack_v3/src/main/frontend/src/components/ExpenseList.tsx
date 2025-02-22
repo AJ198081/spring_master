@@ -67,7 +67,7 @@ export const ExpenseList = ({columns, data, userName}: ExpenseListProps) => {
     });
 
     const totalExpenses = table.getFilteredRowModel().rows
-        .map(row => parseFloat(row.original.amount))
+        .map(row => row.original.amount)
         .reduce((acc, curr) => acc + curr, 0);
 
     return <div>

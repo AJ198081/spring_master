@@ -2,6 +2,7 @@ package dev.aj.full_stack_v2.controllers;
 
 import com.github.javafaker.Faker;
 import dev.aj.full_stack_v2.PostgresTestContainerConfiguration;
+import dev.aj.full_stack_v2.SecurityConfigForTesting;
 import dev.aj.full_stack_v2.TestConfig;
 import dev.aj.full_stack_v2.domain.entities.security.SecurityUser;
 import org.assertj.core.api.Assertions;
@@ -34,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import({PostgresTestContainerConfiguration.class, TestConfig.class})
+@Import({PostgresTestContainerConfiguration.class, TestConfig.class, SecurityConfigForTesting.class})
 @TestPropertySource(locations = "/application-test.properties", properties = {
         "logging.level.org.springframework.security=trace"
 })
@@ -81,14 +82,6 @@ class AdminControllerTest {
                     assertNotNull(user.getId());
                     return true;
                 });
-    }
-
-    @Test
-    void createUser() {
-    }
-
-    @Test
-    void updateUser() {
     }
 
     @Test

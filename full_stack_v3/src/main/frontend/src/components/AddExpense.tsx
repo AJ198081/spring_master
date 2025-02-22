@@ -18,7 +18,7 @@ export const AddExpense = () => {
             name: values.name,
             note: values.note,
             category: values.category,
-            amount: (values.amount as unknown as number).toFixed(2),
+            amount: values.amount,
             date: dayjs(values.date).format('DD/MM/YYYY'),
         };
 
@@ -52,7 +52,7 @@ export const AddExpense = () => {
             name: '',
             note: 'Default notes',
             category: '',
-            amount: '',
+            amount: 0,
             date: dayjs().utc(true).format('YYYY-MM-DD'),
         },
         onSubmit: createExpense,
