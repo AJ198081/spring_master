@@ -1,5 +1,4 @@
 import {createContext, Dispatch, SetStateAction} from 'react';
-import {CustomJwtPayload} from "../domain/Types.ts";
 
 const initialAuthenticationContext = {
     isAuthenticated: false,
@@ -10,11 +9,11 @@ const initialAuthenticationContext = {
     },
 };
 
-interface AuthenticationContext {
+export interface AuthenticationContext {
     isAuthenticated: boolean,
     setIsAuthenticated: Dispatch<SetStateAction<boolean>>,
-    token: CustomJwtPayload | null,
-    setToken: Dispatch<SetStateAction<CustomJwtPayload | null>>,
+    token: string | null,
+    setToken: Dispatch<SetStateAction<string | null>>,
 }
 
 export const UserAuthenticationContext = createContext<AuthenticationContext>(initialAuthenticationContext);

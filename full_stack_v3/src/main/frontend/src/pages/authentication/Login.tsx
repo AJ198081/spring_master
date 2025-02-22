@@ -1,38 +1,42 @@
 import {ReactNode, useContext} from "react";
 import {useNavigate} from "react-router-dom";
 import {
-    CustomJwtPayload,
-    initialUserLoginRequest, UserLoginRequest,
-    UserLoginRequestSchemaValidation, UserLoginResponse,
+    initialUserLoginRequest,
+    UserLoginRequest,
+    UserLoginRequestSchemaValidation,
+    UserLoginResponse,
 } from "../../domain/Types.ts";
 import {AxiosInstance} from "../../service/api-client.ts";
+import {AxiosResponse} from "axios";
 import toast from "react-hot-toast";
 import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
 import {GoQuestion} from "react-icons/go";
 import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext.tsx";
-import {jwtDecode} from "jwt-decode";
 
 export const Login = (): ReactNode => {
     const navigateTo = useNavigate();
     const {setIsAuthenticated, setToken} = useContext(UserAuthenticationContext)
 
-    const registerUser = async (values: UserLoginRequest) => {
+    const loginUser = async (values: UserLoginRequest) => {
+
         AxiosInstance.post('/api/v1/auth/login', values)
-            .then(response => {
-                console.log(JSON.stringify(response));
-                let registrationData = response.data as UserLoginResponse;
+            .then((response: AxiosResponse<UserLoginResponse>) => {
+                const loginResponse = response.data;
                 if (response.status === 200) {
-                    localStorage.setItem('token', registrationData.token);
-                    setToken(jwtDecode<CustomJwtPayload>(registrationData.token));
+                    setToken(loginResponse.token);
                     setIsAuthenticated(true);
+                    toast.success('Login successful');
+                    console.log(`${loginResponse.token} Token!!`);
                     navigateTo("/");
-                } else if (response.status === 404 || response.status === 400){
-                    console.log(`Errors ${response.data.detail}`);
+                } else if (response.status === 404
+                    || response.status === 400
+                    || response.status === 401
+                    || response.status === 403) {
                     toast.error('Unable to login. Please check your credentials and try again.', {
                         duration: 10000,
                     });
-                    setErrors({ username: response.data.detail});
+                    setErrors({username: 'Login failed. Please check your credentials.'});
                     setToken(null);
                     resetForm();
                 }
@@ -45,7 +49,7 @@ export const Login = (): ReactNode => {
 
     const {values, errors, setErrors, touched, handleChange, handleSubmit, resetForm, handleBlur} = useFormik({
         initialValues: initialUserLoginRequest,
-        onSubmit: registerUser,
+        onSubmit: loginUser,
         validationSchema: UserLoginRequestSchemaValidation,
     });
 
@@ -58,14 +62,15 @@ export const Login = (): ReactNode => {
                       onBlur={handleBlur}>
 
                     <div className="mb-3">
-                        <label htmlFor="username" className="form-label">Username</label>
+                        <label htmlFor="username" className="form-label">Username or email</label>
                         <input type="text"
                                id="username"
                                className={`form-control ${errors.username && touched.username ? 'is-invalid' : ''}`}
                                value={values.username}
                                onChange={handleChange}
                                onBlur={handleBlur}
-                               placeholder="Enter username"/>
+                               autoComplete={'on'}
+                               placeholder="Enter your username or email"/>
                         {touched.username && <div className="invalid-feedback">
                             {errors.username}
                         </div>}

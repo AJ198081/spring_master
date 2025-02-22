@@ -4,6 +4,7 @@ import dev.aj.full_stack_v3.domain.dto.SecurityUser;
 import dev.aj.full_stack_v3.domain.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -116,4 +117,4 @@ public class JwtUtils {
             }
             return false;
         }
-    }
+}

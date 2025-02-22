@@ -121,7 +121,8 @@ export const initialUserLoginRequest: UserLoginRequest = {
 
 export const UserLoginRequestSchemaValidation = object({
     username: string()
-        .required('Username is required'),
+        .required('Username is required')
+        .min(2, 'Usernames are usually at least 2 character'),
     password: string()
         .required('Password is required')
         .min(8, 'Passwords are at least 8 characters long')

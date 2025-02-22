@@ -1,6 +1,6 @@
 import {ReactNode, useContext, useEffect, useMemo, useState} from "react";
 import toast from 'react-hot-toast';
-import {columnsDescription, ExpenseResponse} from "../domain/Types.ts";
+import {columnsDescription, CustomJwtPayload, ExpenseResponse} from "../domain/Types.ts";
 import {ExpenseList} from "../components/ExpenseList.tsx";
 import {MRT_ColumnDef} from "mantine-react-table";
 import {Spinner} from "../components/common/Spinner.tsx";
@@ -8,6 +8,8 @@ import {useNavigate} from "react-router-dom";
 import {AxiosInstance} from "../service/api-client.ts";
 import {stringToDateObject} from "../utils/Formatter.ts";
 import {UserAuthenticationContext} from "../contexts/UserAuthenticationContext.tsx";
+import {AxiosResponse} from "axios";
+import {jwtDecode} from "jwt-decode";
 
 export const Dashboard = (): ReactNode => {
 
@@ -23,9 +25,12 @@ export const Dashboard = (): ReactNode => {
     const {token, setToken} = useContext(UserAuthenticationContext)
 
     useEffect(() => {
+
+        const abortController = new AbortController();
+
         if (token !== null) {
-            if (token.exp && token.exp < Date.now() / 1000) {
-                console.log('token expired');
+            const decodedToken = jwtDecode<CustomJwtPayload>(token);
+            if (decodedToken.exp && decodedToken.exp < Date.now() / 1000) {
                 toast.error('Your session has expired. Please log in again.', {
                     duration: 3000,
                 });
@@ -33,17 +38,16 @@ export const Dashboard = (): ReactNode => {
                 setToken(null);
                 navigateTo('/login');
             } else {
-                console.log(`Token is valid until ${token.exp ? new Date(token.exp * 1000).toLocaleString() : 'Already expired'}`)
-                console.log(`Token ${JSON.stringify(token)}`)
-                const fullName = `${token.lastName ?? 'Guest'}, ${token.firstName ?? ''}`.trim();
-                console.log(`User ${fullName} logged in`);
+                const fullName = `${decodedToken.lastName ?? 'Guest'}, ${decodedToken.firstName ?? ''}`.trim();
                 setUserName(fullName);
 
-                AxiosInstance.get('/api/v1/expenses')
-                    .then(response => {
+                AxiosInstance.get('/api/v1/expenses', {
+                    signal: abortController.signal,
+                })
+                    .then((response: AxiosResponse<ExpenseResponse[]>) => {
                         if (response.status === 200) {
 
-                            const parsedExpenses = response.data as ExpenseResponse[];
+                            const parsedExpenses = response.data;
 
                             const enrichedExpenses = parsedExpenses.map(expense => {
                                 return {
@@ -68,6 +72,7 @@ export const Dashboard = (): ReactNode => {
             setExpenses([]);
             setErrors(null);
             setIsLoading(true);
+            abortController.abort();
         }
     }, [])
 

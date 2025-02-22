@@ -1,5 +1,6 @@
 import {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
+import {AxiosResponse} from "axios";
 import {
     initialUserRegistrationRequest,
     UserRegistrationRequest,
@@ -18,9 +19,8 @@ export const Registration = (): ReactNode => {
 
     const registerUser = async (values: UserRegistrationRequest) => {
         AxiosInstance.post('/api/v1/auth/register', values)
-            .then(response => {
-                let registrationData = response.data as UserRegistrationResponse;
-                console.log(registrationData.userId);
+            .then((response: AxiosResponse<UserRegistrationResponse>) => {
+                const registrationData = response.data;
                 toast.success(`Registration successful - User ID - ${registrationData.userId} assigned to ${registrationData.username}`, {
                     duration: 10000,
                 });
@@ -98,6 +98,7 @@ export const Registration = (): ReactNode => {
                                value={values.username}
                                onChange={handleChange}
                                onBlur={handleBlur}
+                               autoComplete={'on'}
                                placeholder="Enter username"/>
                         {touched.username && <div className="invalid-feedback">
                             {errors.username}
@@ -114,6 +115,7 @@ export const Registration = (): ReactNode => {
                                    value={values.password}
                                    onChange={handleChange}
                                    onBlur={handleBlur}
+                                   autoComplete={'on'}
                                    placeholder="Enter password"/>
                             <Tooltip
                                 className={'input-group-text'}
@@ -140,6 +142,7 @@ export const Registration = (): ReactNode => {
                                value={values.confirmpassword}
                                onChange={handleChange}
                                onBlur={handleBlur}
+                               autoComplete={'on'}
                                placeholder="Confirm password"/>
                         {touched.confirmpassword && <div className="invalid-feedback">
                             {errors.confirmpassword}

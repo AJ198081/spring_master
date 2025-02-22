@@ -9,11 +9,10 @@ export const Logout = (): ReactNode => {
     const navigateTo = useNavigate();
 
     useEffect(() => {
-        localStorage.removeItem('token');
-        toast.success('You have been logged out successfully.');
         setIsAuthenticated(false);
         setToken(null);
-        navigateTo('/login');
+        navigateTo('/login')
+        toast.success('You have been logged out successfully.');
     })
 
     return <div>
