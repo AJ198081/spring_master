@@ -155,7 +155,6 @@ export const isJwtValid = (token: string | null): boolean => {
     }
 }
 
-
 export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     {
         accessorKey: 'expenseId',

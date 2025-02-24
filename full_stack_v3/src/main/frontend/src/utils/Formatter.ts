@@ -39,7 +39,7 @@ export const getBrowserTimeZone = () => {
 
 export const dateFormatter = new Intl.DateTimeFormat(navigator.language, {
     dateStyle: 'short',
-    // timeStyle: 'long',
+    // timeStyle: 'full',
     timeZone: getBrowserTimeZone()
 });
 
