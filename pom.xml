@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.2</version>
+        <version>3.4.3</version>
         <relativePath/>
     </parent>
 
@@ -33,6 +33,7 @@
         <module>full_stack_hr_flow/talent_request</module>
         <module>full_stack_hr_flow/talent_fulfillment</module>
         <module>full_stack_hr_flow/api_gateway</module>
+        <module>spring_modulith</module>
     </modules>
 
     <properties>
