@@ -19,7 +19,7 @@ export const AddExpense = () => {
             note: values.note,
             category: values.category,
             amount: values.amount,
-            date: dayjs(values.date).format('DD/MM/YYYY'),
+            date: dayjs(values.date).format('YYYY-MM-DD'),
         };
 
         try {
@@ -127,7 +127,7 @@ export const AddExpense = () => {
                                value={values.date}
                                onChange={handleChange}
                                onBlur={handleBlur}
-                               placeholder={dayjs().format('DD/MM/YYYY')}/>
+                               />
                         {touched.date && <div className="invalid-feedback">
                             {errors.date}
                         </div>}

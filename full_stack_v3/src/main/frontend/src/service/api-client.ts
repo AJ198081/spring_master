@@ -1,4 +1,5 @@
 import axios, {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from "axios";
+import dayjs from "dayjs";
 
 export const AxiosInstance = axios.create({
     baseURL: `${import.meta.env.VITE_API_BASE_URL_V3}`,
@@ -22,6 +23,9 @@ AxiosInstance.interceptors.request.use(
 
 AxiosInstance.interceptors.response.use(
     (response: AxiosResponse) => {
+        if (response.config?.url?.includes('login') && response.status === 200) {
+            console.log(`Successfully logged in ${dayjs().format('DD/MM/YYYY HH:mm:ss')}`);
+        }
         return response;
     },
 
@@ -30,7 +34,7 @@ AxiosInstance.interceptors.response.use(
             switch (error.response.status) {
                 case 400:
                 case 401:
-                    window.location.href = "/login";
+                    console.log(` 400 or 401 whilst accessing ${error.config?.url}`);
                     break;
                 case 403:
                     console.log(` 403 whilst accessing ${error.config?.url}`);

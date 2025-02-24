@@ -5,7 +5,6 @@ import dev.aj.full_stack_v3.TestConfig;
 import dev.aj.full_stack_v3.TestData;
 import dev.aj.full_stack_v3.domain.dto.UserRegistrationRequest;
 import org.assertj.core.api.Assertions;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -18,8 +17,6 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)

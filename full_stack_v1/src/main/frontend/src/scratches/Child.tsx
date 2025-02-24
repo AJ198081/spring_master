@@ -1,4 +1,4 @@
-import {ReactNode, MouseEvent, useRef} from "react";
+import {MouseEvent, ReactNode, useRef} from "react";
 
 export const Child = ({color}: { color: string }): ReactNode => {
 

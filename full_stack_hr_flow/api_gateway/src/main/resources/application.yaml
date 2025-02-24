@@ -1,0 +1,55 @@
+# General application settings
+spring:
+  application:
+    name: "@project.artifactId@"
+  docker:
+    compose:
+      enabled: false
+  cloud:
+    gateway:
+          discovery:
+            locator:
+              enabled: true
+          enabled: true
+          routes:
+            - id: talent_request_service
+              uri: http://localhost:8080
+              predicates:
+                - Path=/talent_request/**
+
+server:
+  port: 8080
+
+info:
+  app:
+    version: "@project.version@"
+    name: "@project.name@"
+    description: "@project.description@"
+    classification: UNCLASSIFIED
+
+# Eureka configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    ip-address: 127.0.0.1
+    instance-id: "${eureka.instance.ip-address}"
+
+# Spring Cloud Gateway
+
+# Management and Actuators
+management:
+  endpoint:
+    gateway:
+      access: unrestricted
+  endpoints:
+    web:
+      exposure:
+        include: info,health,gateway
+      base-path: /actuator
+  info:
+    env:
+      enabled: true

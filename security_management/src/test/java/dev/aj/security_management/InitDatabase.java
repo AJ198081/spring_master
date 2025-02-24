@@ -1,12 +1,10 @@
 package dev.aj.security_management;
 
-import com.github.javafaker.Faker;
 import dev.aj.security_management.security.entities.SecurityUser;
 import dev.aj.security_management.security.service.SecurityUserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.test.context.TestComponent;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;

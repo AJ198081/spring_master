@@ -6,9 +6,8 @@ import {MRT_ColumnDef} from "mantine-react-table";
 import {Spinner} from "../components/common/Spinner.tsx";
 import {useNavigate} from "react-router-dom";
 import {AxiosInstance} from "../service/api-client.ts";
-import {stringToDateObject} from "../utils/Formatter.ts";
 import {UserAuthenticationContext} from "../contexts/UserAuthenticationContext.tsx";
-import {AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import {jwtDecode} from "jwt-decode";
 
 export const Dashboard = (): ReactNode => {
@@ -22,11 +21,9 @@ export const Dashboard = (): ReactNode => {
     const [errors, setErrors] = useState<Error | null>(null);
     const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
 
-    const {token, setToken} = useContext(UserAuthenticationContext)
+    const {token, setToken, setIsAuthenticated} = useContext(UserAuthenticationContext)
 
     useEffect(() => {
-
-        const abortController = new AbortController();
 
         if (token !== null) {
             const decodedToken = jwtDecode<CustomJwtPayload>(token);
@@ -41,30 +38,28 @@ export const Dashboard = (): ReactNode => {
                 const fullName = `${decodedToken.lastName ?? 'Guest'}, ${decodedToken.firstName ?? ''}`.trim();
                 setUserName(fullName);
 
-                AxiosInstance.get('/api/v1/expenses', {
-                    signal: abortController.signal,
-                })
+                AxiosInstance.get('/api/v1/expenses')
                     .then((response: AxiosResponse<ExpenseResponse[]>) => {
                         if (response.status === 200) {
-
                             const parsedExpenses = response.data;
-
-                            const enrichedExpenses = parsedExpenses.map(expense => {
-                                return {
-                                    ...expense,
-                                    date: (typeof expense.date === 'string') ? stringToDateObject(expense.date) : expense.date
-                                };
-                            });
-                            setExpenses(enrichedExpenses);
+                            setExpenses(parsedExpenses);
                         }
                     })
                     .catch(error => {
+                        if (error instanceof AxiosError) {
+                            toast.error((error as AxiosError).message);
+                            if ((error as AxiosError).status === 401) {
+                                setIsAuthenticated(false);
+                                setToken(null);
+                                navigateTo('/login');
+                            }
+                        }
                         setErrors({name: "fetch exception", message: error.response.data});
-                        toast.error(`Error whilst fetching data ${error.response.data.message}`);
                     })
                     .finally(() => setIsLoading(false));
             }
         } else {
+            setIsAuthenticated(false);
             navigateTo('/login');
         }
 
@@ -72,7 +67,6 @@ export const Dashboard = (): ReactNode => {
             setExpenses([]);
             setErrors(null);
             setIsLoading(true);
-            abortController.abort();
         }
     }, [])
 

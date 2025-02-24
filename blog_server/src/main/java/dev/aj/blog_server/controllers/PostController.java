@@ -1,11 +1,9 @@
 package dev.aj.blog_server.controllers;
 
 import dev.aj.blog_server.domain.entities.Post;
-import dev.aj.blog_server.repositories.PostRepository;
 import dev.aj.blog_server.services.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

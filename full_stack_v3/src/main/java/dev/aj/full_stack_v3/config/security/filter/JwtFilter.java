@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 
 @Component
 @RequiredArgsConstructor
@@ -29,10 +30,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String jwtFromRequest = getJwtFromRequest(request);
 
-        if (jwtFromRequest != null && jwtUtils.validateJwtToken(jwtFromRequest)) {
-            SecurityUser securityUser = jwtUtils.getSecurityUserFromToken(jwtFromRequest);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            if (jwtFromRequest != null && jwtUtils.validateJwtToken(jwtFromRequest)) {
+                SecurityUser securityUser = jwtUtils.getSecurityUserFromToken(jwtFromRequest);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (Exception e) {
+            throw new AccessDeniedException("JWT Token has expired");
         }
 
         filterChain.doFilter(request, response);

@@ -17,9 +17,9 @@ import org.springframework.web.client.RestClient;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(value = {PostgresTestContainerConfiguration.class, TestConfig.class})
@@ -74,7 +74,7 @@ class PostControllerTest {
         ResponseEntity<Set<Comment>> commentsForThisPost = restClient.get()
                 .uri("/comments/postId/{postId}", entity.getBody().getId())
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<Set<Comment>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         assertEquals(200, commentsForThisPost.getStatusCode().value());

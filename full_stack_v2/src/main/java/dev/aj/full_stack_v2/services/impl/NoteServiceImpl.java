@@ -1,7 +1,7 @@
 package dev.aj.full_stack_v2.services.impl;
 
-import dev.aj.full_stack_v2.repositories.NoteRepository;
 import dev.aj.full_stack_v2.domain.entities.Note;
+import dev.aj.full_stack_v2.repositories.NoteRepository;
 import dev.aj.full_stack_v2.services.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

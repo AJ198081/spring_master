@@ -7,7 +7,7 @@ import {
     UserLoginResponse,
 } from "../../domain/Types.ts";
 import {AxiosInstance} from "../../service/api-client.ts";
-import {AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import toast from "react-hot-toast";
 import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
@@ -27,27 +27,20 @@ export const Login = (): ReactNode => {
                     setToken(loginResponse.token);
                     setIsAuthenticated(true);
                     toast.success('Login successful');
-                    console.log(`${loginResponse.token} Token!!`);
                     navigateTo("/");
-                } else if (response.status === 404
-                    || response.status === 400
-                    || response.status === 401
-                    || response.status === 403) {
-                    toast.error('Unable to login. Please check your credentials and try again.', {
-                        duration: 10000,
-                    });
-                    setErrors({username: 'Login failed. Please check your credentials.'});
-                    setToken(null);
-                    resetForm();
                 }
             })
             .catch(error => {
-                toast.error(error.response.data.message);
+                if (error instanceof AxiosError) {
+                    toast.error((error as AxiosError).message, {
+                        duration: 5000,
+                    });
+                }
                 setIsAuthenticated(false);
             });
     };
 
-    const {values, errors, setErrors, touched, handleChange, handleSubmit, resetForm, handleBlur} = useFormik({
+    const {values, errors, touched, handleChange, handleSubmit, resetForm, handleBlur} = useFormik({
         initialValues: initialUserLoginRequest,
         onSubmit: loginUser,
         validationSchema: UserLoginRequestSchemaValidation,

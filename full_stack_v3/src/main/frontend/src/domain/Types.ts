@@ -1,6 +1,6 @@
 import {MRT_ColumnDef} from "mantine-react-table";
-import {currencyFormatter, dateFormatter} from "../utils/Formatter.ts";
-import {date, number, object, string, ref} from "yup";
+import {currencyFormatter} from "../utils/Formatter.ts";
+import {date, number, object, ref, string} from "yup";
 import dayjs from "dayjs";
 import {JwtPayload} from "jwt-decode";
 
@@ -9,12 +9,13 @@ export interface ExpenseRequest {
     name: string;
     note: string;
     category: string;
-    date: string | Date;
+    date: string;
     amount: number;
 }
 
-export interface ExpenseResponse extends ExpenseRequest {
+export interface ExpenseResponse extends Omit<ExpenseRequest, 'date'>{
     expenseId: string;
+    date: string;
 }
 
 export const categoryOptions = [
@@ -171,7 +172,7 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
         sortingFn: "datetime",
         enableColumnFilterModes: false,
         Cell: ({cell}) => {
-            return dateFormatter.format(cell.getValue<Date>());
+            return cell.getValue<string>();
         }
     },
     {

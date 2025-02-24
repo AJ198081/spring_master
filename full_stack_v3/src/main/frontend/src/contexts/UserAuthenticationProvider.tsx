@@ -16,6 +16,13 @@ export const UserAuthenticationProvider = ({children}: { children: ReactNode }) 
                     return requestConfig;
                 }
             )
+        } else {
+            AxiosInstance.interceptors.request.use(
+                requestConfig => {
+                    requestConfig.headers.Authorization = '';
+                    return requestConfig;
+                }
+            )
         }
     }, [token]);
 

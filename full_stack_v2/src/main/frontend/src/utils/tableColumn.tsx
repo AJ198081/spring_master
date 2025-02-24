@@ -1,5 +1,5 @@
-import { MdDateRange } from "react-icons/md";
-import { auditLogsTruncateTexts } from "./truncateText";
+import {MdDateRange} from "react-icons/md";
+import {auditLogsTruncateTexts} from "./truncateText";
 
 export const auditLogscolumn = [
     {
