@@ -1,7 +1,7 @@
 import {useFormik} from "formik";
 import dayjs from "dayjs";
 import {AxiosInstance} from "../service/api-client.ts";
-import {categoryOptions, ExpenseRequest, expenseSchemaValidations} from "../domain/Types.ts";
+import {categoryOptions, dateFormat, ExpenseRequest, expenseSchemaValidations} from "../domain/Types.ts";
 import toast from "react-hot-toast";
 import {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
@@ -13,13 +13,12 @@ export const AddExpense = () => {
 
 
     const createExpense = async (values: ExpenseRequest) => {
-
         const expenseRequest: ExpenseRequest = {
             name: values.name,
             note: values.note,
             category: values.category,
             amount: values.amount,
-            date: dayjs(values.date).format('YYYY-MM-DD'),
+            date: dayjs(values.date).format(dateFormat),
         };
 
         try {
@@ -53,7 +52,7 @@ export const AddExpense = () => {
             note: 'Default notes',
             category: '',
             amount: 0,
-            date: dayjs().utc(true).format('YYYY-MM-DD'),
+            date: dayjs().utc(true).format(dateFormat),
         },
         onSubmit: createExpense,
         validationSchema: expenseSchemaValidations,

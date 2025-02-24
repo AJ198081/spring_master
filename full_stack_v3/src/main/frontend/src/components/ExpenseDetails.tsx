@@ -1,6 +1,6 @@
 import {useLocation, useNavigate} from "react-router-dom";
-import {categoryOptions, ExpenseRequest, ExpenseResponse} from "../domain/Types.ts";
-import {currencyFormatter, dateFormatter, dateToString} from "../utils/Formatter.ts";
+import {categoryOptions, dateFormat, ExpenseRequest, ExpenseResponse} from "../domain/Types.ts";
+import {currencyFormatter} from "../utils/Formatter.ts";
 import {ChangeEvent, ChangeEventHandler, useState} from "react";
 import {AxiosInstance} from "../service/api-client.ts";
 import dayjs from "dayjs";
@@ -27,7 +27,7 @@ export const ExpenseDetails = () => {
     const updateExpense = async (currentExpense: ExpenseResponse) => {
         try {
 
-            updatedExpense.date = dayjs(updatedExpense.date).format('DD/MM/YYYY');
+            updatedExpense.date = dayjs(updatedExpense.date).format(dateFormat);
 
             const updatePromise = AxiosInstance.put(`/api/v1/expenses/${currentExpense.expenseId}`, updatedExpense);
 
@@ -49,7 +49,7 @@ export const ExpenseDetails = () => {
         try {
             const deletePromise = AxiosInstance.delete(`/api/v1/expenses/${expense.expenseId}`);
             await toast.promise(deletePromise, {
-                loading: `Deleting expense ${expense.name} of ${currencyFormatter.format(Number(expense.amount))} from ${dateToString(expense.date as Date, 'DD/MM/YYYY')}...`,
+                loading: `Deleting expense ${expense.name} of ${currencyFormatter.format(Number(expense.amount))} from ${expense.date}...`,
                 success: 'Expense deleted successfully',
                 error: 'Error deleting expense'
             });
@@ -114,9 +114,10 @@ export const ExpenseDetails = () => {
                                     ? <input type={'date'} className="form-control"
                                              name={'date'}
                                              onChange={updateExpenseState}
-                                             defaultValue={dayjs(currentExpense.date).format('YYYY-MM-DD')}
+                                             defaultValue={dayjs(currentExpense.date).format(dateFormat)}
                                     />
-                                    : currentExpense.date instanceof Date ? dateFormatter.format(currentExpense.date) : currentExpense.date}</td>
+                                    : currentExpense.date
+                            }</td>
                         </tr>
                         <tr>
                             <th scope="col">Category</th>
@@ -129,7 +130,8 @@ export const ExpenseDetails = () => {
                                         <option value={currentExpense.category}>{currentExpense.category}</option>
                                         {categoryOptions
                                             .filter(category => category !== currentExpense.category)
-                                            .map(category => <option key={category} value={category}>{category}</option>)
+                                            .map(category => <option key={category}
+                                                                     value={category}>{category}</option>)
                                         }
                                     </select>
                                     : currentExpense.category}

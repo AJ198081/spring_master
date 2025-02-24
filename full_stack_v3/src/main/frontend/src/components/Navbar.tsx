@@ -1,13 +1,18 @@
 import {IoWalletSharp} from "react-icons/io5";
 import {Link, NavLink, useNavigate} from "react-router-dom";
-import {useContext} from "react";
+import {useContext, useMemo} from "react";
 import {UserAuthenticationContext} from "../contexts/UserAuthenticationContext.tsx";
+import {isJwtValid} from "../domain/Types.ts";
 
 export const Navbar = () => {
 
-    const { isAuthenticated} = useContext(UserAuthenticationContext)
+    const {token} = useContext(UserAuthenticationContext)
 
     const navigateTo = useNavigate();
+
+    const isAuthenticated = useMemo(() => {
+        return isJwtValid(token);
+    }, [token]);
 
     return <nav className="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
         <div className="container-fluid">
@@ -33,7 +38,7 @@ export const Navbar = () => {
                 onClick={() => {
                     navigateTo('/login');
                 }
-            }
+                }
             >
                 Login
             </button>

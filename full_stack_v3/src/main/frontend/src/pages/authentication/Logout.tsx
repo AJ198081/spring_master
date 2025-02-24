@@ -5,11 +5,10 @@ import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContex
 
 export const Logout = (): ReactNode => {
 
-    const {setIsAuthenticated, setToken} = useContext(UserAuthenticationContext);
+    const {setToken} = useContext(UserAuthenticationContext);
     const navigateTo = useNavigate();
 
     useEffect(() => {
-        setIsAuthenticated(false);
         setToken(null);
         navigateTo('/login')
         toast.success('You have been logged out successfully.');

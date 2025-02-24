@@ -16,7 +16,7 @@ import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContex
 
 export const Login = (): ReactNode => {
     const navigateTo = useNavigate();
-    const {setIsAuthenticated, setToken} = useContext(UserAuthenticationContext)
+    const {setToken} = useContext(UserAuthenticationContext)
 
     const loginUser = async (values: UserLoginRequest) => {
 
@@ -25,7 +25,6 @@ export const Login = (): ReactNode => {
                 const loginResponse = response.data;
                 if (response.status === 200) {
                     setToken(loginResponse.token);
-                    setIsAuthenticated(true);
                     toast.success('Login successful');
                     navigateTo("/");
                 }
@@ -36,7 +35,6 @@ export const Login = (): ReactNode => {
                         duration: 5000,
                     });
                 }
-                setIsAuthenticated(false);
             });
     };
 

@@ -5,31 +5,14 @@ import {AxiosInstance} from "../service/api-client.ts";
 
 export const UserAuthenticationProvider = ({children}: { children: ReactNode }) => {
 
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [token, setToken] = useState<string | null>(null);
 
     useLayoutEffect(() => {
-        if (token !== null) {
-            AxiosInstance.interceptors.request.use(
-                requestConfig => {
-                    requestConfig.headers.Authorization = `Bearer ${token}`
-                    return requestConfig;
-                }
-            )
-        } else {
-            AxiosInstance.interceptors.request.use(
-                requestConfig => {
-                    requestConfig.headers.Authorization = '';
-                    return requestConfig;
-                }
-            )
-        }
+        AxiosInstance.defaults.headers.common['Authorization'] = token ? `Bearer ${token}` : null;
     }, [token]);
 
     return (
         <UserAuthenticationContext.Provider value={{
-            isAuthenticated,
-            setIsAuthenticated,
             token,
             setToken,
         }}>

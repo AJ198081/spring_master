@@ -1,4 +1,4 @@
-import axios, {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import dayjs from "dayjs";
 
 export const AxiosInstance = axios.create({
@@ -10,21 +10,14 @@ export const AxiosInstance = axios.create({
     }
 });
 
-AxiosInstance.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-        return config;
-    },
-    (error: AxiosError) => {
-        console.log(`Error whilst accessing ${error.config?.url} and message is ${error.message}`);
-        return Promise.reject(error);
-    }
-);
-
-
 AxiosInstance.interceptors.response.use(
     (response: AxiosResponse) => {
         if (response.config?.url?.includes('login') && response.status === 200) {
             console.log(`Successfully logged in ${dayjs().format('DD/MM/YYYY HH:mm:ss')}`);
+            // AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+            // Won't be able to change the header whenever 'token' value changes
+        } else {
+            // AxiosInstance.defaults.headers.common['Authorization'] = null;
         }
         return response;
     },

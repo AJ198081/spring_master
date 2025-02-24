@@ -1,6 +1,6 @@
 import {ReactNode, useContext, useEffect, useMemo, useState} from "react";
 import toast from 'react-hot-toast';
-import {columnsDescription, CustomJwtPayload, ExpenseResponse} from "../domain/Types.ts";
+import {columnsDescription, CustomJwtPayload, ExpenseResponse, isJwtValid} from "../domain/Types.ts";
 import {ExpenseList} from "../components/ExpenseList.tsx";
 import {MRT_ColumnDef} from "mantine-react-table";
 import {Spinner} from "../components/common/Spinner.tsx";
@@ -21,13 +21,13 @@ export const Dashboard = (): ReactNode => {
     const [errors, setErrors] = useState<Error | null>(null);
     const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
 
-    const {token, setToken, setIsAuthenticated} = useContext(UserAuthenticationContext)
+    const {token, setToken} = useContext(UserAuthenticationContext)
 
     useEffect(() => {
 
         if (token !== null) {
             const decodedToken = jwtDecode<CustomJwtPayload>(token);
-            if (decodedToken.exp && decodedToken.exp < Date.now() / 1000) {
+            if (!isJwtValid(token)) {
                 toast.error('Your session has expired. Please log in again.', {
                     duration: 3000,
                 });
@@ -49,7 +49,6 @@ export const Dashboard = (): ReactNode => {
                         if (error instanceof AxiosError) {
                             toast.error((error as AxiosError).message);
                             if ((error as AxiosError).status === 401) {
-                                setIsAuthenticated(false);
                                 setToken(null);
                                 navigateTo('/login');
                             }
@@ -59,7 +58,6 @@ export const Dashboard = (): ReactNode => {
                     .finally(() => setIsLoading(false));
             }
         } else {
-            setIsAuthenticated(false);
             navigateTo('/login');
         }
 

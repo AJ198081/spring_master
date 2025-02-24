@@ -1,13 +1,14 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import {dateFormat} from "../domain/Types.ts";
 
 dayjs.extend(customParseFormat);
 
-export function stringToDateObject(dateString: string, format = 'YYYY-MM-DD'): Date {
+export function stringToDateObject(dateString: string, format = dateFormat): Date {
     return dayjs(dateString, format).toDate()
 }
 
-export function dateToString(date: Date, format = 'YYYY-MM-DD'): string {
+export function dateToString(date: Date, format = dateFormat): string {
     return dayjs(date).format(format)
 }
 

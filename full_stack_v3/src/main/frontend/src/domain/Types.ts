@@ -2,8 +2,9 @@ import {MRT_ColumnDef} from "mantine-react-table";
 import {currencyFormatter} from "../utils/Formatter.ts";
 import {date, number, object, ref, string} from "yup";
 import dayjs from "dayjs";
-import {JwtPayload} from "jwt-decode";
+import {jwtDecode, JwtPayload} from "jwt-decode";
 
+export const dateFormat = 'YYYY-MM-DD';
 
 export interface ExpenseRequest {
     name: string;
@@ -143,6 +144,15 @@ export interface CustomJwtPayload extends JwtPayload {
     email: string;
     username: string;
     roles: string;
+}
+
+export const isJwtValid = (token: string | null): boolean => {
+    if (token !== null) {
+        const jwtPayload = jwtDecode<CustomJwtPayload>(token);
+        return jwtPayload.exp !== undefined && (jwtPayload.exp > Date.now() / 1000);
+    } else {
+        return false;
+    }
 }
 
 
