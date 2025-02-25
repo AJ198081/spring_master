@@ -14,5 +14,4 @@ class TestFullStackV3Application {
                 .withAdditionalProfiles("test", "compose")
                 .run(args);
     }
-
 }
