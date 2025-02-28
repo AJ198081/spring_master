@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public interface OrderInventoryRepository extends CrudRepository<OrderInventory, Long> {
+interface OrderInventoryRepository extends CrudRepository<OrderInventory, Long> {
 
     OrderInventory findByOrderIdAndInventoryId(UUID orderId, UUID inventoryId);
 

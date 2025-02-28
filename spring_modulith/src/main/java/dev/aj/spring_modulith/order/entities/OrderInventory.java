@@ -29,7 +29,7 @@ public class OrderInventory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_inventory_seq_generator")
-    @SequenceGenerator(name = "order_inventory_seq_generator", sequenceName = "order_inventory_seq", allocationSize = 5, initialValue = 100)
+    @SequenceGenerator(name = "order_inventory_seq_generator", sequenceName = "order_inventory_seq", schema = "modulith", allocationSize = 5, initialValue = 100)
     private Long id;
 
     private UUID orderId;

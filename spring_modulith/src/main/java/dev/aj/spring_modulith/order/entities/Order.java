@@ -1,6 +1,6 @@
 package dev.aj.spring_modulith.order.entities;
 
-import dev.aj.spring_modulith.order.entities.types.Status;
+import dev.aj.spring_modulith.order.entities.types.OrderStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,7 +31,7 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_seq_generator")
-    @SequenceGenerator(name = "order_seq_generator", sequenceName = "order_seq", allocationSize = 10, initialValue = 100000)
+    @SequenceGenerator(name = "order_seq_generator", sequenceName = "order_seq",schema = "modulith", allocationSize = 10, initialValue = 100000)
     private Long id;
 
     @Column(unique = true, nullable = false, columnDefinition = "uuid", length = 36, updatable = false)
@@ -47,6 +47,6 @@ public class Order {
 
     @Builder.Default
 //    @Enumerated(EnumType.STRING) //Either use @Enumerated or @Converter 'attribute converter', they are mutually exclusive
-    private Status status = Status.OPEN;
+    private OrderStatus orderStatus = OrderStatus.OPEN;
 
 }

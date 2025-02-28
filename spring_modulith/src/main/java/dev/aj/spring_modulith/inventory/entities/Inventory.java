@@ -31,7 +31,7 @@ public class Inventory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "inventory_seq")
-    @SequenceGenerator(name = "inventory_seq", sequenceName = "inventory_seq", allocationSize = 10, initialValue = 10000)
+    @SequenceGenerator(name = "inventory_seq", sequenceName = "inventory_seq", schema = "modulith", allocationSize = 10, initialValue = 10000)
     private Long id;
 
     @Builder.Default
@@ -39,8 +39,11 @@ public class Inventory {
 
     @Column(unique = true)
     private String name;
+
     private String description;
+
     private int quantity;
+
     private BigDecimal price;
 
 }

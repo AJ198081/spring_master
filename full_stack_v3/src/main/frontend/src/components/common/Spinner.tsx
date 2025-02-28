@@ -8,7 +8,7 @@ export const Spinner = ({textColor = 'text-danger'}: SpinnerProps) => {
         <div className={'d-flex justify-content-center align-items-center'} style={{height: '100vh'}}>
             <div className={`spinner-border ${textColor}`}
                  style={{width: '5rem', height: '5rem'}}
-                 role="status">
+                 role="orderStatus">
                 <span className="visually-hidden">Loading...</span>
             </div>
         </div>
