@@ -32,8 +32,11 @@
         <module>full_stack_hr_flow/career_portal</module>
         <module>full_stack_hr_flow/talent_request</module>
         <module>full_stack_hr_flow/talent_fulfillment</module>
-        <module>full_stack_hr_flow/api_gateway</module>
         <module>spring_modulith</module>
+        <module>microservices_1/PhotoAppApiUsers</module>
+        <module>microservices_1/account_management</module>
+        <module>api_gateway</module>
+        <module>config_server</module>
     </modules>
 
     <properties>
@@ -43,6 +46,7 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <spring-modulith.version>1.3.1</spring-modulith.version>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <jwt.secret.key>mySecretKey2389kldsjafdAddedAsAPlaceholder-Ideally_should_come_from_environment_variables_at_run_time</jwt.secret.key>
     </properties>
 
     <dependencyManagement>
@@ -66,6 +70,15 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
