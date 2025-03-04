@@ -12,6 +12,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ import javax.crypto.SecretKey;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -72,9 +75,10 @@ public class JwtUtils {
     }
 
     private SecurityUser getUserFromJwtClaims(Claims payload) {
+        List<Map<String, String>> roles = payload.get("roles", List.class);
         return SecurityUser.builder()
                 .username(payload.getSubject())
-                .role(payload.get("roles", String.class))
+                .role(roles.getFirst().get("authority").toString())
                 .build();
     }
 

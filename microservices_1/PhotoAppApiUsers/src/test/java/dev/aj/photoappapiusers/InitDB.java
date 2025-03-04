@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.TestComponent;
 @Slf4j
 public class InitDB {
 
+    public static final String TEST_PASSWORD = "password";
     private final TestData testData;
     private final UserService userService;
 
@@ -19,6 +20,9 @@ public class InitDB {
     public void registerUsers() {
 
         UserRegistrationRequestDto userRegistrationRequestDto = testData.getUserRegistrationStream().limit(1).toList().stream().findFirst().orElseThrow();
+
+        userRegistrationRequestDto.setPassword(TEST_PASSWORD);
+        userRegistrationRequestDto.setRole("ROLE_USER");
 
         userService.saveUser(userRegistrationRequestDto);
 

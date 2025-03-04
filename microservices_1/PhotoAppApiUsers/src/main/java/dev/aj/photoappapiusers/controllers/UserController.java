@@ -5,8 +5,11 @@ import dev.aj.photoappapiusers.domain.dto.UserRegistrationResponseDto;
 import dev.aj.photoappapiusers.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -24,6 +28,7 @@ public class UserController {
 
     @GetMapping(path = "/status/check")
     public String test(HttpServletRequest request) {
+        log.debug("Called 'test' of UserController!!");
         return "Test checked!! %s, with secret %s and expiry %s".formatted(
                 request.getLocalPort(),
                 environment.getProperty("jwt.secret"),
@@ -32,7 +37,9 @@ public class UserController {
     }
 
     @GetMapping(path = "/status/tested")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public String tested(HttpServletRequest request) {
+      log.debug("Called 'tested' of UserController!!");
         return "Test passed!! %s, with secret %s and expiry %s".formatted(
                 request.getLocalPort(),
                 environment.getProperty("jwt.secret"),

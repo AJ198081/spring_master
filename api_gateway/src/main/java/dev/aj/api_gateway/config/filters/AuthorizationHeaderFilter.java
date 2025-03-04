@@ -7,6 +7,8 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.env.Environment;
@@ -21,6 +23,8 @@ import reactor.core.publisher.Mono;
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -68,8 +72,15 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         return httpResponse.setComplete();
     }
 
-    public static class Config {
+    @Override
+    public List<String> shortcutFieldOrder() {
+        return List.of("role");
+    }
 
+    @Getter
+    @Setter
+    public static class Config {
+        private String role;
     }
 
     private boolean isJwtValid(String jwt) {
