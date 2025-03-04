@@ -7,8 +7,6 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.env.Environment;
@@ -23,8 +21,8 @@ import reactor.core.publisher.Mono;
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.security.PublicKey;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -45,7 +43,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest httpRequest = exchange.getRequest();
-
+            String role = config.getRole();
             if (!httpRequest.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return onError(exchange, "Gateway failed to detect Authorization header in the request", HttpStatus.UNAUTHORIZED);
             }
@@ -59,6 +57,10 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
             if (!isJwtValid(jwt)) {
                 return onError(exchange, "Gateway failed to validate JWT", HttpStatus.UNAUTHORIZED);
+            }
+
+            if ("ROLE_".concat(role).equals(getJwtRole(jwt))) {
+                return onError(exchange, "Unauthorized to access this endpoint", HttpStatus.FORBIDDEN);
             }
 
             return chain.filter(exchange);
@@ -77,10 +79,23 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         return List.of("role");
     }
 
-    @Getter
-    @Setter
     public static class Config {
         private String role;
+
+        public Config(String role) {
+            this.role = role;
+        }
+
+        public Config() {
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
     }
 
     private boolean isJwtValid(String jwt) {
@@ -112,6 +127,8 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         return true;
     }
 
+
+
     private PublicKey publicKey() {
         return (PublicKey) getKeyPair();
     }
@@ -121,4 +138,20 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         return Keys.hmacShaKeyFor(Encoders.BASE64.encode(secretKeyBytes).getBytes());
     }
 
+    private String getJwtRole(String jwt) {
+        JwtParser jwtTokenParser = Jwts.parser().verifyWith((SecretKey) getKeyPair()).build();
+
+        try {
+            Jws<Claims> jwtClaims = jwtTokenParser.parseSignedClaims(jwt);
+
+            Claims body = jwtClaims.getPayload();
+
+            String jwtSubject = body.get("sub", String.class);
+            List<Map<String, String>> jwtRole = body.get("roles", List.class);
+
+            return jwtRole.getFirst().get("authority");
+        } catch (Exception e) {
+        return null;
+        }
+    }
 }
