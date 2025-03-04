@@ -7,7 +7,6 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.env.Environment;
@@ -27,8 +26,9 @@ import java.util.Objects;
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 
-    @Value("${jwt.secret:null}")
-    private String jwtSigningKey;
+//    will cause 'static' one time value binding, use environment variable instead to have refreshed values
+    /*@Value("${jwt.secret:null}")
+    private String jwtSigningKey;*/
 
     private final Environment environment;
 
@@ -106,7 +106,8 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     }
 
     private Key getKeyPair() {
-        return Keys.hmacShaKeyFor(Encoders.BASE64.encode(jwtSigningKey.getBytes()).getBytes());
+        byte[] secretKeyBytes = Objects.requireNonNull(environment.getProperty("jwt.secret"), "JWT Secret key is null").getBytes();
+        return Keys.hmacShaKeyFor(Encoders.BASE64.encode(secretKeyBytes).getBytes());
     }
 
 }

@@ -8,7 +8,5 @@ class TestDiscoveryServiceApplication {
 		SpringApplication.from(DiscoveryServiceApplication::main)
 				.withAdditionalProfiles("test")
 				.run(args);
-
 	}
-
 }

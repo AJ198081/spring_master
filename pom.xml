@@ -37,6 +37,7 @@
         <module>microservices_1/account_management</module>
         <module>api_gateway</module>
         <module>config_server</module>
+        <module>discovery_service</module>
     </modules>
 
     <properties>
