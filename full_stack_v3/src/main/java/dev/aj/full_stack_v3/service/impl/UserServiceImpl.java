@@ -78,6 +78,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public String generateRefreshTokenFromAuthentication(Authentication authentication ) {
+        return jwtUtils.generateRefreshTokenFromUser((User) authentication.getPrincipal());
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return new SecurityUser(userRepository.findUserByUsernameOrEmail(username, username).orElseThrow(() -> new UsernameNotFoundException("User %s not found".formatted(username))));
     }

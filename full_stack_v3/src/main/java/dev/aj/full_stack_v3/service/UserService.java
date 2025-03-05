@@ -17,4 +17,6 @@ public interface UserService {
     UserLoginResponse loginUser(UserLoginRequest userLoginRequest);
 
     UserLoginResponse loginUser(Authentication authentication);
+
+    String generateRefreshTokenFromAuthentication(Authentication authentication);
 }

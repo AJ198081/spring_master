@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
+                                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/logout", "/api/v1/auth/register").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())

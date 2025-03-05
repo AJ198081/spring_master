@@ -26,6 +26,7 @@ public class CORSOverride implements WebMvcConfigurer {
                 .allowedOrigins(frontendHost)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
+                .allowCredentials(true)
                 .exposedHeaders(HttpHeaders.CONTENT_TYPE.toLowerCase());
     }
 
