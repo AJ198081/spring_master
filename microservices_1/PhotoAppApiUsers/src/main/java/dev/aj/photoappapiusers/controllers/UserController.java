@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,11 +38,12 @@ public class UserController {
     @GetMapping(path = "/status/tested")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public String tested(HttpServletRequest request) {
-      log.debug("Called 'tested' of UserController!!");
-        return "Test passed!! %s, with secret %s and expiry %s".formatted(
+        log.debug("Called 'tested' of UserController!!");
+        return "Test passed!! %s, with secret %s and expiry %s, refresh token expiry %s".formatted(
                 request.getLocalPort(),
                 environment.getProperty("jwt.secret"),
-                environment.getProperty("jwt.expiration.ms")
+                environment.getProperty("jwt.expiration.ms"),
+                environment.getProperty("jwt.refresh.expiration.ms")
         );
     }
 

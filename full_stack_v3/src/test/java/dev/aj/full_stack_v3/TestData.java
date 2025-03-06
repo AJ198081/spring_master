@@ -47,7 +47,6 @@ public class TestData {
     @Bean
     public Stream<UserRegistrationRequest> getUserRegistrationRequestStream() {
 
-
         return Stream.generate(() -> UserRegistrationRequest.builder()
                 .firstName(faker.name().firstName())
                 .lastName(faker.name().lastName())

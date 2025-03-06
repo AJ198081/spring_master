@@ -19,8 +19,8 @@ public class InitDatabase {
 
     @PostConstruct
     public void init() {
-        if (expenseRepository.count() == 0) {
-            List<ExpenseRequest> randomExpenseRequests = testData.getExpenseStream().limit(50)
+        if (expenseRepository.count() <=100) {
+            List<ExpenseRequest> randomExpenseRequests = testData.getExpenseStream().limit(10_000)
                     .toList();
             expenseService.saveExpenses(randomExpenseRequests);
         }

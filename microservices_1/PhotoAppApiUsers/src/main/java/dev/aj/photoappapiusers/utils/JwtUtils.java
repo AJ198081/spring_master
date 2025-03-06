@@ -12,7 +12,6 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -78,7 +77,7 @@ public class JwtUtils {
         List<Map<String, String>> roles = payload.get("roles", List.class);
         return SecurityUser.builder()
                 .username(payload.getSubject())
-                .role(roles.getFirst().get("authority").toString())
+                .role(roles.getFirst().get("authority"))
                 .build();
     }
 
