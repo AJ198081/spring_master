@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
@@ -28,6 +30,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "expenses", schema = "expense")
 @EntityListeners(AuditingEntityListener.class)
+@Audited
+@AuditTable(value = "expenses_aud", schema = "expense")
 public class Expense {
 
 
