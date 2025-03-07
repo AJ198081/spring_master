@@ -10,13 +10,16 @@ export const AxiosInstance = axios.create({
     }
 });
 
-AxiosInstance.interceptors.request.use((config) => {
-    config.withCredentials = true;
-    return config;
-},
+AxiosInstance.interceptors.request.use(
+    (config) => {
+        config.withCredentials = true;
+        return config;
+    },
+
     (error) => {
         return Promise.reject(error);
-    })
+    }
+)
 
 AxiosInstance.interceptors.response.use(
     (response: AxiosResponse) => {

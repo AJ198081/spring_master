@@ -11,7 +11,6 @@ export const AddExpense = () => {
 
     const navigateTo = useNavigate();
 
-
     const createExpense = async (values: ExpenseRequest) => {
         const expenseRequest: ExpenseRequest = {
             name: values.name,

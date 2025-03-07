@@ -26,7 +26,8 @@ public class CORSOverride implements WebMvcConfigurer {
                 .allowedOrigins(frontendHost)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true)
+                .allowCredentials(true) // We will set and want to receive the httpOnly cookies
+                .maxAge(3000L)
                 .exposedHeaders(HttpHeaders.CONTENT_TYPE.toLowerCase());
     }
 
@@ -40,7 +41,7 @@ public class CORSOverride implements WebMvcConfigurer {
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         corsConfiguration.setExposedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         corsConfiguration.setAllowedMethods(List.of(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.DELETE.name()));
-        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowCredentials(true); // We will set and want to receive the httpOnly cookies
         corsConfiguration.setMaxAge(3000L);
 
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);

@@ -10,12 +10,15 @@ export const Logout = (): ReactNode => {
     const navigateTo = useNavigate();
 
     useEffect(() => {
-        setToken(null);
+
         AxiosInstance.defaults.headers.common['Authorization'] = null;
+
         AxiosInstance.get('/api/v1/auth/logout')
             .then(response => {
                 if (response.status === 200) {
-                    toast.success('Logout successful');
+                    toast.success('Logout successful', {
+                        duration: 3000,
+                    });
                 }
             })
             .catch((reason => {
@@ -23,7 +26,7 @@ export const Logout = (): ReactNode => {
             }))
             .finally(() => {
                     navigateTo('/login');
-                    toast.success('You have been logged out successfully.');
+                    setToken(null);
                 }
             );
     })

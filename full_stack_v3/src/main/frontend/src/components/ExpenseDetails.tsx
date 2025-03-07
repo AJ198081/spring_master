@@ -11,9 +11,9 @@ import toast from "react-hot-toast";
 export const ExpenseDetails = () => {
 
     const currentExpense = useLocation().state.expense as ExpenseResponse;
+    const [updatedExpense, setUpdatedExpense] = useState<ExpenseRequest>(currentExpense);
     const [editMode, setEditMode] = useState<boolean>(false);
     const navigateTo = useNavigate();
-    const [updatedExpense, setUpdatedExpense] = useState<ExpenseRequest>(currentExpense);
 
     const updateExpenseState: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setUpdatedExpense(prevState => {
