@@ -42,14 +42,23 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf(CsrfConfigurer::disable)
                 .cors(corsCustomizer -> corsCustomizer
-                        .configurationSource(corsConfigurationSource))
+                        .configurationSource(corsConfigurationSource)
+                )
                 .authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/logout", "/api/v1/auth/register").permitAll()
-                                .anyRequest().authenticated()
+                                .requestMatchers("/api/v1/auth/login",
+                                        "/api/v1/auth/logout",
+                                        "/api/v1/auth/register",
+                                        "/oauth2/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated()
                 )
+                .oauth2Login(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> {
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                })
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

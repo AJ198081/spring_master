@@ -13,6 +13,8 @@ import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
 import {GoQuestion} from "react-icons/go";
 import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext.tsx";
+import { FcGoogle } from "react-icons/fc";
+
 
 export const Login = (): ReactNode => {
     const navigateTo = useNavigate();
@@ -94,6 +96,11 @@ export const Login = (): ReactNode => {
 
                     <button type="reset" name={"reset"} className="btn btn-outline-danger me-2">Reset</button>
                     <button type="submit" name={"submit"} className="btn btn-outline-primary">Login</button>
+
+                    <button type="button" className="btn btn-outline-success d-flex mt-2">
+                        <FcGoogle className="me-1" style={{width: '20px', height: '20px'}} />
+                        Login with Google
+                    </button>
                 </form>
             </div>
         </div>
