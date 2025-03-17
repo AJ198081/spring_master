@@ -1,6 +1,17 @@
 import {Container, Link, Stack, Text} from "@chakra-ui/react";
+import {useProductStore} from "@/store/productStore.ts";
+import {useEffect} from "react";
 
 export function HomePage() {
+
+    const fetchProducts = useProductStore(state => state.fetchProducts);
+    // const _ = useProductStore(state => state.products);
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+
 
     return (
         <Container maxW={"container.xl"}>

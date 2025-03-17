@@ -22,14 +22,15 @@ import java.util.List;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {ESTCContainerConfig.class, TestData.class, TestConfig.class})
 @TestPropertySource(locations = "classpath:application-test.properties", properties = {
-        "logging.level.root=off"
+        "logging.level.root=off",
+        "logging.level.dev.aj.elasticsearch=debug"
 })
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class ProductServiceTest {
 
     public static final String SAMPLE_DATA_FILE_NAME = "sampleProducts.json";
-    public static final int SAMPLE_PRODUCT_SIZE = 10;
+    public static final int SAMPLE_PRODUCT_SIZE = 1000;
     @Autowired
     private ProductService productService;
     @Autowired
@@ -91,7 +92,30 @@ class ProductServiceTest {
         org.assertj.core.api.Assertions.assertThat(listOfProducts).isNotNull()
                 .extracting("name")
                 .contains(firstSavedProduct.getName());
+    }
 
+    @Test
+    void findProductPagesByCategory() {
+        List<Product> sampleProducts = testData.getStreamOfProducts().limit(SAMPLE_PRODUCT_SIZE).toList();
 
+        List<Product> savedSampleProducts = productService.saveAll(sampleProducts);
+
+        org.assertj.core.api.Assertions.assertThat(savedSampleProducts).isNotNull()
+                .extracting("name")
+                .satisfies(sampleProducts::containsAll);
+
+        Product firstSavedProduct = savedSampleProducts.getFirst();
+
+        String firstSavedProductCategory = firstSavedProduct.getCategory();
+
+        String[] nameWords = firstSavedProduct.getCategory().split("\\s");
+
+        List<Product> listOfProducts = productService.findByCategory(firstSavedProductCategory, 0, 50);
+
+        log.info("Total products in the database: {}", productService.count());
+
+        org.assertj.core.api.Assertions.assertThat(listOfProducts).isNotNull()
+                .extracting("name")
+                .contains(firstSavedProduct.getName());
     }
 }

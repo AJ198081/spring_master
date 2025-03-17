@@ -7,6 +7,7 @@ export type ProductStore = {
     products: ProductType[],
     setProducts: (products: ProductType[]) => void
     createProduct: (product: ProductType) => Promise<{ status: string, message: string }>
+    fetchProducts: () => void
 }
 
 export const useProductStore = create<ProductStore>((set) => ({
@@ -36,6 +37,13 @@ export const useProductStore = create<ProductStore>((set) => ({
             return Promise.reject({status: "Error", message: "Product creation failed"});
         } catch (e) {
             return Promise.reject({status: "Error creating product", message: (e as Error).message});
+        }
+    },
+    fetchProducts: async () => {
+        const productResponse = await AxiosInstance.get("/all") as AxiosResponse<ProductType[]>;
+        if (productResponse.status === 200) {
+            console.log("Products fetched successfully", productResponse.data);
+            set({ products: productResponse.data });
         }
     }
 }));

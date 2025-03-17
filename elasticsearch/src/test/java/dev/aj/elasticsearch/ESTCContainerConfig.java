@@ -21,7 +21,8 @@ public class ESTCContainerConfig {
         return new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:8.17.2")
                 .withEnv("xpack.security.enabled", "false")
                 .withEnv("xpack.security.http.ssl.enabled", "false")
-                .withReuse(true);
+                .withCreateContainerCmdModifier(cmd -> cmd.withName("elasticsearch-test-container"))
+                .withReuse(false);
                 /*.withExposedPorts(9200, 9300)
                 .withCreateContainerCmdModifier(cmd -> {
                     cmd.withName("elasticsearch-test-container");
@@ -47,7 +48,7 @@ public class ESTCContainerConfig {
                             new PortBinding(Ports.Binding.bindPort(10002), new ExposedPort(5432))
                     ));
 
-                    createContainerCmd.withName("es_tc_container");
+                    createContainerCmd.withName("es_postgres_tc_container");
                 });
     }
 

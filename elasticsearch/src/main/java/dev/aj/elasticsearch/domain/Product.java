@@ -31,7 +31,7 @@ public class Product {
     @Field(type = FieldType.Text)
     private String brand;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword) //Exact word
     private String category;
 
     @Field(type = FieldType.Integer)

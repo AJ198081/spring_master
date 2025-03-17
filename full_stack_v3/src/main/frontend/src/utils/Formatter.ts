@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import utc from "dayjs/plugin/utc";
 import {dateFormat} from "../domain/Types.ts";
 
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 export function stringToDateObject(dateString: string, format = dateFormat): Date {
     return dayjs(dateString, format).toDate()
@@ -38,7 +40,7 @@ export const getBrowserTimeZone = () => {
 }
 
 export const dateFormatter = new Intl.DateTimeFormat(navigator.language, {
-    dateStyle: 'short',
+    dateStyle: 'full',
     // timeStyle: 'full',
     timeZone: getBrowserTimeZone()
 });
@@ -48,3 +50,13 @@ export const numberFormatter = new Intl.NumberFormat(navigator.language, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
 });
+
+const date = dayjs('2021-12-13', 'YYYY-MM-DD', true).toDate();
+dayjs(date).format();
+dayjs(date).startOf('day').toDate();
+const midnightUtcDate = dayjs(date).utc(false).startOf('day').toDate();
+midnightUtcDate.toString();
+// dayjs(date).utcOffset()
+dateFormatter.format(dayjs(date).startOf('day').utc(true).toDate());
+
+dateFormatter.format(date);
