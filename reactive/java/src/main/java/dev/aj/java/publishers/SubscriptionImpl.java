@@ -21,7 +21,6 @@ public class SubscriptionImpl implements Subscription {
     private boolean isCancelled = false;
     private final Faker faker;
 
-
     @SneakyThrows
     @Override
     public void request(long n) {
@@ -36,6 +35,7 @@ public class SubscriptionImpl implements Subscription {
             subscriber.onNext("Email #%d [%s]".formatted(i, faker.internet().emailAddress()));
             Thread.sleep(Duration.ofSeconds(1));
         }
+        subscriber.onComplete();
     }
 
     @Override

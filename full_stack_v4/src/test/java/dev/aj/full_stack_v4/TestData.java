@@ -3,12 +3,13 @@ package dev.aj.full_stack_v4;
 import com.github.javafaker.Faker;
 import dev.aj.full_stack_v4.domain.entities.Product;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.test.context.TestComponent;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.stream.Stream;
 
-@Component
+@TestComponent
 @RequiredArgsConstructor
 public class TestData {
 

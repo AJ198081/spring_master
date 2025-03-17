@@ -1,6 +1,7 @@
 import {Button, Container, Flex, HStack, Link, StackSeparator, Text} from "@chakra-ui/react";
 import {CiSquarePlus} from "react-icons/ci";
 import {useColorMode} from "@/components/ui/color-mode.tsx";
+
 // import {useProductStore} from "@/store/productStore.ts";
 
 export function Navbar() {
@@ -31,7 +32,9 @@ export function Navbar() {
                 bgGradient={"linear(to-r, cyan.400, blue.500)"}
                 bgClip={"text"}
             >
-                <Link href={"/"}>Product Store 🛒</Link>
+                <Link href={"/"}>
+                    Product Store 🛒
+                </Link>
             </Text>
             <HStack separator={<StackSeparator/>} alignItems="center">
                 <Link href={"/create"}>

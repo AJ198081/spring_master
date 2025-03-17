@@ -1,7 +1,13 @@
-import {MantineReactTable, MRT_ColumnDef, MRT_TableInstance, useMantineReactTable} from "mantine-react-table";
+import {
+    MantineReactTable,
+    MRT_ColumnDef,
+    MRT_TableInstance,
+    MRT_VisibilityState,
+    useMantineReactTable
+} from "mantine-react-table";
 import {ExpenseResponse} from "../domain/Types.ts";
 import {DashboardStatus} from "./DashboardStatus.tsx";
-import {MouseEvent} from "react";
+import {MouseEvent, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Button} from "@mantine/core";
 import toast from "react-hot-toast";
@@ -15,7 +21,12 @@ export interface ExpenseListProps {
 export const ExpenseList = ({columns, data, userName}: ExpenseListProps) => {
 
     const navigateTo = useNavigate();
+    const [visibleColumns, _] = useState<MRT_VisibilityState>(
+        Object.fromEntries(columns.map(column => [column.header, true]))
+    );
     const priorityColumns = ['ID', 'Name', 'Amount'];
+
+    console.log(JSON.stringify(visibleColumns, null, 4));
 
     columns
         .sort((a, b) => {
@@ -32,6 +43,19 @@ export const ExpenseList = ({columns, data, userName}: ExpenseListProps) => {
     const table: MRT_TableInstance<ExpenseResponse> = useMantineReactTable({
         columns,
         data,
+        enableHiding: true,
+        initialState: {
+            columnOrder: [
+                ...columns.map(column => column.header),
+            ],
+        },
+            /*columnVisibility: visibleColumns
+        },
+        state:{
+            columnVisibility: visibleColumns
+        },
+        onColumnVisibilityChange: setVisibleColumns,
+        enableHiding: true,*/
         mantineTableBodyRowProps: ({row}) => ({
             onClick: (_event: MouseEvent<HTMLTableRowElement>) => (
                 navigateTo(`/view/${row.original.expenseId}`, {
@@ -40,12 +64,6 @@ export const ExpenseList = ({columns, data, userName}: ExpenseListProps) => {
             ),
             sx: {cursor: "pointer"}
         }),
-        initialState: {
-            columnOrder: [
-                ...columns.map(column => column.header),
-                'mrt-row-select'
-            ],
-        },
         enableRowSelection: true,
         enableStickyHeader: true,
         renderTopToolbarCustomActions: ({table}) => (

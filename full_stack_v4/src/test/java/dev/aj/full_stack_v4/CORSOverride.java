@@ -22,7 +22,7 @@ public class CORSOverride implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedOrigins(frontendHost)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
@@ -31,8 +31,8 @@ public class CORSOverride implements WebMvcConfigurer {
                 .exposedHeaders(HttpHeaders.CONTENT_TYPE.toLowerCase());
     }
 
-    @Bean
-    @Primary
+//    @Bean
+//    @Primary
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
 

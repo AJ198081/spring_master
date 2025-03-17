@@ -171,7 +171,7 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     {
         accessorKey: 'category',
         header: 'Category',
-        filterVariant: "text",
+        filterVariant: "multi-select",
         sortingFn: "textCaseSensitive",
     },
     {
@@ -179,7 +179,7 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
         header: 'Date',
         filterVariant: "date-range",
         sortingFn: "datetime",
-        enableColumnFilterModes: false,
+        enableColumnFilterModes: true,
         Cell: ({cell}) => {
             return cell.getValue<string>();
         }
@@ -187,8 +187,10 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
     {
         accessorKey: 'amount',
         header: 'Amount',
-        filterVariant: "range",
+        filterVariant: "range-slider",
+        filterFn: "betweenInclusive",
         sortingFn: "currency",
+        enableColumnFilterModes: true,
         Cell: ({cell}) => {
             return currencyFormatter.format(cell.getValue<number>());
         }
