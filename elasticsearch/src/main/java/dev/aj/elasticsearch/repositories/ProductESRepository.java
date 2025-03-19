@@ -32,4 +32,6 @@ public interface ProductESRepository extends ElasticsearchRepository<Product, St
 
     SearchHits<Product> findByName(String name);
 
+
+
 }

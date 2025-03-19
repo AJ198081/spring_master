@@ -5,10 +5,14 @@ import dev.aj.elasticsearch.domain.Product;
 import dev.aj.elasticsearch.repositories.ProductESRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchPage;
+import org.springframework.data.elasticsearch.core.query.Criteria;
+import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +23,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductESRepository productESRepository;
+    private final ElasticsearchOperations elasticsearchOperations;
     private final ObjectMapper objectMapper;
 
 
@@ -29,7 +34,7 @@ public class ProductService {
     public List<Product> findByCategory(String category) {
         SearchHits<Product> foundProducts = productESRepository.findByCategory(category);
 
-        return foundProducts.map(SearchHit -> objectMapper.convertValue(SearchHit.getContent(), Product.class))
+        return foundProducts.map(searchHit -> objectMapper.convertValue(searchHit.getContent(), Product.class))
                 .toList();
     }
 
@@ -61,6 +66,19 @@ public class ProductService {
 
         return searchPage.stream()
                 .map(SearchHit::getContent)
+                .toList();
+    }
+
+    public List<Product> findPageByName(String name, Pageable pageable) {
+        Criteria containsName = Criteria.where("name").contains(name);
+        CriteriaQuery nameSearchCriteriaQuery = CriteriaQuery.builder(containsName).build();
+
+        SearchHits<Product> searchResults = elasticsearchOperations.search(nameSearchCriteriaQuery, Product.class);
+
+        return searchResults.stream()
+                .map(SearchHit::getContent)
+                .skip((long) (pageable.getPageNumber() + 1) * pageable.getPageSize())
+                .limit(pageable.getPageSize())
                 .toList();
     }
 }

@@ -22,7 +22,7 @@ export function CreatePage() {
     const createProduct = useProductStore(state => state.createProduct);
     // const {createProduct} = useProductStore();
 
-    const handleClick = () => {
+    const handleProductCreation = () => {
         const createProductPromise = createProduct(newProduct);
         toaster.promise(createProductPromise, {
             success: {
@@ -66,7 +66,7 @@ export function CreatePage() {
                     <Input placeholder={"Image"} value={newProduct.imageUrl}
                            borderColor={"gray.300"}
                            onChange={e => setNewProduct({...newProduct, imageUrl: e.target.value})}/>
-                    <Button colorScheme={'blue'} onClick={handleClick}>Choose product</Button>
+                    <Button colorScheme={'blue'} onClick={handleProductCreation}>Choose product</Button>
                 </VStack>
 
             </Box>

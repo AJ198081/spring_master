@@ -3,7 +3,6 @@ import {ExpenseResponse} from "./domain/Types.ts";
 import {AxiosInstance} from "./service/api-client.ts";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import {stringToDateObject} from "./utils/Formatter.ts";
 
 dayjs.extend(customParseFormat);
 
@@ -23,7 +22,7 @@ export const useExpenses = () => {
                     const enrichedExpenses= parsedExpenses.map(expense => {
                         return {
                             ...expense,
-                            date: (typeof expense.date === 'string') ? stringToDateObject(expense.date) : expense.date
+                            date: expense.date
                         };
                     });
 

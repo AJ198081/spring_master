@@ -8,6 +8,7 @@ export type ProductStore = {
     setProducts: (products: ProductType[]) => void
     createProduct: (product: ProductType) => Promise<{ status: string, message: string }>
     fetchProducts: () => void
+    deleteProduct: (id: number, name: string) => Promise<{ status: string, message: string }>
 }
 
 export const useProductStore = create<ProductStore>((set) => ({
@@ -45,5 +46,15 @@ export const useProductStore = create<ProductStore>((set) => ({
             console.log("Products fetched successfully", productResponse.data);
             set({ products: productResponse.data });
         }
+    },
+    deleteProduct: async (id: number, name: string) => {
+        const deleteResponse = await AxiosInstance.delete(`/${id}`) as AxiosResponse;
+        if (deleteResponse.status === 204) {
+            set(state => ({
+                products: state.products.filter(product => product.id !== id)
+            }))
+            return Promise.resolve({ status: "success", message: `${name} deleted successfully`});
+        }
+        return Promise.reject({ status: "error", message: `Couldn't delete ${name}`});
     }
 }));

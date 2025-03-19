@@ -5,6 +5,7 @@ import dev.aj.full_stack_v4.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +25,11 @@ public class ProductService {
         return productRepository.save(newProduct);
     }
 
+    @Transactional
     public void delete(Long id) {
-        productRepository.deleteById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
+
+        optionalProduct.ifPresent(productRepository::delete);
     }
 
     public Product update(Long id, Product productToBeUpdated) {
@@ -55,6 +59,5 @@ public class ProductService {
         }
         log.info("Updating product with id {}", id);
         return productRepository.save(existingProduct);
-
     }
 }
