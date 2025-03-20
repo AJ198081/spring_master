@@ -66,7 +66,7 @@ export function CreatePage() {
                     <Input placeholder={"Image"} value={newProduct.imageUrl}
                            borderColor={"gray.300"}
                            onChange={e => setNewProduct({...newProduct, imageUrl: e.target.value})}/>
-                    <Button colorScheme={'blue'} onClick={handleProductCreation}>Choose product</Button>
+                    <Button bg={"purple.600"} color={'white'} onClick={handleProductCreation}>Add product</Button>
                 </VStack>
 
             </Box>

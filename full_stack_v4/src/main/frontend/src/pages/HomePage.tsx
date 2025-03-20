@@ -21,11 +21,11 @@ export function HomePage() {
                     fontSize={"2xl"}
                     fontWeight={"bold"}
                     bgGradient={"to-r"}
-                    gradientFrom={"cyan.100"}
+                    gradientFrom={"cyan.10"}
                     gradientTo={"blue.200"}
                     textAlign={"center"}
                 >
-                    Current Product 🚀 {" "}
+                    Current Products 🚀
                 </Text>
 
                 {products.length === 0

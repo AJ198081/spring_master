@@ -1,16 +1,18 @@
 import {ProductType} from "@/types/ProductType.ts";
 import {Box, Heading, IconButton, Image, Stack, Text} from "@chakra-ui/react";
 import {useColorModeValue} from "@/components/ui/color-mode.tsx";
-import { FaRegEdit } from "react-icons/fa";
-import { MdOutlineDeleteSweep } from "react-icons/md";
+import {FaRegEdit} from "react-icons/fa";
+import {MdOutlineDeleteSweep} from "react-icons/md";
 import {useProductStore} from "@/store/productStore.ts";
 import {toaster} from "@/components/ui/toaster.tsx";
+import {ProductUpdateDialog} from "@/components/ProductUpdateDialog.tsx";
 
 interface ProductProps {
     product: ProductType;
 }
 
 export const ProductCard = ({product}: ProductProps) => {
+
 
     const deleteProduct = useProductStore(state => state.deleteProduct);
 
@@ -42,6 +44,9 @@ export const ProductCard = ({product}: ProductProps) => {
     }
 
     const bg = useColorModeValue('gray.200', 'gray.800');
+
+    const fullImageUrl = `${import.meta.env.VITE_PRODUCT_SERVICE_URL}/photos/${product.imageUrl}`;
+
     return (
         <Box
             shadow="lg"
@@ -51,7 +56,7 @@ export const ProductCard = ({product}: ProductProps) => {
             _hover={{transform: 'translateY(-5px)', shadow: 'xl'}}
             bg={bg}
         >
-            <Image src={product.imageUrl} alt={product.name} h={48} w={'full'} objectFit={"cover"}/>
+            <Image src={fullImageUrl} alt={product.name} h={48} w={'full'} objectFit={"cover"}/>
             <Box p={6}>
                 <Heading as={"h3"} size={'md'} mb={2}>
                     {product.name}
@@ -61,12 +66,17 @@ export const ProductCard = ({product}: ProductProps) => {
                 </Text>
             </Box>
             <Stack direction={"row"} align={"center"} gap={4} p={6}>
-                <IconButton aria-label="Edit" colorScheme={"blue"} onClick={() => {
+                <IconButton aria-label="Edit" bg={"blue.400"} onClick={() => {
                     console.log("Edit");
                 }}>
-                    <FaRegEdit/>
+                    {/*<FaRegEdit />*/}
+                    <ProductUpdateDialog product={product}
+                                         trigger={<FaRegEdit/>}
+                                         onCancel={() => console.log('cancel')}
+                                         onUpdate={(product) => console.log(`Product updated: ${product.name}`)}
+                    />
                 </IconButton>
-                <IconButton aria-label="Delete" colorScheme={"red"} onClick={() => {
+                <IconButton aria-label="Delete" bg={"red.400"} onClick={() => {
                     console.log("Delete id", product.id);
                     handleDelete(product.id!, product.name);
                 }}>

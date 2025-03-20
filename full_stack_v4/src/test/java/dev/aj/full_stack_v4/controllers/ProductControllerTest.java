@@ -1,9 +1,11 @@
 package dev.aj.full_stack_v4.controllers;
 
+import dev.aj.full_stack_v4.PhotosFactory;
 import dev.aj.full_stack_v4.PostgresTCConfig;
 import dev.aj.full_stack_v4.TestConfig;
 import dev.aj.full_stack_v4.TestData;
 import dev.aj.full_stack_v4.domain.entities.Product;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,10 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {PostgresTCConfig.class, TestData.class, TestConfig.class})
+@Import(value = {PostgresTCConfig.class, PhotosFactory.class, TestData.class, TestConfig.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
         "spring.jpa.hibernate.ddl-auto=update"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Slf4j
 class ProductControllerTest {
 
     @Autowired
@@ -51,6 +54,8 @@ class ProductControllerTest {
                     .body(product)
                     .retrieve()
                     .toEntity(Product.class);
+
+            log.info("Added {} products", productResponse.getBody());
         });
     }
 
@@ -63,10 +68,9 @@ class ProductControllerTest {
     void getAll() {
 
         ResponseEntity<List<Product>> allProductsResponse = restClient.get()
-                .uri("/products")
+                .uri("/products/all")
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {
-                });
+                .toEntity(new ParameterizedTypeReference<>() {});
 
         assertNotNull(allProductsResponse);
         Assertions.assertThat(allProductsResponse.getStatusCode().value()).isEqualTo(200);
