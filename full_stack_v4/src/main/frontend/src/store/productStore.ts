@@ -8,6 +8,7 @@ export type ProductStore = {
     setProducts: (products: ProductType[]) => void
     createProduct: (product: ProductType) => Promise<{ status: string, message: string }>
     fetchProducts: () => void
+    updateProduct: (product: ProductType) => Promise<{ status: string, message: string }>
     deleteProduct: (id: number, name: string) => Promise<{ status: string, message: string }>
 }
 
@@ -46,6 +47,18 @@ export const useProductStore = create<ProductStore>((set) => ({
             console.log("Products fetched successfully", productResponse.data);
             set({ products: productResponse.data });
         }
+    },
+    updateProduct: async (product: ProductType) => {
+        const updateResponse = await AxiosInstance.patch(`/${product.id}`, product) as AxiosResponse<ProductType>;
+
+        if (updateResponse.status === 200) {
+            set(state => ({
+                products: state.products.map(p => p.id === product.id ? product : p)
+            }));
+            return Promise.resolve({ status: "success", message: `${product.name} updated successfully`});
+        }
+
+        return Promise.reject({ status: "error", message: `Couldn't update ${product.name}`});
     },
     deleteProduct: async (id: number, name: string) => {
         const deleteResponse = await AxiosInstance.delete(`/${id}`) as AxiosResponse;

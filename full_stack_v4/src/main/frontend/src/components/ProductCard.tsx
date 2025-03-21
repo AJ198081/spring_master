@@ -73,7 +73,6 @@ export const ProductCard = ({product}: ProductProps) => {
                     <ProductUpdateDialog product={product}
                                          trigger={<FaRegEdit/>}
                                          onCancel={() => console.log('cancel')}
-                                         onUpdate={(product) => console.log(`Product updated: ${product.name}`)}
                     />
                 </IconButton>
                 <IconButton aria-label="Delete" bg={"red.400"} onClick={() => {
