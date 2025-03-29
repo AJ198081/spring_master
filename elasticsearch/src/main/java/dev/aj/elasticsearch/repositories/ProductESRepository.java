@@ -29,9 +29,5 @@ public interface ProductESRepository extends ElasticsearchRepository<Product, St
     }, parameters = @HighlightParameters(preTags = "<b>", postTags = "</b>"))
     SearchPage<Product> findPageByCategory(String category, Pageable pageable);
 
-
     SearchHits<Product> findByName(String name);
-
-
-
 }

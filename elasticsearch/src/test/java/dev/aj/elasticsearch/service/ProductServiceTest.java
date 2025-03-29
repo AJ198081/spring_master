@@ -1,5 +1,6 @@
 package dev.aj.elasticsearch.service;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import com.fasterxml.jackson.core.type.TypeReference;
 import dev.aj.elasticsearch.ESTCContainerConfig;
 import dev.aj.elasticsearch.TestConfig;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {ESTCContainerConfig.class, TestData.class, TestConfig.class})
@@ -108,8 +113,6 @@ class ProductServiceTest {
 
         String firstSavedProductCategory = firstSavedProduct.getCategory();
 
-        String[] nameWords = firstSavedProduct.getCategory().split("\\s");
-
         List<Product> listOfProducts = productService.findByCategory(firstSavedProductCategory, 0, 50);
 
         log.info("Total products in the database: {}", productService.count());
@@ -117,5 +120,50 @@ class ProductServiceTest {
         org.assertj.core.api.Assertions.assertThat(listOfProducts).isNotNull()
                 .extracting("name")
                 .contains(firstSavedProduct.getName());
+    }
+
+    @Test
+    void testProductSearchQuery() {
+        List<Product> sampleProducts = testData.getStreamOfProducts().limit(SAMPLE_PRODUCT_SIZE).toList();
+
+        List<Product> savedSampleProducts = productService.saveAll(sampleProducts);
+
+        Product firstProduct = savedSampleProducts.getFirst();
+
+        List<Product> productsSearchedByQuery = productService.productSearchQuery(
+                firstProduct.getBrand(),
+                firstProduct.getCategory(),
+                firstProduct.getPrice().min(BigDecimal.ONE).doubleValue(),
+                firstProduct.getPrice().add(BigDecimal.ONE).doubleValue()
+        );
+
+        productsSearchedByQuery.forEach(product -> log.info("Product: {}", product));
+
+        log.info("Total products currently in the database: {}", productService.count());
+    }
+
+    @Test
+    void testProductAggregation() {
+        List<Product> sampleProducts = testData.getStreamOfProducts().limit(SAMPLE_PRODUCT_SIZE).toList();
+        productService.saveAll(sampleProducts);
+
+        Map<String, Aggregate> productAggregations = productService.productAggregations();
+        productAggregations.forEach((key, value) -> log.info("{}: {}", key, value));
+
+        log.info("Total number of products currently in the database: {}", productService.count());
+    }
+
+    @Test
+    @Disabled(value = "Need to sort the mapping out for @CompletionContext, better use a JSON mapping to set the indexes up")
+    void suggestionsAsYouTypeName() {
+        List<Product> sampleProducts = testData.getStreamOfProducts().limit(SAMPLE_PRODUCT_SIZE).toList();
+        productService.saveAll(sampleProducts);
+
+        Set<String> nameSuggestions = productService.suggestionsAsYouTypeName(sampleProducts.getFirst().getName().split("\\s")[0]);
+
+        org.assertj.core.api.Assertions.assertThat(nameSuggestions).isNotNull()
+                .hasSizeGreaterThanOrEqualTo(1)
+                .allSatisfy(suggestion -> sampleProducts.stream().map(Product::getName).toList().contains(suggestion));
+
     }
 }
