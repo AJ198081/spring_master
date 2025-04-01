@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-pod-1
+  labels:
+    purpose: practice
+spec:
+#  restartPolicy: Always
+  terminationGracePeriodSeconds: 10
+  containers:
+    - name: ubuntu-container
+      imagePullPolicy: IfNotPresent
+      image: ubuntu/redis
+      restartPolicy: onFailure
+      ports:
+        - containerPort: 6379
+          name: "redis-port"
+          hostIP: localhost
+          hostPort: 6379
+          protocol: TCP
+      env:
+        - name: REDIS_PASSWORD
+          value: secret
+        - name: TZ
+          value: 'Australia/Sydney'
+      args:
+        - "/bin/sh"
+        - "-c"
+        - "echo 'Environment variables are: ' && printenv; echo End of Environment Variables!; sleep infinity"
+    - name: nginx
+      imagePullPolicy: IfNotPresent
+      image: nginx
+      ports:
+        - containerPort: 80
+          name: "nginx-port"
+          hostIP: localhost
+          hostPort: 8082
+          protocol: TCP
+      env:
+        - name: REDIS_PASSWORD
+          value: secret
+        - name: TZ
+          value: 'Australia/Sydney'
+      args:
+        - "/bin/sh"
+        - "-c"
+        - "echo 'Environment variables are: ' && printenv; echo End of Environment Variables!; sleep infinity"

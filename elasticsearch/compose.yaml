@@ -52,7 +52,22 @@ services:
     restart: unless-stopped
     depends_on:
       - es01
+      - es02
+      - es03
     ports:
       - "5601:5601"
     environment:
       - ELASTICSEARCH_HOSTS=["http://es01:9200","http://es02:9200","http://es03:9200"]
+
+  postgres:
+    image: 'postgres:latest'
+    container_name: 'es_container'
+    restart: no
+    environment:
+      - 'POSTGRES_DB=es_database'
+      - 'POSTGRES_USER=admin'
+      - 'POSTGRES_PASSWORD=password'
+    ports:
+      - '5443:5432'
+    volumes:
+      - ./src/test/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro

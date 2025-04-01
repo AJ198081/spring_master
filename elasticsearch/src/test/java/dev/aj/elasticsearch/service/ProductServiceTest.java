@@ -17,6 +17,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
@@ -25,9 +27,12 @@ import java.util.Map;
 import java.util.Set;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {ESTCContainerConfig.class, TestData.class, TestConfig.class})
+//@Import(value = {ESTCContainerConfig.class, TestData.class, TestConfig.class})
+@Import(value = {TestData.class, TestConfig.class})
+
 @TestPropertySource(locations = "classpath:application-test.properties", properties = {
-        "logging.level.root=off",
+//        "logging.level.root=off",
+//        "spring.docker.compose.enabled=false",
         "logging.level.dev.aj.elasticsearch=debug"
 })
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -36,15 +41,19 @@ class ProductServiceTest {
 
     public static final String SAMPLE_DATA_FILE_NAME = "sampleProducts.json";
     public static final int SAMPLE_PRODUCT_SIZE = 1000;
+
     @Autowired
     private ProductService productService;
+
     @Autowired
-    private ProductESRepository producRepository;
+    private ProductESRepository productESRepository;
+
     @Autowired
     private TestData testData;
 
     @BeforeAll
     void beforeAll() {
+        productESRepository.deleteAll();
         List<Product> sampleProducts = testData.getStreamOfProducts().limit(SAMPLE_PRODUCT_SIZE).toList();
         testData.writeResource(SAMPLE_DATA_FILE_NAME, sampleProducts);
     }
@@ -113,7 +122,7 @@ class ProductServiceTest {
 
         String firstSavedProductCategory = firstSavedProduct.getCategory();
 
-        List<Product> listOfProducts = productService.findByCategory(firstSavedProductCategory, 0, 50);
+        List<Product> listOfProducts = productService.findByCategory(firstSavedProductCategory, 0, 5000);
 
         log.info("Total products in the database: {}", productService.count());
 
