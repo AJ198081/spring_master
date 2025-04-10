@@ -1,0 +1,22 @@
+# https://kind.sigs.k8s.io/docs/user/quick-start/#advanced
+# three node (two workers) cluster config
+# kind create cluster --config .\kubernetes\01\cluster.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: dev-cluster
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30001
+        hostPort: 30001
+        protocol: TCP
+  - role: worker
+  - role: worker
+
+
+# kind get clusters
+# kubectl get notes
+# kubectl config current-context
+# Does it match kind-dev-cluster?
+# if not, kubectl config use-context kind-dev-cluster
+#if still issues - kind delete cluster --name dev-cluster, and create again

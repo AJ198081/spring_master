@@ -39,6 +39,7 @@
         <module>config_server</module>
         <module>discovery_service</module>
         <module>auth-server</module>
+        <module>react_query</module>
     </modules>
 
     <properties>

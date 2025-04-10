@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-deployment
+  labels:
+    rs-label: custom-deployment-label
+  annotations:
+    kubernetes.io/change-cause: update replicas to 3
+spec:
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 2
+#    type: Recreate
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 3
+  template:
+    metadata:
+      name: deployment-nginx-pod-config
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-pod-deployment
+          image: nginx
+          ports:
+            - containerPort: 80
+              name: "nginx-port"
+#          args:
+#            - "/bin/sh"
+#            - "-c"
+#            - "echo NGINX Pod is running; printenv;"
+

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: custom-rs
+  labels:
+    rs-label: custom-rs-label
+spec:
+  selector:
+    matchLabels:
+      app: ubuntu-pod
+  replicas: 3
+  template:
+    metadata:
+      name: rs-ubuntu-pod
+      labels:
+        app: ubuntu-pod
+    spec:
+      containers:
+        - name: ubuntu-pod-rs
+          image: ubuntu
+          args:
+            - "/bin/sh"
+            - "-c"
+            - "echo Ubuntu Pod is running; printenv; echo sleep infinity"
+

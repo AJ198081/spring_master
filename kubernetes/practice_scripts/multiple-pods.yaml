@@ -62,12 +62,15 @@ metadata:
   name: ubuntu-pod
   labels:
     purpose: practice
+    app: ubuntu-pod
 spec:
   restartPolicy: Always
   containers:
     - name: ubuntu-container
       imagePullPolicy: IfNotPresent
       image: ubuntu/redis
+      stdin: true
+      tty: true
       ports:
         - containerPort: 6379
           name: "redis-port"
@@ -77,3 +80,7 @@ spec:
       env:
         - name: REDIS_PASSWORD
           value: secret
+      args:
+        - "/bin/sh"
+        - "-c"
+        - "echo container started...; echo printenv; sleep infinity"
