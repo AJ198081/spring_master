@@ -17,7 +17,6 @@ public class TestConfig {
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader(HttpHeaders.ORIGIN, "http://localhost:3000")
                 .build();
     }
 
