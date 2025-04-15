@@ -37,7 +37,7 @@ public class Post {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String body;
 
-    @ManyToOne(cascade = {PERSIST, MERGE})
+    @ManyToOne(cascade = {MERGE, PERSIST})
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 

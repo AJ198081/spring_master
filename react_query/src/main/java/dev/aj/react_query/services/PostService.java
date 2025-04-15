@@ -1,6 +1,8 @@
 package dev.aj.react_query.services;
 
 import dev.aj.react_query.domain.entities.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,4 +17,8 @@ public interface PostService {
     List<Post> getAllPosts();
 
     Long count();
+
+    Post getById(Long id);
+
+    Page<Post> getAllPostsInAPage(PageRequest pageRequest);
 }

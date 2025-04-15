@@ -1,12 +1,13 @@
 package dev.aj.react_query.init;
 
-import dev.aj.react_query.TestData;
+import dev.aj.react_query.domain.entities.Post;
 import dev.aj.react_query.services.PostService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.test.context.TestComponent;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @TestComponent
 @RequiredArgsConstructor
@@ -18,12 +19,17 @@ public class InitialiseDatabase {
 
     private static final int WRITE_POSTS_NUMBER = 100;
 
-    @Transactional
     @PostConstruct
     public void init() {
         try {
-            if (postService.count() == 0) {
-                testData.getPostStream().limit(WRITE_POSTS_NUMBER).forEach(postService::save);
+            if (postService.count() <= 101) {
+
+                List<Post> postsToWrite = testData.getPostStream()
+                        .limit(WRITE_POSTS_NUMBER)
+                        .toList();
+
+                postService.saveAll(postsToWrite);
+
                 log.info("""
                             Database initialization succeeded.
                             Wrote {} posts to the database.

@@ -1,5 +1,6 @@
 import axios, {AxiosResponse} from "axios";
 import {Post} from "../domain/types/Post.ts";
+import {Page} from "../domain/types/Page.ts";
 
 export const AxiosInstance = axios.create({
     baseURL: `${import.meta.env.VITE_POST_API_BASE_URL}`,
@@ -20,12 +21,12 @@ export async function fetchPostsCount() {
     return response.data;
 }
 
-export async function fetchPosts(pageNumber: number) {
-    const response = await AxiosInstance.get(`/posts?page=${pageNumber}`) as AxiosResponse<Post>;
+export async function fetchPosts(pageNumber: number = 0, pageSize: number = 10) {
+    const response = await AxiosInstance.get(`/posts?page=${pageNumber}&size=${pageSize}`) as AxiosResponse<Page<Post>>;
     return response.data;
 }
 
-export async function fetchPost(id: number) {
+export async function fetchPostById(id: number) {
     const response = await AxiosInstance.get(`/posts/${id}`) as AxiosResponse<Post>;
     return response.data;
 }

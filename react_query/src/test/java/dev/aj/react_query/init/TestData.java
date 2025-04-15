@@ -1,4 +1,4 @@
-package dev.aj.react_query;
+package dev.aj.react_query.init;
 
 import com.github.javafaker.Faker;
 import dev.aj.react_query.domain.entities.Post;
@@ -20,8 +20,8 @@ public class TestData {
         List<User> fiveUsers = getUserStream().limit(5).toList();
 
         return Stream.generate(() -> Post.builder()
-                .title(faker.lorem().sentence())
-                .body(faker.lorem().paragraph(4))
+                .title(faker.lorem().sentence(1))
+                .body(faker.lorem().paragraph(2))
                 .user(fiveUsers.get(faker.random().nextInt(fiveUsers.size())))
                 .build());
     }

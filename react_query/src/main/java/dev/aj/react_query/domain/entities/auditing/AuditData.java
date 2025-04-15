@@ -22,7 +22,7 @@ public class AuditData {
     private String createdBy;
 
     @LastModifiedBy
-    @Column(name = "last_modified_by", insertable = false, updatable = true)
+    @Column(name = "last_modified_by", insertable = false)
     private String lastModifiedBy;
 
     @CreatedDate
@@ -30,6 +30,6 @@ public class AuditData {
     private Instant createdDate;
 
     @LastModifiedDate
-    @Column(name = "last_modified_date", insertable = false, updatable = true, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @Column(name = "last_modified_date", insertable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private Instant lastModifiedDate;
 }

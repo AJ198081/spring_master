@@ -1,6 +1,7 @@
 package dev.aj.react_query;
 
 import dev.aj.react_query.init.InitialiseDatabase;
+import dev.aj.react_query.init.TestData;
 import org.springframework.boot.SpringApplication;
 
 
