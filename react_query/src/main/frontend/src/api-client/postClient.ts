@@ -43,5 +43,5 @@ export async function updatePost(id: number, post: any) {
 
 export async function deletePost(id: number) {
     const response = await AxiosInstance.delete(`/posts/${id}`) as AxiosResponse<Post>;
-    return response.data;
+    return response.status;
 }

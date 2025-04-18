@@ -7,8 +7,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import static jakarta.persistence.CascadeType.MERGE;
@@ -44,4 +46,10 @@ public class Post {
     @Embedded
     @Builder.Default
     private AuditData auditData = new AuditData();
+
+    @Version
+    @Column(name = "version")
+    @JdbcTypeCode(SqlTypes.INTEGER)
+    private Integer version;
+
 }

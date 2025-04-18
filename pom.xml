@@ -40,6 +40,7 @@
         <module>discovery_service</module>
         <module>auth-server</module>
         <module>react_query</module>
+        <module>e-commerce</module>
     </modules>
 
     <properties>

@@ -1,7 +1,7 @@
 import {Fragment, useState, useEffect} from "react";
 import {Box} from "@chakra-ui/react";
-import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {fetchPosts} from "../api-client/postClient.ts";
+import {useQuery, useQueryClient, useMutation, useInfiniteQuery} from "@tanstack/react-query";
+import {deletePost, fetchPosts} from "../api-client/postClient.ts";
 import {ModalBS} from "./ModalBS.tsx";
 import {Post} from "../domain/types/Post.ts";
 import {Page} from "../domain/types/Page.ts";
@@ -13,6 +13,8 @@ export const Posts = () => {
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
     const [page, setPage] = useState<Page<Post>>();
     const [rowsPerPage, setRowsPerPage] = useState<number>(10)
+    const queryClient = useQueryClient();
+
 
     useEffect(() => {
         const pageToBeFetched = currentPage + 1;
@@ -22,12 +24,12 @@ export const Posts = () => {
             queryClient.prefetchQuery({
                 queryKey: ['posts', pageToBeFetched],
                 queryFn: async () => {
-                    return fetchPosts(pageToBeFetched)
+                    return fetchPosts(pageToBeFetched, rowsPerPage)
                         .then(page => page.content);
                 },
             }).catch(e => console.log(e));
         }
-    }, [currentPage]);
+    }, [currentPage, rowsPerPage]);
 
     /*    const {data, isError, isLoading, error} = useQuery({
             queryKey: ['posts'],
@@ -50,7 +52,28 @@ export const Posts = () => {
         staleTime: 5 * 1000,
     });
 
-    const queryClient = useQueryClient();
+    const {data, fetchNextPage, hasNextPage} = useInfiniteQuery({
+        staleTime: 5 * 1000,
+        queryKey: ["posts"],
+        queryFn: ({pageParam = 0}) => fetchPosts(pageParam, rowsPerPage),
+        getNextPageParam: (lastPage, allPages) => {
+            return lastPage.number + 1 < lastPage.totalPages ? lastPage.number + 1 : undefined;
+        },
+        initialPageParam: 0,
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id: number) => {
+            const httpStatus = await deletePost(id);
+            if (httpStatus === 200) {
+                console.log("Deleted");
+            } else {
+                console.log("Not deleted");
+            }
+        }
+    });
+
+
 
     return (
         <>
@@ -78,7 +101,7 @@ export const Posts = () => {
                         </Fragment>
                     ))}
                 </Box>
-                {selectedPost && <ModalBS post={selectedPost}/>}
+                {selectedPost && <ModalBS post={selectedPost} deleteMutation={deleteMutation}/>}
             </>
             }
         </>

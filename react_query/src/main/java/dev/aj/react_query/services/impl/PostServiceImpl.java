@@ -52,5 +52,10 @@ public class PostServiceImpl implements PostService {
         return postRepository.findAllPostsByPage(pageRequest);
     }
 
+    @Override
+    public void deletePostById(Long id) {
+        postRepository.deleteById(id);
+    }
+
 
 }
