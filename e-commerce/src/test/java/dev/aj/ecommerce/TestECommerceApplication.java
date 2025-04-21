@@ -11,7 +11,7 @@ class TestECommerceApplication {
                         InitDatabase.class,
                         CORSOverride.class,
                         TestData.class)
-                .withAdditionalProfiles("test", "compose")
+                .withAdditionalProfiles("test")
                 .run(args);
     }
 

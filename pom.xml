@@ -41,6 +41,7 @@
         <module>auth-server</module>
         <module>react_query</module>
         <module>e-commerce</module>
+        <module>redisson</module>
     </modules>
 
     <properties>
