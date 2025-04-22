@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "/application-test.properties")
-public class RedissonTest {
+public class RedissonReactiveClientTest {
 
     @Autowired
     private RedissonReactiveClient redissonReactiveClient;

@@ -11,6 +11,7 @@ services:
       - '5481:5432'
     volumes:
       - ./src/test/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./src/test/resources/db/postgres/data:/var/lib/postgresql/data
 
   redis:
     image: bitnami/redis:latest

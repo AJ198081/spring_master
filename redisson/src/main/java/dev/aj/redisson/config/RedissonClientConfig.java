@@ -24,7 +24,7 @@ public class RedissonClientConfig {
         return Redisson.create(config);
     }
 
-    @Bean
+    @Bean(name = "redissonReactiveClient")
     public RedissonReactiveClient getRedissonReactiveClient() {
         return getRedissonClient().reactive();
     }
