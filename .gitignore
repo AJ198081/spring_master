@@ -36,5 +36,14 @@ build/
 **/frontend/.idea
 **/frontend/node_modules/**
 **/frontend/package-lock.json
+**/frontend/dist/**
 
 **/node_modules/**
+**/node/**
+
+*.rdb
+*.aof
+*.manifest
+*.h
+*.js
+*.jsx
