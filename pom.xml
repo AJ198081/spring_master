@@ -42,6 +42,7 @@
         <module>react_query</module>
         <module>e-commerce</module>
         <module>redisson</module>
+        <module>full_stack_restaurant</module>
     </modules>
 
     <properties>

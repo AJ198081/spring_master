@@ -51,6 +51,4 @@ public class ESTCContainerConfig {
                     createContainerCmd.withName("es_postgres_tc_container");
                 });
     }
-
-
 }

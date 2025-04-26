@@ -21,7 +21,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @Builder
 @Entity
-@Table(name = "products", schema = "redisson")
+@Table(name = "product", schema = "redisson")
 public class Product {
 
     @Id
