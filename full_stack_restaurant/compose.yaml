@@ -14,6 +14,11 @@ services:
       - cluster.initial_master_nodes=es01,es02,es03
       - discovery.seed_hosts=es02,es03
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data-es01:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
 
   es02:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
@@ -30,6 +35,10 @@ services:
       - cluster.initial_master_nodes=es01,es02,es03
       - discovery.seed_hosts=es01,es03
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data-es02:/usr/share/elasticsearch/data
+    networks:
+      - elastic
 
   es03:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
@@ -46,6 +55,10 @@ services:
       - cluster.initial_master_nodes=es01,es02,es03
       - discovery.seed_hosts=es02,es01
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data-es03:/usr/share/elasticsearch/data
+    networks:
+      - elastic
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.17.2
@@ -59,16 +72,70 @@ services:
       - "5601:5601"
     environment:
       - ELASTICSEARCH_HOSTS=["http://es01:9200","http://es02:9200","http://es03:9200"]
+    networks:
+      - elastic
 
   postgres:
     image: 'postgres:latest'
     container_name: 'restaurant_container'
     restart: unless-stopped
     environment:
-      - 'POSTGRES_DB=fullstack'
-      - 'POSTGRES_USER=admin'
-      - 'POSTGRES_PASSWORD=password'
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - '5485:5432'
     volumes:
       - ./src/test/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - keycloak_network
+
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.4
+    command: start
+    environment:
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: "8080"
+
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HEALTH_ENABLED: true
+
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/${POSTGRES_DB}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+      KC_LOG_LEVEL: info
+    ports:
+      - "8888:8080"
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - keycloak_network
+    env_file:
+      - .env
+
+
+
+volumes:
+  elasticsearch-data-es01:
+    driver: local
+  elasticsearch-data-es02:
+    driver: local
+  elasticsearch-data-es03:
+    driver: local
+  keycloak-data:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge
+  keycloak_network:
+    driver: bridge
