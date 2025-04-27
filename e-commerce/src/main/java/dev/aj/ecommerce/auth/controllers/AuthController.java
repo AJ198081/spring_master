@@ -7,6 +7,7 @@ import dev.aj.ecommerce.auth.services.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RMapCache;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final RMapCache<String, String> refreshTokenCache;
 
     @PostMapping("/register")
     public ResponseEntity<UserRegistrationDto> register(@Valid @RequestBody UserRegistrationDto userRegistrationDto) {
@@ -25,7 +27,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody UserLoginDto userLoginDto) {
-        return ResponseEntity.ok(authService.login(userLoginDto));
+        AuthResponseDto loginResponse = authService.login(userLoginDto);
+        if (!loginResponse.getRefreshToken().isBlank()) {
+            refreshTokenCache.put(loginResponse.getUsername(), loginResponse.getRefreshToken());
+        }
+         return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/refresh-token")

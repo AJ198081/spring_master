@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.redisson.api.RMapCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -29,7 +30,10 @@ import org.springframework.web.client.RestClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(locations = "/application-test.properties")
+@TestPropertySource(locations = {"/application-test.properties"}, properties = {
+        "spring.docker.compose.skip.in-tests=false",
+        "spring.docker.compose.lifecycle-management=start_only"}
+)
 @Import(value = {PostgresTCConfig.class, TestConfig.class, TestData.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuthControllerIntegrationTest {
@@ -45,6 +49,9 @@ public class AuthControllerIntegrationTest {
 
     @Autowired
     private TestConfig testConfig;
+
+    @Autowired
+    private RMapCache<String, String> refreshTokenCache;
 
     @LocalServerPort
     private int port;
@@ -99,7 +106,8 @@ public class AuthControllerIntegrationTest {
 
     @Test
     void testLoginUser() throws Exception {
-        // Create a user first
+
+        // First, create a test-user in the database
         User user = new User();
         user.setUsername(TEST_USERNAME);
         user.setEmail(TEST_EMAIL);
@@ -107,6 +115,7 @@ public class AuthControllerIntegrationTest {
         user.setRole(Role.ROLE_USER);
         authRepository.save(user);
 
+        // Now login using the test user
         UserLoginDto loginDto = new UserLoginDto();
         loginDto.setUsernameOrEmail(TEST_USERNAME);
         loginDto.setPassword(TEST_PASSWORD);
@@ -117,14 +126,15 @@ public class AuthControllerIntegrationTest {
                 .retrieve()
                 .toEntity(AuthResponseDto.class);
 
-        // Extract tokens for next test
+        // Extract tokens for the next test
         AuthResponseDto response = loginResponse.getBody();
 
         assertThat(response).isNotNull();
-
+        assertThat(response.getAccessToken()).isNotNull();
+        assertThat(response.getRefreshToken()).isNotNull();
 
         // Test token refresh
-        ResponseEntity<AuthResponseDto> refreshTokenResponse = restClient.post()
+        ResponseEntity<AuthResponseDto> accessTokenFromRefreshToken = restClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/auth/refresh-token")
                         .queryParam("refreshToken", response.getRefreshToken())
@@ -132,15 +142,23 @@ public class AuthControllerIntegrationTest {
                 .retrieve()
                 .toEntity(AuthResponseDto.class);
 
+        String refreshTokenFromCache = refreshTokenCache.get(loginDto.getUsernameOrEmail());
+
+        // Assert that the refresh token was saved to the cache
+        Assertions.assertThat(accessTokenFromRefreshToken).isNotNull()
+                .extracting(ResponseEntity::getBody).isNotNull()
+                .extracting(AuthResponseDto::getRefreshToken).isEqualTo(refreshTokenFromCache);
+
         // Test logout
         ResponseEntity<Void> logoutResponse = restClient.post().uri("/api/auth/logout")
                 .header("Authorization", "Bearer " + response.getAccessToken())
                 .retrieve()
                 .toBodilessEntity();
 
-       Assertions.assertThat(logoutResponse).isNotNull()
+        Assertions.assertThat(logoutResponse).isNotNull()
                .extracting(ResponseEntity::getStatusCode)
                .isEqualTo(HttpStatus.OK);
+
     }
 
     @Test

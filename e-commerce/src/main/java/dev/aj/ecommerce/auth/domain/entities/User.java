@@ -50,7 +50,8 @@ public class User {
 
     @Column(name = "role", nullable = false, columnDefinition = "VARCHAR(10)")
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @Builder.Default
+    private Role role = Role.ROLE_USER;
 
     @Embedded
     @Builder.Default

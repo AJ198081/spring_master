@@ -24,5 +24,6 @@ public class Photo {
     private String name;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
-    private LocalDateTime uploadedAt;
+    @Builder.Default
+    private LocalDateTime uploadedAt = LocalDateTime.now();
 }
