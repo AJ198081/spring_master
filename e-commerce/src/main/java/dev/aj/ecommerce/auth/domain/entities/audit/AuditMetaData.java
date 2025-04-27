@@ -2,6 +2,8 @@ package dev.aj.ecommerce.auth.domain.entities.audit;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -10,6 +12,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.ZonedDateTime;
 
 @Embeddable
+@Getter
+@Setter
 public class AuditMetaData {
 
     @CreatedBy
@@ -17,7 +21,7 @@ public class AuditMetaData {
     private String createdBy;
 
     @LastModifiedBy
-    @Column(insertable = false, updatable = true)
+    @Column(insertable = false)
     private String lastModifiedBy;
 
     @CreatedDate
@@ -25,6 +29,6 @@ public class AuditMetaData {
     private ZonedDateTime createdDate;
 
     @LastModifiedDate
-    @Column(insertable = false, updatable = true, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    @Column(insertable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private ZonedDateTime lastModifiedDate;
 }

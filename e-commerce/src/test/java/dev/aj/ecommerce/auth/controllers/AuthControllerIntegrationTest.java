@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +28,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestClient;
 
+import java.util.Objects;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(locations = {"/application-test.properties"}, properties = {
-        "spring.docker.compose.skip.in-tests=false",
-        "spring.docker.compose.lifecycle-management=start_only"}
+@TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
+//        "spring.docker.compose.skip.in-tests=false",
+//        "spring.docker.compose.lifecycle-management=start_only"
+}
 )
 @Import(value = {PostgresTCConfig.class, TestConfig.class, TestData.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -52,6 +56,9 @@ public class AuthControllerIntegrationTest {
 
     @Autowired
     private RMapCache<String, String> refreshTokenCache;
+
+    @Autowired
+    private Environment environment;
 
     @LocalServerPort
     private int port;
@@ -115,12 +122,13 @@ public class AuthControllerIntegrationTest {
         user.setRole(Role.ROLE_USER);
         authRepository.save(user);
 
-        // Now login using the test user
+        // Now login using the test-user
         UserLoginDto loginDto = new UserLoginDto();
         loginDto.setUsernameOrEmail(TEST_USERNAME);
         loginDto.setPassword(TEST_PASSWORD);
 
-        ResponseEntity<AuthResponseDto> loginResponse = restClient.post().uri("/api/auth/login")
+        ResponseEntity<AuthResponseDto> loginResponse = restClient.post()
+                .uri("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(loginDto)
                 .retrieve()
@@ -133,8 +141,27 @@ public class AuthControllerIntegrationTest {
         assertThat(response.getAccessToken()).isNotNull();
         assertThat(response.getRefreshToken()).isNotNull();
 
-        // Test token refresh
-        ResponseEntity<AuthResponseDto> accessTokenFromRefreshToken = restClient.post()
+        assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(loginResponse.getHeaders().get("Set-Cookie")).isNotEmpty();
+
+        String refreshTokenFromCache = refreshTokenCache.get(loginDto.getUsernameOrEmail());
+
+        // Assert that the refresh token was saved to the cache
+        Assertions.assertThat(loginResponse).isNotNull()
+                .extracting(ResponseEntity::getBody).isNotNull()
+                .extracting(AuthResponseDto::getRefreshToken).isEqualTo(refreshTokenFromCache);
+
+        // Assert that the refresh token was saved to the cache and has the correct TTL
+        long remainTimeToLive = refreshTokenCache.remainTimeToLive(loginDto.getUsernameOrEmail());
+        Assertions.assertThat(remainTimeToLive)
+                .isCloseTo(
+                        Long.parseLong(Objects.requireNonNull(environment.getProperty("jwt.refresh.expiration.ms"))),
+                        Assertions.within(2000L)
+                );
+
+        // Now get the token pair using refresh token
+        Thread.sleep(1000); // Sleep for 1 second, otherwise it appears to return the same Access Token
+        ResponseEntity<AuthResponseDto> tokenResponseFromRefreshToken = restClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/auth/refresh-token")
                         .queryParam("refreshToken", response.getRefreshToken())
@@ -142,22 +169,29 @@ public class AuthControllerIntegrationTest {
                 .retrieve()
                 .toEntity(AuthResponseDto.class);
 
-        String refreshTokenFromCache = refreshTokenCache.get(loginDto.getUsernameOrEmail());
+        // Assert that the same refresh token was returned
+        assertThat(tokenResponseFromRefreshToken.getBody()).isNotNull()
+                .extracting(AuthResponseDto::getRefreshToken)
+                .isEqualTo(response.getRefreshToken());
 
-        // Assert that the refresh token was saved to the cache
-        Assertions.assertThat(accessTokenFromRefreshToken).isNotNull()
-                .extracting(ResponseEntity::getBody).isNotNull()
-                .extracting(AuthResponseDto::getRefreshToken).isEqualTo(refreshTokenFromCache);
+        // Assert that a different Access Token was returned
+        assertThat(tokenResponseFromRefreshToken.getBody()).isNotNull()
+                .extracting(AuthResponseDto::getAccessToken)
+                .isNotEqualTo(response.getAccessToken());
 
         // Test logout
-        ResponseEntity<Void> logoutResponse = restClient.post().uri("/api/auth/logout")
+        ResponseEntity<Void> logoutResponse = restClient.post()
+                .uri("/api/auth/logout")
                 .header("Authorization", "Bearer " + response.getAccessToken())
                 .retrieve()
                 .toBodilessEntity();
 
         Assertions.assertThat(logoutResponse).isNotNull()
-               .extracting(ResponseEntity::getStatusCode)
-               .isEqualTo(HttpStatus.OK);
+                .extracting(ResponseEntity::getStatusCode)
+                .isEqualTo(HttpStatus.OK);
+
+        // Assert that the refresh token was removed from the Redis cache after logout sequence
+        Assertions.assertThat(refreshTokenCache.get(loginDto.getUsernameOrEmail())).isNull();
 
     }
 

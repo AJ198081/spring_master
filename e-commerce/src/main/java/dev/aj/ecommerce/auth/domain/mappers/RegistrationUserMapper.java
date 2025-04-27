@@ -4,6 +4,7 @@ import dev.aj.ecommerce.auth.config.AuthConfig;
 import dev.aj.ecommerce.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.ecommerce.auth.domain.entities.User;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -13,7 +14,9 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
         componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = AuthConfig.class)
+        uses = AuthConfig.class,
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR
+)
 public interface RegistrationUserMapper {
 
     @Mapping(target = "password", qualifiedByName = "passwordEncoder")

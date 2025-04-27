@@ -10,6 +10,7 @@ import dev.aj.ecommerce.auth.services.AuthService;
 import dev.aj.ecommerce.auth.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RMapCache;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService {
     private final AuthRepository authRepository;
     private final RegistrationUserMapper registrationUserMapper;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final RMapCache<String, String> refreshTokenCache;
 
     @Override
     @Transactional
@@ -70,6 +71,11 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String username = jwtUtils.getUsernameFromJwtToken(refreshToken);
+
+        if (refreshTokenCache.get(username) == null) {
+            throw new RuntimeException("Refresh token is expired");
+        }
+
         User user = authRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -86,10 +92,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(HttpServletRequest request) {
-        // Clear the security context
         SecurityContextHolder.clearContext();
-
-        // In a real application, you might want to invalidate the token
-        // by adding it to a blacklist or using Redis to store invalidated tokens
     }
 }
