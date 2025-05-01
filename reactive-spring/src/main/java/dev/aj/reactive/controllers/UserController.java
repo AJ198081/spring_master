@@ -5,8 +5,6 @@ import dev.aj.reactive.domain.dtos.UserResponseDto;
 import dev.aj.reactive.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -32,31 +28,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public Mono<ResponseEntity<UserResponseDto>> createUser(@RequestBody @Valid Mono<UserRequestDto> userRequest) {
-
-        return userService.createUser(userRequest)
-                .map(userResponse -> ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .location(URI.create("/users/%s".formatted(userResponse.getId())))
-                        .body(userResponse))
-                .onErrorMap(DuplicateKeyException.class, e -> new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()))
-                .onErrorMap(throwable -> {
-                    if (throwable instanceof DataIntegrityViolationException) {
-                        return new ResponseStatusException(HttpStatus.BAD_REQUEST, throwable.getMessage());
-                    } else {
-                        return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage());
-                    }
-                });
-
+    public ResponseEntity<Mono<UserResponseDto>> createUser(@RequestBody @Valid Mono<UserRequestDto> userRequest) {
+        return new ResponseEntity<>(userService.createUser(userRequest), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{ID}")
-    public Mono<ResponseEntity<UserResponseDto>> getAllUsers(@PathVariable(name = "ID", required = true) UUID id) {
-        return Mono.just(id)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("ID is required"))) // Not that it can be empty because the framework will take care of it
-                .flatMap(i -> userService.getUserById(Mono.just(i)))
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public ResponseEntity<Mono<UserResponseDto>> getUserById(@PathVariable(name = "ID") UUID id) {
+
+        return new ResponseEntity<>(userService.getUserById(Mono.just(id)), HttpStatus.OK);
     }
 
     @GetMapping(value = "/all")

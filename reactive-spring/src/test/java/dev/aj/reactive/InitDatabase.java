@@ -16,22 +16,17 @@ public class InitDatabase {
     @PostConstruct
     public void init() {
 
-        Mono<Long> numberOfUsers = userService.totalCount();
-
-        numberOfUsers
+        userService.totalCount()
                 .map(count -> {
                     if (count == 0) {
-
-                        testData.userRequestDtoStream()
-                                .map(userRequestDto -> userService.createUser(Mono.just(userRequestDto)))
+                        return testData.userRequestDtoStream()
                                 .take(30)
-                                .subscribe();
-
-                        return count;
+                                .map(userRequestDto -> userService.createUser(Mono.just(userRequestDto)));
                     }
                     return count;
                 })
-                .onErrorMap(throwable -> new RuntimeException(throwable.getCause().getLocalizedMessage()));
+//                .onErrorMap(throwable -> new RuntimeException(throwable.getCause().getLocalizedMessage()))
+                .subscribe(count -> System.out.println("Total Users: " + count));
     }
 
 }

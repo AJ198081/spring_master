@@ -17,11 +17,11 @@ import lombok.Setter;
 public class UserRequestDto {
 
     @NotBlank(message = "First name cannot be Empty")
-    @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
+    @Size(min = 2, max = 50, message = "The first name must be between 2 and 50 characters")
     private String firstName;
 
     @NotBlank(message = "Last name cannot be Empty")
-    @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
+    @Size(min = 2, max = 50, message = "The last name must be between 2 and 50 characters")
     private String lastName;
 
     @Email(message = "Email is not valid")

@@ -7,14 +7,29 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
-public interface UserMapper {
+        unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE,
+        imports = {PasswordEncoder.class}
+)
+public abstract class UserMapper {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Mapping(target = "id", ignore = true)
-    User toEntity(UserRequestDto userRequestDto);
+    @Mapping(target = "password", qualifiedByName = "bcryptEncodeString")
+    public abstract User toEntity(UserRequestDto dto);
 
-    UserResponseDto toDto(User user);
+    public abstract UserResponseDto toDto(User user);
+
+    @Named("bcryptEncodeString")
+    public String bcryptEncodeString(String password) {
+        return passwordEncoder.encode(password);
+    }
+
 }
