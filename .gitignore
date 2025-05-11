@@ -47,3 +47,5 @@ build/
 *.h
 *.js
 *.jsx
+
+**/kafka_data/**

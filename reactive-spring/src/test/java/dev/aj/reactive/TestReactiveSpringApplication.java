@@ -1,5 +1,6 @@
 package dev.aj.reactive;
 
+import dev.aj.reactive.config.NettyServerConfig;
 import org.springframework.boot.SpringApplication;
 
 class TestReactiveSpringApplication {

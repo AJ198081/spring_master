@@ -11,9 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class AuthenticationManagerConfig {
 
-    @Bean
-    public ReactiveAuthenticationManager authenticationManager(ReactiveUserDetailsService reactiveUserDetailsService, PasswordEncoder passwordEncoder) {
-        UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(reactiveUserDetailsService);
+    @Bean( "reactiveAuthenticationManager")
+    public ReactiveAuthenticationManager authenticationManager(ReactiveUserDetailsService userService, PasswordEncoder passwordEncoder) {
+        UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(userService);
         authenticationManager.setPasswordEncoder(passwordEncoder);
         return authenticationManager;
     }

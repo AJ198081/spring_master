@@ -34,7 +34,6 @@ public class RegistrationController {
 
     @GetMapping(value = "/{ID}")
     public ResponseEntity<Mono<UserResponseDto>> getUserById(@PathVariable(name = "ID") UUID id) {
-
         return new ResponseEntity<>(userService.getUserById(Mono.just(id)), HttpStatus.OK);
     }
 

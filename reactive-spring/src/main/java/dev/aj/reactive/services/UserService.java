@@ -59,4 +59,11 @@ public class UserService implements ReactiveUserDetailsService {
     public Mono<UserDetails> findByUsername(String username) {
         return getUserByUsername(username);
     }
+
+    public Mono<dev.aj.reactive.domain.model.User> findByEmail(String email) {
+        return Mono.justOrEmpty(email)
+                .flatMap(userRepository::findUserByEmail);
+
+    }
+
 }
