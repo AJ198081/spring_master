@@ -14,16 +14,22 @@
     <name>kafka</name>
     <description>kafka</description>
 
+    <properties>
+        <product-created-topic>product-created-event-topic</product-created-topic>
+    </properties>
+
     <dependencies>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
+
         <dependency>
             <groupId>net.datafaker</groupId>
             <artifactId>datafaker</artifactId>
