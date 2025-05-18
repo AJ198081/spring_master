@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.common.config.TopicConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
@@ -18,6 +19,7 @@ import org.springframework.core.env.Environment;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
@@ -65,17 +67,27 @@ public class TestData {
 
         String productCreatedTopic = environment.getProperty("product.created.event.topic.name");
 
-        try (AdminClient adminClient = KafkaAdminClient.create(kafkaConfig.getKafkaProperties())) {
+        Map<String, Object> topicConfig = kafkaConfig.getKafkaProperties();
+
+        try (AdminClient adminClient = KafkaAdminClient.create(topicConfig)) {
             Set<String> topics = adminClient.listTopics().names().get();
             if (!topics.contains(productCreatedTopic)) {
-                NewTopic newTopic = kafkaConfig.createTopic(productCreatedTopic);
+
+                Map<String, String> topicConfigMap = Map.of(
+                        TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, "2",
+                        TopicConfig.CLEANUP_POLICY_CONFIG, "compact",
+                        TopicConfig.RETENTION_MS_CONFIG, String.valueOf(5 * 60 * 1000),
+                        TopicConfig.LOCAL_LOG_RETENTION_MS_CONFIG, String.valueOf(4 * 60 * 1000));
+
+                NewTopic newTopic = kafkaConfig.createTopic(productCreatedTopic, topicConfigMap);
+
                 Void topicCreationResult = adminClient.createTopics(Collections.singleton(newTopic))
                         .all()
                         .get();
                 log.info("Kafka Topic {} Created", newTopic.name());
             }
         } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException("Error creating Kafka topic: {}", e);
+            throw new RuntimeException("Error is creating a Kafka topic: {}", e);
         }
     }
 

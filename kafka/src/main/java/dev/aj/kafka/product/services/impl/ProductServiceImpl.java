@@ -38,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
         CompletableFuture<SendResult<String, Object>> productSendFuture = customKafkaTemplate.send(
                 Objects.requireNonNull(environment.getProperty("product.created.event.topic.name")),
                 productCreatedDto.getId().toString(),
-                persistedProduct);
+                productCreatedDto);
 
         // Send to kafka is still 'async', future.join() will block until the result is received
         productSendFuture.whenComplete((result, exception) -> {

@@ -10,7 +10,6 @@ class TestKafkaApplication {
                 .with(TestConfig.class, TestData.class)
                 .withAdditionalProfiles("test")
                 .run(args);
-
     }
 
 }
