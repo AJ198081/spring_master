@@ -37,7 +37,6 @@ public class TestData {
     @Value("${password.special-characters: '!@#$%^'}")
     private char[] specialCharacters;
 
-
     public Stream<ProductCreateDto> streamOfCreateProductDtos() {
         return Stream.generate(() ->
                 ProductCreateDto.builder()
@@ -48,7 +47,6 @@ public class TestData {
                         .build()
         );
     }
-
 
     private @Size(min = 8, message = "Password must be at least eight characters") String getValidPassword() {
 
@@ -75,7 +73,7 @@ public class TestData {
 
                 Map<String, String> topicConfigMap = Map.of(
                         TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, "2",
-                        TopicConfig.CLEANUP_POLICY_CONFIG, "compact",
+                        TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_COMPACT,
                         TopicConfig.RETENTION_MS_CONFIG, String.valueOf(5 * 60 * 1000),
                         TopicConfig.LOCAL_LOG_RETENTION_MS_CONFIG, String.valueOf(4 * 60 * 1000));
 
@@ -90,5 +88,4 @@ public class TestData {
             throw new RuntimeException("Error is creating a Kafka topic: {}", e);
         }
     }
-
 }
