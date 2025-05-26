@@ -4,7 +4,14 @@ export const FormControlComponent = () => {
     return (
         <FormControl
             disabled={false}
-            sx={{m: 2, minWidth: 120}}
+            required={true}
+            sx={{
+                m: 2,
+                minWidth: 120,
+                '& > *': {
+                    color: 'blue',
+                }
+            }}
             component={"fieldset"}
         >
             <FormLabel
