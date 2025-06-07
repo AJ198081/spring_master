@@ -71,7 +71,8 @@ public class AuthController {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setMaxAge(refreshTokenExpirationSeconds);
 
-        ResponseEntity<UserLoginResponse> responseEntity = ResponseEntity.ok()
+        ResponseEntity<UserLoginResponse> responseEntity = ResponseEntity
+                .ok()
                 .header(HttpHeaders.SET_COOKIE, "refreshToken=%s; HttpOnly; Max-Age=%d; Path=%s".formatted(refreshToken, refreshTokenExpirationSeconds, "/refresh-token"))
                 .header(HttpHeaders.SET_COOKIE, "exploitableToken=%s; Max-Age=%d; path=%s".formatted(refreshToken, refreshTokenExpirationSeconds, "/"))
                 .body(userService.loginUser(authentication));
@@ -84,5 +85,4 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, "refreshToken=; HttpOnly; Max-Age=0; Path=%s".formatted("/refresh-token"))
                 .build();
     }
-
 }

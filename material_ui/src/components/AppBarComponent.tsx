@@ -1,4 +1,4 @@
-import {AppBar, Box, styled, type Theme, Toolbar} from "@mui/material";
+import {AppBar, Box, styled, type Theme, Toolbar, Typography} from "@mui/material";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StyleIcon from '@mui/icons-material/Style';
 import IconButton from "@mui/material/IconButton";
@@ -23,7 +23,7 @@ export const AppBarComponent = () => {
                     sx={{justifyContent: 'space-between'}}
                 >
                     <IconButton
-                        color={'inherit'}
+                        color={'warning'}
                         aria-label="menu"
                         size={'medium'}
                     >
@@ -37,7 +37,7 @@ export const AppBarComponent = () => {
                         display: 'flex',
                         justifyContent: 'space-around',
                         width: '300px',
-                        color: theme => theme.palette.common.cyan,
+                        color: theme => theme.palette.info.main,
                     }}>
                         <Typography>User</Typography>
                         <div>Settings</div>
@@ -47,9 +47,9 @@ export const AppBarComponent = () => {
                         >
                             <ShoppingCartIcon
                                 sx={{
-                                    color: (theme) => theme.palette.common.green,
+                                    color: (theme) => theme.palette.common.white,
                                     '&:hover': {
-                                        color: (theme) => theme.palette.common.yellow,
+                                        color: (theme) => theme.palette.primary.main,
                                     }
                                 }}
                                 fontSize={'medium'}

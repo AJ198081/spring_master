@@ -6,7 +6,9 @@ export const CardComponent = () => {
         <Card
             sx={{
                 maxWidth: 345,
-                mingWidth: 120,
+                minWidth: 120,
+                minHeight: 400,
+                marginY: 2
             }}
             elevation={3}
             raised={true}
@@ -19,7 +21,7 @@ export const CardComponent = () => {
                 subheader="World"
             />
 
-            <CardActionArea onClick={() => console.log('Cat clicked!!')}>
+            <CardActionArea onClick={() => alert('Reet stop disturbing Dada, he is busy!!')}>
                 <CardMedia
                     component="img"
                     height="240"

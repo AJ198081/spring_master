@@ -71,9 +71,13 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public void deleteExpense(UUID expenseId) {
 
-        expenseRepository.findByExpenseId(expenseId).stream()
+        expenseRepository.findByExpenseId(expenseId)
+                .stream()
                 .findFirst()
-                .ifPresent(expenseRepository::delete);
+                .ifPresentOrElse(expenseRepository::delete, () -> {
+                    log.warn("ExpenseID {} not found, hence no action was taken for delete call.", expenseId);
+//                    throw new NoSuchElementException("ExpenseID %s not found".formatted(expenseId));
+                });
 
     }
 
