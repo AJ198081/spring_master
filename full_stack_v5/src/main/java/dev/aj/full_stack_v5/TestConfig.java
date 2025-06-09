@@ -1,11 +1,11 @@
-package dev.aj.full_stack_v4;
+package dev.aj.full_stack_v5;
 
-import com.github.javafaker.Faker;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
+import net.datafaker.Faker;
 
 import java.util.Locale;
 
@@ -22,7 +22,6 @@ public class TestConfig {
 
     @Bean
     public Faker faker() {
-
         return new Faker(Locale.of("en", "IND"));
     }
 }

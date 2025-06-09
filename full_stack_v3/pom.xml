@@ -43,18 +43,18 @@
                 <executions>
                     <execution>
                         <id>install node and npm</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
-                        <phase>generate-resources</phase>
                     </execution>
 
                     <execution>
                         <id>install package.json</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
-                        <phase>generate-resources</phase>
                         <configuration>
                             <arguments>install</arguments>
                         </configuration>
@@ -79,20 +79,22 @@
                 <version>3.3.1</version>
                 <executions>
                     <execution>
-                        <id>copy build frontend resources (dist folder) to jar file (/classes/static/ folder)</id>
+                        <id>copy the frontend resources built during build phase (dist folder) to jar file (/classes/static/ folder)</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
+                            <!-- From where we want to copy (Ctrl C) the resources -->
                             <resources>
                                 <resource>
-                                    <!-- What do you want maven to (Ctrl C) copy -->
+                                    <!-- What do you want maven to copy -->
                                     <directory>${basedir}/src/main/frontend/dist</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
-                                    <!-- Where do you maven to (Ctrl V) paste -->
+
+                            <!-- Where do you maven to (Ctrl V) paste -->
                             <outputDirectory>${basedir}/target/classes/static</outputDirectory>
                         </configuration>
                     </execution>
