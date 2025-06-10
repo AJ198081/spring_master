@@ -2,7 +2,7 @@ package dev.aj.full_stack_v5;
 
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ImageRequestDto;
-import dev.aj.full_stack_v5.product.domain.dtos.ProductDto;
+import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
@@ -17,13 +17,11 @@ public class TestDataFactory {
 
     private final Faker faker;
     private final PhotosFactory photosFactory;
-    private final TestDataFactory testDataFactory;
 
-    public Stream<ProductDto> generateStreamOfProducts() {
-
+    public Stream<ProductRequestDto> generateStreamOfProductRequests() {
         List<String> availableBrands = List.of("Nike", "Adidas", "Puma", "Reebok", "Bata", "Bata", "Bata");
 
-        return Stream.generate(() -> ProductDto.builder()
+        return Stream.generate(() -> ProductRequestDto.builder()
                 .name(faker.commerce().productName())
                 .description(faker.lorem().paragraph())
                 .price(new BigDecimal(faker.commerce().price(50, 500)))

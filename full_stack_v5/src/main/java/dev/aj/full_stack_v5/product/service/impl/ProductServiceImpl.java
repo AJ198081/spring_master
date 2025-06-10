@@ -1,7 +1,8 @@
 package dev.aj.full_stack_v5.product.service.impl;
 
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
-import dev.aj.full_stack_v5.product.domain.dtos.ProductDto;
+import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
+import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import dev.aj.full_stack_v5.product.domain.entities.Category;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
 import dev.aj.full_stack_v5.product.domain.mappers.ProductMapper;
@@ -30,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
 
     @Override
-    public Product addProduct(ProductDto newProduct) {
+    public ProductResponseDto addProduct(ProductRequestDto newProduct) {
 
         if (productRepository.findProductByNameAndBrand(newProduct.getName(), newProduct.getBrand()).isPresent()) {
             throw new IllegalArgumentException("Product with name: %s and brand: %s already exists.".formatted(newProduct.getName(), newProduct.getBrand()));
@@ -40,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
 
         product.setCategory(getCategory(newProduct.getCategoryName()));
 
-        return productRepository.save(product);
+        return productMapper.toProductResponseDto(productRepository.save(product));
     }
 
     private Category getCategory(String categoryName) {
@@ -53,19 +54,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(ProductDto productDto, Long id) {
-        return productRepository.findById(id)
+    public ProductResponseDto updateProduct(ProductRequestDto productRequestDto, Long id) {
+        return productMapper.toProductResponseDto(productRepository.findById(id)
                 .map(existingProduct -> {
-                    existingProduct.setName(productDto.getName());
-                    existingProduct.setBrand(productDto.getBrand());
-                    existingProduct.setPrice(productDto.getPrice());
-                    existingProduct.setInventory(productDto.getInventory());
-                    existingProduct.setDescription(productDto.getDescription());
-                    existingProduct.setCategory(getCategory(productDto.getCategoryName()));
+                    existingProduct.setName(productRequestDto.getName());
+                    existingProduct.setBrand(productRequestDto.getBrand());
+                    existingProduct.setPrice(productRequestDto.getPrice());
+                    existingProduct.setInventory(productRequestDto.getInventory());
+                    existingProduct.setDescription(productRequestDto.getDescription());
+                    existingProduct.setCategory(getCategory(productRequestDto.getCategoryName()));
 
                     return productRepository.save(existingProduct);
                 })
-                .orElseThrow(() -> new EntityNotFoundException("Unable to find product with id: " + id + " to update."));
+                .orElseThrow(() -> new EntityNotFoundException("Unable to find product with id: " + id + " to update.")));
     }
 
     @Override
@@ -101,48 +102,69 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<Product> getProductById(Long id) {
+    public Optional<ProductResponseDto> getProductById(Long id) {
         return productRepository
-                .findById(id);
+                .findById(id).map(productMapper::toProductResponseDto);
     }
 
     @Override
-    public Iterable<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductResponseDto> getAllProducts() {
+        return productRepository.findAll()
+                .stream()
+                .map(productMapper::toProductResponseDto)
+                .toList();
     }
 
     @Override
-    public List<ProductDto> getAllProductsWithImagesMeta() {
-        return productRepository.findAll().stream().map(productMapper::toProductDto).toList();
+    public List<ProductResponseDto> getAllProductsWithImagesMeta() {
+        return productRepository.findAll().stream().map(productMapper::toProductResponseDto).toList();
     }
 
     @Override
-    public Iterable<Product> getProductsByCategoryName(String categoryName) {
-        return productRepository.findProductByCategoryName(categoryName);
+    public List<ProductResponseDto> getProductsByCategoryName(String categoryName) {
+        return productRepository.findProductByCategoryName(categoryName)
+                .stream()
+                .map(productMapper::toProductResponseDto)
+                .toList();
     }
 
     @Override
-    public Iterable<Product> getProductsByBrand(String brand) {
-        return productRepository.findByBrand(brand);
+    public List<ProductResponseDto> getProductsByBrand(String brand) {
+        return productRepository.findByBrand(brand)
+                .stream()
+                .map(productMapper::toProductResponseDto)
+                .toList();
     }
 
     @Override
-    public Iterable<Product> getProductsByName(String name) {
-        return productRepository.findProductByName(name);
+    public List<ProductResponseDto> getProductsByName(String name) {
+        return productRepository.findProductByName(name)
+                .stream()
+                .map(productMapper::toProductResponseDto)
+                .toList();
     }
 
     @Override
-    public Iterable<Product> getProductsByCategoryNameAndBrand(String categoryName, String brand) {
-        return productRepository.findByCategoryNameAndBrand(categoryName, brand);
+    public List<ProductResponseDto> getProductsByCategoryNameAndBrand(String categoryName, String brand) {
+        return productRepository.findByCategoryNameAndBrand(categoryName, brand)
+                .stream()
+                .map(productMapper::toProductResponseDto)
+                .toList();
     }
 
     @Override
-    public Iterable<Product> getProductsByCategoryNameAndProductName(String categoryName, String productName) {
-        return productRepository.findProductByCategoryNameAndName(categoryName, productName);
+    public List<ProductResponseDto> getProductsByCategoryNameAndProductName(String categoryName, String productName) {
+        return productRepository.findProductByCategoryNameAndName(categoryName, productName)
+                .stream()
+                .map(productMapper::toProductResponseDto)
+                .toList();
     }
 
     @Override
-    public Iterable<Product> getProductsByBrandAndName(String brand, String name) {
-        return productRepository.findByBrandAndName(brand, name);
+    public List<ProductResponseDto> getProductsByBrandAndName(String brand, String name) {
+        return productRepository.findByBrandAndName(brand, name)
+                .stream()
+                .map(productMapper::toProductResponseDto)
+                .toList();
     }
 }

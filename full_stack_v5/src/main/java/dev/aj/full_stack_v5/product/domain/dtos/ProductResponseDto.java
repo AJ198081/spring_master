@@ -25,7 +25,9 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Builder
-public class ProductDto implements Serializable {
+public class ProductResponseDto implements Serializable {
+
+    private Long id;
 
     @Size(message = "Product name can't be blank", min = 2, max = 100)
     @NotBlank

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -32,28 +31,17 @@ public class ImageServiceImpl implements ImageService {
     private final ImageMapper imageMapper;
 
     @Override
-    public ImageResponseDto saveImage(ImageRequestDto imageDto) {
+    public ImageResponseDto saveImage(ImageRequestDto imageDto) throws IOException {
 
         log.info("Saving image: {}", imageDto.getFile().getOriginalFilename());
         if (imageDto.getFile() == null || imageDto.getFile().isEmpty()) {
             throw new IllegalArgumentException("Image file cannot be empty");
         }
+        Image image = imageMapper.toImage(imageDto);
+        Image savedImage = imageRepository.save(image);
+        log.info("Image: {} saved successfully with ID: {}", savedImage.getFileName(), savedImage.getId());
 
-        try {
-            Image image = imageMapper.toImage(imageDto);
-            Image savedImage = imageRepository.save(image);
-            log.info("Image: {} saved successfully with ID: {}", savedImage.getFileName(), savedImage.getId());
-            return imageMapper.toImageDto(savedImage);
-        } catch (IOException e) {
-            log.error("Error processing image file: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to process image file", e);
-        } catch (SQLException e) {
-            log.error("Error converting image to database format: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to convert image to database format", e);
-        } catch (Exception e) {
-            log.error("Error saving image: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to save image", e);
-        }
+        return imageMapper.toImageDto(savedImage);
     }
 
     @Override
@@ -70,7 +58,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public ImageResponseDto updateImage(ImageRequestDto imageDto, Long id) {
+    public ImageResponseDto updateImage(ImageRequestDto imageDto, Long id) throws IOException {
 
         log.info("Updating image with ID: {}", id);
 
@@ -81,7 +69,6 @@ public class ImageServiceImpl implements ImageService {
         Image existingImage = imageRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Image hasn't been found with ID: " + id));
 
-        try {
             Image updatedImage = imageMapper.toImage(imageDto);
             updatedImage.setId(existingImage.getId());
             updatedImage.setProduct(existingImage.getProduct());
@@ -90,16 +77,6 @@ public class ImageServiceImpl implements ImageService {
             Image savedImage = imageRepository.save(updatedImage);
             log.info("Image updated successfully with ID: {}", savedImage.getId());
             return imageMapper.toImageDto(savedImage);
-        } catch (IOException e) {
-            log.error("Error processing image file: {}", e.getMessage());
-            throw new RuntimeException("Failed to process image file due to an IO Exception.", e);
-        } catch (SQLException e) {
-            log.error("Error converting image to database format: {}", e.getMessage());
-            throw new RuntimeException("Failed to persist the image to database format", e);
-        } catch (Exception e) {
-            log.error("Error updating image: {}", e.getMessage());
-            throw new RuntimeException("Failed to update image", e);
-        }
     }
 
     @Override
@@ -124,8 +101,8 @@ public class ImageServiceImpl implements ImageService {
         return imageMapper.toImageDtos(imageRepository.findByProductId(id));
     }
 
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public List<ImageResponseDto> getImagesByProductName(String name) {
         log.info("Fetching images for product name: {}", name);
         return imageMapper.toImageDtos(imageRepository.findByProductName(name));
@@ -140,15 +117,15 @@ public class ImageServiceImpl implements ImageService {
         }
 
         imageRepository.findById(id)
-                        .ifPresentOrElse(
-                                image -> {
-                                    Product associatedProduct = image.getProduct();
-                                    associatedProduct.getImages().remove(image);
-                                    productRepository.save(associatedProduct);
-                                    imageRepository.delete(image);
-                                    log.info("Image deleted successfully with ID: {}", id);
-                                },
-                                () -> log.warn("Image id: {} doesn't exist.", id));
+                .ifPresentOrElse(
+                        image -> {
+                            Product associatedProduct = image.getProduct();
+                            associatedProduct.getImages().remove(image);
+                            productRepository.save(associatedProduct);
+                            imageRepository.delete(image);
+                            log.info("Image deleted successfully with ID: {}", id);
+                        },
+                        () -> log.warn("Image id: {} doesn't exist.", id));
 
     }
 }

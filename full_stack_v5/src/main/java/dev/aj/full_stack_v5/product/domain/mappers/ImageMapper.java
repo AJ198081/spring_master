@@ -3,13 +3,13 @@ package dev.aj.full_stack_v5.product.domain.mappers;
 import dev.aj.full_stack_v5.product.domain.dtos.ImageRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ImageResponseDto;
 import dev.aj.full_stack_v5.product.domain.entities.Image;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +17,7 @@ import java.util.Set;
         componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.WARN,
         unmappedSourcePolicy = ReportingPolicy.WARN,
-        uses = {}
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR
 )
 public interface ImageMapper {
 
@@ -28,7 +28,7 @@ public interface ImageMapper {
     @Mapping(target = "product", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "auditMetaData", ignore = true)
-    Image toImage(ImageRequestDto imageDto) throws IOException, SQLException;
+    Image toImage(ImageRequestDto imageDto) throws IOException;
 
     ImageResponseDto toImageDto(Image image);
 

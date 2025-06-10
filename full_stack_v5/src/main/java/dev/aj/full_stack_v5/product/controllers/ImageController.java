@@ -5,6 +5,7 @@ import dev.aj.full_stack_v5.product.domain.dtos.ImageResponseDto;
 import dev.aj.full_stack_v5.product.domain.entities.Image;
 import dev.aj.full_stack_v5.product.service.ImageService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +30,7 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    @SneakyThrows
     @PostMapping("/")
     public ResponseEntity<ImageResponseDto> addImage(@RequestBody ImageRequestDto image) {
         return ResponseEntity.ok(imageService.saveImage(image));
@@ -65,6 +67,7 @@ public class ImageController {
         return ResponseEntity.ok(imageService.getImagesByProductId(productId));
     }
 
+    @SneakyThrows
     @PutMapping("/{imageId}")
     public ResponseEntity<ImageResponseDto> updateImage(@RequestBody ImageRequestDto image, @PathVariable Long imageId) {
         return ResponseEntity.ok(imageService.updateImage(image, imageId));

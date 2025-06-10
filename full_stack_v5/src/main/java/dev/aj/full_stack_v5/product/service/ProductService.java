@@ -1,35 +1,35 @@
 package dev.aj.full_stack_v5.product.service;
 
-import dev.aj.full_stack_v5.product.domain.dtos.ProductDto;
-import dev.aj.full_stack_v5.product.domain.entities.Product;
+import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
+import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ProductService {
 
-    Product addProduct(ProductDto productDto);
+    ProductResponseDto addProduct(ProductRequestDto productRequestDto);
 
-    Product updateProduct(ProductDto productDto, Long id);
+    ProductResponseDto updateProduct(ProductRequestDto productRequestDto, Long id);
 
     void deleteProductById(Long id);
 
-    Optional<Product> getProductById(Long id);
+    Optional<ProductResponseDto> getProductById(Long id);
 
-    Iterable<Product> getAllProducts();
+    List<ProductResponseDto> getAllProducts();
 
-    List<ProductDto> getAllProductsWithImagesMeta();
+    List<ProductResponseDto> getAllProductsWithImagesMeta();
 
-    Iterable<Product> getProductsByCategoryName(String categoryName);
+    List<ProductResponseDto> getProductsByCategoryName(String categoryName);
 
-    Iterable<Product> getProductsByBrand(String brand);
+    List<ProductResponseDto> getProductsByBrand(String brand);
 
-    Iterable<Product> getProductsByName(String name);
+    List<ProductResponseDto> getProductsByName(String name);
 
-    Iterable<Product> getProductsByCategoryNameAndBrand(String category, String brand);
+    List<ProductResponseDto> getProductsByCategoryNameAndBrand(String category, String brand);
 
-    Iterable<Product> getProductsByCategoryNameAndProductName(String categoryName, String productName);
+    List<ProductResponseDto> getProductsByCategoryNameAndProductName(String categoryName, String productName);
 
-    Iterable<Product> getProductsByBrandAndName(String brand, String name);
+    List<ProductResponseDto> getProductsByBrandAndName(String brand, String name);
 
 }

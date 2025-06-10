@@ -1,7 +1,7 @@
 package dev.aj.full_stack_v5.product.controllers;
 
-import dev.aj.full_stack_v5.product.domain.dtos.ProductDto;
-import dev.aj.full_stack_v5.product.domain.entities.Product;
+import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
+import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import dev.aj.full_stack_v5.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,24 +28,24 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/")
-    public ResponseEntity<Product> addProduct(@RequestBody ProductDto productDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.addProduct(productDto));
+    public ResponseEntity<ProductResponseDto> addProduct(@RequestBody ProductRequestDto productRequestDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.addProduct(productRequestDto));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ProductDto>> getAllProducts() {
+    public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProductsWithImagesMeta());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        Optional<Product> product = productService.getProductById(id);
+    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
+        Optional<ProductResponseDto> product = productService.getProductById(id);
         return product.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@RequestBody ProductDto productDto, @PathVariable Long id) {
+    public ResponseEntity<ProductResponseDto> updateProduct(@RequestBody ProductRequestDto productDto, @PathVariable Long id) {
         return ResponseEntity.ok(productService.updateProduct(productDto, id));
     }
 
@@ -56,57 +56,55 @@ public class ProductController {
     }
 
     @GetMapping("/category/{categoryName}")
-    public ResponseEntity<List<Product>> getProductsByCategoryName(@PathVariable String categoryName) {
-        Iterable<Product> productsIterable = productService.getProductsByCategoryName(categoryName);
-        List<Product> products = StreamSupport.stream(productsIterable.spliterator(), false)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(products);
+    public ResponseEntity<List<ProductResponseDto>> getProductsByCategoryName(@PathVariable String categoryName) {
+        Iterable<ProductResponseDto> productsIterable = productService.getProductsByCategoryName(categoryName);
+        return ResponseEntity.ok(StreamSupport.stream(productsIterable.spliterator(), false)
+                .toList());
     }
 
     @GetMapping("/brand/{brandName}")
-    public ResponseEntity<List<Product>> getProductsByBrand(@PathVariable String brandName) {
-        Iterable<Product> productsIterable = productService.getProductsByBrand(brandName);
-        List<Product> products = StreamSupport.stream(productsIterable.spliterator(), false)
-                .collect(Collectors.toList());
+    public ResponseEntity<List<ProductResponseDto>> getProductsByBrand(@PathVariable String brandName) {
+        Iterable<ProductResponseDto> productsIterable = productService.getProductsByBrand(brandName);
+        List<ProductResponseDto> products = StreamSupport.stream(productsIterable.spliterator(), false)
+                .toList();
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/name/{productName}")
-    public ResponseEntity<List<Product>> getProductsByName(@PathVariable String productName) {
-        Iterable<Product> productsIterable = productService.getProductsByName(productName);
-        List<Product> products = StreamSupport.stream(productsIterable.spliterator(), false)
-                .collect(Collectors.toList());
+    public ResponseEntity<List<ProductResponseDto>> getProductsByName(@PathVariable String productName) {
+        Iterable<ProductResponseDto> productsIterable = productService.getProductsByName(productName);
+        List<ProductResponseDto> products = StreamSupport.stream(productsIterable.spliterator(), false)
+                .toList();
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/category/{categoryName}/brand/{brandName}")
-    public ResponseEntity<List<Product>> getProductsByCategoryNameAndBrand(
+    public ResponseEntity<List<ProductResponseDto>> getProductsByCategoryNameAndBrand(
             @PathVariable String categoryName,
             @PathVariable String brandName) {
-        Iterable<Product> productsIterable = productService.getProductsByCategoryNameAndBrand(categoryName, brandName);
-        List<Product> products = StreamSupport.stream(productsIterable.spliterator(), false)
+        Iterable<ProductResponseDto> productsIterable = productService.getProductsByCategoryNameAndBrand(categoryName, brandName);
+        List<ProductResponseDto> products = StreamSupport.stream(productsIterable.spliterator(), false)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/category/{categoryName}/name/{productName}")
-    public ResponseEntity<List<Product>> getProductsByCategoryNameAndProductName(
+    public ResponseEntity<List<ProductResponseDto>> getProductsByCategoryNameAndProductName(
             @PathVariable String categoryName,
             @PathVariable String productName
     ) {
-        Iterable<Product> productsIterable = productService.getProductsByCategoryNameAndProductName(categoryName, productName);
-        List<Product> products = StreamSupport.stream(productsIterable.spliterator(), false)
+        Iterable<ProductResponseDto> productsIterable = productService.getProductsByCategoryNameAndProductName(categoryName, productName);
+        List<ProductResponseDto> products = StreamSupport.stream(productsIterable.spliterator(), false)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/brand/{brandName}/product/{productName}")
-    public ResponseEntity<List<Product>> getProductsByBrandAndName(
+    public ResponseEntity<List<ProductResponseDto>> getProductsByBrandAndName(
             @PathVariable String brandName,
             @PathVariable String productName) {
-        Iterable<Product> productsIterable = productService.getProductsByBrandAndName(brandName, productName);
-        List<Product> products = StreamSupport.stream(productsIterable.spliterator(), false)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(products);
+        Iterable<ProductResponseDto> productsIterable = productService.getProductsByBrandAndName(brandName, productName);
+        return ResponseEntity.ok(StreamSupport.stream(productsIterable.spliterator(), false)
+                .collect(Collectors.toList()));
     }
 }
