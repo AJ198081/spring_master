@@ -3,12 +3,17 @@ package dev.aj.full_stack_v5;
 import dev.aj.full_stack_v5.auth.domain.dtos.UpdateUserDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
+import dev.aj.full_stack_v5.order.domain.dtos.CartItemDto;
+import dev.aj.full_stack_v5.order.domain.entities.Cart;
+import dev.aj.full_stack_v5.order.domain.entities.CartItem;
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ImageRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
+import dev.aj.full_stack_v5.product.domain.entities.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import net.datafaker.Faker;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -21,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,6 +77,31 @@ public class TestDataFactory {
                 .roles(getRandomRoles())
                 .build());
     }
+
+    public Stream<CartItem> generateStreamOfCartItems(Cart cart, Product product) {
+        return Stream.generate(() -> CartItem.builder()
+                .quantity(faker.random().nextInt(1, 10))
+                .unitPrice(product.getPrice())
+                .product(product)
+                .cart(cart)
+                .build());
+    }
+
+    public Stream<CartItemDto> generateStreamOfCartItemDtos() {
+        return Stream.generate(getCartItemDtoSupplier());
+
+    }
+
+    private @NotNull Supplier<CartItemDto> getCartItemDtoSupplier() {
+
+        Integer quantity = faker.random().nextInt(1, 10);
+
+        return () -> CartItemDto.builder()
+                .quantity(quantity)
+                .build();
+    }
+
+
 
     private Set<String> getRandomRoles() {
 

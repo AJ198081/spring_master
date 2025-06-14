@@ -1,15 +1,18 @@
 package dev.aj.full_stack_v5.order.services;
 
-import dev.aj.full_stack_v5.order.domain.dtos.CartDto;
+import dev.aj.full_stack_v5.order.domain.entities.Cart;
+import dev.aj.full_stack_v5.order.domain.entities.CartItem;
 
 public interface CartItemService {
 
-    CartDto addItemToCart(Long cartId, Long productId, int quantity);
+    Cart addItemToCart(Long cartId, Long productId, int quantity);
+
+    Cart addItemToCustomersCart(Long customerId, Long productId, int quantity);
 
     void removeItemFromCart(Long cartId, Long productId);
 
-    CartDto getCartItems(Long cartId);
+    CartItem getCartItem(Long cartId, Long productId);
 
-    CartDto updateItemsInCart(Long cartId, Long productId, int quantity);
+    Cart updateItemsInCart(Long cartId, Long productId, int quantity);
 
 }

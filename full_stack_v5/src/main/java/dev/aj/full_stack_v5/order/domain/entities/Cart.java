@@ -50,4 +50,26 @@ public class Cart {
                 .map(CartItem::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    public void addItem(CartItem cartItem) {
+        this.cartItems.add(cartItem);
+        this.updateTotal();
+    }
+
+    public void updateItem(CartItem cartItem) {
+        this.removeItem(cartItem);
+        this.addItem(cartItem);
+    }
+
+    public void removeItem(CartItem cartItem) {
+        cartItem.setCart(null);
+        this.cartItems.remove(cartItem);
+        this.updateTotal();
+    }
+
+    public void updateCartItems(Set<CartItem> cartItems) {
+        this.getCartItems().clear();
+        this.getCartItems().addAll(cartItems);
+        this.updateTotal();
+    }
 }

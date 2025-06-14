@@ -3,7 +3,6 @@ package dev.aj.full_stack_v5.auth.controllers;
 import dev.aj.full_stack_v5.auth.domain.dtos.UpdateUserDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
-import dev.aj.full_stack_v5.auth.domain.mapper.UserMapper;
 import dev.aj.full_stack_v5.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,9 +22,8 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
 
-    private final UserMapper userMapper;
+    private final UserService userService;
 
     @PostMapping("/")
     public ResponseEntity<UserResponseDto> registerUser(@RequestBody UserRegistrationDto userRegistrationDto){

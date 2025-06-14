@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v5.common.domain.config;
+package dev.aj.full_stack_v5.common.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

@@ -51,7 +51,12 @@ public class Customer {
     @ToString.Exclude
     private Set<Order> orders;
 
-    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(
+            mappedBy = "customer",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
     private Cart cart;
 
 

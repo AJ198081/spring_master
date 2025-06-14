@@ -6,14 +6,16 @@ import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import dev.aj.full_stack_v5.product.domain.entities.Category;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
 import dev.aj.full_stack_v5.product.domain.mappers.ProductMapper;
-import dev.aj.full_stack_v5.product.repositories.CartItemRepository;
-import dev.aj.full_stack_v5.product.repositories.CartRepository;
+import dev.aj.full_stack_v5.order.repositories.CartItemRepository;
+import dev.aj.full_stack_v5.order.repositories.CartRepository;
 import dev.aj.full_stack_v5.product.repositories.CategoryRepository;
-import dev.aj.full_stack_v5.product.repositories.OrderItemRepository;
+import dev.aj.full_stack_v5.order.repositories.OrderItemRepository;
 import dev.aj.full_stack_v5.product.repositories.ProductRepository;
 import dev.aj.full_stack_v5.product.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@NullMarked
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -102,9 +105,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<ProductResponseDto> getProductById(Long id) {
+    public Optional<ProductResponseDto> getProductResponseDtoByProductId(Long id) {
         return productRepository
                 .findById(id).map(productMapper::toProductResponseDto);
+    }
+
+    @Override
+    public Optional<Product> getProductById(Long id) {
+            return productRepository.findById(id);
     }
 
     @Override
@@ -137,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponseDto> getProductsByName(String name) {
+    public List<ProductResponseDto> getProductsByName(@NonNull String name) {
         return productRepository.findProductByName(name)
                 .stream()
                 .map(productMapper::toProductResponseDto)

@@ -16,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartDto implements Serializable {
+public class Cart implements Serializable {
     private BigDecimal total;
     private String customerFirstName;
     private String customerLastName;

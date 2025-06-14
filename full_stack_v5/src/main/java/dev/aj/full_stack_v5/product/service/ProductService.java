@@ -2,6 +2,7 @@ package dev.aj.full_stack_v5.product.service;
 
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
+import dev.aj.full_stack_v5.product.domain.entities.Product;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +15,9 @@ public interface ProductService {
 
     void deleteProductById(Long id);
 
-    Optional<ProductResponseDto> getProductById(Long id);
+    Optional<ProductResponseDto> getProductResponseDtoByProductId(Long id);
+
+    Optional<Product> getProductById(Long id);
 
     List<ProductResponseDto> getAllProducts();
 

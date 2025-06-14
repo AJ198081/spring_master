@@ -45,6 +45,10 @@ public class CartItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;
+
     public void setTotal() {
         this.total = this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
     }
@@ -52,9 +56,5 @@ public class CartItem {
     public BigDecimal getTotal() {
            return this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
     }
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "cart_id", nullable = false)
-    private Cart cart;
 
  }

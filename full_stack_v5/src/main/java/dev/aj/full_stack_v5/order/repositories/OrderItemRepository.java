@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v5.product.repositories;
+package dev.aj.full_stack_v5.order.repositories;
 
 import dev.aj.full_stack_v5.order.domain.entities.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;

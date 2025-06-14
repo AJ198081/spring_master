@@ -44,6 +44,7 @@ public class Product {
 
     private int inventory;
 
+    @Column(name = "brand", columnDefinition = "varchar(50)")
     private String brand;
 
     @ToString.Exclude

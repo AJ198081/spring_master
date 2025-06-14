@@ -39,7 +39,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
-        Optional<ProductResponseDto> product = productService.getProductById(id);
+        Optional<ProductResponseDto> product = productService.getProductResponseDtoByProductId(id);
         return product.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
