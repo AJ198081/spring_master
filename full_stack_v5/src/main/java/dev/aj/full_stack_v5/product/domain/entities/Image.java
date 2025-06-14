@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.product.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,6 +41,7 @@ public class Image {
     @ToString.Exclude
     private byte[] image;
 
+    @JsonIgnore
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "product_id")

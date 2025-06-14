@@ -25,6 +25,7 @@ import java.util.Set;
 @Builder
 @ToString
 public class Customer {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customers_gen")
     @SequenceGenerator(name = "customers_gen", sequenceName = "customers_seq", allocationSize = 10)

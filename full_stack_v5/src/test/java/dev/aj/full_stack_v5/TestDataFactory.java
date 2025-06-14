@@ -1,14 +1,27 @@
 package dev.aj.full_stack_v5;
 
+import dev.aj.full_stack_v5.auth.domain.dtos.UpdateUserDto;
+import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
+import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ImageRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @TestComponent
@@ -39,9 +52,62 @@ public class TestDataFactory {
         );
     }
 
+    public Stream<FileSystemResource> generateStreamOfPhotoFileResources() {
+        return Stream.generate(this::getRandomPhotoFile);
+    }
+
     public Stream<ImageRequestDto> generateStreamOfImages() {
-        return Stream.generate(() -> ImageRequestDto.builder()
-                .file(null)
+        return Stream.generate(() -> ImageRequestDto.builder().file(getRandomImageFile()).build());
+    }
+
+    public Stream<UserRegistrationDto> generateStreamOfUserRegistrationDtos() {
+
+        return Stream.generate(() -> UserRegistrationDto.builder()
+                .username(faker.internet().username()
+                        .concat(faker.random().nextInt(1, 999) + "")
+                        .concat(faker.internet().emailAddress())
+                )
+                .password(faker.internet().password())
+                .roles(getRandomRoles())
                 .build());
+    }
+
+    private Set<String> getRandomRoles() {
+
+        List<String> availableRoles = Arrays.asList("ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_SALES_REP", "ROLE_GUEST");
+
+        Collections.shuffle(availableRoles);
+
+        return availableRoles.stream()
+                .limit(faker.random().nextInt(availableRoles.size()))
+                .collect(Collectors.toSet());
+    }
+
+    @SneakyThrows
+    private MultipartFile getRandomImageFile() {
+        String photoPath = photosFactory.getRandomPhoto();
+        File photoFile = new File(PhotosFactory.ABSOLUTE_PHOTOS_DIRECTORY_PATH + "/" + photoPath);
+        return new MockMultipartFile(
+                photoPath.toUpperCase(),
+                photoFile.getName(),
+                Files.probeContentType(photoFile.toPath()),
+                Files.readAllBytes(photoFile.toPath())
+        );
+    }
+
+    private FileSystemResource getRandomPhotoFile() {
+        String photoPath = photosFactory.getRandomPhoto();
+        File photoFile = new File(PhotosFactory.ABSOLUTE_PHOTOS_DIRECTORY_PATH + "/" + photoPath);
+
+        return new FileSystemResource(photoFile);
+    }
+
+    public UpdateUserDto getUpdatedUser(UserResponseDto registeredUser) {
+
+        return UpdateUserDto.builder()
+                .username(registeredUser.getUsername())
+                .password(faker.internet().password())
+                .rolesToBeUpdated(getRandomRoles())
+                .build();
     }
 }

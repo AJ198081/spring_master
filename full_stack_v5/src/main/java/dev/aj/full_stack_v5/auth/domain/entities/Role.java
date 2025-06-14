@@ -1,15 +1,7 @@
 package dev.aj.full_stack_v5.auth.domain.entities;
 
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -46,7 +39,11 @@ public class Role {
     @ManyToMany(mappedBy = "roles")
     private Set<User> users = new HashSet<>();
 
+    @Column(nullable = false, unique = true)
+    @NaturalId
     private String name;
 
+    @Builder.Default
+    @Embedded
     private AuditMetaData auditMetaData = new AuditMetaData();
 }

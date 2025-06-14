@@ -11,14 +11,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -31,13 +25,17 @@ public class ImageController {
     private final ImageService imageService;
 
     @SneakyThrows
-    @PostMapping("/")
-    public ResponseEntity<ImageResponseDto> addImage(@RequestBody ImageRequestDto image) {
-        return ResponseEntity.ok(imageService.saveImage(image));
+    @PostMapping(value = "/")
+    public ResponseEntity<ImageResponseDto> addImage(@RequestParam("file") MultipartFile multipartFile) {
+        ImageRequestDto imageRequestDto = new ImageRequestDto(multipartFile);
+        return ResponseEntity.ok(imageService.saveImage(imageRequestDto));
     }
 
-    @PostMapping("/product/{productId}")
-    public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(@RequestBody List<ImageRequestDto> imageDtos, @PathVariable Long productId) {
+    @PostMapping(value = "/product/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(@RequestPart("files") List<MultipartFile> files, @PathVariable Long productId) {
+        List<ImageRequestDto> imageDtos = files.stream()
+                .map(ImageRequestDto::new)
+                .toList();
         return ResponseEntity.ok(imageService.saveImagesForProduct(imageDtos, productId));
     }
 
@@ -73,8 +71,8 @@ public class ImageController {
         return ResponseEntity.ok(imageService.updateImage(image, imageId));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteImageById(Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteImageById(@PathVariable(value = "id", required = true) Long id) {
 
         imageService.deleteImageById(id);
         return ResponseEntity.noContent().build();

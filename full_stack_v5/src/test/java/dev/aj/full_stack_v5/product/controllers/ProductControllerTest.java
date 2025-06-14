@@ -20,6 +20,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
@@ -85,6 +86,30 @@ class ProductControllerTest {
         Assertions.assertEquals(productRequest.getPrice(), response.getBody().getPrice());
         Assertions.assertEquals(productRequest.getInventory(), response.getBody().getInventory());
         Assertions.assertEquals(productRequest.getCategoryName(), response.getBody().getCategoryName());
+    }
+
+    @Test
+    void throwsIllegalArgsExceptionWhenSavingDuplicatedProduct() {
+        ProductRequestDto productRequest = testDataFactory.generateStreamOfProductRequests()
+                .findFirst()
+                .orElseThrow();
+
+        RestClient.RequestBodySpec addProductRequest = restClient.post()
+                .uri("/api/v1/products/")
+                .body(productRequest);
+
+        ResponseEntity<Void> addProductResponse = addProductRequest
+                .retrieve()
+                .toBodilessEntity();
+
+        Assertions.assertEquals(HttpStatus.CREATED, addProductResponse.getStatusCode());
+
+        Assertions.assertThrows(
+                HttpClientErrorException.BadRequest.class,
+                () -> addProductRequest.retrieve().toEntity(ProductResponseDto.class)
+        );
+
+
     }
 
     @Test
@@ -208,6 +233,7 @@ class ProductControllerTest {
                 });
 
         Assertions.assertNotNull(allProductsResponse.getBody());
+        Assertions.assertFalse(allProductsResponse.getBody().isEmpty());
 
         ProductResponseDto firstProduct = allProductsResponse.getBody().getFirst();
         String categoryName = firstProduct.getCategoryName();

@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.product.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,6 +48,7 @@ public class Category {
     @Column(unique = true, nullable = false, columnDefinition = "varchar(100) not null")
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     @ToString.Exclude
     @Builder.Default

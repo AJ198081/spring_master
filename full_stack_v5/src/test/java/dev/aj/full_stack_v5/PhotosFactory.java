@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class PhotosFactory {
 
     private static Set<String> availablePhotos;
-    public static final String ABSOLUTE_PHOTOS_DIRECTORY_PATH = "C:/Users/amarj/IdeaProjects/spring_master/full_stack_v4/src/test/resources/photos";
+    public static final String ABSOLUTE_PHOTOS_DIRECTORY_PATH = "C:/Users/amarj/IdeaProjects/spring_master/full_stack_v5/src/test/resources/photos";
 
     private final Faker faker;
 

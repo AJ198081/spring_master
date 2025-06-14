@@ -46,7 +46,6 @@ public class Product {
 
     private String brand;
 
-
     @ToString.Exclude
     @ManyToOne(cascade = {
             CascadeType.MERGE,
@@ -66,5 +65,4 @@ public class Product {
 
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
-
 }
