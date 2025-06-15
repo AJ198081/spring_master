@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.auth.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -67,6 +68,7 @@ public class User implements UserDetails {
     private AuditMetaData auditMetaData = new AuditMetaData();
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))

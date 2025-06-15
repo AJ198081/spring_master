@@ -45,7 +45,7 @@ public class Category {
 
     @NaturalId
     @NotBlank
-    @Column(unique = true, nullable = false, columnDefinition = "varchar(100) not null")
+    @Column(unique = true, nullable = false, columnDefinition = "varchar(100)")
     private String name;
 
     @JsonIgnore

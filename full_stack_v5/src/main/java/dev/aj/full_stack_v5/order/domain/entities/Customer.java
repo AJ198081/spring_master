@@ -13,6 +13,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -43,13 +44,17 @@ public class Customer {
     @Column(columnDefinition = "varchar(30)")
     private String phone;
 
+    @Column(columnDefinition = "varchar(150)")
+    private String address;
+
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "customer", orphanRemoval = true)
     @ToString.Exclude
-    private Set<Order> orders;
+    @Builder.Default
+    private Set<Order> orders = new HashSet<>();
 
     @OneToOne(
             mappedBy = "customer",
@@ -58,7 +63,4 @@ public class Customer {
             fetch = FetchType.EAGER
     )
     private Cart cart;
-
-
-
 }

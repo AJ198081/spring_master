@@ -17,10 +17,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerDto implements Serializable {
+    private String username;
     private String firstName;
     private String lastName;
     private String email;
     private String phone;
-    private String userUsername;
-    private Long cartId;
+    private String address;
 }

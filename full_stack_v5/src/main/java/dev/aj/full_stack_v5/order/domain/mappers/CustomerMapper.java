@@ -14,16 +14,10 @@ import org.mapstruct.ReportingPolicy;
 )
 public interface CustomerMapper {
 
-    @Mapping(target = "userUsername", source = "customer.user.username")
-    @Mapping(target = "cartId", source = "customer.cart.id")
-    CustomerDto customerToCustomerDto(Customer customer);
-
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "orders", ignore = true)
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "cart", ignore = true)
     Customer customerDtoToCustomer(CustomerDto customerDto);
-
-
 
 }

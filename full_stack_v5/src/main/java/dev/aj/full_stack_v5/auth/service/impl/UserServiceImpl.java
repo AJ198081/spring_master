@@ -13,6 +13,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@NullMarked
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -57,6 +60,12 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto getUserByUsername(String username) {
         return userRepository.findUserByUsername(username)
                 .map(userMapper::userToUserResponseDto)
+                .orElseThrow(() -> new EntityNotFoundException("User with username: %s not found.".formatted(username)));
+    }
+
+    @Override
+    public @NonNull User getUserByTheUsername(String username) {
+        return userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User with username: %s not found.".formatted(username)));
     }
 

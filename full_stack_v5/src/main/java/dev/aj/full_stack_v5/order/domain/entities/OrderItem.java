@@ -58,4 +58,8 @@ public class OrderItem {
 
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
+
+    public BigDecimal getOrderItemTotal() {
+        return this.price.multiply(BigDecimal.valueOf(this.quantity));
+    }
 }

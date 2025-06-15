@@ -49,6 +49,6 @@ public class TestConfig {
     @Bean
     public Faker faker() {
 
-        return new Faker(Locale.of("en", "IND"));
+        return new Faker(Locale.of("en", "IN"));
     }
 }

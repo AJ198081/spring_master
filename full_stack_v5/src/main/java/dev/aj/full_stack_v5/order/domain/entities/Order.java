@@ -65,8 +65,9 @@ public class Order {
 
     private String comments;
 
+    @Builder.Default
     @Column(precision = 10, scale = 2, columnDefinition = "numeric(10,2)")
-    private BigDecimal total;
+    private BigDecimal total = BigDecimal.ZERO;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
@@ -75,5 +76,11 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<OrderItem> orderItems = new HashSet<>();
+
+    public void updateTotal() {
+        this.total = this.orderItems.stream()
+                .map(OrderItem::getOrderItemTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
 }

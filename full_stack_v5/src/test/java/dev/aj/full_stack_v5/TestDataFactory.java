@@ -4,6 +4,7 @@ import dev.aj.full_stack_v5.auth.domain.dtos.UpdateUserDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.order.domain.dtos.CartItemDto;
+import dev.aj.full_stack_v5.order.domain.dtos.CustomerDto;
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
 import dev.aj.full_stack_v5.order.domain.entities.CartItem;
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
@@ -109,9 +110,11 @@ public class TestDataFactory {
 
         Collections.shuffle(availableRoles);
 
-        return availableRoles.stream()
+        Set<String> generatedRoles = availableRoles.stream()
                 .limit(faker.random().nextInt(availableRoles.size()))
                 .collect(Collectors.toSet());
+
+        return generatedRoles;
     }
 
     @SneakyThrows
@@ -140,5 +143,15 @@ public class TestDataFactory {
                 .password(faker.internet().password())
                 .rolesToBeUpdated(getRandomRoles())
                 .build();
+    }
+
+    public Stream<CustomerDto> generateStreamOfCustomerRequests() {
+        return Stream.generate(() -> CustomerDto.builder()
+                .firstName(faker.name().firstName())
+                .lastName(faker.name().lastName())
+                .email(faker.internet().emailAddress())
+                .address(faker.address().fullAddress())
+                .phone(faker.phoneNumber().phoneNumber())
+                .build());
     }
 }
