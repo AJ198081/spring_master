@@ -1,7 +1,6 @@
 package dev.aj.full_stack_v5.order.controllers;
 
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
-import dev.aj.full_stack_v5.order.services.CartItemService;
 import dev.aj.full_stack_v5.order.services.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,7 @@ public class CartController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Cart> getCartById(@PathVariable Long id) {
-        return ResponseEntity.ok(cartService.getCartById(id).orElseThrow());
+        return ResponseEntity.ok(cartService.getCartByIdOrThrow(id));
     }
 
     @GetMapping("/customer/{customerId}")
@@ -32,7 +31,9 @@ public class CartController {
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteCartById(@PathVariable Long id) {
         cartService.deleteCart(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .ok()
+                .build();
     }
 
 }

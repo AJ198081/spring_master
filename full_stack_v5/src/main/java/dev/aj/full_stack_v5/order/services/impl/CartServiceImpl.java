@@ -5,6 +5,7 @@ import dev.aj.full_stack_v5.order.domain.entities.Customer;
 import dev.aj.full_stack_v5.order.services.CartService;
 import dev.aj.full_stack_v5.order.repositories.CartRepository;
 import dev.aj.full_stack_v5.order.services.CustomerService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class CartServiceImpl implements CartService {
-
     private final CartRepository cartRepository;
+
     private final CustomerService customerService;
 
     @Override
     public Optional<Cart> getCartById(Long id) {
         return cartRepository.findById(id);
+    }
+
+    @Override
+    public Cart getCartByIdOrThrow(Long id) {
+        return cartRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cart with id: %s not found".formatted(id)));
     }
 
     @Override
@@ -63,7 +70,11 @@ public class CartServiceImpl implements CartService {
     public void deleteCart(Long id) {
         cartRepository.findById(id)
                 .ifPresentOrElse(
-                cartRepository::delete, // I think cascade all will do its magic, and delete all the cartItems in the cart
+                cart -> {
+                    cart.removeCart();
+                    cartRepository.delete(cart);
+                    log.info("Cart with id: {} deleted", id);
+                },
                 () -> log.error("Unable to find Cart by id {}, hence wasn't deleted", id)
         );
     }

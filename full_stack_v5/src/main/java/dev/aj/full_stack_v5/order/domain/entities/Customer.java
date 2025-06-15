@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.order.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.auth.domain.entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -62,5 +63,7 @@ public class Customer {
             orphanRemoval = true,
             fetch = FetchType.EAGER
     )
+    @JsonIgnore
+    @ToString.Exclude
     private Cart cart;
 }

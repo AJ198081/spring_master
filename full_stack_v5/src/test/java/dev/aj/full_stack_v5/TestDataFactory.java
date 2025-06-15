@@ -7,6 +7,10 @@ import dev.aj.full_stack_v5.order.domain.dtos.CartItemDto;
 import dev.aj.full_stack_v5.order.domain.dtos.CustomerDto;
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
 import dev.aj.full_stack_v5.order.domain.entities.CartItem;
+import dev.aj.full_stack_v5.order.domain.entities.Customer;
+import dev.aj.full_stack_v5.order.domain.entities.Order;
+import dev.aj.full_stack_v5.order.domain.entities.OrderItem;
+import dev.aj.full_stack_v5.order.domain.entities.enums.OrderStatus;
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ImageRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
@@ -23,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.math.BigDecimal;
 import java.nio.file.Files;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -103,18 +108,15 @@ public class TestDataFactory {
     }
 
 
-
     private Set<String> getRandomRoles() {
 
         List<String> availableRoles = Arrays.asList("ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_SALES_REP", "ROLE_GUEST");
 
         Collections.shuffle(availableRoles);
 
-        Set<String> generatedRoles = availableRoles.stream()
+        return availableRoles.stream()
                 .limit(faker.random().nextInt(availableRoles.size()))
                 .collect(Collectors.toSet());
-
-        return generatedRoles;
     }
 
     @SneakyThrows
@@ -153,5 +155,31 @@ public class TestDataFactory {
                 .address(faker.address().fullAddress())
                 .phone(faker.phoneNumber().phoneNumber())
                 .build());
+    }
+
+    public Stream<Order> generateStreamOfOrders(Customer customer, Set<Product> products) {
+        return Stream.generate(() -> {
+            Order order = Order.builder()
+                    .orderDate(ZonedDateTime.now())
+                    .status(OrderStatus.PENDING)
+                    .comments(faker.lorem().sentence())
+                    .customer(customer)
+                    .build();
+
+            Set<OrderItem> orderItems = products.stream()
+                    .map(product ->
+                            OrderItem.builder()
+                                    .order(order)
+                                    .product(product)
+                                    .quantity(faker.random().nextInt(1, 5))
+                                    .price(product.getPrice())
+                                    .build())
+                    .collect(Collectors.toSet());
+
+            order.setOrderItems(orderItems);
+            order.updateTotal();
+
+            return order;
+        });
     }
 }

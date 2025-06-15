@@ -41,7 +41,7 @@ public class CartItem {
     @Builder.Default
     private BigDecimal total = BigDecimal.ZERO;
 
-    @OneToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 

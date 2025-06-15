@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.order.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.auth.domain.entities.User;
 import dev.aj.full_stack_v5.order.domain.entities.enums.OrderStatus;
 import jakarta.persistence.CascadeType;
@@ -71,6 +72,7 @@ public class Order {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
+    @JsonIgnore
     private Customer customer;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

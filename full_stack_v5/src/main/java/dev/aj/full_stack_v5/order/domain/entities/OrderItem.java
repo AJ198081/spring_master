@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.order.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
 import jakarta.persistence.Column;
@@ -50,10 +51,12 @@ public class OrderItem {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonIgnore
     private Order order;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
     private Product product;
 
     @Builder.Default

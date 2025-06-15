@@ -30,7 +30,6 @@ import java.util.List;
 @Slf4j
 class CategoryControllerTest {
 
-
     @Autowired
     private TestConfig testConfig;
 

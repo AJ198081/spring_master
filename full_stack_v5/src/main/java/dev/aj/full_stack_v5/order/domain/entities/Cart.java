@@ -72,4 +72,12 @@ public class Cart {
         this.getCartItems().addAll(cartItems);
         this.updateTotal();
     }
+
+    public void removeCart() {
+        this.getCartItems().forEach(cartItem -> {
+            cartItem.setCart(null);
+        });
+        this.getCartItems().clear();
+        this.customer.setCart(null);
+    }
 }
