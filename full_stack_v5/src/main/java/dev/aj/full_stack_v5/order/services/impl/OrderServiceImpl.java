@@ -69,9 +69,7 @@ public class OrderServiceImpl implements OrderService {
         return cart.getCartItems()
                 .stream()
                 .map(cartItem -> {
-                    Product cartProduct = cartItem.getProduct();
-                    cartProduct.setInventory(cartProduct.getInventory() - cartItem.getQuantity());
-                    productService.updateProduct(cartProduct);
+                    Product cartProduct = productService.updateInventory(cartItem);
                     return OrderItem.builder()
                             .order(order)
                             .product(cartProduct)

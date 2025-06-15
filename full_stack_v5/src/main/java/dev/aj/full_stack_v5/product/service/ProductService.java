@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.product.service;
 
+import dev.aj.full_stack_v5.order.domain.entities.CartItem;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
@@ -13,7 +14,7 @@ public interface ProductService {
 
     ProductResponseDto updateProduct(ProductRequestDto productRequestDto, Long id);
 
-    Product updateProduct(Product product);
+    void updateProduct(Product product);
 
     void deleteProductById(Long id);
 
@@ -37,4 +38,5 @@ public interface ProductService {
 
     List<ProductResponseDto> getProductsByBrandAndName(String brand, String name);
 
+    Product updateInventory(CartItem cartItem);
 }

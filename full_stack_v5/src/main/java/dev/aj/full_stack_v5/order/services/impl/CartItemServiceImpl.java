@@ -2,13 +2,11 @@ package dev.aj.full_stack_v5.order.services.impl;
 
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
 import dev.aj.full_stack_v5.order.domain.entities.CartItem;
-import dev.aj.full_stack_v5.order.domain.mappers.CartMapper;
+import dev.aj.full_stack_v5.order.repositories.CartRepository;
 import dev.aj.full_stack_v5.order.services.CartItemService;
 import dev.aj.full_stack_v5.order.services.CartService;
 import dev.aj.full_stack_v5.order.services.CustomerService;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
-import dev.aj.full_stack_v5.order.repositories.CartItemRepository;
-import dev.aj.full_stack_v5.order.repositories.CartRepository;
 import dev.aj.full_stack_v5.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

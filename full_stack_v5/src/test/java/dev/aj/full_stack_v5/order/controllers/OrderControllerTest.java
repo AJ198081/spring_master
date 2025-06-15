@@ -41,7 +41,9 @@ import java.util.stream.Collectors;
 class OrderControllerTest {
 
     public static final int INITIALLY_USERS_CREATED = 5;
-    public static final int INITIALLY_PRODUCTS_CREATED = 3;
+    public static final int INITIALLY_PRODUCTS_CREATED = 5;
+    public static final int INITIAL_INVENTORY_OF_EACH_PRODUCT = 10;
+    public static final int MAX_QUANTITY_ALLOWED_IN_ONE_ORDER = 10;
 
     @Autowired
     private TestConfig testConfig;
@@ -96,12 +98,17 @@ class OrderControllerTest {
 
         productsCreatedInThisSession = testDataFactory.generateStreamOfProductRequests()
                 .limit(INITIALLY_PRODUCTS_CREATED)
-                .map(productRequestDto -> restClient.post()
-                        .uri("/api/v1/products/")
-                        .body(productRequestDto)
-                        .retrieve()
-                        .toEntity(Product.class)
-                        .getBody())
+                .map(productRequestDto -> {
+
+                    productRequestDto.setInventory(INITIAL_INVENTORY_OF_EACH_PRODUCT);
+
+                    return restClient.post()
+                            .uri("/api/v1/products/")
+                            .body(productRequestDto)
+                            .retrieve()
+                            .toEntity(Product.class)
+                            .getBody();
+                })
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
 
@@ -109,11 +116,11 @@ class OrderControllerTest {
 
                     int randomProductIndex = new Random().nextInt(productsCreatedInThisSession.size());
 
-                    restClient.post()
+            restClient.post()
                                 .uri("/api/v1/cartItems/?customerId={customerId}&productId={productId}&quantity={quantity}",
                                         customer.getId(),
                                         productsCreatedInThisSession.get(randomProductIndex).getId(),
-                                        new Random().nextInt(11))
+                                        new Random().nextInt(1, MAX_QUANTITY_ALLOWED_IN_ONE_ORDER))
                                 .retrieve()
                                 .toBodilessEntity();
                 });
@@ -125,6 +132,7 @@ class OrderControllerTest {
     }
 
     @Test
+//    @RepeatedTest(value = 10, name = "{displayName} {currentRepetition}/{totalRepetitions}")
     void createOrder() {
         Customer customer = customersCreatedInThisSession.stream().findAny().orElseThrow();
 

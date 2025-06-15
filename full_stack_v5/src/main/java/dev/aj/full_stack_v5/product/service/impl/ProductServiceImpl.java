@@ -1,18 +1,20 @@
 package dev.aj.full_stack_v5.product.service.impl;
 
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
+import dev.aj.full_stack_v5.order.domain.entities.CartItem;
+import dev.aj.full_stack_v5.order.repositories.CartItemRepository;
+import dev.aj.full_stack_v5.order.repositories.CartRepository;
+import dev.aj.full_stack_v5.order.repositories.OrderItemRepository;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import dev.aj.full_stack_v5.product.domain.entities.Category;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
 import dev.aj.full_stack_v5.product.domain.mappers.ProductMapper;
-import dev.aj.full_stack_v5.order.repositories.CartItemRepository;
-import dev.aj.full_stack_v5.order.repositories.CartRepository;
 import dev.aj.full_stack_v5.product.repositories.CategoryRepository;
-import dev.aj.full_stack_v5.order.repositories.OrderItemRepository;
 import dev.aj.full_stack_v5.product.repositories.ProductRepository;
 import dev.aj.full_stack_v5.product.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
@@ -73,9 +75,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(Product product) {
+    public void updateProduct(Product product) {
 
-        return productRepository.save(product);
+        productRepository.save(product);
     }
 
     @Override
@@ -95,10 +97,10 @@ public class ProductServiceImpl implements ProductService {
 
                     orderItemRepository.findOrderItemByProductId(product.getId())
                             .forEach(orderItem -> {
-                            orderItem.setProduct(null);
-                            orderItem.getOrder().getOrderItems().remove(orderItem);
-                            orderItemRepository.delete(orderItem);
-                        });
+                                orderItem.setProduct(null);
+                                orderItem.getOrder().getOrderItems().remove(orderItem);
+                                orderItemRepository.delete(orderItem);
+                            });
 
                     Optional.ofNullable(product.getCategory())
                             .ifPresent(category -> {
@@ -118,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<Product> getProductById(Long id) {
-            return productRepository.findById(id);
+        return productRepository.findById(id);
     }
 
     @Override
@@ -180,5 +182,20 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .map(productMapper::toProductResponseDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public Product updateInventory(CartItem cartItem) {
+        return productRepository.findById(cartItem.getProduct().getId())
+                .map(product -> {
+                            if (product.getInventory() < cartItem.getQuantity()) {
+                                throw new IllegalArgumentException("Product with id: %s doesn't have enough inventories.".formatted(product.getId()));
+                            }
+                            product.setInventory(product.getInventory() - cartItem.getQuantity());
+                            return productRepository.save(product);
+                        }
+                )
+                .orElseThrow(() -> new EntityNotFoundException("Product with id: %s doesn't exist.".formatted(cartItem.getProduct().getId())));
     }
 }
