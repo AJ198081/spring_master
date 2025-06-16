@@ -13,15 +13,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InitDatabase {
 
+    public static final int MIN_ENTRIES_IN_DB = 50;
     private final TestData testData;
     private final ExpenseService expenseService;
     private final ExpenseRepository expenseRepository;
 
     @PostConstruct
     public void init() {
-        if (expenseRepository.count() <=50) {
-            List<ExpenseRequest> randomExpenseRequests = testData.getExpenseStream().limit(50)
+        if (expenseRepository.count() <= MIN_ENTRIES_IN_DB) {
+
+            List<ExpenseRequest> randomExpenseRequests = testData.getExpenseStream()
+                    .limit(MIN_ENTRIES_IN_DB)
                     .toList();
+
+            System.out.printf("Persisted %d expenses%n", randomExpenseRequests.size());
+
             expenseService.saveExpenses(randomExpenseRequests);
         }
     }

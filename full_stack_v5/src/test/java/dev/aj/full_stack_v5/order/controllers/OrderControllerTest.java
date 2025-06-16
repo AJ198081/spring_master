@@ -42,7 +42,7 @@ class OrderControllerTest {
 
     public static final int INITIALLY_USERS_CREATED = 5;
     public static final int INITIALLY_PRODUCTS_CREATED = 5;
-    public static final int INITIAL_INVENTORY_OF_EACH_PRODUCT = 10;
+    public static final int INITIAL_INVENTORY_OF_EACH_PRODUCT = 100;
     public static final int MAX_QUANTITY_ALLOWED_IN_ONE_ORDER = 10;
 
     @Autowired

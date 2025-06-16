@@ -72,7 +72,10 @@ class ExpenseControllerTest {
 
         RestClient authRestClient = testConfig.restClient("http://localhost:%d/%s".formatted(port, "api/v1/auth"));
 
-        UserRegistrationRequest userRegistrationRequest = testData.getUserRegistrationRequestStream().limit(1).findFirst().orElseThrow();
+        UserRegistrationRequest userRegistrationRequest = testData.getUserRegistrationRequestStream()
+                .limit(1)
+                .findFirst()
+                .orElseThrow();
 
         UserRegistrationResponse responseEntity = authRestClient.post()
                 .uri("/register")
