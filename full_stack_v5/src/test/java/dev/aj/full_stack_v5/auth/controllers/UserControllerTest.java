@@ -1,11 +1,10 @@
 package dev.aj.full_stack_v5.auth.controllers;
 
-import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.InitSecurityUser;
+import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
-import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UpdateUserDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
