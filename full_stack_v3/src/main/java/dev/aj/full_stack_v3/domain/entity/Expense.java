@@ -31,7 +31,7 @@ import java.util.UUID;
 @Table(name = "expenses", schema = "expense")
 @EntityListeners(AuditingEntityListener.class)
 @Audited
-@AuditTable(value = "expenses_aud", schema = "expense") // Can set Schema in properties file as well
+@AuditTable(value = "expenses_aud", schema = "expense") // Can set Schema in the properties file as well
 public class Expense {
 
 
