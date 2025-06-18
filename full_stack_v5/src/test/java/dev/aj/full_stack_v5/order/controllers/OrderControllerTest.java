@@ -1,9 +1,11 @@
 package dev.aj.full_stack_v5.order.controllers;
 
+import dev.aj.full_stack_v5.InitSecurityUser;
 import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
+import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.order.domain.entities.Customer;
 import dev.aj.full_stack_v5.order.domain.entities.Order;
@@ -19,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -31,7 +34,7 @@ import java.util.stream.Collectors;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class})
+@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
 @TestPropertySource(
         locations = {"classpath:application-test.properties"},
         properties = {"spring.jpa.hibernate.ddl-auto=create-drop"}
@@ -61,15 +64,25 @@ class OrderControllerTest {
     List<Product> productsCreatedInThisSession;
     List<Order> ordersCreatedInThisSession = new ArrayList<>();
 
+    @Autowired
+    private InitSecurityUser initSecurityUser;
+
+    private HttpHeaders bearerTokenHeader;
+
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
+
+        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
+        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
 
         usersCreatedInThisSession = testDataFactory.generateStreamOfUserRegistrationDtos()
                 .limit(INITIALLY_USERS_CREATED)
                 .map(userRegistration -> {
                     ResponseEntity<UserResponseDto> userRegistrationResponse = restClient.post()
                             .uri("/api/v1/users/")
+                            .headers(header -> header.addAll(bearerTokenHeader))
                             .body(userRegistration)
                             .retrieve()
                             .toEntity(new ParameterizedTypeReference<>() {
@@ -88,6 +101,7 @@ class OrderControllerTest {
                             customerDto.setUsername(username);
                             return restClient.post()
                                     .uri("/api/v1/customers/")
+                                    .headers(header -> header.addAll(bearerTokenHeader))
                                     .body(customerDto)
                                     .retrieve()
                                     .toEntity(Customer.class)
@@ -104,6 +118,7 @@ class OrderControllerTest {
 
                     return restClient.post()
                             .uri("/api/v1/products/")
+                            .headers(header -> header.addAll(bearerTokenHeader))
                             .body(productRequestDto)
                             .retrieve()
                             .toEntity(Product.class)
@@ -114,16 +129,17 @@ class OrderControllerTest {
 
         customersCreatedInThisSession.forEach(customer -> {
 
-                    int randomProductIndex = new Random().nextInt(productsCreatedInThisSession.size());
+            int randomProductIndex = new Random().nextInt(productsCreatedInThisSession.size());
 
             restClient.post()
-                                .uri("/api/v1/cartItems/?customerId={customerId}&productId={productId}&quantity={quantity}",
-                                        customer.getId(),
-                                        productsCreatedInThisSession.get(randomProductIndex).getId(),
-                                        new Random().nextInt(1, MAX_QUANTITY_ALLOWED_IN_ONE_ORDER))
-                                .retrieve()
-                                .toBodilessEntity();
-                });
+                    .uri("/api/v1/cartItems/?customerId={customerId}&productId={productId}&quantity={quantity}",
+                            customer.getId(),
+                            productsCreatedInThisSession.get(randomProductIndex).getId(),
+                            new Random().nextInt(1, MAX_QUANTITY_ALLOWED_IN_ONE_ORDER))
+                    .headers(header -> header.addAll(bearerTokenHeader))
+                    .retrieve()
+                    .toBodilessEntity();
+        });
     }
 
     @AfterAll
@@ -138,6 +154,7 @@ class OrderControllerTest {
 
         ResponseEntity<Order> orderCreatedResponse = restClient.post()
                 .uri("/api/v1/orders/?customerId={customerId}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Order.class);
 
@@ -148,6 +165,7 @@ class OrderControllerTest {
 
         ResponseEntity<List<Order>> ordersResponse = restClient.get()
                 .uri("/api/v1/orders/{customerId}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -170,6 +188,7 @@ class OrderControllerTest {
 
         ResponseEntity<Void> createResponse = restClient.post()
                 .uri("/api/v1/orders/?customerId={customerId}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toBodilessEntity();
 
@@ -177,6 +196,7 @@ class OrderControllerTest {
 
         ResponseEntity<Void> ordersResponse = restClient.get()
                 .uri("/api/v1/orders/{customerId}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toBodilessEntity();
 

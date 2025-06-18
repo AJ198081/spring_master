@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.auth.domain.mapper;
 
+import dev.aj.full_stack_v5.auth.domain.dtos.SecurityUser;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.auth.domain.entities.Role;
@@ -23,11 +24,7 @@ import java.util.stream.Collectors;
 public abstract class UserMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "enabled", ignore = true)
-    @Mapping(target = "credentialsNonLocked", ignore = true)
     @Mapping(target = "auditMetaData", ignore = true)
-    @Mapping(target = "accountNonLocked", ignore = true)
-    @Mapping(target = "accountNonExpired", ignore = true)
     @Mapping(target = "roles", qualifiedByName = "mapSetStringsToSetRoles", source = "userRegistrationDto.roles")
     public abstract User userRegistrationToUser(UserRegistrationDto userRegistrationDto);
 
@@ -50,5 +47,4 @@ public abstract class UserMapper {
                 .map(Role::getName)
                 .collect(Collectors.toSet());
     }
-
 }

@@ -1,8 +1,18 @@
 package dev.aj.full_stack_v5.auth.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,11 +23,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -31,7 +37,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ToString
-public class User implements UserDetails {
+public class User  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_gen")
@@ -44,41 +50,17 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
-    @Builder.Default
-    private boolean enabled = true;
-
-    @Builder.Default
-    private boolean accountNonExpired = true;
-
-    @Builder.Default
-    private boolean accountNonLocked = true;
-
-    @Builder.Default
-    private boolean credentialsNonLocked = true;
-
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
     @ToString.Exclude
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
-
-    @Override
-    @JsonIgnore
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .toList();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return accountNonExpired;
-    }
 
     @Override
     public boolean equals(Object o) {

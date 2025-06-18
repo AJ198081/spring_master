@@ -20,7 +20,7 @@ public class TestConfig {
     public RestClient restClient(String baseUrl) {
 
         MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-        jsonConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
+        jsonConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));
 
 
         ResourceHttpMessageConverter resourceConverter = new ResourceHttpMessageConverter();
@@ -42,7 +42,7 @@ public class TestConfig {
 
         return RestClient.builder()
                 .baseUrl(baseUrl)
-                .messageConverters(List.of(byteArrayConverter, jsonConverter, resourceConverter, formConverter))
+//                .messageConverters(List.of(byteArrayConverter, jsonConverter, resourceConverter, formConverter))
                 .build();
     }
 

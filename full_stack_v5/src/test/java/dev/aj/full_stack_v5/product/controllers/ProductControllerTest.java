@@ -1,9 +1,11 @@
 package dev.aj.full_stack_v5.product.controllers;
 
+import dev.aj.full_stack_v5.InitSecurityUser;
 import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
+import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -26,7 +29,7 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class})
+@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
         "spring.jpa.hibernate.ddl-auto=create-drop"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -44,15 +47,25 @@ class ProductControllerTest {
 
     private RestClient restClient;
 
+    @Autowired
+    private InitSecurityUser initSecurityUser;
+
+    private HttpHeaders bearerTokenHeader;
+
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
+
+        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
+        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
 
         testDataFactory.generateStreamOfProductRequests()
                 .limit(10)
                 .forEach(product -> {
                     ResponseEntity<ProductResponseDto> productResponse = restClient.post()
                             .uri("/api/v1/products/")
+                            .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                             .body(product)
                             .retrieve()
                             .toEntity(ProductResponseDto.class);
@@ -74,6 +87,7 @@ class ProductControllerTest {
 
         ResponseEntity<ProductResponseDto> response = restClient.post()
                 .uri("/api/v1/products/")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(productRequest)
                 .retrieve()
                 .toEntity(ProductResponseDto.class);
@@ -96,6 +110,7 @@ class ProductControllerTest {
 
         RestClient.RequestBodySpec addProductRequest = restClient.post()
                 .uri("/api/v1/products/")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(productRequest);
 
         ResponseEntity<Void> addProductResponse = addProductRequest
@@ -116,6 +131,7 @@ class ProductControllerTest {
     void getAllProducts() {
         ResponseEntity<List<ProductResponseDto>> response = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -132,6 +148,7 @@ class ProductControllerTest {
     void getProductById() {
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -147,6 +164,7 @@ class ProductControllerTest {
         // Now get this product by ID
         ResponseEntity<ProductResponseDto> productResponse = restClient.get()
                 .uri("/api/v1/products/{id}", productId)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(ProductResponseDto.class);
 
@@ -162,6 +180,7 @@ class ProductControllerTest {
     void updateProduct() {
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -181,6 +200,7 @@ class ProductControllerTest {
 
         ResponseEntity<ProductResponseDto> productUpdateResponse = restClient.put()
                 .uri("/api/v1/products/{id}", productId)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(updatedProduct)
                 .retrieve()
                 .toEntity(ProductResponseDto.class);
@@ -200,6 +220,7 @@ class ProductControllerTest {
     void deleteProductById() {
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -210,6 +231,7 @@ class ProductControllerTest {
 
         ResponseEntity<Void> deleteResponse = restClient.delete()
                 .uri("/api/v1/products/{id}", productId)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Void.class);
 
@@ -218,6 +240,7 @@ class ProductControllerTest {
         // Try to retrieve the same productId, should throw no found
         RestClient.ResponseSpec responseSpec = restClient.get()
                 .uri("/api/v1/products/{id}", productId)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve();
 
         Assertions.assertThrows(Exception.class, () -> responseSpec.toEntity(ProductResponseDto.class));
@@ -228,6 +251,7 @@ class ProductControllerTest {
 
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -241,6 +265,7 @@ class ProductControllerTest {
         // Send GET request to get products by category name
         ResponseEntity<List<ProductResponseDto>> categoryResponse = restClient.get()
                 .uri("/api/v1/products/category/{categoryName}", categoryName)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -258,6 +283,7 @@ class ProductControllerTest {
     void getProductsByBrand() {
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -268,6 +294,7 @@ class ProductControllerTest {
 
         ResponseEntity<List<ProductResponseDto>> brandResponse = restClient.get()
                 .uri("/api/v1/products/brand/{brandName}", brand)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -285,6 +312,7 @@ class ProductControllerTest {
     void getProductsByName() {
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -295,6 +323,7 @@ class ProductControllerTest {
 
         ResponseEntity<List<ProductResponseDto>> nameResponse = restClient.get()
                 .uri("/api/v1/products/name/{productName}", name)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -312,6 +341,7 @@ class ProductControllerTest {
     void getProductsByCategoryNameAndBrand() {
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -323,6 +353,7 @@ class ProductControllerTest {
 
         ResponseEntity<List<ProductResponseDto>> categoryBrandResponse = restClient.get()
                 .uri("/api/v1/products/category/{categoryName}/brand/{brandName}", categoryName, brand)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -342,6 +373,7 @@ class ProductControllerTest {
     void getProductsByCategoryNameAndProductName() {
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -353,6 +385,7 @@ class ProductControllerTest {
 
         ResponseEntity<List<ProductResponseDto>> categoryNameResponse = restClient.get()
                 .uri("/api/v1/products/category/{categoryName}/name/{productName}", categoryName, productName)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -372,6 +405,7 @@ class ProductControllerTest {
     void getProductsByBrandAndName() {
         ResponseEntity<List<ProductResponseDto>> allProductsResponse = restClient.get()
                 .uri("/api/v1/products/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -383,6 +417,7 @@ class ProductControllerTest {
 
         ResponseEntity<List<ProductResponseDto>> brandNameResponse = restClient.get()
                 .uri("/api/v1/products/brand/{brandName}/product/{productName}", brand, productName)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });

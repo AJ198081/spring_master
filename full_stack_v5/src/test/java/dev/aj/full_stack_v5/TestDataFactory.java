@@ -20,6 +20,7 @@ import lombok.SneakyThrows;
 import net.datafaker.Faker;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +37,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@TestComponent
+@TestConfiguration(proxyBeanMethods = false)
 @RequiredArgsConstructor
 public class TestDataFactory {
 

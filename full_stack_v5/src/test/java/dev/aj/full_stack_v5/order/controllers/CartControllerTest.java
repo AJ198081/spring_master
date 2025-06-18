@@ -1,9 +1,11 @@
 package dev.aj.full_stack_v5.order.controllers;
 
+import dev.aj.full_stack_v5.InitSecurityUser;
 import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
+import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
 import dev.aj.full_stack_v5.order.domain.entities.Customer;
@@ -17,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -27,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class})
+@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
         "spring.jpa.hibernate.ddl-auto=create-drop"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -42,23 +45,35 @@ class CartControllerTest {
     @Autowired
     private TestDataFactory testDataFactory;
 
+
     @LocalServerPort
     private int port;
-
-    private RestClient restClient;
 
     List<UserResponseDto> usersCreatedInThisSession;
     List<Customer> customersCreatedInThisSession;
 
+    private RestClient restClient;
+
+    @Autowired
+    private InitSecurityUser initSecurityUser;
+
+    private HttpHeaders bearerTokenHeader;
+
+
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
+
+        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
+        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
 
         usersCreatedInThisSession = testDataFactory.generateStreamOfUserRegistrationDtos()
                 .limit(INITIALLY_USERS_CREATED)
                 .map(userRegistration -> {
                     ResponseEntity<UserResponseDto> userRegistrationResponse = restClient.post()
                             .uri("/api/v1/users/")
+                            .headers(header -> header.addAll(bearerTokenHeader))
                             .body(userRegistration)
                             .retrieve()
                             .toEntity(new ParameterizedTypeReference<>() {
@@ -77,6 +92,7 @@ class CartControllerTest {
                             customerDto.setUsername(username);
                             return restClient.post()
                                     .uri("/api/v1/customers/")
+                                    .headers(header -> header.addAll(bearerTokenHeader))
                                     .body(customerDto)
                                     .retrieve()
                                     .toEntity(Customer.class)
@@ -93,6 +109,7 @@ class CartControllerTest {
 
         ResponseEntity<Cart> cartResponse = restClient.get()
                 .uri("/api/v1/carts/customer/{customerId}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Cart.class);
 
@@ -116,6 +133,7 @@ class CartControllerTest {
 
         ResponseEntity<Cart> cartResponse = restClient.get()
                 .uri("/api/v1/carts/customer/{customerId}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Cart.class);
 
@@ -125,13 +143,15 @@ class CartControllerTest {
 
         ResponseEntity<Void> deleteResponse = restClient.delete()
                 .uri("/api/v1/carts/{id}", cart.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toBodilessEntity();
 
         Assertions.assertEquals(HttpStatus.OK, deleteResponse.getStatusCode());
 
         RestClient.RequestHeadersSpec<?> cartRequest = restClient.get()
-                .uri("/api/v1/carts/{Id}", cart.getId());
+                .uri("/api/v1/carts/{Id}", cart.getId())
+                .headers(header -> header.addAll(bearerTokenHeader));
 
         Assertions.assertThrows(HttpClientErrorException.NotFound.class, () -> cartRequest.retrieve().toEntity(Cart.class));
 

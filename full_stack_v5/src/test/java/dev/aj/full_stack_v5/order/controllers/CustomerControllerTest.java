@@ -1,9 +1,11 @@
 package dev.aj.full_stack_v5.order.controllers;
 
+import dev.aj.full_stack_v5.InitSecurityUser;
 import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
+import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.order.domain.dtos.CustomerDto;
 import dev.aj.full_stack_v5.order.domain.entities.Customer;
@@ -18,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -31,7 +34,7 @@ import java.util.NoSuchElementException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class})
+@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
@@ -55,15 +58,27 @@ class CustomerControllerTest {
     List<UserResponseDto> userCreatedInThisSession;
     List<Customer> customersCreatedInThisSession;
 
+    @Autowired
+    private InitSecurityUser initSecurityUser;
+
+    private HttpHeaders bearerTokenHeader;
+
+
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
+
+        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
+        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
+
 
         userCreatedInThisSession = testDataFactory.generateStreamOfUserRegistrationDtos()
                 .limit(INITIALLY_CUSTOMER_CREATED)
                 .map(userRegistration -> {
                     ResponseEntity<UserResponseDto> userRegistrationResponse = restClient.post()
                             .uri("/api/v1/users/")
+                            .headers(header -> header.addAll(bearerTokenHeader))
                             .body(userRegistration)
                             .retrieve()
                             .toEntity(new ParameterizedTypeReference<>() {
@@ -82,6 +97,7 @@ class CustomerControllerTest {
                             customerDto.setUsername(username);
                             return restClient.post()
                                     .uri("/api/v1/customers/")
+                                    .headers(header -> header.addAll(bearerTokenHeader))
                                     .body(customerDto)
                                     .retrieve()
                                     .toEntity(Customer.class)
@@ -105,6 +121,7 @@ class CustomerControllerTest {
                 .map(userRegistration -> {
                     ResponseEntity<UserResponseDto> userRegistrationResponse = restClient.post()
                             .uri("/api/v1/users/")
+                            .headers(header -> header.addAll(bearerTokenHeader))
                             .body(userRegistration)
                             .retrieve()
                             .toEntity(new ParameterizedTypeReference<>() {
@@ -122,6 +139,7 @@ class CustomerControllerTest {
                     customerDto.setUsername(registeredUser.getUsername());
                     return restClient.post()
                             .uri("/api/v1/customers/")
+                            .headers(header -> header.addAll(bearerTokenHeader))
                             .body(customerDto)
                             .retrieve()
                             .toEntity(Customer.class);
@@ -146,6 +164,7 @@ class CustomerControllerTest {
 
         ResponseEntity<Customer> customerResponseEntity = restClient.get()
                 .uri("/api/v1/customers/{id}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Customer.class);
 
@@ -161,6 +180,7 @@ class CustomerControllerTest {
 
         ResponseEntity<Customer> customerResponseEntity = restClient.get()
                 .uri("/api/v1/customers/username/{username}", customer.getUser().getUsername())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Customer.class);
 
@@ -181,6 +201,7 @@ class CustomerControllerTest {
 
         ResponseEntity<Customer> customerResponseEntity = restClient.patch()
                 .uri("/api/v1/customers/{id}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(updateCustomerRequest)
                 .retrieve()
                 .toEntity(Customer.class);
@@ -205,6 +226,7 @@ class CustomerControllerTest {
 
         ResponseEntity<Void> customerDResponseEntity = restClient.delete()
                 .uri("/api/v1/customers/{id}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toBodilessEntity();
 
@@ -213,7 +235,8 @@ class CustomerControllerTest {
         customersCreatedInThisSession.remove(customer);
 
         RestClient.RequestHeadersSpec<?> getCustomerRequest = restClient.get()
-                .uri("/api/v1/customers/{id}", customer.getId());
+                .uri("/api/v1/customers/{id}", customer.getId())
+                .headers(header -> header.addAll(bearerTokenHeader));
 
         Assertions.assertThrows(HttpClientErrorException.NotFound.class, () -> getCustomerRequest.retrieve().toEntity(Customer.class));
 

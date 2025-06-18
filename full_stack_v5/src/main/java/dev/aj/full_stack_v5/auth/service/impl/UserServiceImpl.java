@@ -49,9 +49,13 @@ public class UserServiceImpl implements UserService {
         user.setRoles(user.getRoles()
                 .stream()
                 .map(role -> roleRepository.findRoleByName(role.getName())
-                        .orElseGet(() -> Role.builder()
-                                .name(role.getName())
-                                .build()))
+                        .orElseGet(() ->
+                                roleRepository.save(
+                                        Role.builder()
+                                                .name(role.getName())
+                                                .build()
+                                )
+                        ))
                 .collect(Collectors.toSet()));
         return user;
     }
@@ -105,19 +109,22 @@ public class UserServiceImpl implements UserService {
 
         if (existingUser.isEmpty()) {
             throw new EntityNotFoundException("User with username: %s not found.".formatted(updateUserDto.getUsername()));
-        } else {
-            User userToBeUpdated = existingUser.get();
-            if (updateUserDto.getPassword() != null) {
-                userToBeUpdated.setPassword(updateUserDto.getPassword());
-            }
+        }
+
+        User userToBeUpdated = existingUser.get();
+
+        if (updateUserDto.getPassword() != null) {
+            userToBeUpdated.setPassword(updateUserDto.getPassword());
+        }
+
+            // Expect the caller to pass a complete set of 'new' roles, for this instance it is equivalent to 'PUT' operation
             userToBeUpdated.getRoles().clear();
 
             userToBeUpdated.setRoles(updateUserDto.getRolesToBeUpdated()
                     .stream()
                     .map(mapRoleNameToRole())
                     .collect(Collectors.toSet()));
-            return userMapper.userToUserResponseDto(userRepository.save(userToBeUpdated));
-        }
+        return userMapper.userToUserResponseDto(userRepository.save(userToBeUpdated));
     }
 
     @Override

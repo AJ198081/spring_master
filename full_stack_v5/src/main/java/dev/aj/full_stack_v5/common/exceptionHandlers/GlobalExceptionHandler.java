@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.naming.AuthenticationException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -39,6 +41,18 @@ public class GlobalExceptionHandler {
                 .body(entityNotFoundDetail);
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ProblemDetail> handleAuthenticationException(AuthenticationException e) {
+        ProblemDetail authNProblem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
+        authNProblem.setTitle("Authentication/Authorization Error");
+        authNProblem.setProperty("error", """
+                Authentication/Authorization Error occurred. 
+                Please check your credentials and try again. 
+                If the problem persists, please contact the system administrator.
+                """);
 
-
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(authNProblem);
+    }
 }

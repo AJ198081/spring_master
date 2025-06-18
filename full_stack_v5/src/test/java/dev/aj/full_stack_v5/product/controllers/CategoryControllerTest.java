@@ -1,9 +1,11 @@
 package dev.aj.full_stack_v5.product.controllers;
 
+import dev.aj.full_stack_v5.InitSecurityUser;
 import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
+import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -23,7 +26,7 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class})
+@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
         "spring.jpa.hibernate.ddl-auto=create-drop"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -41,15 +44,25 @@ class CategoryControllerTest {
 
     private RestClient restClient;
 
+    @Autowired
+    private InitSecurityUser initSecurityUser;
+
+    private HttpHeaders bearerTokenHeader;
+
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
+
+        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
+        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
 
         testDataFactory.generateStreamOfCategories()
                 .limit(10)
                 .forEach(category -> {
                     ResponseEntity<CategoryDto> categoryResponse = restClient.post()
                             .uri("/api/v1/categories/")
+                            .headers(header -> header.addAll(bearerTokenHeader))
                             .body(category)
                             .retrieve()
                             .toEntity(CategoryDto.class);
@@ -66,6 +79,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> response = restClient.post()
                 .uri("/api/v1/categories/")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
@@ -79,8 +93,10 @@ class CategoryControllerTest {
     void getAllCategories() {
         ResponseEntity<List<CategoryDto>> response = restClient.get()
                 .uri("/api/v1/categories/all")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {});
+                .toEntity(new ParameterizedTypeReference<>() {
+                });
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
@@ -99,6 +115,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
                 .uri("/api/v1/categories/")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
@@ -109,6 +126,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> getByNameResponse = restClient.get()
                 .uri("/api/v1/categories/name/{name}", uniqueCategoryName)
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -118,6 +136,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> response = restClient.get()
                 .uri("/api/v1/categories/{id}", 10000) // Use a fixed ID for testing
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -134,6 +153,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
                 .uri("/api/v1/categories/")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
@@ -144,6 +164,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> response = restClient.get()
                 .uri("/api/v1/categories/name/{name}", uniqueCategoryName)
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -161,6 +182,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
                 .uri("/api/v1/categories/")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
@@ -177,6 +199,7 @@ class CategoryControllerTest {
         // Create a new category to update
         ResponseEntity<CategoryDto> createCategoryToUpdateResponse = restClient.post()
                 .uri("/api/v1/categories/")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(CategoryDto.builder().name("CategoryToUpdate-" + System.currentTimeMillis()).build())
                 .retrieve()
                 .toEntity(CategoryDto.class);
@@ -188,6 +211,7 @@ class CategoryControllerTest {
         try {
             ResponseEntity<CategoryDto> updateResponse = restClient.put()
                     .uri("/api/v1/categories/{id}", 10000)
+                    .headers(header -> header.addAll(bearerTokenHeader))
                     .body(updatedCategoryDto)
                     .retrieve()
                     .toEntity(CategoryDto.class);
@@ -199,6 +223,7 @@ class CategoryControllerTest {
             // Get the category by ID to verify it was updated
             ResponseEntity<CategoryDto> getResponse = restClient.get()
                     .uri("/api/v1/categories/{id}", 10000)
+                    .headers(header -> header.addAll(bearerTokenHeader))
                     .retrieve()
                     .toEntity(CategoryDto.class);
 
@@ -222,6 +247,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
                 .uri("/api/v1/categories/")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
@@ -234,6 +260,7 @@ class CategoryControllerTest {
         String categoryToDeleteName = "CategoryToDelete-" + System.currentTimeMillis();
         ResponseEntity<CategoryDto> createCategoryToDeleteResponse = restClient.post()
                 .uri("/api/v1/categories/")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(CategoryDto.builder().name(categoryToDeleteName).build())
                 .retrieve()
                 .toEntity(CategoryDto.class);
@@ -245,6 +272,7 @@ class CategoryControllerTest {
         // Get the category by name to verify it exists
         ResponseEntity<CategoryDto> getByNameResponse = restClient.get()
                 .uri("/api/v1/categories/name/{name}", categoryToDeleteName)
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -255,6 +283,7 @@ class CategoryControllerTest {
         // Delete the category by name
         ResponseEntity<Void> deleteResponse = restClient.delete()
                 .uri("/api/v1/categories/name/{name}", categoryToDeleteName)
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Void.class);
 
@@ -263,6 +292,7 @@ class CategoryControllerTest {
         // Try to get the category by name, should throw an exception
         RestClient.ResponseSpec responseSpec = restClient.get()
                 .uri("/api/v1/categories/name/{name}", categoryToDeleteName)
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve();
 
         Assertions.assertThrows(Exception.class, () -> responseSpec.toEntity(CategoryDto.class));
@@ -278,6 +308,7 @@ class CategoryControllerTest {
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
                 .uri("/api/v1/categories/")
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
@@ -289,6 +320,7 @@ class CategoryControllerTest {
         // Delete the category by name
         ResponseEntity<Void> deleteResponse = restClient.delete()
                 .uri("/api/v1/categories/name/{name}", uniqueCategoryName)
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Void.class);
 
@@ -297,6 +329,7 @@ class CategoryControllerTest {
         // Try to get the category by name, should throw an exception
         RestClient.ResponseSpec responseSpec = restClient.get()
                 .uri("/api/v1/categories/name/{name}", uniqueCategoryName)
+                .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve();
 
         Assertions.assertThrows(Exception.class, () -> responseSpec.toEntity(CategoryDto.class));

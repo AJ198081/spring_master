@@ -1,13 +1,17 @@
 package dev.aj.full_stack_v5.auth.controllers;
 
 import dev.aj.full_stack_v5.PhotosFactory;
+import dev.aj.full_stack_v5.InitSecurityUser;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
+import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UpdateUserDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
+import dev.aj.full_stack_v5.auth.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,8 +22,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -32,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class})
+@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
         "spring.jpa.hibernate.ddl-auto=create-drop"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -45,31 +52,40 @@ class UserControllerTest {
     @Autowired
     private TestDataFactory testDataFactory;
 
+    @Autowired
+    private Environment environment;
+
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private RestClient restClient;
+
+    private String validJwtAccessToken;
+
+    @Autowired
+    private InitSecurityUser initSecurityUser;
+
+    private HttpHeaders bearerTokenHeader;
 
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
 
-        testDataFactory.generateStreamOfUserRegistrationDtos()
-                .limit(5)
-                .forEach(userRegistration -> {
-                    ResponseEntity<UserResponseDto> userRegistrationResponse = restClient.post()
-                            .uri("/api/v1/users/")
-                            .body(userRegistration)
-                            .retrieve()
-                            .toEntity(UserResponseDto.class);
-
-                    log.info("Added users: {}", userRegistrationResponse.getBody());
-                });
+        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
+        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
     }
 
     @AfterAll
     void tearDown() {
         restClient = null;
+        validJwtAccessToken = null;
     }
 
     @Test
@@ -80,6 +96,7 @@ class UserControllerTest {
 
         ResponseEntity<UserResponseDto> userRegistrationResponse = restClient.post()
                 .uri("/api/v1/users/")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(userRegistrationDto)
                 .retrieve()
                 .toEntity(UserResponseDto.class);
@@ -92,9 +109,14 @@ class UserControllerTest {
 
     }
 
+    private @NotNull String getBearerTokenHeader() {
+        return environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
+                .concat(" ")
+                .concat(validJwtAccessToken);
+    }
+
     @Test
     void getUserByUsername() {
-
         UserRegistrationDto userRegistrationDto = testDataFactory.generateStreamOfUserRegistrationDtos()
                 .limit(1)
                 .findAny()
@@ -102,9 +124,11 @@ class UserControllerTest {
 
         ResponseEntity<UserResponseDto> fetchedUserResponse = restClient.post()
                 .uri("/api/v1/users/")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(userRegistrationDto)
                 .exchange((request, response) -> restClient.get()
                         .uri("/api/v1/users/username/{username}", userRegistrationDto.getUsername())
+                        .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                         .retrieve()
                         .toEntity(UserResponseDto.class)
                 );
@@ -120,6 +144,7 @@ class UserControllerTest {
     void getUserByUsernameFromExistingUsersList() {
         ResponseEntity<List<UserResponseDto>> allUsersResponse = restClient.get()
                 .uri("/api/v1/users/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -131,6 +156,7 @@ class UserControllerTest {
 
         ResponseEntity<UserResponseDto> userResponse = restClient.get()
                 .uri("/api/v1/users/username/{username}", username)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(UserResponseDto.class);
 
@@ -148,6 +174,7 @@ class UserControllerTest {
 
         ResponseEntity<UserResponseDto> userRegistrationResponse = restClient.post()
                 .uri("/api/v1/users/")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(userRegistrationDto)
                 .retrieve()
                 .toEntity(UserResponseDto.class);
@@ -157,6 +184,7 @@ class UserControllerTest {
 
         ResponseEntity<Void> deleteResponse = restClient.delete()
                 .uri("/api/v1/users/username/{username}", username)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Void.class);
 
@@ -164,6 +192,7 @@ class UserControllerTest {
 
         RestClient.ResponseSpec responseSpec = restClient.get()
                 .uri("/api/v1/users/username/{username}", username)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve();
 
         Assertions.assertThrows(HttpClientErrorException.NotFound.class, () -> responseSpec.toEntity(UserResponseDto.class));
@@ -173,6 +202,7 @@ class UserControllerTest {
     void isUsernameTaken() {
         ResponseEntity<List<UserResponseDto>> allUsersResponse = restClient.get()
                 .uri("/api/v1/users/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -183,6 +213,7 @@ class UserControllerTest {
 
         ResponseEntity<Boolean> takenResponse = restClient.get()
                 .uri("/api/v1/users/check-username/{username}", existingUsername)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Boolean.class);
 
@@ -194,6 +225,7 @@ class UserControllerTest {
 
         ResponseEntity<Boolean> notTakenResponse = restClient.get()
                 .uri("/api/v1/users/check-username/{username}", randomUsername)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Boolean.class);
 
@@ -207,6 +239,7 @@ class UserControllerTest {
 
         ResponseEntity<List<UserResponseDto>> registeredUsers = restClient.get()
                 .uri("/api/v1/users/all")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -216,8 +249,9 @@ class UserControllerTest {
 
         UpdateUserDto updatedUserDto = testDataFactory.getUpdatedUser(registeredUser);
 
-        ResponseEntity<UserResponseDto> updatedUserResponse = restClient.put()
+        ResponseEntity<UserResponseDto> updatedUserResponse = restClient.patch()
                 .uri("/api/v1/users/")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(updatedUserDto)
                 .retrieve()
                 .toEntity(UserResponseDto.class);
