@@ -5,7 +5,6 @@ import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
-import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
 import dev.aj.full_stack_v5.order.domain.entities.Customer;
@@ -63,10 +62,7 @@ class CartControllerTest {
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
-
-        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
-        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
-        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(restClient);
 
         usersCreatedInThisSession = testDataFactory.generateStreamOfUserRegistrationDtos()
                 .limit(INITIALLY_USERS_CREATED)

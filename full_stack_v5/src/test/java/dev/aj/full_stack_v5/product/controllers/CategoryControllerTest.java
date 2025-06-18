@@ -5,7 +5,6 @@ import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
-import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -52,10 +51,7 @@ class CategoryControllerTest {
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
-
-        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
-        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
-        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(restClient);
 
         testDataFactory.generateStreamOfCategories()
                 .limit(10)

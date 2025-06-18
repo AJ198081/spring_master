@@ -7,6 +7,7 @@ import dev.aj.full_stack_v5.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -78,6 +79,18 @@ public class InitSecurityUser {
         String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class)
                 .concat(" ")
                 .concat(jwtAccessToken);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.AUTHORIZATION, bearerToken);
+
+        return httpHeaders;
+    }
+
+    public HttpHeaders getBearerTokenHeader(RestClient restClient) {
+
+        String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class)
+                .concat(" ")
+                .concat(getValidJwtToken(restClient, initSecurityUser()));
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.AUTHORIZATION, bearerToken);

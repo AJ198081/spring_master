@@ -67,11 +67,7 @@ class CustomerControllerTest {
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
-
-        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
-        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
-        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
-
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(restClient);
 
         userCreatedInThisSession = testDataFactory.generateStreamOfUserRegistrationDtos()
                 .limit(INITIALLY_CUSTOMER_CREATED)

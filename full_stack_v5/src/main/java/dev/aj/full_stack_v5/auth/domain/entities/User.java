@@ -1,18 +1,7 @@
 package dev.aj.full_stack_v5.auth.domain.entities;
 
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +17,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static jakarta.persistence.FetchType.*;
+
 @Entity
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
@@ -37,7 +28,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ToString
-public class User  {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_gen")
@@ -50,7 +41,7 @@ public class User  {
     private String username;
     private String password;
 
-    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
+    @ManyToMany(fetch = EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")

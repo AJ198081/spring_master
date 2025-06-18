@@ -5,7 +5,6 @@ import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
-import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -55,10 +54,7 @@ class ProductControllerTest {
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
-
-        LoginRequestDto loginRequestDto = initSecurityUser.initSecurityUser();
-        String validJwtToken = initSecurityUser.getValidJwtToken(restClient, loginRequestDto);
-        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(validJwtToken);
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(restClient);
 
         testDataFactory.generateStreamOfProductRequests()
                 .limit(10)

@@ -117,13 +117,13 @@ public class UserServiceImpl implements UserService {
             userToBeUpdated.setPassword(updateUserDto.getPassword());
         }
 
-            // Expect the caller to pass a complete set of 'new' roles, for this instance it is equivalent to 'PUT' operation
-            userToBeUpdated.getRoles().clear();
+        // Expect the caller to pass a complete set of 'new' roles, for this instance it is equivalent to 'PUT' operation
+        userToBeUpdated.getRoles().clear();
 
-            userToBeUpdated.setRoles(updateUserDto.getRolesToBeUpdated()
-                    .stream()
-                    .map(mapRoleNameToRole())
-                    .collect(Collectors.toSet()));
+        userToBeUpdated.setRoles(updateUserDto.getRolesToBeUpdated()
+                .stream()
+                .map(mapRoleNameToRole())
+                .collect(Collectors.toSet()));
         return userMapper.userToUserResponseDto(userRepository.save(userToBeUpdated));
     }
 
