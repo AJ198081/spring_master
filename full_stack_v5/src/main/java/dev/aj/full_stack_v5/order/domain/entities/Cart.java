@@ -46,19 +46,20 @@ public class Cart {
     private Set<CartItem> cartItems = new HashSet<>();
 
     public void updateTotal() {
-        this.total = this.cartItems.stream()
+        BigDecimal newTotal = this.cartItems.stream()
                 .map(CartItem::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (newTotal.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("The new value of %f will violate positive cart value invariant".formatted(newTotal));
+        }
+
+        this.total = newTotal;
     }
 
     public void addItem(CartItem cartItem) {
         this.cartItems.add(cartItem);
         this.updateTotal();
-    }
-
-    public void updateItem(CartItem cartItem) {
-        this.removeItem(cartItem);
-        this.addItem(cartItem);
     }
 
     public void removeItem(CartItem cartItem) {
@@ -74,9 +75,7 @@ public class Cart {
     }
 
     public void removeCart() {
-        this.getCartItems().forEach(cartItem -> {
-            cartItem.setCart(null);
-        });
+        this.getCartItems().forEach(cartItem -> cartItem.setCart(null));
         this.getCartItems().clear();
         this.customer.setCart(null);
     }
