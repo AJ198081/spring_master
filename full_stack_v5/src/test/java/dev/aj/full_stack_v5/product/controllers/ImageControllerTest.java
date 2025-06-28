@@ -1,19 +1,22 @@
 package dev.aj.full_stack_v5.product.controllers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.aj.full_stack_v5.InitSecurityUser;
 import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
-import dev.aj.full_stack_v5.product.domain.dtos.ImageRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ImageResponseDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
@@ -23,25 +26,31 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class})
+@Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
         "spring.jpa.hibernate.ddl-auto=create-drop"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
-@Disabled("This test is disabled, pending troubleshooting of restClient and Multipart file submission")
+@AutoConfigureMockMvc
+//@Disabled("This test is disabled, pending troubleshooting of restClient and Multipart file submission")
 class ImageControllerTest {
-
 
     @Autowired
     private TestConfig testConfig;
@@ -52,19 +61,32 @@ class ImageControllerTest {
     @Autowired
     private PhotosFactory photosFactory;
 
+    @Autowired
+    private InitSecurityUser initSecurityUser;
+
     @LocalServerPort
     private int port;
 
     private RestClient restClient;
 
+    @Autowired
+    private MockMvc mockMvc;
+
+    private HttpHeaders bearerTokenHeader;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
+
+
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
+        bearerTokenHeader = initSecurityUser.getBearerTokenHeader(restClient);
 
         // Create a product first to associate images with
         ResponseEntity<ProductResponseDto> productResponse = restClient.post()
                 .uri("/api/v1/products/")
-//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(testDataFactory.generateStreamOfProductRequests().findFirst().orElseThrow())
                 .retrieve()
                 .toEntity(ProductResponseDto.class);
@@ -72,52 +94,37 @@ class ImageControllerTest {
         assertNotNull(productResponse.getBody());
         Long productId = productResponse.getBody().getId();
         log.info("Created product with ID: {}", productId);
-
-        // Add images to the product
-/*        testDataFactory.generateStreamOfImages()
-                .limit(5)
-                .forEach(image -> {
-                    // Create a MultiValueMap to hold the file
-                    org.springframework.util.LinkedMultiValueMap<String, Object> map = new org.springframework.util.LinkedMultiValueMap<>();
-                    map.add("file", image.getFile());
-
-                    ResponseEntity<ImageResponseDto> imageResponse = restClient.post()
-                            .uri("/api/v1/images/")
-                            .header(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
-                            .body(map)
-                            .retrieve()
-                            .toEntity(ImageResponseDto.class);
-
-                    log.info("Added image: {}", imageResponse.getBody());
-                });*/
     }
 
     @Test
-    void addImage() {
-        var imageRequestDto = testDataFactory.generateStreamOfImages()
-                .findFirst()
-                .orElseThrow();
+    void addImage() throws Exception {
+        MockMultipartFile randomImageFile = testDataFactory.getRandomImageFile();
 
-        ResponseEntity<ImageResponseDto> response = restClient.post()
-                .uri("/api/v1/images/")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
-                .body(imageRequestDto.getFile())
-                .retrieve()
-                .toEntity(ImageResponseDto.class);
+        MockHttpServletResponse imageUploadResponse = mockMvc.perform(multipart("/api/v1/images/")
+                        .file(randomImageFile)
+                        .headers(bearerTokenHeader))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertNotNull(response.getBody().getFileName());
-        Assertions.assertNotNull(response.getBody().getContentType());
-        Assertions.assertNotNull(response.getBody().getDownloadUrl());
+        ImageResponseDto imageResponseDto = objectMapper.readValue(imageUploadResponse.getContentAsString(), ImageResponseDto.class);
+
+        assertThat(imageResponseDto)
+                .isNotNull()
+                .extracting(ImageResponseDto::getFileName, ImageResponseDto::getContentType)
+                .containsExactly(randomImageFile.getOriginalFilename(), randomImageFile.getContentType());
+
+        assertThat(imageResponseDto.getDownloadUrl()).isNotNull()
+                .contains("/download/");
     }
 
+    @SneakyThrows
     @Test
     void addImagesToAProduct() {
         // Create a product first
         ResponseEntity<ProductResponseDto> productResponse = restClient.post()
                 .uri("/api/v1/products/")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .body(testDataFactory.generateStreamOfProductRequests().findFirst().orElseThrow())
                 .retrieve()
                 .toEntity(ProductResponseDto.class);
@@ -125,60 +132,54 @@ class ImageControllerTest {
         assertNotNull(productResponse.getBody());
         Long productId = productResponse.getBody().getId();
 
-        // Create a list of image requests
-        List<ImageRequestDto> imageRequests = testDataFactory.generateStreamOfImages()
-                .limit(3)
-                .toList();
+        // Send multiple files to attach to the product
+        MockHttpServletResponse imageUploadResponse = mockMvc.perform(multipart("/api/v1/images/product/{productId}", productId)
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .headers(bearerTokenHeader))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
+        
+        Set<ImageResponseDto> responseDtos = objectMapper.readValue(imageUploadResponse.getContentAsString(), new TypeReference<>() {
+        });
 
-        // Create a MultiValueMap to hold the files
-        LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        imageRequests.forEach(imageRequest -> map.add("files", imageRequest.getFile()));
-
-        // Add images to the product
-        ResponseEntity<Set<ImageResponseDto>> response = restClient.post()
-                .uri("/api/v1/images/product/{productId}", productId)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
-                .body(map)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {
-                });
-
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(3, response.getBody().size());
-
-        // Verify each image in the response
-        for (ImageResponseDto image : response.getBody()) {
-            Assertions.assertNotNull(image.getFileName());
-            Assertions.assertNotNull(image.getContentType());
-            Assertions.assertNotNull(image.getDownloadUrl());
-        }
-
+        Assertions.assertAll(
+                () -> assertNotNull(responseDtos),
+                () -> assertEquals(3, responseDtos.size())
+        );
 
     }
 
+    @SneakyThrows
     @Test
     void getAllImages() {
+
+        mockMvc.perform(multipart("/api/v1/images/list")
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .headers(bearerTokenHeader))
+                .andExpect(status().isOk());
+        
         ResponseEntity<List<ImageResponseDto>> response = restClient.get()
                 .uri("/api/v1/images/all")
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertFalse(response.getBody().isEmpty());
+        assertThat(response.getBody()).isNotNull();
+        List<ImageResponseDto> allImages = response.getBody();
 
-        // We added at least 5 images in setup, plus one in the addImage test, plus 3 in addImagesToAProduct
-        Assertions.assertTrue(response.getBody().size() >= 5);
-
-        // Verify each image in the response
-        for (ImageResponseDto image : response.getBody()) {
-            Assertions.assertNotNull(image.getFileName());
-            Assertions.assertNotNull(image.getContentType());
-            Assertions.assertNotNull(image.getDownloadUrl());
-        }
+        Assertions.assertAll(
+                () -> assertThat(allImages)
+                        .hasSizeGreaterThanOrEqualTo(5),
+                () -> assertThat(allImages).filteredOn(image -> !image.getDownloadUrl().startsWith("/download/"))
+                        .isEmpty()
+        );
     }
 
     @Test
@@ -227,9 +228,9 @@ class ImageControllerTest {
         Long productId = productResponse.getBody().getId();
 
         // Add images to the product
-        List<ImageRequestDto> imageRequests = testDataFactory.generateStreamOfImages()
+        var imageRequests = testDataFactory.generateStreamOfImages()
                 .limit(3)
-                .collect(Collectors.toList());
+                .toList();
 
         restClient.post()
                 .uri("/api/v1/images/product/{productId}", productId)
@@ -280,7 +281,7 @@ class ImageControllerTest {
         Long imageId = Long.parseLong(downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1));
 
         // Create a new image request
-        ImageRequestDto updatedImageRequest = testDataFactory.generateStreamOfImages()
+        var updatedImageRequest = testDataFactory.generateStreamOfImages()
                 .findFirst()
                 .orElseThrow();
 
@@ -302,7 +303,7 @@ class ImageControllerTest {
     @Test
     void deleteImageById() {
         // Add a new image first
-        ImageRequestDto imageRequest = testDataFactory.generateStreamOfImages()
+        var imageRequest = testDataFactory.generateStreamOfImages()
                 .findFirst()
                 .orElseThrow();
 

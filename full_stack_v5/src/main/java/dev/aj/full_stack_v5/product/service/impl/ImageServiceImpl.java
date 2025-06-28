@@ -11,6 +11,7 @@ import dev.aj.full_stack_v5.product.service.ImageService;
 import dev.aj.full_stack_v5.product.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+
+import static java.util.stream.Collectors.*;
 
 @Service
 @Slf4j
@@ -42,6 +45,24 @@ public class ImageServiceImpl implements ImageService {
         log.info("Image: {} saved successfully with ID: {}", savedImage.getFileName(), savedImage.getId());
 
         return imageMapper.toImageDto(savedImage);
+    }
+
+
+    @SneakyThrows
+    @Override
+    public Set<ImageResponseDto> saveImages(List<ImageRequestDto> imageRequests) {
+
+        return imageRequests.stream()
+                .map(imageRequestDto -> {
+                    try {
+                        return imageMapper.toImage(imageRequestDto);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .map(imageRepository::save)
+                .map(imageMapper::toImageDto)
+                .collect(toSet());
     }
 
     @Override
@@ -128,4 +149,5 @@ public class ImageServiceImpl implements ImageService {
                         () -> log.warn("Image id: {} doesn't exist.", id));
 
     }
+
 }

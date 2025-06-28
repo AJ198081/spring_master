@@ -1,16 +1,16 @@
 import {useEffect, useState} from "react";
 
 export interface ProductImageProps {
-    productId: number;
+    imageDownloadUrl: string;
 }
 
-export const ProductImage = ({productId}: ProductImageProps) => {
+export const ProductImage = ({imageDownloadUrl}: ProductImageProps) => {
 
     const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     useEffect(() => {
 
-        fetch(`http://localhost:8080/api/products/${productId}/image`)
+        fetch(`http://localhost:8080/api/products/images/${imageDownloadUrl}`)
             .then(response => response.blob())
             .then(blob => {
 
@@ -23,7 +23,7 @@ export const ProductImage = ({productId}: ProductImageProps) => {
             .catch(error => {
                 console.log(error);
             })
-    }, [productId]);
+    }, [imageDownloadUrl]);
 
     if (!imageUrl) {
         return null;
@@ -31,7 +31,7 @@ export const ProductImage = ({productId}: ProductImageProps) => {
 
     return (
         <div>
-            <img src={imageUrl} alt={"product image"} />
+            <img src={imageUrl}  alt={"Main product"}/>
         </div>
     )
 }

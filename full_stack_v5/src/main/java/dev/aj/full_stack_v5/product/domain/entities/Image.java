@@ -35,11 +35,10 @@ public class Image {
     private String contentType;
     private String downloadUrl;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(nullable = false, columnDefinition = "bytea")
     @ToString.Exclude
-    private byte[] image;
+    private byte[] contents;
 
     @JsonIgnore
     @ToString.Exclude

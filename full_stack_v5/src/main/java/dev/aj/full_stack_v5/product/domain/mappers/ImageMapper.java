@@ -22,7 +22,7 @@ import java.util.Set;
 public interface ImageMapper {
 
     @Mapping(target = "downloadUrl", ignore = true)
-    @Mapping(target = "image", expression = "java(imageDto.getFile().getBytes())")
+    @Mapping(target = "contents", expression = "java(imageDto.getFile().getBytes())") // This can throw IOException
     @Mapping(target = "contentType", expression = "java(imageDto.getFile().getContentType())")
     @Mapping(target = "fileName", expression = "java(imageDto.getFile().getOriginalFilename())")
     @Mapping(target = "product", ignore = true)
@@ -30,7 +30,9 @@ public interface ImageMapper {
     @Mapping(target = "auditMetaData", ignore = true)
     Image toImage(ImageRequestDto imageDto) throws IOException;
 
+    @Mapping(target = "downloadUrl", expression = "java(\"/download/\".concat(String.valueOf(image.getId())))")
     ImageResponseDto toImageDto(Image image);
+
 
     List<ImageResponseDto> toImageDtos(List<Image> images);
 

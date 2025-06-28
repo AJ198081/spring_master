@@ -26,13 +26,23 @@ public class ImageController {
 
     @SneakyThrows
     @PostMapping(value = "/")
-    public ResponseEntity<ImageResponseDto> addImage(@RequestParam("file") MultipartFile multipartFile) {
+    public ResponseEntity<ImageResponseDto> saveImage(@RequestParam("file") MultipartFile multipartFile) {
         ImageRequestDto imageRequestDto = new ImageRequestDto(multipartFile);
         return ResponseEntity.ok(imageService.saveImage(imageRequestDto));
     }
+    @SneakyThrows
+    @PostMapping(value = "/list")
+    public ResponseEntity<Set<ImageResponseDto>> saveImages(@RequestParam("file") List<MultipartFile> multipartFiles) {
+        List<ImageRequestDto> imageRequests = multipartFiles.stream()
+                .map(ImageRequestDto::new)
+                .toList();
+        return ResponseEntity.ok(imageService.saveImages(imageRequests));
+    }
+
+
 
     @PostMapping(value = "/product/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(@RequestPart("files") List<MultipartFile> files, @PathVariable Long productId) {
+    public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(@RequestPart("file") List<MultipartFile> files, @PathVariable Long productId) {
         List<ImageRequestDto> imageDtos = files.stream()
                 .map(ImageRequestDto::new)
                 .toList();
@@ -49,7 +59,7 @@ public class ImageController {
 
         Image image = imageService.getImageById(id);
 
-        ByteArrayResource resource = new ByteArrayResource(image.getImage());
+        ByteArrayResource resource = new ByteArrayResource(image.getContents());
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(image.getContentType()))

@@ -3,37 +3,22 @@ package dev.aj.full_stack_v5;
 import dev.aj.full_stack_v5.auth.domain.dtos.UpdateUserDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
-import dev.aj.full_stack_v5.order.domain.dtos.CartItemDto;
 import dev.aj.full_stack_v5.order.domain.dtos.CustomerDto;
-import dev.aj.full_stack_v5.order.domain.entities.Cart;
-import dev.aj.full_stack_v5.order.domain.entities.CartItem;
-import dev.aj.full_stack_v5.order.domain.entities.Customer;
-import dev.aj.full_stack_v5.order.domain.entities.Order;
-import dev.aj.full_stack_v5.order.domain.entities.OrderItem;
-import dev.aj.full_stack_v5.order.domain.entities.enums.OrderStatus;
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
-import dev.aj.full_stack_v5.product.domain.dtos.ImageRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
-import dev.aj.full_stack_v5.product.domain.entities.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import net.datafaker.Faker;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.boot.test.context.TestComponent;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.math.BigDecimal;
 import java.nio.file.Files;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,14 +50,6 @@ public class TestDataFactory {
         );
     }
 
-    public Stream<FileSystemResource> generateStreamOfPhotoFileResources() {
-        return Stream.generate(this::getRandomPhotoFile);
-    }
-
-    public Stream<ImageRequestDto> generateStreamOfImages() {
-        return Stream.generate(() -> ImageRequestDto.builder().file(getRandomImageFile()).build());
-    }
-
     public Stream<UserRegistrationDto> generateStreamOfUserRegistrationDtos() {
 
         return Stream.generate(() -> UserRegistrationDto.builder()
@@ -85,30 +62,6 @@ public class TestDataFactory {
                 .build());
     }
 
-    public Stream<CartItem> generateStreamOfCartItems(Cart cart, Product product) {
-        return Stream.generate(() -> CartItem.builder()
-                .quantity(faker.random().nextInt(1, 10))
-                .unitPrice(product.getPrice())
-                .product(product)
-                .cart(cart)
-                .build());
-    }
-
-    public Stream<CartItemDto> generateStreamOfCartItemDtos() {
-        return Stream.generate(getCartItemDtoSupplier());
-
-    }
-
-    private @NotNull Supplier<CartItemDto> getCartItemDtoSupplier() {
-
-        Integer quantity = faker.random().nextInt(1, 10);
-
-        return () -> CartItemDto.builder()
-                .quantity(quantity)
-                .build();
-    }
-
-
     private Set<String> getRandomRoles() {
 
         List<String> availableRoles = Arrays.asList("ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_SALES_REP", "ROLE_GUEST");
@@ -120,23 +73,20 @@ public class TestDataFactory {
                 .collect(Collectors.toSet());
     }
 
+    public Stream<MockMultipartFile> generateStreamOfImages() {
+        return Stream.generate(this::getRandomImageFile);
+    }
+
     @SneakyThrows
-    private MultipartFile getRandomImageFile() {
+    public MockMultipartFile getRandomImageFile() {
         String photoPath = photosFactory.getRandomPhoto();
         File photoFile = new File(PhotosFactory.ABSOLUTE_PHOTOS_DIRECTORY_PATH + "/" + photoPath);
         return new MockMultipartFile(
-                photoPath.toUpperCase(),
+                "file",
                 photoFile.getName(),
                 Files.probeContentType(photoFile.toPath()),
                 Files.readAllBytes(photoFile.toPath())
         );
-    }
-
-    private FileSystemResource getRandomPhotoFile() {
-        String photoPath = photosFactory.getRandomPhoto();
-        File photoFile = new File(PhotosFactory.ABSOLUTE_PHOTOS_DIRECTORY_PATH + "/" + photoPath);
-
-        return new FileSystemResource(photoFile);
     }
 
     public UpdateUserDto getUpdatedUser(UserResponseDto registeredUser) {
@@ -156,31 +106,5 @@ public class TestDataFactory {
                 .address(faker.address().fullAddress())
                 .phone(faker.phoneNumber().phoneNumber())
                 .build());
-    }
-
-    public Stream<Order> generateStreamOfOrders(Customer customer, Set<Product> products) {
-        return Stream.generate(() -> {
-            Order order = Order.builder()
-                    .orderDate(ZonedDateTime.now())
-                    .status(OrderStatus.PENDING)
-                    .comments(faker.lorem().sentence())
-                    .customer(customer)
-                    .build();
-
-            Set<OrderItem> orderItems = products.stream()
-                    .map(product ->
-                            OrderItem.builder()
-                                    .order(order)
-                                    .product(product)
-                                    .quantity(faker.random().nextInt(1, 5))
-                                    .price(product.getPrice())
-                                    .build())
-                    .collect(Collectors.toSet());
-
-            order.setOrderItems(orderItems);
-            order.updateTotal();
-
-            return order;
-        });
     }
 }

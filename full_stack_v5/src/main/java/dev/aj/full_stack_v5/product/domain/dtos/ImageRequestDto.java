@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.Serializable;
-
 /**
  * DTO for {@link dev.aj.full_stack_v5.product.domain.entities.Image}
  */
@@ -19,6 +17,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ImageRequestDto implements Serializable {
+public class ImageRequestDto {
     private MultipartFile file;
 }

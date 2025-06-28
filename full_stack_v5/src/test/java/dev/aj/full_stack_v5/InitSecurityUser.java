@@ -88,7 +88,7 @@ public class InitSecurityUser {
 
     public HttpHeaders getBearerTokenHeader(RestClient restClient) {
 
-        String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class)
+        String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
                 .concat(" ")
                 .concat(getValidJwtToken(restClient, initSecurityUser()));
 
