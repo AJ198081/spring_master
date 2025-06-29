@@ -12,7 +12,6 @@ import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -273,6 +272,39 @@ class ImageControllerTest {
 
     @SneakyThrows
     @Test
+    void getImageByName() {
+        // Save a 'random' product first
+        MvcResult savedImagesResult = saveFiveRandomImages();
+
+        Set<ImageResponseDto> uploadedImageResponses = objectMapper.readValue(savedImagesResult.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+        Assertions.assertAll(
+                () -> assertThat(uploadedImageResponses).hasSizeGreaterThanOrEqualTo(5)
+        );
+
+        ImageResponseDto firstImage = uploadedImageResponses.stream().findFirst().orElseThrow();
+        String fileName = firstImage.getFileName();
+
+        ResponseEntity<Resource> downloadResponse = restClient.get()
+                .uri("/api/v1/images/{imageName}", fileName)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
+                .retrieve()
+                .toEntity(Resource.class);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(HttpStatus.OK, downloadResponse.getStatusCode()),
+                () -> Assertions.assertNotNull(downloadResponse.getBody()),
+                () -> Assertions.assertNotNull(downloadResponse.getHeaders().getContentType()),
+                () -> Assertions.assertNotNull(downloadResponse.getHeaders().getContentDisposition()),
+                () -> Assertions.assertEquals(firstImage.getFileName(), downloadResponse.getHeaders().getContentDisposition().getFilename())
+        );
+
+
+    }
+
+    @SneakyThrows
+    @Test
     void updateImage() {
 
         MvcResult savedImagesResult = saveFiveRandomImages();
@@ -286,7 +318,7 @@ class ImageControllerTest {
 
         MockMultipartFile differentImage = getADifferentImage(firstSavedImage.getFileName());
 
-         MockHttpServletResponse imageUploadResponse = mockMvc.perform(multipart(HttpMethod.PUT, "/api/v1/images/{id}", firstSavedImageId)
+        MockHttpServletResponse imageUploadResponse = mockMvc.perform(multipart(HttpMethod.PUT, "/api/v1/images/{id}", firstSavedImageId)
                         .file(differentImage)
                         .headers(bearerTokenHeader))
                 .andExpect(status().isOk())

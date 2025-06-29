@@ -110,6 +110,17 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    public Image getImageByName(String imageName) {
+
+        log.info("Fetching image with name: {}", imageName);
+
+        return imageRepository.findImageByFileName(imageName)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Image isn't found with name: " + imageName));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<ImageResponseDto> getAllImages() {
         log.info("Fetching all images");

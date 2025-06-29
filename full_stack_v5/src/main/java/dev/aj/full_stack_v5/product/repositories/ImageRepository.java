@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
@@ -12,4 +13,6 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     @Query("SELECT i FROM Image i WHERE i.product.name = :productName")
     List<Image> findByProductName(String productName);
+
+    Set<Image> findImageByFileName(String fileName);
 }

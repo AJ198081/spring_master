@@ -24,4 +24,6 @@ public interface ImageService {
     void deleteImageById(Long id);
 
     Set<ImageResponseDto> saveImages(List<ImageRequestDto> imageRequests);
+
+    Image getImageByName(String imageName);
 }

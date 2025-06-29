@@ -52,6 +52,21 @@ public class ImageController {
         return ResponseEntity.ok(imageService.getAllImages());
     }
 
+    @GetMapping("/{imageName}")
+    public ResponseEntity<Resource> getImageByName(@PathVariable String imageName) {
+
+        Image image = imageService.getImageByName(imageName);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(image.getContentType()))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=%s".formatted(image.getFileName())
+                )
+                .body(new ByteArrayResource(image.getContents()));
+
+    }
+
     @GetMapping("/download/{id}")
     public ResponseEntity<Resource> downloadImage(@PathVariable Long id) {
 
