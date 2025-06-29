@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 @Slf4j
@@ -71,9 +71,10 @@ public class ImageServiceImpl implements ImageService {
 
         Product savedProductWithImages = productRepository.findById(productId)
                 .map(product -> {
-                    product.getImages().addAll(imageMapper.toImages(images));
+                    product.addImages(imageMapper.toImages(images));
                     return productRepository.save(product);
-                }).orElseThrow(() -> new EntityNotFoundException("Product with ID: %s not found.".formatted(productId)));
+                })
+                .orElseThrow(() -> new EntityNotFoundException("Product with ID: %s not found.".formatted(productId)));
 
         return imageMapper.toImageDtos(savedProductWithImages.getImages());
     }
@@ -90,14 +91,14 @@ public class ImageServiceImpl implements ImageService {
         Image existingImage = imageRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Image hasn't been found with ID: " + id));
 
-            Image updatedImage = imageMapper.toImage(imageDto);
-            updatedImage.setId(existingImage.getId());
-            updatedImage.setProduct(existingImage.getProduct());
-            updatedImage.setAuditMetaData(existingImage.getAuditMetaData());
+        Image updatedImage = imageMapper.toImage(imageDto);
+        updatedImage.setId(existingImage.getId());
+        updatedImage.setProduct(existingImage.getProduct());
+        updatedImage.setAuditMetaData(existingImage.getAuditMetaData());
 
-            Image savedImage = imageRepository.save(updatedImage);
-            log.info("Image updated successfully with ID: {}", savedImage.getId());
-            return imageMapper.toImageDto(savedImage);
+        Image savedImage = imageRepository.save(updatedImage);
+        log.info("Image updated successfully with ID: {}", savedImage.getId());
+        return imageMapper.toImageDto(savedImage);
     }
 
     @Override
@@ -141,13 +142,13 @@ public class ImageServiceImpl implements ImageService {
                 .ifPresentOrElse(
                         image -> {
                             Product associatedProduct = image.getProduct();
-                            associatedProduct.getImages().remove(image);
-                            productRepository.save(associatedProduct);
+                            if (associatedProduct != null) {
+                                associatedProduct.getImages().remove(image);
+                                productRepository.save(associatedProduct);
+                            }
                             imageRepository.delete(image);
                             log.info("Image deleted successfully with ID: {}", id);
                         },
                         () -> log.warn("Image id: {} doesn't exist.", id));
-
     }
-
 }

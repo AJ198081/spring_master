@@ -39,8 +39,6 @@ public class ImageController {
         return ResponseEntity.ok(imageService.saveImages(imageRequests));
     }
 
-
-
     @PostMapping(value = "/product/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(@RequestPart("file") List<MultipartFile> files, @PathVariable Long productId) {
         List<ImageRequestDto> imageDtos = files.stream()
@@ -77,13 +75,13 @@ public class ImageController {
 
     @SneakyThrows
     @PutMapping("/{imageId}")
-    public ResponseEntity<ImageResponseDto> updateImage(@RequestBody ImageRequestDto image, @PathVariable Long imageId) {
-        return ResponseEntity.ok(imageService.updateImage(image, imageId));
+    public ResponseEntity<ImageResponseDto> updateImage(@RequestPart("file") MultipartFile image, @PathVariable Long imageId) {
+        ImageRequestDto imageRequestDto = new ImageRequestDto(image);
+        return ResponseEntity.ok(imageService.updateImage(imageRequestDto, imageId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteImageById(@PathVariable(value = "id", required = true) Long id) {
-
         imageService.deleteImageById(id);
         return ResponseEntity.noContent().build();
     }

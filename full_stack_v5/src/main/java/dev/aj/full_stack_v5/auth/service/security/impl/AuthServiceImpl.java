@@ -40,7 +40,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String refreshAccessToken(HttpServletRequest request) {
 
-        String refreshToken = cookieUtils.getRefreshTokenCookie(request);
+        String refreshToken = cookieUtils.getRefreshTokenCookie(request)
+                .split("=")[1];
 
         if (refreshToken != null && jwtUtils.isJwtValid(refreshToken)) {
             String username = jwtUtils.getUsernameFromToken(refreshToken);

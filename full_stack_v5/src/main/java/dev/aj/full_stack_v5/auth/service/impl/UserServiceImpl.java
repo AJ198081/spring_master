@@ -123,6 +123,9 @@ public class UserServiceImpl implements UserService {
         userToBeUpdated.setRoles(updateUserDto.getRolesToBeUpdated()
                 .stream()
                 .map(mapRoleNameToRole())
+                .map(role -> roleRepository.findRoleByName(role.getName())
+                        .orElse(roleRepository.save(role))
+                )
                 .collect(Collectors.toSet()));
         return userMapper.userToUserResponseDto(userRepository.save(userToBeUpdated));
     }

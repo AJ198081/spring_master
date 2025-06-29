@@ -30,7 +30,7 @@ public interface ImageMapper {
     @Mapping(target = "auditMetaData", ignore = true)
     Image toImage(ImageRequestDto imageDto) throws IOException;
 
-    @Mapping(target = "downloadUrl", expression = "java(\"/download/\".concat(String.valueOf(image.getId())))")
+    @Mapping(target = "downloadUrl", expression = "java(\"download/\".concat(String.valueOf(image.getId())))")
     ImageResponseDto toImageDto(Image image);
 
 

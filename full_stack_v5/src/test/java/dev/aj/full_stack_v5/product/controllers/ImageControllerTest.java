@@ -11,6 +11,8 @@ import dev.aj.full_stack_v5.product.domain.dtos.ImageResponseDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +33,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,7 +53,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 @AutoConfigureMockMvc
-//@Disabled("This test is disabled, pending troubleshooting of restClient and Multipart file submission")
 class ImageControllerTest {
 
     @Autowired
@@ -73,10 +76,9 @@ class ImageControllerTest {
     private MockMvc mockMvc;
 
     private HttpHeaders bearerTokenHeader;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
-
 
     @BeforeAll
     void setUp() {
@@ -114,20 +116,14 @@ class ImageControllerTest {
                 .containsExactly(randomImageFile.getOriginalFilename(), randomImageFile.getContentType());
 
         assertThat(imageResponseDto.getDownloadUrl()).isNotNull()
-                .contains("/download/");
+                .contains("download/");
     }
 
     @SneakyThrows
     @Test
     void addImagesToAProduct() {
-        // Create a product first
-        ResponseEntity<ProductResponseDto> productResponse = restClient.post()
-                .uri("/api/v1/products/")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
-                .body(testDataFactory.generateStreamOfProductRequests().findFirst().orElseThrow())
-                .retrieve()
-                .toEntity(ProductResponseDto.class);
+        // Save a 'random' product first
+        ResponseEntity<ProductResponseDto> productResponse = saveRandomProduct();
 
         assertNotNull(productResponse.getBody());
         Long productId = productResponse.getBody().getId();
@@ -140,30 +136,33 @@ class ImageControllerTest {
                         .headers(bearerTokenHeader))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
-        
-        Set<ImageResponseDto> responseDtos = objectMapper.readValue(imageUploadResponse.getContentAsString(), new TypeReference<>() {
+
+        Set<ImageResponseDto> uploadedImageResponses = objectMapper.readValue(imageUploadResponse.getContentAsString(), new TypeReference<>() {
         });
 
         Assertions.assertAll(
-                () -> assertNotNull(responseDtos),
-                () -> assertEquals(3, responseDtos.size())
+                () -> assertNotNull(uploadedImageResponses),
+                () -> assertEquals(3, uploadedImageResponses.size())
         );
 
     }
 
-    @SneakyThrows
+    private @NotNull ResponseEntity<ProductResponseDto> saveRandomProduct() {
+        return restClient.post()
+                .uri("/api/v1/products/")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
+                .body(testDataFactory.generateStreamOfProductRequests().findFirst().orElseThrow())
+                .retrieve()
+                .toEntity(ProductResponseDto.class);
+    }
+
     @Test
     void getAllImages() {
 
-        mockMvc.perform(multipart("/api/v1/images/list")
-                        .file(testDataFactory.getRandomImageFile())
-                        .file(testDataFactory.getRandomImageFile())
-                        .file(testDataFactory.getRandomImageFile())
-                        .file(testDataFactory.getRandomImageFile())
-                        .file(testDataFactory.getRandomImageFile())
-                        .headers(bearerTokenHeader))
-                .andExpect(status().isOk());
-        
+        //Let's add a few images first
+        saveFiveRandomImages();
+
         ResponseEntity<List<ImageResponseDto>> response = restClient.get()
                 .uri("/api/v1/images/all")
                 .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
@@ -176,18 +175,31 @@ class ImageControllerTest {
 
         Assertions.assertAll(
                 () -> assertThat(allImages)
-                        .hasSizeGreaterThanOrEqualTo(5),
-                () -> assertThat(allImages).filteredOn(image -> !image.getDownloadUrl().startsWith("/download/"))
-                        .isEmpty()
+                        .hasSizeGreaterThanOrEqualTo(5)
         );
+    }
+
+    @SneakyThrows
+    private MvcResult saveFiveRandomImages() {
+        return mockMvc.perform(multipart("/api/v1/images/list")
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .headers(bearerTokenHeader))
+                .andExpect(status().isOk())
+                .andReturn();
     }
 
     @Test
     void downloadImage() {
-        // Get all images first
+
+        saveFiveRandomImages();
+
         ResponseEntity<List<ImageResponseDto>> allImagesResponse = restClient.get()
                 .uri("/api/v1/images/all")
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -195,55 +207,54 @@ class ImageControllerTest {
         Assertions.assertNotNull(allImagesResponse.getBody());
         Assertions.assertFalse(allImagesResponse.getBody().isEmpty());
 
-        // Get the first image
         ImageResponseDto firstImage = allImagesResponse.getBody().getFirst();
         String downloadUrl = firstImage.getDownloadUrl();
 
-        // Extract the ID from the download URL
-        Long imageId = Long.parseLong(downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1));
-
-        // Download the image
         ResponseEntity<Resource> downloadResponse = restClient.get()
-                .uri("/api/v1/images/download/{id}", imageId)
+                .uri("/api/v1/images/%s".formatted(downloadUrl))
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(Resource.class);
 
-        Assertions.assertEquals(HttpStatus.OK, downloadResponse.getStatusCode());
-        Assertions.assertNotNull(downloadResponse.getBody());
-        Assertions.assertNotNull(downloadResponse.getHeaders().getContentType());
-        Assertions.assertNotNull(downloadResponse.getHeaders().getContentDisposition());
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(HttpStatus.OK, downloadResponse.getStatusCode()),
+                () -> Assertions.assertNotNull(downloadResponse.getBody()),
+                () -> Assertions.assertNotNull(downloadResponse.getHeaders().getContentType()),
+                () -> Assertions.assertNotNull(downloadResponse.getHeaders().getContentDisposition()),
+                () -> Assertions.assertEquals(firstImage.getFileName(), downloadResponse.getHeaders().getContentDisposition().getFilename())
+        );
     }
 
+    @SneakyThrows
     @Test
     void getImagesByProductId() {
-        // Create a product first
-        ResponseEntity<ProductResponseDto> productResponse = restClient.post()
-                .uri("/api/v1/products/")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .body(testDataFactory.generateStreamOfProductRequests().findFirst().orElseThrow())
-                .retrieve()
-                .toEntity(ProductResponseDto.class);
+        // Save a 'random' product first
+        ResponseEntity<ProductResponseDto> productResponse = saveRandomProduct();
 
         assertNotNull(productResponse.getBody());
         Long productId = productResponse.getBody().getId();
 
-        // Add images to the product
-        var imageRequests = testDataFactory.generateStreamOfImages()
-                .limit(3)
-                .toList();
+        // Send multiple files to attach to the product
+        MockHttpServletResponse imageUploadResponse = mockMvc.perform(multipart("/api/v1/images/product/{productId}", productId)
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .file(testDataFactory.getRandomImageFile())
+                        .headers(bearerTokenHeader))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
 
-        restClient.post()
-                .uri("/api/v1/images/product/{productId}", productId)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
-                .body(imageRequests)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<Set<ImageResponseDto>>() {
-                });
+        Set<ImageResponseDto> uploadedImageResponses = objectMapper.readValue(imageUploadResponse.getContentAsString(), new TypeReference<>() {
+        });
+
+        Assertions.assertAll(
+                () -> assertThat(uploadedImageResponses).hasSize(3)
+        );
 
         // Get images by product ID
         ResponseEntity<List<ImageResponseDto>> response = restClient.get()
                 .uri("/api/v1/images/product/{productId}", productId)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
@@ -260,82 +271,75 @@ class ImageControllerTest {
         }
     }
 
+    @SneakyThrows
     @Test
     void updateImage() {
-        // Get all images first
-        ResponseEntity<List<ImageResponseDto>> allImagesResponse = restClient.get()
-                .uri("/api/v1/images/all")
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {
-                });
 
-        Assertions.assertNotNull(allImagesResponse.getBody());
-        Assertions.assertFalse(allImagesResponse.getBody().isEmpty());
+        MvcResult savedImagesResult = saveFiveRandomImages();
 
-        // Get the first image
-        ImageResponseDto firstImage = allImagesResponse.getBody().getFirst();
-        String downloadUrl = firstImage.getDownloadUrl();
+        List<ImageResponseDto> savedImages = objectMapper.readValue(savedImagesResult.getResponse().getContentAsByteArray(), new TypeReference<>() {
+        });
 
-        // Extract the ID from the download URL
-        Long imageId = Long.parseLong(downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1));
+        ImageResponseDto firstSavedImage = savedImages.getFirst();
 
-        // Create a new image request
-        var updatedImageRequest = testDataFactory.generateStreamOfImages()
-                .findFirst()
-                .orElseThrow();
+        String firstSavedImageId = firstSavedImage.getDownloadUrl().substring(firstSavedImage.getDownloadUrl().lastIndexOf("/") + 1);
 
-        // Update the image
-        ResponseEntity<ImageResponseDto> updateResponse = restClient.put()
-                .uri("/api/v1/images/{imageId}", imageId)
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .body(updatedImageRequest)
-                .retrieve()
-                .toEntity(ImageResponseDto.class);
+        MockMultipartFile differentImage = getADifferentImage(firstSavedImage.getFileName());
 
-        Assertions.assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
-        Assertions.assertNotNull(updateResponse.getBody());
-        Assertions.assertNotNull(updateResponse.getBody().getFileName());
-        Assertions.assertNotNull(updateResponse.getBody().getContentType());
-        Assertions.assertNotNull(updateResponse.getBody().getDownloadUrl());
+         MockHttpServletResponse imageUploadResponse = mockMvc.perform(multipart(HttpMethod.PUT, "/api/v1/images/{id}", firstSavedImageId)
+                        .file(differentImage)
+                        .headers(bearerTokenHeader))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
+
+        ImageResponseDto imageResponseDto = objectMapper.readValue(imageUploadResponse.getContentAsString(), ImageResponseDto.class);
+
+        assertThat(imageResponseDto)
+                .isNotNull()
+                .extracting(ImageResponseDto::getFileName, ImageResponseDto::getContentType, ImageResponseDto::getDownloadUrl)
+                .containsExactly(differentImage.getOriginalFilename(), differentImage.getContentType(), firstSavedImage.getDownloadUrl());
     }
 
+    private @NotNull MockMultipartFile getADifferentImage(String fileName) {
+
+        boolean isDifferentImage = false;
+
+        while (!isDifferentImage) {
+            MockMultipartFile randomImageFile = testDataFactory.getRandomImageFile();
+            if (!randomImageFile.getOriginalFilename().equals(fileName)) {
+                isDifferentImage = true;
+                return randomImageFile;
+            }
+        }
+        return null;
+    }
+
+    @SneakyThrows
     @Test
     void deleteImageById() {
-        // Add a new image first
-        var imageRequest = testDataFactory.generateStreamOfImages()
-                .findFirst()
-                .orElseThrow();
 
-        ResponseEntity<ImageResponseDto> addResponse = restClient.post()
-                .uri("/api/v1/images/")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
-                .body(imageRequest)
+        MvcResult savedImagesResult = saveFiveRandomImages();
+
+        List<ImageResponseDto> savedImages = objectMapper.readValue(savedImagesResult.getResponse().getContentAsByteArray(), new TypeReference<>() {
+        });
+
+        ImageResponseDto firstSavedImage = savedImages.getFirst();
+
+        String firstSavedImageId = firstSavedImage.getDownloadUrl().substring(firstSavedImage.getDownloadUrl().lastIndexOf("/") + 1);
+
+        ResponseEntity<Void> imageDeletionResponse = restClient.delete()
+                .uri("/api/v1/images/{id}", firstSavedImageId)
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve()
-                .toEntity(ImageResponseDto.class);
+                .toBodilessEntity();
 
-        Assertions.assertEquals(HttpStatus.OK, addResponse.getStatusCode());
-        Assertions.assertNotNull(addResponse.getBody());
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, imageDeletionResponse.getStatusCode());
 
-        // Extract the ID from the download URL
-        String downloadUrl = addResponse.getBody().getDownloadUrl();
-        Long imageId = Long.parseLong(downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1));
-
-        // Delete the image
-        ResponseEntity<Void> deleteResponse = restClient.delete()
-                .uri("/api/v1/images/delete?id={id}", imageId)
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .retrieve()
-                .toEntity(Void.class);
-
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
-
-        // Try to download the deleted image, should throw an exception
         RestClient.ResponseSpec responseSpec = restClient.get()
-                .uri("/api/v1/images/download/{id}", imageId)
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .uri("/api/v1/images/%s".formatted(firstSavedImage.getDownloadUrl()))
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
                 .retrieve();
 
-        Assertions.assertThrows(Exception.class, () -> responseSpec.toEntity(Resource.class));
+        Assertions.assertThrows(HttpClientErrorException.NotFound.class, () -> responseSpec.toEntity(Resource.class));
     }
 }

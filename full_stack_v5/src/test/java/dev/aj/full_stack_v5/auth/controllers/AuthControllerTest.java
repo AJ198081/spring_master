@@ -1,19 +1,18 @@
 package dev.aj.full_stack_v5.auth.controllers;
 
-import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.InitSecurityUser;
+import dev.aj.full_stack_v5.PhotosFactory;
 import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
 import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
 import dev.aj.full_stack_v5.auth.service.UserService;
-import jakarta.servlet.http.Cookie;
+import dev.aj.full_stack_v5.auth.service.security.util.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -42,11 +41,6 @@ class AuthControllerTest {
     @Autowired
     private TestDataFactory testDataFactory;
 
-    @LocalServerPort
-    private int port;
-
-    private RestClient restClient;
-
     @Autowired
     private UserService userService;
 
@@ -56,10 +50,14 @@ class AuthControllerTest {
     @Autowired
     private InitSecurityUser setSecurityUser;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @LocalServerPort
+    private int port;
+
+    private RestClient restClient;
     private LoginRequestDto validUserLoginRequestDto;
-
-    private String validRefreshToken;
-
     private String validRefreshTokenCookie;
 
     @BeforeAll
@@ -75,7 +73,6 @@ class AuthControllerTest {
 
     //    @RepeatedTest(value = 10, name = "{displayName} {currentRepetition}/{totalRepetitions}")
     @Test
-    @Order(1)
     void authenticateUser() {
         ResponseEntity<String> jwtAccessToken = restClient.post()
                 .uri("/api/v1/auth/login")
@@ -89,30 +86,28 @@ class AuthControllerTest {
 
         Assertions.assertNotNull(jwtAccessToken.getHeaders().get("Set-Cookie"));
 
-        validRefreshToken = String.valueOf(jwtAccessToken.getHeaders().get("Set-Cookie")).split("=")[1];
+        String validRefreshToken = String.valueOf(jwtAccessToken.getHeaders().get("Set-Cookie")).split("=")[1];
+
+        Assertions.assertNotNull(validRefreshToken);
+        Assertions.assertFalse(validRefreshToken.isEmpty());
+        Assertions.assertTrue(jwtUtils.isJwtValid(validRefreshToken));
         validRefreshTokenCookie = String.valueOf(jwtAccessToken.getHeaders().get("Set-Cookie"));
     }
 
     @Test
-    @Order(2)
     void refreshToken() {
 
-        Cookie cookieLocal = new Cookie("refresh_token", validRefreshTokenCookie);
+        authenticateUser();
 
         ResponseEntity<String> jwtAccessToken = restClient.get()
                 .uri("/api/v1/auth/login/refresh-token")
-                .cookies(cookie -> cookie.add("refresh_token", validRefreshToken))
+                .cookie("refresh_token", validRefreshTokenCookie)
                 .retrieve()
                 .toEntity(String.class);
 
-    }
-
-    @Test
-    void refreshAccessToken() {
-        ResponseEntity<String> jwtAccessToken = restClient.get()
-                .uri("/api/v1/auth/login/refresh-token")
-                .cookies(cookie -> cookie.add("refresh_token", validRefreshToken))
-                .retrieve()
-                .toEntity(String.class);
+        Assertions.assertEquals(HttpStatus.OK, jwtAccessToken.getStatusCode());
+        Assertions.assertNotNull(jwtAccessToken.getBody());
+        Assertions.assertFalse(jwtAccessToken.getBody().isEmpty());
+        Assertions.assertTrue(jwtUtils.isJwtValid(jwtAccessToken.getBody()));
     }
 }

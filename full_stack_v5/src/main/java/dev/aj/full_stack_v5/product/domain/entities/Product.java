@@ -13,6 +13,7 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -66,4 +67,11 @@ public class Product {
 
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
+
+    public void addImages(List<Image> images) {
+        if (images != null) {
+            images.forEach(image -> image.setProduct(this));
+            this.images.addAll(images);
+        }
+    }
 }

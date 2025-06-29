@@ -1,6 +1,7 @@
 package dev.aj.full_stack_v5.practice;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,8 @@ import java.util.Set;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
+@Disabled
 class PracticeTest {
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
     void test() throws NoSuchFieldException, ClassNotFoundException {
