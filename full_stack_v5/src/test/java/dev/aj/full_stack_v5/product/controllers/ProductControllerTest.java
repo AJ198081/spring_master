@@ -27,10 +27,11 @@ import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
-@TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"})
+@TestPropertySource(locations = {"classpath:application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class ProductControllerTest {
@@ -98,6 +99,21 @@ class ProductControllerTest {
         Assertions.assertEquals(productRequest.getCategoryName(), response.getBody().getCategoryName());
     }
 
+    private List<ProductResponseDto> addProducts(int howManyProducts) {
+
+        return testDataFactory.generateStreamOfProductRequests()
+                .limit(howManyProducts)
+                .map(
+                        productRequest -> restClient.post()
+                                .uri("/api/v1/products/")
+                                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
+                                .body(productRequest)
+                                .retrieve()
+                                .toEntity(ProductResponseDto.class))
+                .map(ResponseEntity::getBody)
+                .toList();
+    }
+
     @Test
     void throwsIllegalArgsExceptionWhenSavingDuplicatedProduct() {
         ProductRequestDto productRequest = testDataFactory.generateStreamOfProductRequests()
@@ -152,7 +168,7 @@ class ProductControllerTest {
         Assertions.assertEquals(HttpStatus.OK, allProductsResponse.getStatusCode());
         Assertions.assertNotNull(allProductsResponse.getBody());
         Assertions.assertFalse(allProductsResponse.getBody().isEmpty());
-        org.assertj.core.api.Assertions.assertThat(allProductsResponse.getBody().size()).isGreaterThanOrEqualTo(10);
+        assertThat(allProductsResponse.getBody()).hasSizeGreaterThanOrEqualTo(10);
 
         ProductResponseDto firstProduct = allProductsResponse.getBody().getFirst();
         Long productId = firstProduct.getId();
@@ -184,7 +200,7 @@ class ProductControllerTest {
         Assertions.assertEquals(HttpStatus.OK, allProductsResponse.getStatusCode());
         Assertions.assertNotNull(allProductsResponse.getBody());
         Assertions.assertFalse(allProductsResponse.getBody().isEmpty());
-        org.assertj.core.api.Assertions.assertThat(allProductsResponse.getBody().size()).isGreaterThanOrEqualTo(10);
+        assertThat(allProductsResponse.getBody()).hasSizeGreaterThanOrEqualTo(10);
 
         ProductResponseDto lastProduct = allProductsResponse.getBody().getLast();
         Long productId = lastProduct.getId();
@@ -427,5 +443,23 @@ class ProductControllerTest {
                 Assertions.assertEquals(productName, product.getName());
             }
         }
+    }
+
+    @Test
+    void getDistinctProductResponseDtosByName() {
+        List<ProductResponseDto> productResponseDtos = this.addProducts(5);
+
+        ResponseEntity<List<ProductResponseDto>> distinctProductsByName = restClient.get()
+                .uri("/api/v1/products//distinctByName")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<>() {
+                });
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(HttpStatus.OK, distinctProductsByName.getStatusCode()),
+                () -> Assertions.assertNotNull(distinctProductsByName.getBody()),
+                () -> assertThat(distinctProductsByName.getBody()).hasSizeGreaterThanOrEqualTo(productResponseDtos.size())
+        );
     }
 }

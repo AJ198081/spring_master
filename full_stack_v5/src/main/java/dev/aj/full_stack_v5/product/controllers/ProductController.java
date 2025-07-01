@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @RestController
@@ -84,7 +83,7 @@ public class ProductController {
             @PathVariable String brandName) {
         Iterable<ProductResponseDto> productsIterable = productService.getProductsByCategoryNameAndBrand(categoryName, brandName);
         List<ProductResponseDto> products = StreamSupport.stream(productsIterable.spliterator(), false)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(products);
     }
 
@@ -94,9 +93,10 @@ public class ProductController {
             @PathVariable String productName
     ) {
         Iterable<ProductResponseDto> productsIterable = productService.getProductsByCategoryNameAndProductName(categoryName, productName);
-        List<ProductResponseDto> products = StreamSupport.stream(productsIterable.spliterator(), false)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(StreamSupport
+                .stream(productsIterable.spliterator(), false)
+                .toList()
+        );
     }
 
     @GetMapping("/brand/{brandName}/product/{productName}")
@@ -105,6 +105,11 @@ public class ProductController {
             @PathVariable String productName) {
         Iterable<ProductResponseDto> productsIterable = productService.getProductsByBrandAndName(brandName, productName);
         return ResponseEntity.ok(StreamSupport.stream(productsIterable.spliterator(), false)
-                .collect(Collectors.toList()));
+                .toList());
+    }
+
+    @GetMapping("/distinctByName")
+    public ResponseEntity<List<ProductResponseDto>> getDistinctProductResponseDtosByName() {
+        return ResponseEntity.ok(productService.getDistinctProductResponseDtos());
     }
 }

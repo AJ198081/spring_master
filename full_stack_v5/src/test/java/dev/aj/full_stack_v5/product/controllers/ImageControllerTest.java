@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
-@TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"})
+@TestPropertySource(locations = {"classpath:application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 @AutoConfigureMockMvc
@@ -119,7 +120,8 @@ class ImageControllerTest {
     }
 
     @SneakyThrows
-    @Test
+    @RepeatedTest(value = 20, name = "{displayName} {currentRepetition}/{totalRepetitions}")
+    @DisplayName("Add multiple images to a product")
     void addImagesToAProduct() {
         // Save a 'random' product first
         ResponseEntity<ProductResponseDto> productResponse = saveRandomProduct();
@@ -338,7 +340,9 @@ class ImageControllerTest {
 
         while (!isDifferentImage) {
             MockMultipartFile randomImageFile = testDataFactory.getRandomImageFile();
-            if (!randomImageFile.getOriginalFilename().equals(fileName)) {
+            if (randomImageFile.getOriginalFilename().equals(fileName)) {
+                log.info("Image file name {} is the same as the original image file name. Trying again...", randomImageFile.getOriginalFilename());
+            } else {
                 isDifferentImage = true;
                 return randomImageFile;
             }

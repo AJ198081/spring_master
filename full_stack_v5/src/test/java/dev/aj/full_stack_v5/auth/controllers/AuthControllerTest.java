@@ -28,8 +28,7 @@ import org.springframework.web.client.RestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
-@TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"})
+@TestPropertySource(locations = {"classpath:application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -86,7 +85,7 @@ class AuthControllerTest {
 
         Assertions.assertNotNull(jwtAccessToken.getHeaders().get("Set-Cookie"));
 
-        String validRefreshToken = String.valueOf(jwtAccessToken.getHeaders().get("Set-Cookie")).split("=")[1];
+        String validRefreshToken = String.valueOf(jwtAccessToken.getHeaders().get("Set-Cookie")).split("=")[1].split(";")[0];
 
         Assertions.assertNotNull(validRefreshToken);
         Assertions.assertFalse(validRefreshToken.isEmpty());

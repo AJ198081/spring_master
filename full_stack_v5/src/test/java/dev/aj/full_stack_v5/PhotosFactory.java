@@ -27,14 +27,6 @@ public class PhotosFactory {
 
     private final Faker faker;
 
-
-    public String getRandomPhoto() {
-        return availablePhotos.stream()
-                .skip(faker.random().nextInt(availablePhotos.size()))
-                .findFirst()
-                .orElse(null);
-    }
-
     @PostConstruct
     public void init() {
         Path pathToPhotosDirectory = Paths.get(ABSOLUTE_PHOTOS_DIRECTORY_PATH);
@@ -64,7 +56,6 @@ public class PhotosFactory {
     }
 
     static class PhotoFileListener extends FileAlterationListenerAdaptor {
-
         @Override
         public void onFileChange(File file) {
             String photoName = file.getName();
@@ -83,5 +74,10 @@ public class PhotosFactory {
         }
     }
 
-
+    public String getRandomPhoto() {
+        return availablePhotos.stream()
+                .skip(faker.random().nextInt(availablePhotos.size()))
+                .findFirst()
+                .orElse(null);
+    }
 }

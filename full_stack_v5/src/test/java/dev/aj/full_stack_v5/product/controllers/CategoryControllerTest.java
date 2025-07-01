@@ -26,8 +26,7 @@ import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
-@TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"})
+@TestPropertySource(locations = {"classpath:application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class CategoryControllerTest {

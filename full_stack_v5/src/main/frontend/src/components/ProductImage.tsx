@@ -10,7 +10,7 @@ export const ProductImage = ({imageDownloadUrl}: ProductImageProps) => {
 
     useEffect(() => {
 
-        fetch(`http://localhost:8080/api/v1/images/${imageDownloadUrl}`)
+        fetch(`http://localhost:10006/api/v1/images/${imageDownloadUrl}`)
             .then(response => response.blob())
             .then(blob => {
 
@@ -34,7 +34,11 @@ export const ProductImage = ({imageDownloadUrl}: ProductImageProps) => {
 
     return (
         <div>
-            <img src={imageUrl}  alt={"Main product"}/>
+            <img
+                src={imageUrl}
+                alt={"Main product"}
+                style={{width: '100%', height: '200px', objectFit: 'contain'}}
+            />
         </div>
     )
 }

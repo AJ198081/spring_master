@@ -1,5 +1,5 @@
 import {useProductStore} from "../../store/ProductStore.tsx";
-import {useState, ChangeEvent, KeyboardEvent} from "react";
+import {useState, type KeyboardEvent, type ChangeEvent} from "react";
 
 export const SearchBar = () => {
 
@@ -50,13 +50,13 @@ export const SearchBar = () => {
             });
         }
 
-        productStore.setFiltered(filteredProducts);
+        productStore.setFilteredProducts(filteredProducts);
     };
 
     const clearFilters = () => {
         setSearchText("");
         setSelectedCategory("all");
-        productStore.setFiltered([]);
+        productStore.setFilteredProducts([]);
     };
 
     return (

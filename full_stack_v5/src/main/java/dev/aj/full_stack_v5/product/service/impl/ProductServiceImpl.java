@@ -21,7 +21,10 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -114,9 +117,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<ProductResponseDto> getProductResponseDtoByProductId(Long id) {
-        return productRepository
-                .findById(id).map(productMapper::toProductResponseDto);
+        return productRepository.findById(id)
+                .map(productMapper::toProductResponseDto);
     }
+
+    public List<Product> getDistinctProductsByName() {
+        Map<String, Product> uniqueProductMap = productRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(
+                        Product::getName,
+                        Function.identity(),
+                        (existingProduct, conflictingProduct) -> existingProduct)
+                );
+
+        return uniqueProductMap.values()
+                .stream()
+                .toList();
+    }
+
+    public List<ProductResponseDto> getDistinctProductResponseDtos() {
+        return getDistinctProductsByName().stream()
+                .map(productMapper::toProductResponseDto)
+                .toList();
+    }
+
 
     @Override
     public Optional<Product> getProductById(Long id) {

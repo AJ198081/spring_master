@@ -72,7 +72,21 @@ public class ImageServiceImpl implements ImageService {
         Product savedProductWithImages = productRepository.findById(productId)
                 .map(product -> {
                     product.addImages(imageMapper.toImages(images));
-                    return productRepository.save(product);
+                    Product updatedProduct = productRepository.save(product);
+                    log.info("Images saved successfully for product with ID: {}", productId);
+
+                    updatedProduct.getImages()
+                            .forEach(image -> {
+                                image.setDownloadUrl("download/%d".formatted(image.getId()));
+                                Image updatedImage = imageRepository.save(image);
+
+                                log.info("Image downloadUrl saved successfully for image with ID: {}. Download URL: {}",
+                                        updatedImage.getId(),
+                                        updatedImage.getDownloadUrl()
+                                );
+                            });
+
+                    return updatedProduct;
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Product with ID: %s not found.".formatted(productId)));
 

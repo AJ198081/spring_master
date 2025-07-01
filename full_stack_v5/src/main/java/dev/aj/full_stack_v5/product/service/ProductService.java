@@ -24,6 +24,8 @@ public interface ProductService {
 
     List<ProductResponseDto> getAllProducts();
 
+    List<ProductResponseDto> getDistinctProductResponseDtos();
+
     List<ProductResponseDto> getAllProductsWithImagesMeta();
 
     List<ProductResponseDto> getProductsByCategoryName(String categoryName);
