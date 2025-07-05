@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Flashy gradient for the shopping bag -->
+    <linearGradient id="bagGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF3D7F"/>
+      <stop offset="100%" stop-color="#FF9E43"/>
+    </linearGradient>
+    
+    <!-- Flashy gradient for the cart handle -->
+    <linearGradient id="handleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3CFFB5"/>
+      <stop offset="100%" stop-color="#3D9EFF"/>
+    </linearGradient>
+    
+    <!-- Flashy gradient for the text -->
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#BD34FE"/>
+      <stop offset="100%" stop-color="#41D1FF"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Shopping bag body -->
+  <path d="M40,60 L160,60 L150,180 L50,180 Z" fill="url(#bagGradient)" stroke="#FFF" stroke-width="3"/>
+  
+  <!-- Shopping bag handles -->
+  <path d="M60,60 Q70,30 100,30 Q130,30 140,60" fill="none" stroke="url(#handleGradient)" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="70" cy="100" r="10" fill="#FFEA83"/>
+  <circle cx="130" cy="100" r="10" fill="#41D1FF"/>
+  
+  <!-- Text -->
+  <text x="100" y="140" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="url(#textGradient)">SHOP</text>
+  
+  <!-- Sparkle effects -->
+  <path d="M30,40 L35,45 M25,45 L40,40" stroke="#FFEA83" stroke-width="2" stroke-linecap="round"/>
+  <path d="M170,40 L175,45 M165,45 L180,40" stroke="#41D1FF" stroke-width="2" stroke-linecap="round"/>
+  <path d="M30,170 L35,175 M25,175 L40,170" stroke="#FF3D7F" stroke-width="2" stroke-linecap="round"/>
+  <path d="M170,170 L175,175 M165,175 L180,170" stroke="#3CFFB5" stroke-width="2" stroke-linecap="round"/>
+</svg>
