@@ -8,7 +8,7 @@ import dev.aj.full_stack_v5.product.domain.mappers.ImageMapper;
 import dev.aj.full_stack_v5.product.repositories.ImageRepository;
 import dev.aj.full_stack_v5.product.repositories.ProductRepository;
 import dev.aj.full_stack_v5.product.service.ImageService;
-import dev.aj.full_stack_v5.product.service.ProductService;
+import dev.aj.full_stack_v5.product.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -29,7 +29,6 @@ import static java.util.stream.Collectors.toSet;
 public class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
-    private final ProductService productService;
     private final ProductRepository productRepository;
     private final ImageMapper imageMapper;
 

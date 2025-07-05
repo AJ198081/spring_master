@@ -12,7 +12,7 @@ import dev.aj.full_stack_v5.product.domain.entities.Product;
 import dev.aj.full_stack_v5.product.domain.mappers.ProductMapper;
 import dev.aj.full_stack_v5.product.repositories.CategoryRepository;
 import dev.aj.full_stack_v5.product.repositories.ProductRepository;
-import dev.aj.full_stack_v5.product.service.ProductService;
+import dev.aj.full_stack_v5.product.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

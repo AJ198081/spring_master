@@ -4,10 +4,12 @@ import {Footer} from "./Footer.tsx";
 
 export const RootLayout = () => {
     return (
-        <main>
+        <main className={"d-flex flex-column min-vh-100"}>
             <NavBar />
-            <Outlet />
-            <Footer />
+            <div className="flex-grow-1">
+                <Outlet/>
+            </div>
+            <Footer/>
         </main>
     )
 }

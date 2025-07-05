@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v5.common.config;
+package dev.aj.full_stack_v5.auth.config;
 
 import dev.aj.full_stack_v5.auth.domain.dtos.SecurityUser;
 import lombok.RequiredArgsConstructor;

@@ -66,17 +66,16 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(userMapper.userLoginRequestToUsernamePasswordAuthenticationToken(userLoginRequest));
         String refreshToken = userService.generateRefreshTokenFromAuthentication(authentication);
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         int refreshTokenExpirationSeconds = environment.getProperty("jwt.refresh.expiration.ms", Integer.class, 300000) / 1000;
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setMaxAge(refreshTokenExpirationSeconds);
 
-        ResponseEntity<UserLoginResponse> responseEntity = ResponseEntity
+        return ResponseEntity
                 .ok()
                 .header(HttpHeaders.SET_COOKIE, "refreshToken=%s; HttpOnly; Max-Age=%d; Path=%s".formatted(refreshToken, refreshTokenExpirationSeconds, "/refresh-token"))
                 .header(HttpHeaders.SET_COOKIE, "exploitableToken=%s; Max-Age=%d; path=%s".formatted(refreshToken, refreshTokenExpirationSeconds, "/"))
                 .body(userService.loginUser(authentication));
-        return responseEntity;
     }
 
     @GetMapping("/logout")

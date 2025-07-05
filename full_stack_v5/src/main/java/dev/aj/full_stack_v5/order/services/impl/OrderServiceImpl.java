@@ -8,7 +8,7 @@ import dev.aj.full_stack_v5.order.repositories.OrderRepository;
 import dev.aj.full_stack_v5.order.services.CartService;
 import dev.aj.full_stack_v5.order.services.OrderService;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
-import dev.aj.full_stack_v5.product.service.ProductService;
+import dev.aj.full_stack_v5.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

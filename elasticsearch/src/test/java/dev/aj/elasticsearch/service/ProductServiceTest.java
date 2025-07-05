@@ -2,7 +2,6 @@ package dev.aj.elasticsearch.service;
 
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import com.fasterxml.jackson.core.type.TypeReference;
-import dev.aj.elasticsearch.ESTCContainerConfig;
 import dev.aj.elasticsearch.TestConfig;
 import dev.aj.elasticsearch.TestData;
 import dev.aj.elasticsearch.domain.Product;
@@ -17,8 +16,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
@@ -29,7 +26,6 @@ import java.util.Set;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@Import(value = {ESTCContainerConfig.class, TestData.class, TestConfig.class})
 @Import(value = {TestData.class, TestConfig.class})
-
 @TestPropertySource(locations = "classpath:application-test.properties", properties = {
 //        "logging.level.root=off",
 //        "spring.docker.compose.enabled=false",
@@ -56,11 +52,13 @@ class ProductServiceTest {
         productESRepository.deleteAll();
         List<Product> sampleProducts = testData.getStreamOfProducts().limit(SAMPLE_PRODUCT_SIZE).toList();
         testData.writeResource(SAMPLE_DATA_FILE_NAME, sampleProducts);
+        log.info("Sample data file written to: {}", SAMPLE_DATA_FILE_NAME);
     }
 
     @AfterAll
     void afterAll() {
-        testData.deleteTestDataFile(SAMPLE_DATA_FILE_NAME);
+        log.info("Deleting test data file: {}", SAMPLE_DATA_FILE_NAME);
+//        testData.deleteTestDataFile(SAMPLE_DATA_FILE_NAME);
     }
 
     @Test
@@ -90,7 +88,7 @@ class ProductServiceTest {
 
         org.assertj.core.api.Assertions.assertThat(savedSampleProducts).isNotNull()
                 .extracting("name")
-                .satisfies(sampleProducts::containsAll);
+                .containsExactlyInAnyOrder(sampleProducts.stream().map(Product::getName).toList().toArray(String[]::new));
 
         Product firstSavedProduct = savedSampleProducts.getFirst();
 

@@ -6,6 +6,7 @@ export interface Product {
     price: number,
     description: string,
     inventory: number,
+    categoryName: string,
     images: Image[],
 }
 
@@ -21,12 +22,21 @@ interface ProductStore {
     allProducts: Product[],
     filteredProducts: Product[],
     setAllProducts: (products: Product[]) => void,
-    setFilteredProducts: (filteredProducts: Product[]) => void
+    setFilteredProducts: (filteredProducts: Product[]) => void,
+    productsToShow: () => Product[],
 }
 
-export const useProductStore = create<ProductStore>(set => ({
+export const useProductStore = create<ProductStore>((set, get) => ({
     allProducts: [] as Product[],
     filteredProducts: [] as Product[],
     setAllProducts: (products) => set({allProducts: products}),
-    setFilteredProducts: (filteredProducts) => set({filteredProducts})
+    setFilteredProducts: (products) => set({filteredProducts: products}),
+    productsToShow: () => {
+        const currentlyFilteredProducts = get().filteredProducts;
+        const allProductsList = get().allProducts;
+
+        return currentlyFilteredProducts && currentlyFilteredProducts.length > 0
+            ? currentlyFilteredProducts
+            : allProductsList;
+    },
 }))

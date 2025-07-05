@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v5.product.service;
+package dev.aj.full_stack_v5.product;
 
 import dev.aj.full_stack_v5.order.domain.entities.CartItem;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;

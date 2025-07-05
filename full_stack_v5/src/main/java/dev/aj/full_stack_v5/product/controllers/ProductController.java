@@ -2,7 +2,7 @@ package dev.aj.full_stack_v5.product.controllers;
 
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
-import dev.aj.full_stack_v5.product.service.ProductService;
+import dev.aj.full_stack_v5.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

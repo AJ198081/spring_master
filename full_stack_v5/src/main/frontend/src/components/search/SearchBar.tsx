@@ -1,12 +1,22 @@
-import {useProductStore} from "../../store/ProductStore.tsx";
-import {useState, type KeyboardEvent, type ChangeEvent} from "react";
+import {type Product, useProductStore} from "../../store/ProductStore.tsx";
+import {type ChangeEvent, type KeyboardEvent, useEffect, useState} from "react";
+import {toast} from "react-toastify";
 
+const ALL = "all";
 export const SearchBar = () => {
 
     const [searchText, setSearchText] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("all");
+    const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState(ALL);
 
     const productStore = useProductStore();
+
+    useEffect(() => {
+        const distinctCategories = [...new Set(productStore.allProducts.map(product => product.categoryName))];
+        distinctCategories.sort((a, b) => a.localeCompare(b));
+        distinctCategories.unshift(ALL);
+        setAvailableCategories(distinctCategories);
+    }, [productStore.allProducts]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchText(e.target.value);
@@ -23,54 +33,65 @@ export const SearchBar = () => {
     };
 
     const searchProducts = () => {
-        let filteredProducts = productStore.allProducts;
+        const allAvailableProducts = productStore.allProducts;
 
-        // Filter by search text if provided
         if (searchText.trim() !== "") {
-            filteredProducts = filteredProducts.filter(product => 
-                product.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                product.description.toLowerCase().includes(searchText.toLowerCase())
-            );
+
+            const searchTerm = searchText.trim().toLowerCase();
+
+            let filteredProducts: Product[];
+
+            if (selectedCategory === ALL) {
+                filteredProducts = allAvailableProducts
+                    .filter(product =>
+                        product.name.toLowerCase().includes(searchTerm) ||
+                        product.description.toLowerCase().includes(searchTerm
+                        ))
+            } else {
+                filteredProducts = allAvailableProducts
+                    .filter(product =>
+                            product.categoryName.split(' ').some(cat => selectedCategory.split(' ').includes(cat))
+                            && (product.name.toLowerCase().includes(searchTerm)
+                                || product.categoryName === selectedCategory && product.description.toLowerCase().includes(searchTerm)
+                            )
+                    );
+            }
+
+            if (filteredProducts.length === 0) {
+                toast.error("No product meets yours selected search criteria, please try again with different search criteria.");
+            } else {
+                productStore.setFilteredProducts(filteredProducts);
+            }
+        } else if (selectedCategory !== ALL) {
+            const productsInSelectedCategory = allAvailableProducts
+                .filter(product =>
+                    product.categoryName.split(' ')
+                        .some(cat => selectedCategory.split(' ').includes(cat)));
+            productStore.setFilteredProducts(productsInSelectedCategory);
         }
-
-        if (selectedCategory !== "all") {
-            const categoryMappings: {[key: string]: string[]} = {
-                "clothes": ["shirt", "pants", "jacket", "clothing"],
-                "electronics": ["laptop", "smartphone", "headphones", "camera", "tv", "mouse", "console", "speaker", "tablet"],
-                "furniture": ["chair", "table", "desk", "sofa", "furniture"],
-                "toys": ["toy", "game", "gaming"]
-            };
-
-            filteredProducts = filteredProducts.filter(product => {
-                const keywords = categoryMappings[selectedCategory] || [];
-                return keywords.some(keyword => 
-                    product.name.toLowerCase().includes(keyword) || 
-                    product.description.toLowerCase().includes(keyword)
-                );
-            });
-        }
-
-        productStore.setFilteredProducts(filteredProducts);
     };
 
     const clearFilters = () => {
         setSearchText("");
-        setSelectedCategory("all");
+        setSelectedCategory(ALL);
         productStore.setFilteredProducts([]);
     };
 
     return (
         <div className={"search-bar input-group input-group-sm"}>
-            <select 
+            <select
                 className={"form-control-sm"}
                 value={selectedCategory}
                 onChange={handleCategoryChange}
             >
-                <option value={"all"}>All Categories</option>
-                <option value={"clothes"}>Clothes</option>
-                <option value={"electronics"}>Electronics</option>
-                <option value={"furniture"}>Furniture</option>
-                <option value={"toys"}>Toys</option>
+                {availableCategories.map(category => (
+                    <option
+                        key={category}
+                        value={category}
+                    >
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </option>
+                ))}
             </select>
             <input
                 type={"text"}
@@ -80,13 +101,13 @@ export const SearchBar = () => {
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
             />
-            <button 
+            <button
                 className={"btn btn-primary mx-2"}
                 onClick={searchProducts}
             >
                 Search
             </button>
-            <button 
+            <button
                 className={"btn btn-info"}
                 onClick={clearFilters}
             >

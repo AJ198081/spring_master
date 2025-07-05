@@ -13,7 +13,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 2,
@@ -27,7 +28,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 3,
@@ -41,7 +43,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 4,
@@ -55,7 +58,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 5,
@@ -69,7 +73,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 6,
@@ -83,7 +88,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 7,
@@ -97,7 +103,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 8,
@@ -111,7 +118,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 9,
@@ -125,7 +133,8 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     },
     {
         id: 10,
@@ -139,6 +148,7 @@ export const products: Product[] = [
                 fileName: "image",
                 contentType: "image/jpg"
             }
-        ]
+        ],
+        categoryName: ""
     }
 ];
