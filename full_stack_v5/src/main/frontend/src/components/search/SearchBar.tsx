@@ -12,10 +12,12 @@ export const SearchBar = () => {
     const productStore = useProductStore();
 
     useEffect(() => {
-        const distinctCategories = [...new Set(productStore.allProducts.map(product => product.categoryName))];
-        distinctCategories.sort((a, b) => a.localeCompare(b));
-        distinctCategories.unshift(ALL);
-        setAvailableCategories(distinctCategories);
+        if (productStore.allProducts && productStore.allProducts.length > 0) {
+            const distinctCategories = [...new Set(productStore.allProducts.map(product => product.categoryName))];
+            distinctCategories.sort((a, b) => a.localeCompare(b));
+            distinctCategories.unshift(ALL);
+            setAvailableCategories(distinctCategories);
+        }
     }, [productStore.allProducts]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -102,13 +104,13 @@ export const SearchBar = () => {
                 onKeyDown={handleKeyDown}
             />
             <button
-                className={"btn btn-primary mx-2"}
+                className={"btn btn-primary mx-2 rounded"}
                 onClick={searchProducts}
             >
                 Search
             </button>
             <button
-                className={"btn btn-info"}
+                className={"btn btn-info rounded"}
                 onClick={clearFilters}
             >
                 Clear Filters

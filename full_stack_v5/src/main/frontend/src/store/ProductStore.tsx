@@ -15,6 +15,7 @@ export interface Image {
     downloadUrl: string,
     contentType: string
 }
+
 // This is what you need to declare first up,
 // An interface that will contain the state you want to manage, and the setter/update functions of the state
 
@@ -24,13 +25,20 @@ interface ProductStore {
     setAllProducts: (products: Product[]) => void,
     setFilteredProducts: (filteredProducts: Product[]) => void,
     productsToShow: () => Product[],
+    currentPageNumber: number,
+    onPageNumberChange: (pageNumber: number) => void,
+    productsPerPage: number,
+    onProductsPerPageChange: (productsOnPage: number) => void,
+
 }
 
 export const useProductStore = create<ProductStore>((set, get) => ({
     allProducts: [] as Product[],
-    filteredProducts: [] as Product[],
     setAllProducts: (products) => set({allProducts: products}),
+
+    filteredProducts: [] as Product[],
     setFilteredProducts: (products) => set({filteredProducts: products}),
+
     productsToShow: () => {
         const currentlyFilteredProducts = get().filteredProducts;
         const allProductsList = get().allProducts;
@@ -39,4 +47,14 @@ export const useProductStore = create<ProductStore>((set, get) => ({
             ? currentlyFilteredProducts
             : allProductsList;
     },
+
+    currentPageNumber: 1,
+    onPageNumberChange: (newPageNumber) => {
+        set({currentPageNumber: newPageNumber});
+    },
+
+    productsPerPage: 5,
+    onProductsPerPageChange: (productsOnPage) => {
+        set({productsPerPage: productsOnPage});
+    }
 }))

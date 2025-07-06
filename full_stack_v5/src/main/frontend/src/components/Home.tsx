@@ -1,17 +1,16 @@
 import {Hero} from "./hero/Hero.tsx";
 import {useEffect, useState} from "react";
 import {useProductStore} from "../store/ProductStore.tsx";
-import {Paginator} from "./common/Paginator.tsx";
 import {Card} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {ProductImage} from "./ProductImage.tsx";
 import {getDistinctProducts} from "../services/ProductService.ts";
 import {toast, ToastContainer} from "react-toastify";
+import {PaginatorComponent} from "./common/PaginatorComponent.tsx";
 
 export const Home = () => {
 
-    const [itemsPerPage] = useState(5);
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    const productStore = useProductStore();
     const [errorMessage, setErrorMessage] = useState<string>();
 
     useEffect(() => {
@@ -24,22 +23,19 @@ export const Home = () => {
             })
             .catch(error => {
                 setErrorMessage(error.message);
+                useProductStore.setState({allProducts: []});
                 toast.error(error.message);
             })
     }, []);
 
-    const paginate = (pageNumber: number) => {
-        return setCurrentPage(pageNumber);
-
-    }
     const products = useProductStore(state => state.productsToShow());
 
-    // const indexOfLastItemOnPage = currentPage * itemsPerPage;
-    // const indexOfFirstItemOnPage = indexOfLastItemOnPage - itemsPerPage;
-    // const currentProducts = products.slice(indexOfFirstItemOnPage, indexOfLastItemOnPage);
+    const indexOfLastItemOnPage = productStore.currentPageNumber * productStore.productsPerPage;
+    const indexOfFirstItemOnPage = indexOfLastItemOnPage - productStore.productsPerPage;
+    const currentProducts = products.slice(indexOfFirstItemOnPage, indexOfLastItemOnPage);
 
     function renderProductCards() {
-        return products
+        return currentProducts
             .map((product) => (
                 <Card
                     className={"home-product-card pt-2"}
@@ -48,7 +44,10 @@ export const Home = () => {
                     <Link to={"/#"}>
                         <div>
                             {product.images.length > 0
-                                && <ProductImage key={product.images[0].downloadUrl} imageDownloadUrl={product.images[0].downloadUrl}/>}
+                                && <ProductImage
+                                    key={product.images[0].downloadUrl}
+                                    imageDownloadUrl={product.images[0].downloadUrl}
+                                />}
                         </div>
                     </Link>
                     <Card.Body>
@@ -67,18 +66,14 @@ export const Home = () => {
                             Shop Now
                         </Link>
                     </Card.Body>
-
                 </Card>
             ));
-    }
-
-    function renderEmptyState() {
-        return <p>No products found</p>;
     }
 
     return (
         <>
             <Hero/>
+
             <div className={"d-flex flex-wrap justify-content-center p-5"}>
                 <ToastContainer
                     position={"bottom-right"}
@@ -89,20 +84,18 @@ export const Home = () => {
                     pauseOnFocusLoss
                     pauseOnHover
                 />
-                {errorMessage
-                    ? <p>{errorMessage}</p>
-                    : products.length === 0
-                        ? renderEmptyState()
-                        : renderProductCards()
-                }
+                {(products.length === 0)
+                && <p className={"d-flex flex-wrap justify-content-center p-5 text-danger h3"} style={{marginTop: '160px'}}>No products found</p>}
+                {(!errorMessage && products && products.length > 0) && renderProductCards()}
             </div>
 
-            <Paginator
-                itemsPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={paginate}
-                totalItems={products.length}
-            />
+            {products && products.length > 0 && <PaginatorComponent
+                products={products}
+                currentPageNumber={productStore.currentPageNumber}
+                onPageNumberChange={productStore.onPageNumberChange}
+                productsPerPage={productStore.productsPerPage}
+                onProductsPerPageChange={productStore.onProductsPerPageChange}
+            />}
         </>
     )
 }

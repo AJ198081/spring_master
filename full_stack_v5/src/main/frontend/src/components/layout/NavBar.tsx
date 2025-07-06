@@ -1,6 +1,6 @@
 import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Link} from "react-router-dom";
-import {useState, type MouseEvent} from "react";
+import {type MouseEvent, useState} from "react";
 
 export const NavBar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -26,43 +26,50 @@ export const NavBar = () => {
                 <Navbar.Collapse>
                     <Nav className="me-auto">
                         <Nav.Link
-                            to={"/features"}
+                            to={"/"}
                             as={Link}
-                        >Features</Nav.Link>
+                        >
+                            Home
+                        </Nav.Link>
                         <Nav.Link
-                            to={"/pricing"}
+                            to={"/products"}
                             as={Link}
-                        >Pricing</Nav.Link>
-
+                        >
+                            All Products
+                        </Nav.Link>
                     </Nav>
                     <Nav>
                         {isLoggedIn
                             ? <NavDropdown
-                            title="Account"
-                            id="collapsible-nav-dropdown"
-                        >
-                            <NavDropdown.Item
-                                to={"#action"}
-                                as={Link}
+                                title="Account"
+                                id="collapsible-nav-dropdown"
                             >
-                                Profile
-                            </NavDropdown.Item>
-                            <NavDropdown.Item
-                                to={isLoggedIn ? "/logout" : "/login"}
+                                <NavDropdown.Item
+                                    to={"#action"}
+                                    as={Link}
+                                >
+                                    Profile
+                                </NavDropdown.Item>
+                                <NavDropdown.Item
+                                    to={isLoggedIn ? "/logout" : "/login"}
+                                    as={Link}
+                                    onClick={event => handleLoginAction(event)}
+                                >
+                                    Logout
+                                </NavDropdown.Item>
+                                <NavDropdown.Divider/>
+                                <NavDropdown.Item
+                                    to={"#action"}
+                                    as={Link}
+                                >
+                                    Update
+                                </NavDropdown.Item>
+                            </NavDropdown>
+                            : <Nav.Link
+                                to={"/login"}
                                 as={Link}
-                                onClick={event => handleLoginAction(event)}
-                            >
-                                Logout
-                            </NavDropdown.Item>
-                            <NavDropdown.Divider/>
-                            <NavDropdown.Item
-                                to={"#action"}
-                                as={Link}
-                            >
-                                Update
-                            </NavDropdown.Item>
-                        </NavDropdown>
-                            : <Nav.Link to={"/login"} as={Link} onClick={handleLoginAction}>Login</Nav.Link>
+                                onClick={handleLoginAction}
+                            >Login</Nav.Link>
                         }
                     </Nav>
                 </Navbar.Collapse>
