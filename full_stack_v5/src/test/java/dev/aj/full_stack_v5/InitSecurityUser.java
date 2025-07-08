@@ -7,9 +7,7 @@ import dev.aj.full_stack_v5.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchProperties;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +30,7 @@ public class InitSecurityUser {
     private final PasswordEncoder passwordEncoder;
     private final Environment environment;
 
-    public LoginRequestDto initSecurityUser() {
+    public LoginRequestDto registerUserAndReturnLoginDto() {
 
         UserRegistrationDto userRegistrationDto = testDataFactory.generateStreamOfUserRegistrationDtos()
                 .limit(1)
@@ -68,10 +66,12 @@ public class InitSecurityUser {
                 .retrieve()
                 .toEntity(String.class);
 
-        Assertions.assertEquals(HttpStatus.OK, jwtAccessToken.getStatusCode());
-        Assertions.assertNotNull(jwtAccessToken.getBody());
-        Assertions.assertFalse(jwtAccessToken.getBody().isEmpty());
-
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(HttpStatus.OK, jwtAccessToken.getStatusCode()),
+                () -> Assertions.assertNotNull(jwtAccessToken.getBody()),
+                () -> Assertions.assertFalse(jwtAccessToken.getBody().isEmpty())
+        );
+        log.info("Valid JWT Access Token: '{}'", jwtAccessToken.getBody());
         return jwtAccessToken.getBody();
     }
 
@@ -90,7 +90,7 @@ public class InitSecurityUser {
 
         String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
                 .concat(" ")
-                .concat(getValidJwtToken(restClient, initSecurityUser()));
+                .concat(getValidJwtToken(restClient, registerUserAndReturnLoginDto()));
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.AUTHORIZATION, bearerToken);

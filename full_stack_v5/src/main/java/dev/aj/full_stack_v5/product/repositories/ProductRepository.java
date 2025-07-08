@@ -18,11 +18,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findProductByCategoryName(String categoryName);
 
     @Query(value = "select p from Product p where lower(p.name) ilike lower(concat('%', :name, '%'))")
-    List<Product> findProductByName(String name);
+    List<Product> findProductsByName(String name);
 
     List<Product> findProductByCategoryNameAndName(String categoryName, String productName);
 
     Optional<Product> findProductByNameAndBrand(String name, String brand);
 
     List<Product> findDistinctByName(String name);
+
+    @Query("select distinct p.brand from Product p")
+    List<String> getDistinctByBrand();
 }

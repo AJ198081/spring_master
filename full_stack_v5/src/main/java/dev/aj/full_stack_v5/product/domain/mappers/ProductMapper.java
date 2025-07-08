@@ -6,6 +6,7 @@ import dev.aj.full_stack_v5.product.domain.entities.Image;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import org.jspecify.annotations.NonNull;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,6 +14,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,14 +33,14 @@ public abstract class ProductMapper {
 
     @Mapping(target = "categoryName", source = "category.name")
     @Mapping(target = "id", source = "id")
-    abstract public ProductResponseDto toProductResponseDto(Product product);
+    public abstract ProductResponseDto toProductResponseDto(Product product);
 
 
     @Mapping(target = "images", expression = "java(this.getImagesIfPresent(productRequestDto))")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "auditMetaData", ignore = true)
     @Mapping(target = "category.name", source = "categoryName")
-    abstract public Product toProduct(ProductRequestDto productRequestDto);
+    public abstract Product toProduct(ProductRequestDto productRequestDto);
 
     @SneakyThrows
     Set<Image> getImagesIfPresent(ProductRequestDto productRequestDto) {
@@ -55,4 +57,6 @@ public abstract class ProductMapper {
         }
         return null;
     }
+
+    public abstract List<ProductResponseDto> toProductResponseDtos(@NonNull List<Product> products);
 }

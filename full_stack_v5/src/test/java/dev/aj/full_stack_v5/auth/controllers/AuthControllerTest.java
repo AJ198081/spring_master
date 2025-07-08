@@ -62,7 +62,7 @@ class AuthControllerTest {
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d".formatted(port));
-        validUserLoginRequestDto = setSecurityUser.initSecurityUser();
+        validUserLoginRequestDto = setSecurityUser.registerUserAndReturnLoginDto();
     }
 
     @AfterAll

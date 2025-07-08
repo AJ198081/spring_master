@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -178,7 +179,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponseDto> getProductsByName(@NonNull String name) {
-        return productRepository.findProductByName(name)
+        return productRepository.findProductsByName(name)
                 .stream()
                 .map(productMapper::toProductResponseDto)
                 .toList();
@@ -221,5 +222,20 @@ public class ProductServiceImpl implements ProductService {
                         }
                 )
                 .orElseThrow(() -> new EntityNotFoundException("Product with id: %s doesn't exist.".formatted(cartItem.getProduct().getId())));
+    }
+
+    @Override
+    public List<String> getDistinctBrands() {
+        return productRepository.getDistinctByBrand();
+    }
+
+    @Override
+    public List<ProductResponseDto> getProductResponseDtosByProductId(Long id) {
+        
+        return productRepository.findById(id)
+                .map(Product::getName)
+                .map(productRepository::findProductsByName)
+                .map(productMapper::toProductResponseDtos)
+                .orElseGet(List::of);
     }
 }

@@ -5,6 +5,7 @@ export interface Product {
     name: string,
     price: number,
     description: string,
+    brand: string,
     inventory: number,
     categoryName: string,
     images: Image[],
@@ -25,11 +26,13 @@ interface ProductStore {
     setAllProducts: (products: Product[]) => void,
     setFilteredProducts: (filteredProducts: Product[]) => void,
     productsToShow: () => Product[],
+    filteredProductsByBrand: (brands: string[]) => Product[],
     currentPageNumber: number,
     onPageNumberChange: (pageNumber: number) => void,
     productsPerPage: number,
     onProductsPerPageChange: (productsOnPage: number) => void,
-
+    productBrands: string[],
+    setProductBrands: (brands: string[]) => void,
 }
 
 export const useProductStore = create<ProductStore>((set, get) => ({
@@ -48,6 +51,14 @@ export const useProductStore = create<ProductStore>((set, get) => ({
             : allProductsList;
     },
 
+    filteredProductsByBrand: (selectedBrands) => {
+        if (!selectedBrands || selectedBrands.length === 0) {
+            return get().allProducts;
+        }
+        return get().filteredProducts
+            .filter((product) => selectedBrands.includes(product.brand));
+    },
+
     currentPageNumber: 1,
     onPageNumberChange: (newPageNumber) => {
         set({currentPageNumber: newPageNumber});
@@ -56,5 +67,8 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     productsPerPage: 5,
     onProductsPerPageChange: (productsOnPage) => {
         set({productsPerPage: productsOnPage});
-    }
+    },
+
+    productBrands: [],
+    setProductBrands: (brands) => set({productBrands: brands}),
 }))

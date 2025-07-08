@@ -20,6 +20,10 @@ function App() {
                     path={"/products"}
                     element={<Products/>}
                 />
+                <Route
+                    path={"/products/:id"}
+                    element={<Products />}
+                    />
             </Route>
         )
     );

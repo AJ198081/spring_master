@@ -6,7 +6,7 @@ interface PaginatorComponentProps {
     onProductsPerPageChange: (e: number) => void,
     products: Product[],
     currentPageNumber: number,
-    onPageNumberChange: (value: (((prevState: number) => number) | number)) => void
+    onPageNumberChange: (value: number) => void
 }
 
 export const PaginatorComponent = ({

@@ -42,13 +42,13 @@ class ProductControllerTest {
     @Autowired
     private TestDataFactory testDataFactory;
 
+    @Autowired
+    private InitSecurityUser initSecurityUser;
+
     @LocalServerPort
     private int port;
 
     private RestClient restClient;
-
-    @Autowired
-    private InitSecurityUser initSecurityUser;
 
     private HttpHeaders bearerTokenHeader;
 
@@ -460,6 +460,29 @@ class ProductControllerTest {
                 () -> Assertions.assertEquals(HttpStatus.OK, distinctProductsByName.getStatusCode()),
                 () -> Assertions.assertNotNull(distinctProductsByName.getBody()),
                 () -> assertThat(distinctProductsByName.getBody()).hasSizeGreaterThanOrEqualTo(productResponseDtos.size())
+        );
+    }
+
+    @Test
+    void getDistinctBrandsInTheDatabase() {
+        List<ProductResponseDto> productResponseDtos = this.addProducts(5);
+
+        ResponseEntity<List<String>> distinctBrands = restClient.get()
+                .uri("/api/v1/products/distinctBrands")
+                .headers(httpHeaders -> httpHeaders.addAll(bearerTokenHeader))
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<>() {
+                });
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(HttpStatus.OK, distinctBrands.getStatusCode()),
+                () -> Assertions.assertNotNull(distinctBrands.getBody()),
+                () -> assertThat(distinctBrands.getBody())
+                        .hasSizeGreaterThanOrEqualTo(
+                                (int) productResponseDtos
+                                        .stream()
+                                        .map(ProductResponseDto::getBrand).distinct()
+                                        .count())
         );
     }
 }

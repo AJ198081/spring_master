@@ -41,4 +41,8 @@ public interface ProductService {
     List<ProductResponseDto> getProductsByBrandAndName(String brand, String name);
 
     Product updateInventory(CartItem cartItem);
+
+    List<String> getDistinctBrands();
+
+    List<ProductResponseDto> getProductResponseDtosByProductId(Long id);
 }
