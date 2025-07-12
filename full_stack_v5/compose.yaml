@@ -11,3 +11,18 @@ services:
       - '10005:5432'
 #    volumes:
 #      - ./src/test/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+#  app:
+#    build: .
+#    container_name: 'full_stack_v5_app_container'
+#    restart: no
+#    depends_on:
+#      - postgres
+#    environment:
+#      - 'SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/full_stack_v5'
+#      - 'SPRING_DATASOURCE_USERNAME=admin'
+#      - 'SPRING_DATASOURCE_PASSWORD=password'
+#      - 'SPRING_CONFIG_IMPORT=optional:configserver:http://host.docker.internal:8012'
+#      - 'SPRING_RABBITMQ_HOST=host.docker.internal'
+#    ports:
+#      - '10006:10006'

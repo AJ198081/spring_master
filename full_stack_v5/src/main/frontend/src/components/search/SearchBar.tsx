@@ -9,16 +9,17 @@ export const SearchBar = () => {
     const [availableCategories, setAvailableCategories] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState(ALL);
 
-    const productStore = useProductStore();
+    const allProducts = useProductStore(state => state.allProducts);
+    const setFilteredProducts = useProductStore(state => state.setFilteredProducts);
 
     useEffect(() => {
-        if (productStore.allProducts && productStore.allProducts.length > 0) {
-            const distinctCategories = [...new Set(productStore.allProducts.map(product => product.categoryName))];
+        if (allProducts && allProducts.length > 0) {
+            const distinctCategories = [...new Set(allProducts.map(product => product.categoryName))];
             distinctCategories.sort((a, b) => a.localeCompare(b));
             distinctCategories.unshift(ALL);
             setAvailableCategories(distinctCategories);
         }
-    }, [productStore.allProducts]);
+    }, [allProducts]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchText(e.target.value);
@@ -35,7 +36,6 @@ export const SearchBar = () => {
     };
 
     const searchProducts = () => {
-        const allAvailableProducts = productStore.allProducts;
 
         if (searchText.trim() !== "") {
 
@@ -44,15 +44,19 @@ export const SearchBar = () => {
             let filteredProducts: Product[];
 
             if (selectedCategory === ALL) {
-                filteredProducts = allAvailableProducts
+                filteredProducts = allProducts
                     .filter(product =>
                         product.name.toLowerCase().includes(searchTerm) ||
-                        product.description.toLowerCase().includes(searchTerm
-                        ))
+                        product.description.toLowerCase().includes(searchTerm)
+                    )
             } else {
-                filteredProducts = allAvailableProducts
+                filteredProducts = allProducts
                     .filter(product =>
-                            product.categoryName.split(' ').some(cat => selectedCategory.split(' ').includes(cat))
+                            product.categoryName.split(' ')
+                                .filter(cat => cat !== '&')
+                                .some(cat => selectedCategory.split(' ')
+                                    .filter(cat => cat != '&')
+                                    .includes(cat))
                             && (product.name.toLowerCase().includes(searchTerm)
                                 || product.categoryName === selectedCategory && product.description.toLowerCase().includes(searchTerm)
                             )
@@ -62,21 +66,24 @@ export const SearchBar = () => {
             if (filteredProducts.length === 0) {
                 toast.error("No product meets yours selected search criteria, please try again with different search criteria.");
             } else {
-                productStore.setFilteredProducts(filteredProducts);
+                setFilteredProducts(filteredProducts);
             }
         } else if (selectedCategory !== ALL) {
-            const productsInSelectedCategory = allAvailableProducts
+            const productsInSelectedCategory = allProducts
                 .filter(product =>
                     product.categoryName.split(' ')
-                        .some(cat => selectedCategory.split(' ').includes(cat)));
-            productStore.setFilteredProducts(productsInSelectedCategory);
+                        .filter(cat => cat !== '&')
+                        .some(cat => selectedCategory.split(' ')
+                            .filter(cat => cat !== '&')
+                            .includes(cat)));
+            setFilteredProducts(productsInSelectedCategory);
         }
     };
 
     const clearFilters = () => {
         setSearchText("");
         setSelectedCategory(ALL);
-        productStore.setFilteredProducts([]);
+        setFilteredProducts([]);
     };
 
     return (

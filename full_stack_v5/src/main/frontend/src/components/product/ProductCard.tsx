@@ -10,11 +10,11 @@ export interface ProductCardProps {
 export const ProductCard = ({productsToDisplay}: ProductCardProps) => {
 
     return (
-        <main className={"row"}>
+        <main className={"row m-2"}>
             {productsToDisplay.length > 0 && productsToDisplay
                 .map((product) => (
                     <div
-                        className={"col-12 col-sm-6 col-md-4 mt-4 d-flex"}
+                        className={"col-12 col-sm-6 col-md-4 col-lg-2 mt-4 d-flex"}
                         key={product.id}
                     >
                         <Card className={"mb-2 mt-2 h-100"}>
@@ -37,7 +37,8 @@ export const ProductCard = ({productsToDisplay}: ProductCardProps) => {
                                         .concat(product.description)}
                                 </p>
                                 <h4 className={"price mt-2"}>${product.price}</h4>
-                                <p className={"text-success"}>{product.inventory} in stock</p>
+                                <p className={`${product.inventory > 5 ? 'text-success' : 'text-danger'}`}>{product.inventory} in stock</p>
+                                <p>{product.categoryName}</p>
                                 <div className={"d-flex gap-2 justify-content-center mt-auto"}>
                                     <button className={"shop-now-button"}>Add to cart</button>
                                 </div>

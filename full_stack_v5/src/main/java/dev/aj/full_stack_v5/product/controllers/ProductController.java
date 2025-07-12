@@ -31,13 +31,20 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.addProduct(productRequestDto));
     }
 
-    @GetMapping("/")
+    @GetMapping("/all")
     public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProductsWithImagesMeta());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<ProductResponseDto>> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
+        Optional<ProductResponseDto> product = productService.getProductResponseDtoByProductId(id);
+        return product.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/similar/{id}")
+    public ResponseEntity<List<ProductResponseDto>> getSimilarProductGiveAProductId(@PathVariable Long id) {
         List<ProductResponseDto> products = productService.getProductResponseDtosByProductId(id);
         return ResponseEntity.ok(products);
     }

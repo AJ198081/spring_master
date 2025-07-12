@@ -4,27 +4,30 @@ import {useProductStore} from "../../store/ProductStore.tsx";
 
 export const Sidebar = () => {
 
-    const productBrandList = useProductStore(state => state.productBrands);
-    const updateProductBrands = useProductStore(state => state.setProductBrands);
-    const allAvailableProducts = useProductStore(state => state.allProducts);
-    const filteredProductsByBrand = useProductStore(state => state.filteredProductsByBrand);
-    const setFilteredProducts = useProductStore(state => state.setFilteredProducts);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+    const [currentProductsBrands, setCurrentProductsBrands] = useState<string[]>([]);
+
+    const filteredProducts = useProductStore(state => state.filteredProducts);
+    const productsToDisplay = useProductStore(state => state.productsToShow());
+    const setFilteredProducts = useProductStore(state => state.setFilteredProducts);
 
     useEffect(() => {
-        updateProductBrands([...new Set(allAvailableProducts.map(product => product.brand))]);
-    }, [allAvailableProducts, updateProductBrands])
+        setCurrentProductsBrands([...new Set(productsToDisplay.map(product => product.brand))]);
+    }, [productsToDisplay])
 
     useEffect(() => {
-        const filteredProducts = filteredProductsByBrand(selectedBrands);
-        setFilteredProducts(filteredProducts);
-    }, [selectedBrands, filteredProductsByBrand, setFilteredProducts])
+        if (selectedBrands.length === 0) {
+            setFilteredProducts(filteredProducts);
+            return;
+        }
+        setFilteredProducts(filteredProducts.filter(product => selectedBrands.includes(product.brand)));
+    }, [selectedBrands])
 
     return (
         <>
             <div className={"h6"}>Filter by brand</div>
             <ul className={"brand-list"}>
-                {productBrandList.length > 0 && productBrandList.map(brand => (
+                {currentProductsBrands.length > 0 && currentProductsBrands.map(brand => (
                     <li
                         key={brand}
                         className={"brand-item"}

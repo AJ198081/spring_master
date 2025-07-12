@@ -7,14 +7,16 @@ import {ProductImage} from "./ProductImage.tsx";
 import {getDistinctProducts} from "../services/ProductService.ts";
 import {toast, ToastContainer} from "react-toastify";
 import {PaginatorComponent} from "./common/PaginatorComponent.tsx";
+import {LoadSpinner} from "./common/LoadSpinner.tsx";
 
 export const Home = () => {
 
     const productStore = useProductStore();
     const [errorMessage, setErrorMessage] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-
+        setIsLoading(true);
         getDistinctProducts()
             .then(products => {
                 useProductStore.setState({
@@ -26,9 +28,10 @@ export const Home = () => {
                 useProductStore.setState({allProducts: []});
                 toast.error(error.message);
             })
+            .finally(() => setIsLoading(false));
     }, []);
 
-    const products = useProductStore(state => state.productsToShow());
+    const products = useProductStore(state => state.allProducts);
 
     const indexOfLastItemOnPage = productStore.currentPageNumber * productStore.productsPerPage;
     const indexOfFirstItemOnPage = indexOfLastItemOnPage - productStore.productsPerPage;
@@ -41,7 +44,7 @@ export const Home = () => {
                     className={"home-product-card pt-2"}
                     key={product.id}
                 >
-                    <Link to={"/#"}>
+                    <Link to={`/products/${product.id}`}>
                         <div>
                             {product.images.length > 0
                                 && <ProductImage
@@ -84,12 +87,14 @@ export const Home = () => {
                     pauseOnFocusLoss
                     pauseOnHover
                 />
-                {(products.length === 0)
+                {!isLoading && (products.length === 0)
                 && <p className={"d-flex flex-wrap justify-content-center p-5 text-danger h3"} style={{marginTop: '160px'}}>No products found</p>}
                 {(!errorMessage && products && products.length > 0) && renderProductCards()}
             </div>
 
-            {products && products.length > 0 && <PaginatorComponent
+            {isLoading && <LoadSpinner />}
+
+            {!isLoading && products && products.length > 0 && <PaginatorComponent
                 products={products}
                 currentPageNumber={productStore.currentPageNumber}
                 onPageNumberChange={productStore.onPageNumberChange}

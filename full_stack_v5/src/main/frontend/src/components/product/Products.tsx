@@ -4,25 +4,22 @@ import {useState, useEffect} from "react";
 import {type Product, useProductStore} from "../../store/ProductStore.tsx";
 import {PaginatorComponent} from "../common/PaginatorComponent.tsx";
 import {Sidebar} from "../common/SideBar.tsx";
-import {useLocation, useParams} from "react-router-dom";
-import {getProductsById} from "../../services/ProductService.ts";
+import {useParams} from "react-router-dom";
+import {getSimilarProductsById} from "../../services/ProductService.ts";
 
 export const Products = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage, setProductsPerPage] = useState(10);
-    const filteredOrAllProducts = useProductStore(state => state.productsToShow());
+    const filteredProducts = useProductStore(state => state.filteredProducts);
     const setFilteredProducts = useProductStore(state => state.setFilteredProducts);
 
     const {id} = useParams();
 
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-
-    const productId = queryParams.get('search') ?? id ?? "";
+    const productId = id ? `similar/${id}` : "all";
 
     useEffect(() => {
-        getProductsById(productId)
+        getSimilarProductsById(productId)
             .then((productsForCurrentPage: Product[]) => {
                 if (productsForCurrentPage !== null) {
                     setFilteredProducts(productsForCurrentPage);
@@ -35,7 +32,7 @@ export const Products = () => {
     const indexOfLastItemOnPage = currentPage * productsPerPage;
     const indexOfFirstItemOnPage = indexOfLastItemOnPage - productsPerPage;
 
-    const productsOnCurrentPage = filteredOrAllProducts
+    const productsOnCurrentPage = filteredProducts
         .filter(value => value !== null)
         .slice(indexOfFirstItemOnPage, indexOfLastItemOnPage);
 
@@ -62,7 +59,7 @@ export const Products = () => {
                     <PaginatorComponent
                         productsPerPage={productsPerPage}
                         onProductsPerPageChange={setProductsPerPage}
-                        products={filteredOrAllProducts}
+                        products={filteredProducts}
                         currentPageNumber={currentPage}
                         onPageNumberChange={setCurrentPage}
                     />

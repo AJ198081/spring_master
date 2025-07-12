@@ -32,7 +32,7 @@ export const NavBar = () => {
                             Home
                         </Nav.Link>
                         <Nav.Link
-                            to={"/products"}
+                            to={"/products/all"}
                             as={Link}
                         >
                             All Products

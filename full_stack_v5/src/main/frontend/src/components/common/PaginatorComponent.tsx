@@ -17,8 +17,9 @@ export const PaginatorComponent = ({
                                        onProductsPerPageChange
                                    }: PaginatorComponentProps) => {
 
-    return (<div className={"pagination d-flex justify-content-center mt-5 mb-5"}>
-            <div className="me-1">
+    return (
+        <div className={"pagination d-flex justify-content-center mt-5 mb-5"}>
+            {products?.length > 0 && <div className="me-1">
                 <select
                     className="form-select"
                     value={productsPerPage}
@@ -27,7 +28,7 @@ export const PaginatorComponent = ({
                         if (products.length > 0) {
                             onPageNumberChange(1);
                         }
-                        }
+                    }
                     }
                 >
                     <option value={5}>5 per page</option>
@@ -35,7 +36,7 @@ export const PaginatorComponent = ({
                     <option value={50}>50 per page</option>
                     <option value={100}>100 per page</option>
                 </select>
-            </div>
+            </div>}
             {products && products.length > 0 && <Paginator
                 itemsPerPage={productsPerPage}
                 currentPage={currentPageNumber}
