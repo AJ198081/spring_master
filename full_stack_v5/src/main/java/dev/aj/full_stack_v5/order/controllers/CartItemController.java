@@ -36,6 +36,4 @@ public class CartItemController {
         cartItemService.removeItemFromCart(cartId, productId);
         return ResponseEntity.ok().build();
     }
-
-
 }

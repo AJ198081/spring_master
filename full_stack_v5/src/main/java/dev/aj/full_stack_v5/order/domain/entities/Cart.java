@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.order.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,7 +35,8 @@ public class Cart {
     private Long id;
 
     @Column(precision = 10, scale = 2, columnDefinition = "numeric(10,2)")
-    private BigDecimal total;
+    @Builder.Default
+    private BigDecimal total = BigDecimal.ZERO;
 
     @OneToOne(optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
@@ -43,6 +45,7 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @ToString.Exclude
+    @JsonIgnore
     private Set<CartItem> cartItems = new HashSet<>();
 
     public void updateTotal() {

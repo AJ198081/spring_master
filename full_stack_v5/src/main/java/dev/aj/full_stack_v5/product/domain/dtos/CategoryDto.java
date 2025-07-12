@@ -23,6 +23,8 @@ import java.io.Serializable;
 @Builder
 public class CategoryDto implements Serializable {
 
+    private Long id;
+
     @NotBlank(message = "Category name can't be null")
     private String name;
 }

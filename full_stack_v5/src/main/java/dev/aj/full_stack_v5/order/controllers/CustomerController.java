@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
@@ -39,6 +41,12 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomerById(id));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<Customer>> getAllCustomers() {
+        return ResponseEntity.ok(customerService.getAllCustomers());
+    }
+
+
     @GetMapping("/username/{username}")
     public ResponseEntity<Customer> getCustomerByUsername(@PathVariable String username) {
         log.info("Getting customer with username: {}", username);
@@ -47,9 +55,7 @@ public class CustomerController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Customer> updateCustomer(@RequestBody CustomerDto customerDto, @PathVariable Long id) {
-
         log.info("Updating customer with id: {}", id);
-
         return ResponseEntity.ok(customerService.updateCustomer(id, customerDto));
     }
 

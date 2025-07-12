@@ -85,12 +85,16 @@ public class CartItemServiceImpl implements CartItemService {
                         .product(existingProduct)
                         .build());
 
-        cartItemToBePersisted.setQuantity(quantity);
+        if (cartItemToBePersisted.getQuantity() == 0) {
+            cartItemToBePersisted.setQuantity(quantity);
+        } else {
+            cartItemToBePersisted.setQuantity(cartItemToBePersisted.getQuantity() + quantity);
+        }
+
         cartItemToBePersisted.setUnitPrice(existingProduct.getPrice());
-        cartItemToBePersisted.setTotal(BigDecimal.valueOf(quantity).multiply(existingProduct.getPrice()));
+        cartItemToBePersisted.setTotal(BigDecimal.valueOf(cartItemToBePersisted.getQuantity()).multiply(existingProduct.getPrice()));
 
-        existingCart.getCartItems().add(cartItemToBePersisted);
-
+        existingCart.updateTotal();
         return cartRepository.save(existingCart);
     }
 

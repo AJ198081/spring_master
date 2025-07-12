@@ -22,11 +22,12 @@ export interface Image {
 
 interface ProductStore {
     allProducts: Product[],
-    filteredProducts: Product[],
+    searchedProducts: Product[],
+    setSearchedProducts: (products: Product[]) => void,
     setAllProducts: (products: Product[]) => void,
-    setFilteredProducts: (filteredProducts: Product[]) => void,
     productsToShow: () => Product[],
-    filteredProductsByBrand: (brands: string[]) => Product[],
+    filteredProducts: Product[],
+    setFilteredProducts: (brands: string[]) => void,
     currentPageNumber: number,
     onPageNumberChange: (pageNumber: number) => void,
     productsPerPage: number,
@@ -39,24 +40,33 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     allProducts: [] as Product[],
     setAllProducts: (products) => set({allProducts: products}),
 
+    searchedProducts: [] as Product[],
+    setSearchedProducts: (products) => set({searchedProducts: products}),
+
     filteredProducts: [] as Product[],
-    setFilteredProducts: (products) => set({filteredProducts: products}),
 
-    productsToShow: () => {
-        const currentlyFilteredProducts = get().filteredProducts;
-        const allProductsList = get().allProducts;
-
-        return currentlyFilteredProducts && currentlyFilteredProducts.length > 0
-            ? currentlyFilteredProducts
-            : allProductsList;
+    setFilteredProducts: (brands: string[]) => {
+        if (brands.length === 0) {
+            set({filteredProducts: []});
+        }
+        return set({
+            filteredProducts: get().searchedProducts
+                .filter((product) => brands.includes(product.brand))
+        });
     },
 
-    filteredProductsByBrand: (selectedBrands) => {
-        if (!selectedBrands || selectedBrands.length === 0) {
-            return get().allProducts;
+    productsToShow: () => {
+        const {filteredProducts, searchedProducts, allProducts} = get();
+
+        if (filteredProducts.length > 0) {
+            return filteredProducts;
         }
-        return get().filteredProducts
-            .filter((product) => selectedBrands.includes(product.brand));
+
+        if (searchedProducts.length > 0) {
+            return searchedProducts;
+        }
+
+        return allProducts;
     },
 
     currentPageNumber: 1,

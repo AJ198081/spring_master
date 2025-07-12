@@ -7,21 +7,16 @@ export const Sidebar = () => {
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [currentProductsBrands, setCurrentProductsBrands] = useState<string[]>([]);
 
-    const filteredProducts = useProductStore(state => state.filteredProducts);
-    const productsToDisplay = useProductStore(state => state.productsToShow());
-    const setFilteredProducts = useProductStore(state => state.setFilteredProducts);
+    const currentSearchedProducts = useProductStore(state => state.searchedProducts);
+    const setFilteredProductsList = useProductStore(state => state.setFilteredProducts);
 
     useEffect(() => {
-        setCurrentProductsBrands([...new Set(productsToDisplay.map(product => product.brand))]);
-    }, [productsToDisplay])
+        setCurrentProductsBrands([...new Set(currentSearchedProducts.map(product => product.brand))]);
+    }, [currentSearchedProducts])
 
     useEffect(() => {
-        if (selectedBrands.length === 0) {
-            setFilteredProducts(filteredProducts);
-            return;
-        }
-        setFilteredProducts(filteredProducts.filter(product => selectedBrands.includes(product.brand)));
-    }, [selectedBrands])
+        setFilteredProductsList(selectedBrands);
+    }, [selectedBrands, setFilteredProductsList])
 
     return (
         <>

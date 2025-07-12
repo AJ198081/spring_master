@@ -5,29 +5,29 @@ import {type Product, useProductStore} from "../../store/ProductStore.tsx";
 import {PaginatorComponent} from "../common/PaginatorComponent.tsx";
 import {Sidebar} from "../common/SideBar.tsx";
 import {useParams} from "react-router-dom";
-import {getSimilarProductsById} from "../../services/ProductService.ts";
+import {getProducts} from "../../services/ProductService.ts";
 
 export const Products = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage, setProductsPerPage] = useState(10);
-    const filteredProducts = useProductStore(state => state.filteredProducts);
-    const setFilteredProducts = useProductStore(state => state.setFilteredProducts);
+    const filteredProducts = useProductStore(state => state.productsToShow());
+    const setSearchedProducts = useProductStore(state => state.setSearchedProducts);
 
     const {id} = useParams();
 
-    const productId = id ? `similar/${id}` : "all";
+    const productId = Number(id) ? `similar/${id}` : "all";
 
     useEffect(() => {
-        getSimilarProductsById(productId)
+        getProducts(productId)
             .then((productsForCurrentPage: Product[]) => {
                 if (productsForCurrentPage !== null) {
-                    setFilteredProducts(productsForCurrentPage);
+                    setSearchedProducts(productsForCurrentPage);
                 } else {
                     console.log("No products found");
                 }
             });
-    }, [productId, setFilteredProducts])
+    }, [productId, setSearchedProducts])
 
     const indexOfLastItemOnPage = currentPage * productsPerPage;
     const indexOfFirstItemOnPage = indexOfLastItemOnPage - productsPerPage;

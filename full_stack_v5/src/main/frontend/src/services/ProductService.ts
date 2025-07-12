@@ -2,7 +2,7 @@ import {backendClient} from './Api.ts';
 import type {Product} from "../store/ProductStore.tsx";
 import {AxiosError} from "axios";
 
-export const getDistinctProducts = async () => {
+export const getDistinctProducts = async (): Promise<Product[]> => {
 
     try {
         const response = await backendClient.get('/products/distinctByName');
@@ -16,7 +16,7 @@ export const getDistinctProducts = async () => {
     }
 }
 
-export const getSimilarProductsById = async (uri: string): Promise<Product[]> => {
+export const getProducts = async (uri: string): Promise<Product[]> => {
     try {
         console.log(`Fetching similar products by ${uri}`);
         const response = await backendClient.get(`/products/${uri}`);
@@ -43,3 +43,4 @@ export const getProductById = async (id: number): Promise<Product> => {
 
     throw new AxiosError(`Product with id ${id} not found, status code ${response.status}`);
 }
+

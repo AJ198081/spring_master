@@ -10,7 +10,7 @@ export const SearchBar = () => {
     const [selectedCategory, setSelectedCategory] = useState(ALL);
 
     const allProducts = useProductStore(state => state.allProducts);
-    const setFilteredProducts = useProductStore(state => state.setFilteredProducts);
+    const setSearchedProducts = useProductStore(state => state.setSearchedProducts);
 
     useEffect(() => {
         if (allProducts && allProducts.length > 0) {
@@ -41,16 +41,16 @@ export const SearchBar = () => {
 
             const searchTerm = searchText.trim().toLowerCase();
 
-            let filteredProducts: Product[];
+            let searchedProducts: Product[];
 
             if (selectedCategory === ALL) {
-                filteredProducts = allProducts
+                searchedProducts = allProducts
                     .filter(product =>
                         product.name.toLowerCase().includes(searchTerm) ||
                         product.description.toLowerCase().includes(searchTerm)
                     )
             } else {
-                filteredProducts = allProducts
+                searchedProducts = allProducts
                     .filter(product =>
                             product.categoryName.split(' ')
                                 .filter(cat => cat !== '&')
@@ -63,10 +63,10 @@ export const SearchBar = () => {
                     );
             }
 
-            if (filteredProducts.length === 0) {
+            if (searchedProducts.length === 0) {
                 toast.error("No product meets yours selected search criteria, please try again with different search criteria.");
             } else {
-                setFilteredProducts(filteredProducts);
+                setSearchedProducts(searchedProducts);
             }
         } else if (selectedCategory !== ALL) {
             const productsInSelectedCategory = allProducts
@@ -76,14 +76,16 @@ export const SearchBar = () => {
                         .some(cat => selectedCategory.split(' ')
                             .filter(cat => cat !== '&')
                             .includes(cat)));
-            setFilteredProducts(productsInSelectedCategory);
+            setSearchedProducts(productsInSelectedCategory);
+        } else {
+            setSearchedProducts(allProducts);
         }
     };
 
     const clearFilters = () => {
         setSearchText("");
         setSelectedCategory(ALL);
-        setFilteredProducts([]);
+        setSearchedProducts(allProducts);
     };
 
     return (

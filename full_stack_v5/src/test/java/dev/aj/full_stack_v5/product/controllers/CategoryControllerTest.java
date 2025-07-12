@@ -127,10 +127,12 @@ class CategoryControllerTest {
 
         Assertions.assertEquals(HttpStatus.OK, getByNameResponse.getStatusCode());
         Assertions.assertNotNull(getByNameResponse.getBody());
+        Long id = getByNameResponse.getBody().getId();
+        Assertions.assertNotNull(id);
         Assertions.assertEquals(uniqueCategoryName, getByNameResponse.getBody().getName());
 
         ResponseEntity<CategoryDto> response = restClient.get()
-                .uri("/api/v1/categories/{id}", 10000) // Use a fixed ID for testing
+                .uri("/api/v1/categories/{id}", id) // Use a fixed ID for testing
                 .headers(header -> header.addAll(bearerTokenHeader))
                 .retrieve()
                 .toEntity(CategoryDto.class);

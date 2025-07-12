@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -83,4 +85,8 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new EntityNotFoundException("Customer with id: %s not found".formatted(id)));
     }
 
+    @Override
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
+    }
 }

@@ -21,6 +21,7 @@ public interface CategoryMapper {
     @Mapping(target = "auditMetaData", ignore = true)
     Category toCategory(CategoryDto categoryDto);
 
+    @Mapping(target = "id", source = "id")
     CategoryDto toCategoryDto(Category category);
 
     List<CategoryDto> toCategoryDtos(List<Category> categories);
