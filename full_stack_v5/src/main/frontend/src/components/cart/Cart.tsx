@@ -61,18 +61,28 @@ export const Cart = () => {
                             className={"text-center"}
                             style={{width: '20px'}}
                         >
-                        <CartItemUpdater
+                            <CartItemUpdater
+                                cartId={item.id}
+                                productId={item.product.id}
                                 initialQuantity={item.quantity || 0}
                                 maxQuantity={item.product?.inventory}
                             />
                         </td>
                         <td>{item.total?.toFixed(2)}</td>
                         <td className={"text-center"}>
-                            <button
-                                className={"btn btn-danger"}
-                                onClick={() => removeCartItem(cartForThisCustomer?.id, item.id)}
-                            >Remove
-                            </button>
+                            <div className={`d-flex justify-content-around`}>
+                                <button
+                                    className={"btn btn-primary"}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    className={"btn btn-danger"}
+                                    onClick={() => removeCartItem(cartForThisCustomer?.id, item.id)}
+                                >
+                                    Remove
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 ))}
@@ -89,5 +99,5 @@ export const Cart = () => {
                 </tfoot>
             </table>
         </div>
-    )
+    );
 }

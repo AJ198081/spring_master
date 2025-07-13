@@ -46,6 +46,25 @@ export const deleteCartItem = async (cartId: number, cartItemId: number) => {
     throw axiosError;
 }
 
+export const updateCartItemQuantity = async (cartId: number, productId: number, quantity: number) => {
+    const response: AxiosResponse<CartType> = await backendClient.patch(`/cartItems/`, null, {
+        params: {
+            cartId: cartId,
+            productId: productId,
+            quantity: quantity
+        }
+    });
+
+    if (response.status === 200) {
+        return response.data;
+    }
+
+    const axiosError = new AxiosError("Error updating to cart item quantity");
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
+}
+
 const getFirstCustomer = async () => {
     try {
         const response = await backendClient.get("/customers/all");

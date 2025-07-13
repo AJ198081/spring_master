@@ -1,14 +1,19 @@
 import {useState} from "react";
 import {BsDash, BsPlus} from "react-icons/bs";
 import {toast} from "react-toastify";
+import {updateCartItemQuantity} from "../../services/CartService.ts";
+import {useProductStore} from "../../store/ProductStore.tsx";
 
 interface CartItemUpdaterProps {
+    cartId: number;
+    productId: number;
     initialQuantity: number;
     maxQuantity: number;
 }
 
-export default function CartItemUpdater({initialQuantity, maxQuantity}: Readonly<CartItemUpdaterProps>) {
+export default function CartItemUpdater({cartId, productId, initialQuantity, maxQuantity}: Readonly<CartItemUpdaterProps>) {
     const [quantity, setQuantity] = useState<number>(initialQuantity);
+    const updateCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
 
     console.log(maxQuantity, quantity);
 
@@ -21,18 +26,27 @@ export default function CartItemUpdater({initialQuantity, maxQuantity}: Readonly
     const onIncrease = () => {
         setQuantity(prevState => {
             if (maxQuantity === 0) {
-                // alert('Out of stock');
                 toast.error('Out of stock');
                 return prevState;
             }
             if (prevState === maxQuantity) {
-                // alert('Max quantity reached');
                 toast.error('Max quantity reached')
                 return prevState;
             }
             return prevState === maxQuantity ? prevState : prevState + 1;
         })
     };
+
+    const updateCartQuantity = ({quantity}: { quantity: number;}) => {
+        updateCartItemQuantity(cartId, productId, quantity)
+            .then(updatedCart => {
+                updateCartForThisCustomer(updatedCart)
+            })
+            .catch(error => {
+                toast.error(`Error updating cart item; issue is - ${error.response?.data?.detail}`);
+            })
+    }
+
     return (
         <section style={{width: "140px"}}>
             <div className={"input-group"}>
@@ -47,6 +61,7 @@ export default function CartItemUpdater({initialQuantity, maxQuantity}: Readonly
                     min={0}
                     max={maxQuantity}
                     value={quantity}
+                    disabled={maxQuantity === 0 || quantity === maxQuantity}
                     onChange={e => {
                         if (Number(e.target.value) <= maxQuantity) {
                             setQuantity(Number(e.target.value));
