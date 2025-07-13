@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {type MouseEvent, useState} from "react";
 
 export const NavBar = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(true);
     const handleLoginAction = (event: MouseEvent<HTMLElement>) => {
         event.preventDefault();
         setIsLoggedIn(prev => !prev);
@@ -71,6 +71,12 @@ export const NavBar = () => {
                                 onClick={handleLoginAction}
                             >Login</Nav.Link>
                         }
+                        <Link to={"/my-cart"}>
+                            Cart
+                            <Nav.Link>
+                                <i className="fas fa-shopping-cart"/>
+                            </Nav.Link>
+                        </Link>
                     </Nav>
                 </Navbar.Collapse>
             </Container>

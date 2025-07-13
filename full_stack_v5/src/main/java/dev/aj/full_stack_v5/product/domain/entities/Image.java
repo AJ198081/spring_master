@@ -38,6 +38,7 @@ public class Image {
     @Basic(fetch = FetchType.LAZY)
     @Column(nullable = false, columnDefinition = "bytea")
     @ToString.Exclude
+    @JsonIgnore
     private byte[] contents;
 
     @JsonIgnore
@@ -47,5 +48,6 @@ public class Image {
     private Product product;
 
     @Builder.Default
+    @JsonIgnore
     private AuditMetaData auditMetaData = new AuditMetaData();
 }

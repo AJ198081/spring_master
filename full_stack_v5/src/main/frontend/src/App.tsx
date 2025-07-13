@@ -3,6 +3,7 @@ import {RootLayout} from "./components/layout/RootLayout.tsx";
 import {Home} from "./components/Home.tsx";
 import {Products} from "./components/product/Products.tsx";
 import {ProductDetails} from "./components/product/ProductDetails.tsx";
+import {Cart} from "./components/cart/Cart.tsx";
 
 function App() {
 
@@ -21,10 +22,10 @@ function App() {
                     path={"/products"}
                     element={<Products/>}
                 />
-                {/*<Route
-                    path={"/products/all"}
-                    element={<Products />}
-                />*/}
+                <Route
+                    path={"/my-cart"}
+                    element={<Cart />}
+                />
                 <Route
                     path={"/products/:id"}
                     element={<Products />}

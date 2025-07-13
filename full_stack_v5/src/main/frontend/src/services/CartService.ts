@@ -1,5 +1,7 @@
 import {backendClient} from "./Api.ts";
 import {toast} from "react-toastify";
+import type {CartType} from "../types/CartType.ts";
+import {AxiosError, type AxiosResponse} from "axios";
 
 
 export interface AddCartItem {
@@ -8,8 +10,8 @@ export interface AddCartItem {
     quantity: number;
 }
 
-export const addProductToCartItems = async (addCartItem: AddCartItem)=>  {
-console.log(`Customer ID in request ${addCartItem.customerId}`);
+export const addProductToCartItems: (addCartItem: AddCartItem) => Promise<CartType> = async (addCartItem: AddCartItem) => {
+    console.log(`Customer ID in request ${addCartItem.customerId}`);
 
     if (!addCartItem.customerId) {
         await getFirstCustomer()
@@ -19,18 +21,29 @@ console.log(`Customer ID in request ${addCartItem.customerId}`);
             .catch(e => toast.error(e.message));
     }
 
-    try {
-        const addToCartResponse = await backendClient.post("/cartItems/", null, {
-            params: addCartItem
-        });
-        if (addToCartResponse.status === 200) {
-            return addToCartResponse.data;
-        }
-        return null;
-    } catch (e) {
-        console.log(e);
-        throw e;
+    const addToCartResponse: AxiosResponse<CartType> = await backendClient.post("/cartItems/", null, {
+        params: addCartItem
+    });
+
+    if (addToCartResponse.status === 200) {
+        return addToCartResponse.data;
     }
+
+    const axiosError = new AxiosError("Error adding to cart");
+    axiosError.status = addToCartResponse.status;
+    axiosError.response = addToCartResponse;
+    throw axiosError;
+}
+
+export const deleteCartItem = async (cartId: number, cartItemId: number) => {
+    const response: AxiosResponse<CartType> = await backendClient.delete(`/carts/${cartId}/cartItem/${cartItemId}`);
+    if (response.status === 200) {
+        return response.data;
+    }
+    const axiosError = new AxiosError("Error adding to cart");
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
 }
 
 const getFirstCustomer = async () => {

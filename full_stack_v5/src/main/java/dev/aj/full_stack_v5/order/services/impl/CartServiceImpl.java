@@ -2,8 +2,8 @@ package dev.aj.full_stack_v5.order.services.impl;
 
 import dev.aj.full_stack_v5.order.domain.entities.Cart;
 import dev.aj.full_stack_v5.order.domain.entities.Customer;
-import dev.aj.full_stack_v5.order.services.CartService;
 import dev.aj.full_stack_v5.order.repositories.CartRepository;
+import dev.aj.full_stack_v5.order.services.CartService;
 import dev.aj.full_stack_v5.order.services.CustomerService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +30,22 @@ public class CartServiceImpl implements CartService {
     public Cart getCartByIdOrThrow(Long id) {
         return cartRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cart with id: %s not found".formatted(id)));
+    }
+
+    @Override
+    public Cart deleteCartItem(Long cartId, Long cartItemId) {
+        return cartRepository.findById(cartId)
+                .map(cart -> {
+                    cart.removeItem(cart.getCartItems().stream()
+                            .filter(cartItem -> cartItem.getId().equals(cartItemId))
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Cart item with id: %s not found".formatted(cartItemId)))
+                    );
+
+                    cartRepository.save(cart);
+                    return cart;
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Cart with id: %s not found".formatted(cartId)));
     }
 
     @Override
@@ -70,13 +86,13 @@ public class CartServiceImpl implements CartService {
     public void deleteCart(Long id) {
         cartRepository.findById(id)
                 .ifPresentOrElse(
-                cart -> {
-                    cart.removeCart();
-                    cartRepository.delete(cart);
-                    log.info("Cart with id: {} deleted", id);
-                },
-                () -> log.error("Unable to find Cart by id {}, hence wasn't deleted", id)
-        );
+                        cart -> {
+                            cart.removeCart();
+                            cartRepository.delete(cart);
+                            log.info("Cart with id: {} deleted", id);
+                        },
+                        () -> log.error("Unable to find Cart by id {}, hence wasn't deleted", id)
+                );
     }
 
     public BigDecimal getTotalCartPriceByCartId(Long cartId) {

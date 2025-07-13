@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.product.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -66,6 +67,7 @@ public class Product {
     private Set<Image> images;
 
     @Builder.Default
+    @JsonIgnore
     private AuditMetaData auditMetaData = new AuditMetaData();
 
     public void addImages(List<Image> images) {

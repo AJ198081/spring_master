@@ -54,6 +54,7 @@ public class Category {
     @Builder.Default
     private Set<Product> products = new HashSet<>();
 
+    @JsonIgnore
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
 }

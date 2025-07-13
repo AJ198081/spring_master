@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.order.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -45,8 +46,9 @@ public class CartItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_id", nullable = false)
+    @JsonIgnore
     private Cart cart;
 
     public void setTotal() {

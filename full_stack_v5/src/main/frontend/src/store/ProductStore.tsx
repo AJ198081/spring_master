@@ -1,4 +1,5 @@
 import {create} from 'zustand';
+import type {CartType} from "../types/CartType.ts";
 
 export interface Product {
     id: number,
@@ -34,6 +35,8 @@ interface ProductStore {
     onProductsPerPageChange: (productsOnPage: number) => void,
     productBrands: string[],
     setProductBrands: (brands: string[]) => void,
+    cartForThisCustomer: CartType | null,
+    setCartForThisCustomer: (cart: CartType | null) => void,
 }
 
 export const useProductStore = create<ProductStore>((set, get) => ({
@@ -81,4 +84,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
 
     productBrands: [],
     setProductBrands: (brands) => set({productBrands: brands}),
+
+    cartForThisCustomer: null,
+    setCartForThisCustomer: (cart) => set({cartForThisCustomer: cart}),
 }))

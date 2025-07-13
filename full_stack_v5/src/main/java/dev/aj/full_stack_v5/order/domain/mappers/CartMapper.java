@@ -1,6 +1,6 @@
 package dev.aj.full_stack_v5.order.domain.mappers;
 
-import dev.aj.full_stack_v5.order.domain.dtos.Cart;
+import dev.aj.full_stack_v5.order.domain.dtos.CartDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -17,7 +17,7 @@ public interface CartMapper {
     @Mapping(target = "customerLastName", source = "cart.customer.lastName")
     @Mapping(target = "customerFirstName", source = "cart.customer.firstName")
     @Mapping(target = "customerEmail", source = "cart.customer.email")
-    Cart cartToCartDto(dev.aj.full_stack_v5.order.domain.entities.Cart cart);
+    CartDto cartToCartDto(dev.aj.full_stack_v5.order.domain.entities.Cart cart);
 
 
 }

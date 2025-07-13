@@ -15,6 +15,7 @@ export const ProductDetails = () => {
     const [quantity, setQuantity] = useState(0);
     const allAvailableProducts = useProductStore(state => state.allProducts);
     const updateAllProducts = useProductStore(state => state.setAllProducts);
+    const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
 
     useEffect(() => {
         if (productId && productId.length > 0) {
@@ -36,12 +37,7 @@ export const ProductDetails = () => {
     const inventory = optionalInventory || 0;
 
     const addProductToCart = () => {
-
-        if (inventory <= 0) {
-            return;
-        }
-
-        if (quantity > inventory) {
+        if (inventory <= 0 || quantity > inventory) {
             return;
         }
 
@@ -63,7 +59,8 @@ export const ProductDetails = () => {
         }
 
         addProductToCartItems(cartItemRequest)
-            .then(() => {
+            .then((updatedCart) => {
+                setCartForThisCustomer(updatedCart);
                 toast.success(`Product ${product?.name} added to cart successfully`);
             })
             .catch((error) => {
@@ -123,16 +120,13 @@ export const ProductDetails = () => {
                         })}
                         onIncrease={() => setQuantity(prevState => {
                             if (inventory === 0) {
-                                // alert('Out of stock');
                                 toast.error('Out of stock');
                                 return prevState;
                             }
                             if (prevState === inventory) {
-                                // alert('Max quantity reached');
                                 toast.error('Max quantity reached')
                                 return prevState;
                             }
-
                             return prevState === product?.inventory ? prevState : prevState + 1;
                         })
                         }

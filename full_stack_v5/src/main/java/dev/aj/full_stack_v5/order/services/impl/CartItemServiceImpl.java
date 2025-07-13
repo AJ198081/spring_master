@@ -80,10 +80,16 @@ public class CartItemServiceImpl implements CartItemService {
                 .stream()
                 .filter(cItem -> Objects.equals(cItem.getProduct().getId(), productId))
                 .findFirst()
-                .orElseGet(() -> CartItem.builder()
-                        .cart(existingCart)
-                        .product(existingProduct)
-                        .build());
+                .orElseGet(() -> {
+                    CartItem newCartItem = CartItem.builder()
+                            .cart(existingCart)
+                            .product(existingProduct)
+                            .build();
+
+                    existingCart.getCartItems().add(newCartItem);
+
+                    return newCartItem;
+                });
 
         if (cartItemToBePersisted.getQuantity() == 0) {
             cartItemToBePersisted.setQuantity(quantity);
@@ -95,6 +101,7 @@ public class CartItemServiceImpl implements CartItemService {
         cartItemToBePersisted.setTotal(BigDecimal.valueOf(cartItemToBePersisted.getQuantity()).multiply(existingProduct.getPrice()));
 
         existingCart.updateTotal();
+
         return cartRepository.save(existingCart);
     }
 

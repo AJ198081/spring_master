@@ -25,4 +25,6 @@ public interface CartService {
     BigDecimal getTotalCartPriceByCustomerId(Long cust0omerId);
 
     Cart getCartByIdOrThrow(Long id);
+
+    Cart deleteCartItem(Long cartId, Long cartItemId);
 }
