@@ -82,6 +82,7 @@ public class Cart {
 
     public void updateCartItems(Set<CartItem> cartItems) {
         this.getCartItems().clear();
+        cartItems.forEach(cartItem -> cartItem.setCart(this));
         this.getCartItems().addAll(cartItems);
         this.updateTotal();
     }

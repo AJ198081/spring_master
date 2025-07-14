@@ -22,7 +22,7 @@ interface ProductType {
     images: ImageType[];
 }
 
-interface CartItemType {
+export interface CartItemType {
     id: number;
     quantity: number;
     unitPrice: number;

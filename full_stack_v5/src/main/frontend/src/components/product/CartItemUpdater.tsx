@@ -1,30 +1,24 @@
-import {useState} from "react";
 import {BsDash, BsPlus} from "react-icons/bs";
 import {toast} from "react-toastify";
-import {updateCartItemQuantity} from "../../services/CartService.ts";
-import {useProductStore} from "../../store/ProductStore.tsx";
 
 interface CartItemUpdaterProps {
-    cartId: number;
-    productId: number;
-    initialQuantity: number;
+    quantity: number;
+    setQuantity: (value: number | ((prevState: number) => number)) => void;
     maxQuantity: number;
 }
 
-export default function CartItemUpdater({cartId, productId, initialQuantity, maxQuantity}: Readonly<CartItemUpdaterProps>) {
-    const [quantity, setQuantity] = useState<number>(initialQuantity);
-    const updateCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
-
-    console.log(maxQuantity, quantity);
+export const CartItemUpdater = ({
+                                    quantity,
+                                    setQuantity,
+                                    maxQuantity,
+                                }: CartItemUpdaterProps) => {
 
     const onDecrease = () => {
-        setQuantity(prevState => {
-            return prevState === 0 ? 0 : prevState - 1
-        })
+        setQuantity((prevState: number) => prevState === 0 ? 0 : prevState - 1)
     };
 
     const onIncrease = () => {
-        setQuantity(prevState => {
+        setQuantity((prevState: number) => {
             if (maxQuantity === 0) {
                 toast.error('Out of stock');
                 return prevState;
@@ -36,16 +30,6 @@ export default function CartItemUpdater({cartId, productId, initialQuantity, max
             return prevState === maxQuantity ? prevState : prevState + 1;
         })
     };
-
-    const updateCartQuantity = ({quantity}: { quantity: number;}) => {
-        updateCartItemQuantity(cartId, productId, quantity)
-            .then(updatedCart => {
-                updateCartForThisCustomer(updatedCart)
-            })
-            .catch(error => {
-                toast.error(`Error updating cart item; issue is - ${error.response?.data?.detail}`);
-            })
-    }
 
     return (
         <section style={{width: "140px"}}>
@@ -75,4 +59,4 @@ export default function CartItemUpdater({cartId, productId, initialQuantity, max
             </div>
         </section>
     )
-}
+};

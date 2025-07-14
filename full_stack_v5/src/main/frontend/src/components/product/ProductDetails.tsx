@@ -31,10 +31,9 @@ export const ProductDetails = () => {
                     }
                 )
         }
-    }, [productId, allAvailableProducts])
+    }, [productId])
 
-    const optionalInventory = allAvailableProducts.filter(product => product.id === Number(productId))[0]?.inventory;
-    const inventory = optionalInventory || 0;
+    const inventory = product?.inventory ?? 0;
 
     const addProductToCart = () => {
         if (inventory <= 0 || quantity > inventory) {

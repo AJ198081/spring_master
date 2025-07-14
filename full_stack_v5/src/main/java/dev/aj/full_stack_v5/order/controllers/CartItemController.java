@@ -30,7 +30,6 @@ public class CartItemController {
         return ResponseEntity.ok(cartItemService.updateItemsInCart(cartId, productId, quantity));
     }
 
-
     @DeleteMapping("/cart/{cartId}/item/{productId}")
     public ResponseEntity<HttpStatus> removeCartItemFromCart(@PathVariable Long cartId, @PathVariable Long productId) {
         cartItemService.removeItemFromCart(cartId, productId);

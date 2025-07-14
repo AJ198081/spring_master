@@ -1,25 +1,11 @@
 import {useProductStore} from "../../store/ProductStore.tsx";
-import {ProductImage} from "../ProductImage.tsx";
-import {deleteCartItem} from "../../services/CartService.ts";
-import {toast, ToastContainer} from "react-toastify";
-import CartItemUpdater from "../product/CartItemUpdater.tsx";
+import {ToastContainer} from "react-toastify";
+import {CartItemComponent} from "./CartItemComponent.tsx";
 
 export const Cart = () => {
 
     const cartForThisCustomer = useProductStore(state => state.cartForThisCustomer);
-    const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
 
-    const removeCartItem = (cartId: number, cartItemId: number) => {
-        console.log(`removeCartItem ${cartId} ${cartItemId}`);
-        deleteCartItem(cartId, cartItemId)
-            .then(updatedCart => {
-                setCartForThisCustomer(updatedCart);
-                toast.success(`Cart item Id ${cartItemId} removed successfully`);
-            })
-            .catch(error => {
-                toast.error(`Error removing cart item; issue is - ${error.response?.data?.detail}`);
-            });
-    };
     return (
         <div className={"container"}>
             <ToastContainer
@@ -45,47 +31,23 @@ export const Cart = () => {
                 </tr>
                 </thead>
                 <tbody className={"justify-content-between align-items-center"}>
-                {cartForThisCustomer?.cartItems.map(item => (
-                    <tr key={item.id}>
-                        <td
-                            className={"cart-image"}
-                            style={{width: '100px'}}
-                        >
-                            <ProductImage imageDownloadUrl={item.product?.images[0]?.downloadUrl}/>
-                        </td>
-                        <td>{item.product?.name}</td>
-                        <td>{item.product?.brand}</td>
-                        <td>{item.unitPrice?.toFixed(2)}</td>
-                        {/*<td>{item.quantity}</td>*/}
-                        <td
-                            className={"text-center"}
-                            style={{width: '20px'}}
-                        >
-                            <CartItemUpdater
-                                cartId={item.id}
-                                productId={item.product.id}
-                                initialQuantity={item.quantity || 0}
-                                maxQuantity={item.product?.inventory}
+                {
+                    cartForThisCustomer?.cartItems?.length === 0
+                        ? <tr>
+                            <td
+                                colSpan={7}
+                                className={"text-center text-danger h3"}
+                            >
+                                <h3>Your cart is empty</h3>
+                            </td>
+                        </tr>
+                        : cartForThisCustomer?.cartItems?.map(item => (
+                            <CartItemComponent
+                                key={item.id}
+                                cartItem={item}
+                                cartId={cartForThisCustomer.id}
                             />
-                        </td>
-                        <td>{item.total?.toFixed(2)}</td>
-                        <td className={"text-center"}>
-                            <div className={`d-flex justify-content-around`}>
-                                <button
-                                    className={"btn btn-primary"}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    className={"btn btn-danger"}
-                                    onClick={() => removeCartItem(cartForThisCustomer?.id, item.id)}
-                                >
-                                    Remove
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                ))}
+                        ))}
                 </tbody>
                 <tfoot>
                 <tr className={"h4"}>

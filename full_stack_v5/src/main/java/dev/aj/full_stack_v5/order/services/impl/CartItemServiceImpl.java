@@ -145,13 +145,7 @@ public class CartItemServiceImpl implements CartItemService {
                         () -> log.error("Unable to find cart item with id: {} in cart with id: {}", productId, cartId)
                 );
 
-        cart.setTotal(cart.getCartItems()
-                .stream()
-                .map(CartItem::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-        );
-
-        cartService.updateCart(cartId, cart);
-        return cart;
+        cart.updateTotal();
+        return cartRepository.save(cart);
     }
 }

@@ -72,8 +72,7 @@ public class CartServiceImpl implements CartService {
     public void updateCart(Long id, Cart cart) {
 
         cartRepository.findById(id)
-                .ifPresentOrElse(
-                        existingCart -> {
+                .ifPresentOrElse(existingCart -> {
                             existingCart.setCustomer(cart.getCustomer());
                             existingCart.updateCartItems(cart.getCartItems());
                             cartRepository.save(existingCart);
