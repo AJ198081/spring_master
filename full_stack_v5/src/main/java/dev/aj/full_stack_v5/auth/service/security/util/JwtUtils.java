@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
@@ -79,6 +80,11 @@ public class JwtUtils {
     }
 
     public boolean isJwtValid(@NonNull String token) {
+
+        if (StringUtils.isBlank(token)) {
+            return false;
+        }
+
         try {
             Claims claims = parseClaimsFromToken(token);
             if (claims.getExpiration().before(new Date())) {
@@ -89,6 +95,7 @@ public class JwtUtils {
         } catch (Exception e) {
             log.error("Invalid JWT token: {}", e.getMessage());
         }
+
         return false;
     }
 

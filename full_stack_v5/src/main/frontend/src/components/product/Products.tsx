@@ -1,6 +1,6 @@
 import {ProductCard} from "./ProductCard.tsx";
 import {SearchBar} from "../search/SearchBar.tsx";
-import {useState, useEffect} from "react";
+import {useEffect, useState} from "react";
 import {type Product, useProductStore} from "../../store/ProductStore.tsx";
 import {PaginatorComponent} from "../common/PaginatorComponent.tsx";
 import {Sidebar} from "../common/SideBar.tsx";
@@ -28,6 +28,7 @@ export const Products = () => {
                 }
             });
     }, [productId, setSearchedProducts])
+
 
     const indexOfLastItemOnPage = currentPage * productsPerPage;
     const indexOfFirstItemOnPage = indexOfLastItemOnPage - productsPerPage;

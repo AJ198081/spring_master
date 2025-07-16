@@ -3,16 +3,7 @@ package dev.aj.full_stack_v5.order.domain.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -34,6 +27,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @ToString
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class OrderItem {
 
     @Id
@@ -57,12 +51,21 @@ public class OrderItem {
     @ManyToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     @JsonIgnore
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Product product;
 
+    @Transient
+    private String productName;
+
     @Builder.Default
+    @JsonIgnore
     private AuditMetaData auditMetaData = new AuditMetaData();
 
     public BigDecimal getOrderItemTotal() {
         return this.price.multiply(BigDecimal.valueOf(this.quantity));
+    }
+
+    public String getProductName() {
+        return this.product.getName();
     }
 }

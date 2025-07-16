@@ -48,7 +48,16 @@ public class OrderServiceImpl implements OrderService {
         newOrder.setOrderItems(orderItems);
         newOrder.updateTotal();
 
-        return orderRepository.save(newOrder);
+        Order savedOrder = orderRepository.save(newOrder);
+
+        if (savedOrder.getOrderItems().isEmpty()) {
+            log.error("Unable to create order for customerId: {} as no order items found", customerId);
+            throw new IllegalArgumentException("Unable to create an order for customerId: %s as no order items found".formatted(customerId));
+        }
+
+        cartService.deleteCart(cart.getId());
+
+        return savedOrder;
     }
 
     @Override

@@ -2,6 +2,7 @@ import {backendClient} from "./Api.ts";
 import {toast} from "react-toastify";
 import type {CartType} from "../types/CartType.ts";
 import {AxiosError, type AxiosResponse} from "axios";
+import type {CustomerType} from "../types/CustomerType.ts";
 
 
 export interface AddCartItem {
@@ -65,17 +66,14 @@ export const updateCartItemQuantity = async (cartId: number, productId: number, 
     throw axiosError;
 }
 
-const getFirstCustomer = async () => {
-    try {
-        const response = await backendClient.get("/customers/all");
-        if (response.status === 200) {
-            return response.data[0];
-        }
-        return null;
-    } catch (e) {
-        if (e instanceof Error) {
-            console.log(`Error thrown whilst fetching first customer ${e.message}`);
-        }
-        throw e;
+export const getFirstCustomer = async () => {
+    const response: AxiosResponse<CustomerType[]> = await backendClient.get("/customers/all");
+    if (response.status === 200) {
+        return response.data[0];
     }
+
+    const axiosError = new AxiosError("Error fetching customer details");
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
 }

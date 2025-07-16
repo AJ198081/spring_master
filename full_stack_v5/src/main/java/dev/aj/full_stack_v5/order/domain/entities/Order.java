@@ -1,23 +1,8 @@
 package dev.aj.full_stack_v5.order.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import dev.aj.full_stack_v5.auth.domain.entities.User;
 import dev.aj.full_stack_v5.order.domain.entities.enums.OrderStatus;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -42,6 +30,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ToString
+@Audited
+@AuditTable(schema = "public", value = "order_audits")
 public class Order {
 
     @Id
@@ -54,15 +44,11 @@ public class Order {
     private ZonedDateTime orderDate;
 
     @Builder.Default
+    @Column(columnDefinition = "timestamp with time zone")
     private ZonedDateTime shipDate = null;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-
-
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
-    @JoinColumn(name = "user_id")
-    private User user;
 
     private String comments;
 
@@ -73,10 +59,12 @@ public class Order {
     @ManyToOne(optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     @JsonIgnore
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Customer customer;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Set<OrderItem> orderItems = new HashSet<>();
 
     public void updateTotal() {

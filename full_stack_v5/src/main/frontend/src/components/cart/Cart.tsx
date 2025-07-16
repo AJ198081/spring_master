@@ -1,10 +1,30 @@
 import {useProductStore} from "../../store/ProductStore.tsx";
-import {ToastContainer} from "react-toastify";
+import {toast, ToastContainer} from "react-toastify";
 import {CartItemComponent} from "./CartItemComponent.tsx";
+import {placeOrder} from "../../services/OrderService.ts";
+import {Link} from "react-router-dom";
 
 export const Cart = () => {
 
     const cartForThisCustomer = useProductStore(state => state.cartForThisCustomer);
+    const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
+    const updateCustomerOrders = useProductStore(state => state.updateOrderForThisCustomer);
+
+    const handlePlaceOrder = () => {
+        if (cartForThisCustomer?.cartItems?.length === 0) {
+            toast.error('Your cart is empty, place some items in cart to place order');
+        }
+
+        placeOrder(cartForThisCustomer!.customer.id)
+            .then(placedOrder => {
+                toast.success(`Order placed successfully. Order Id - ${placedOrder.id}`);
+                updateCustomerOrders(placedOrder);
+                setCartForThisCustomer(null);
+            })
+            .catch(error => {
+                toast.error(`Error placing order; issue is - ${error.response?.data?.detail}`);
+            })
+    }
 
     return (
         <div className={"container"}>
@@ -17,8 +37,8 @@ export const Cart = () => {
                 pauseOnFocusLoss
                 pauseOnHover
             />
-            <table className={"table table-striped table-bordered caption-top align-middle"}>
-                <caption className={"h3 text-primary m-4"}>My Cart</caption>
+            <table className={"table table-striped caption-top align-middle text-center"}>
+                <caption className={"h3 text-primary my-4"}>My Cart</caption>
                 <thead>
                 <tr>
                     <th style={{width: '150px'}}>Product Image</th>
@@ -56,10 +76,22 @@ export const Cart = () => {
                         className={"text-end"}
                     >Total
                     </td>
-                    <td className={"text-center"}>$ {cartForThisCustomer?.total.toFixed(2)}</td>
+                    <td className={"text-center"}>$ {(cartForThisCustomer?.total ?? 0).toFixed(2)}</td>
                 </tr>
                 </tfoot>
             </table>
+            {/*<div className={"d-flex justify-content-end gap-5 my-5 me-3"}>*/}
+            <div className={"d-flex justify-content-end gap-5 my-5 me-3"}>
+                <Link
+                    to={"/products"}
+                    className={'btn btn-outline-info'}
+                >Continue shopping</Link>
+                <Link
+                    to={"/"}
+                    className={`btn btn-success ${cartForThisCustomer?.cartItems?.length || 'disabled'}`}
+                    onClick={handlePlaceOrder}
+                >Checkout</Link>
+            </div>
         </div>
     );
 }

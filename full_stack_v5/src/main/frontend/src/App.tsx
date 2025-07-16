@@ -4,6 +4,7 @@ import {Home} from "./components/Home.tsx";
 import {Products} from "./components/product/Products.tsx";
 import {ProductDetails} from "./components/product/ProductDetails.tsx";
 import {Cart} from "./components/cart/Cart.tsx";
+import {Order} from "./components/order/Order.tsx";
 
 function App() {
 
@@ -34,6 +35,10 @@ function App() {
                     path={"/products/:productId/details"}
                     element={<ProductDetails />}
                 />
+                <Route
+                    path={"/my-orders"}
+                    element={<Order />}
+                    />
             </Route>
         )
     );

@@ -1,9 +1,26 @@
 import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Link} from "react-router-dom";
-import {type MouseEvent, useState} from "react";
+import {type MouseEvent, useEffect, useState} from "react";
+import {FaShoppingCart} from "react-icons/fa";
+import {useProductStore} from "../../store/ProductStore.tsx";
+import {getFirstCustomer} from "../../services/CartService.ts";
 
 export const NavBar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const customerCart = useProductStore(state => state.cartForThisCustomer);
+    const setCurrentCustomer = useProductStore(state => state.setThisCustomerId);
+
+
+    useEffect(() => {
+        getFirstCustomer()
+            .then(customer => {
+                setCurrentCustomer(customer.id);
+            })
+            .catch( error =>
+                console.log(`Error fetching this customer's details, ${error.response?.data?.detail}`)
+            );
+    }, [setCurrentCustomer]);
+
     const handleLoginAction = (event: MouseEvent<HTMLElement>) => {
         event.preventDefault();
         setIsLoggedIn(prev => !prev);
@@ -19,6 +36,7 @@ export const NavBar = () => {
                 <Nav.Link
                     to={"/"}
                     as={Link}
+                    className={"navbar-brand"}
                 >
                     <span className={"shop-home"}>dev-aj.com</span>
                 </Nav.Link>
@@ -51,18 +69,18 @@ export const NavBar = () => {
                                     Profile
                                 </NavDropdown.Item>
                                 <NavDropdown.Item
+                                    to={"/my-orders"}
+                                    as={Link}
+                                >
+                                    My Orders
+                                </NavDropdown.Item>
+                                <NavDropdown.Divider/>
+                                <NavDropdown.Item
                                     to={isLoggedIn ? "/logout" : "/login"}
                                     as={Link}
                                     onClick={event => handleLoginAction(event)}
                                 >
                                     Logout
-                                </NavDropdown.Item>
-                                <NavDropdown.Divider/>
-                                <NavDropdown.Item
-                                    to={"#action"}
-                                    as={Link}
-                                >
-                                    Update
                                 </NavDropdown.Item>
                             </NavDropdown>
                             : <Nav.Link
@@ -71,11 +89,18 @@ export const NavBar = () => {
                                 onClick={handleLoginAction}
                             >Login</Nav.Link>
                         }
-                        <Link to={"/my-cart"}>
-                            Cart
-                            <Nav.Link>
-                                <i className="fas fa-shopping-cart"/>
-                            </Nav.Link>
+                        <Link
+                            to={"/my-cart"}
+                            className={`d-flex align-items-center gap-2 ms-4`}
+                        >
+                            <FaShoppingCart
+                                size={20}
+                                color={"black"}
+                            />
+                            <span className="translate-middle badge rounded-pill bg-danger">
+                                {customerCart?.cartItems.length ?? 0}
+                                <span className="visually-hidden">unread messages</span>
+                            </span>
                         </Link>
                     </Nav>
                 </Navbar.Collapse>
