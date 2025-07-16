@@ -12,7 +12,7 @@ export const ProductDetails = () => {
 
     const {productId} = useParams();
     const [product, setProduct] = useState<Product | null>(null);
-    const [quantity, setQuantity] = useState(0);
+    const [quantity, setQuantity] = useState(1);
     const allAvailableProducts = useProductStore(state => state.allProducts);
     const updateAllProducts = useProductStore(state => state.setAllProducts);
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
@@ -133,7 +133,7 @@ export const ProductDetails = () => {
 
                     <div className="d-flex gap-2 mt-3">
                         <button
-                            className={"add-to-cart-button" + (inventory === 0 ? ' text-bg-dark' : '')}
+                            className={`add-to-cart-button ${inventory === 0 ? 'disabled text-bg-warning' : ''}`}
                             onClick={addProductToCart}
                             disabled={inventory === 0}
                         >
