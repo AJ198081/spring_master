@@ -33,6 +33,19 @@ export const getProducts = async (uri: string): Promise<Product[]> => {
     }
 };
 
+export const getAvailableBrands = async (): Promise<string[]> => {
+    const response = await backendClient.get('/products/distinctBrands');
+
+    if (response.status === 200) {
+        return response.data;
+    }
+
+    const axiosError = new AxiosError(`Error thrown whilst fetching distinct brands`);
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
+}
+
 export const getProductById = async (id: number): Promise<Product> => {
     console.log(`Fetching product by id ${id}`);
 

@@ -30,17 +30,24 @@ public class TestDataFactory {
     private final PhotosFactory photosFactory;
 
     public Stream<ProductRequestDto> generateStreamOfProductRequests() {
-        List<String> availableBrands = List.of("Nike", "Adidas", "Puma", "Reebok", "Bata", "Bata", "Bata");
 
         return Stream.generate(() -> ProductRequestDto.builder()
                 .name(faker.commerce().productName())
                 .description(faker.lorem().paragraph())
                 .price(new BigDecimal(faker.commerce().price(50, 500)))
                 .inventory(faker.random().nextInt(10, 100))
-                .brand(availableBrands.get(faker.number().numberBetween(0, availableBrands.size())))
+                .brand(generateStreamOfBrands().findAny().orElse(null))
                 .categoryName(faker.commerce().department())
                 .build()
         );
+    }
+
+    public Stream<String> generateStreamOfBrands() {
+
+        List<String> availableBrands = Arrays.asList("Nike", "Adidas", "Puma", "Reebok", "Bata", "Bata", "Bata");
+        Collections.shuffle(availableBrands);
+
+        return Stream.generate(availableBrands::getFirst);
     }
 
     public Stream<CategoryDto> generateStreamOfCategories() {

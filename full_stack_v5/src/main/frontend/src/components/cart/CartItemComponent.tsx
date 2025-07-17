@@ -1,4 +1,4 @@
-import {ProductImage} from "../ProductImage.tsx";
+import {ProductImage} from "../product/ProductImage.tsx";
 import type {CartItemType} from "../../types/CartType.ts";
 import {CartItemUpdater} from "../product/CartItemUpdater.tsx";
 import {deleteCartItem, updateCartItemQuantity} from "../../services/CartService.ts";
@@ -50,7 +50,7 @@ export const CartItemComponent = ({cartItem, cartId}: CartItemComponentProps) =>
                 <ProductImage imageDownloadUrl={cartItem.product?.images[0]?.downloadUrl}/>
             </td>
             <td>{cartItem.product?.name}</td>
-            <td>{cartItem.product?.brand}</td>
+            <td>{cartItem.product?.brand?.name}</td>
             <td>{cartItem.unitPrice?.toFixed(2)}</td>
             <td
                 className={"text-center"}

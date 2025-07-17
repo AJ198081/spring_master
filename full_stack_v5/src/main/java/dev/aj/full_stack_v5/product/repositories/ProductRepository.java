@@ -9,11 +9,11 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    List<Product> findByCategoryNameAndBrand(String categoryName, String brand);
+    List<Product> findByCategoryNameAndBrandName(String categoryName, String brandName);
 
-    List<Product> findByBrandAndName(String brand, String name);
+    List<Product> findByBrandNameAndName(String brand, String name);
 
-    List<Product> findByBrand(String brand);
+    List<Product> findByBrandName(String brand);
 
     List<Product> findProductByCategoryName(String categoryName);
 
@@ -22,10 +22,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findProductByCategoryNameAndName(String categoryName, String productName);
 
-    Optional<Product> findProductByNameAndBrand(String name, String brand);
+    Optional<Product> findProductByNameAndBrandName(String name, String brand);
 
     List<Product> findDistinctByName(String name);
 
-    @Query("select distinct p.brand from Product p")
+    @Query("select distinct p.brand.name from Product p")
     List<String> getDistinctByBrand();
 }

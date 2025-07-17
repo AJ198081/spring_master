@@ -1,4 +1,4 @@
-import {ProductImage} from "../ProductImage.tsx";
+import {ProductImage} from "./ProductImage.tsx";
 import {type Product, useProductStore} from "../../store/ProductStore.tsx";
 import {useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
@@ -43,7 +43,6 @@ export const ProductDetails = () => {
         updateAllProducts(allAvailableProducts
             .map(product => {
                 if (product.id === Number(productId)) {
-                    console.log(product.id, quantity, product.inventory);
                     return {
                         ...product,
                         inventory: product.inventory - quantity

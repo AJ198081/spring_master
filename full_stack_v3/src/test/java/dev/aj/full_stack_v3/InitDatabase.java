@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InitDatabase {
 
-    public static final int MIN_ENTRIES_IN_DB = 60;
+    public static final int MIN_ENTRIES_IN_DB = 1000;
     private final TestData testData;
     private final ExpenseService expenseService;
     private final ExpenseRepository expenseRepository;

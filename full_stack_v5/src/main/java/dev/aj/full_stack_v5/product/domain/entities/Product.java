@@ -2,7 +2,19 @@ package dev.aj.full_stack_v5.product.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,8 +58,9 @@ public class Product {
 
     private int inventory;
 
-    @Column(name = "brand", columnDefinition = "varchar(50)")
-    private String brand;
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
 
     @ToString.Exclude
     @ManyToOne(cascade = {

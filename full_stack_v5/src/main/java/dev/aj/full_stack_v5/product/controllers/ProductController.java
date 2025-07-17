@@ -123,4 +123,5 @@ public class ProductController {
     public ResponseEntity<List<String>> getDistinctBrandsInTheDatabase() {
         return ResponseEntity.ok(productService.getDistinctBrands());
     }
+
 }

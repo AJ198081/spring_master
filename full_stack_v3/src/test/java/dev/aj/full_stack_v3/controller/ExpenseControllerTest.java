@@ -1,6 +1,5 @@
 package dev.aj.full_stack_v3.controller;
 
-import dev.aj.full_stack_v3.PostgresTCConfig;
 import dev.aj.full_stack_v3.TestConfig;
 import dev.aj.full_stack_v3.TestData;
 import dev.aj.full_stack_v3.domain.dto.ExpenseRequest;
@@ -39,10 +38,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestPropertySource(locations = "/application-test.properties", properties = {
+@TestPropertySource(locations = "/application-compose.properties", properties = {
         "logging.level.dev.aj.full_stack_v3.service.impl=debug"
 })
-@Import(value = {PostgresTCConfig.class, TestConfig.class, TestData.class})
+@Import(value = {TestConfig.class, TestData.class})
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class ExpenseControllerTest {
 

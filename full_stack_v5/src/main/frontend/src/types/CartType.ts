@@ -17,9 +17,14 @@ interface ProductType {
     description: string;
     price: number;
     inventory: number;
-    brand: string;
+    brand: BrandType;
     category: CategoryType;
     images: ImageType[];
+}
+
+interface BrandType {
+    id: number;
+    name: string;
 }
 
 export interface CartItemType {

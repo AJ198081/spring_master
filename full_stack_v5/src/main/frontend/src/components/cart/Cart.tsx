@@ -80,15 +80,16 @@ export const Cart = () => {
                 </tr>
                 </tfoot>
             </table>
-            {/*<div className={"d-flex justify-content-end gap-5 my-5 me-3"}>*/}
-            <div className={"d-flex justify-content-end gap-5 my-5 me-3"}>
+            <div
+                className={`d-flex justify-content-end gap-3 me-2 my-5`}
+            >
                 <Link
+                    className={`btn btn-outline-info ${cartForThisCustomer?.cartItems?.length === 0 ? 'disabled' : ''}`}
                     to={"/products"}
-                    className={'btn btn-outline-info'}
                 >Continue shopping</Link>
                 <Link
                     to={"/"}
-                    className={`btn btn-success ${cartForThisCustomer?.cartItems?.length || 'disabled'}`}
+                    className={` btn btn-success ${cartForThisCustomer?.cartItems?.length || 'disabled'}`}
                     onClick={handlePlaceOrder}
                 >Checkout</Link>
             </div>

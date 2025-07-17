@@ -32,7 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestDataFactory.class, PhotosFactory.class, TestConfig.class, TestSecurityConfig.class, InitSecurityUser.class})
-@TestPropertySource(locations = {"classpath:application-test.properties"})
+@TestPropertySource(locations = {"classpath:application-test.properties"}, properties = {
+        "spring.jpa.hibernate.ddl-auto=create",
+        "spring.jpa.properties.hibernate.format_sql=true",
+        "spring.jpa.properties.hibernate.show_sql=true",
+        "logging.level.org.hibernate.orm.jdbc.bind=trace",
+})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class ProductControllerTest {

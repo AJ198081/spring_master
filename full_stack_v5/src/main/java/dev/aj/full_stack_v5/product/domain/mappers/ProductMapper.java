@@ -31,8 +31,8 @@ public abstract class ProductMapper {
 
     private ImageMapper imageMapper;
 
-    @Mapping(target = "categoryName", source = "category.name")
-    @Mapping(target = "id", source = "id")
+    @Mapping(target = "categoryName", source = "product.category.name")
+    @Mapping(target="brand", source = "product.brand.name")
     public abstract ProductResponseDto toProductResponseDto(Product product);
 
 
@@ -40,6 +40,7 @@ public abstract class ProductMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "auditMetaData", ignore = true)
     @Mapping(target = "category.name", source = "categoryName")
+    @Mapping(target = "brand.name", source = "brand")
     public abstract Product toProduct(ProductRequestDto productRequestDto);
 
     @SneakyThrows

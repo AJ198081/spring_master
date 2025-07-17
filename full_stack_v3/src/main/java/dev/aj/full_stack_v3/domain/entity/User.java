@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v3.domain.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -8,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +32,8 @@ public class User {
     private Long id;
 
     private String firstName;
+    @Column(unique = true, columnDefinition = "varchar(255)")
+    @Size(min = 2, max = 255, message = "Email must be between 2 and 255 characters")
     private String lastName;
     private String email;
     private String username;

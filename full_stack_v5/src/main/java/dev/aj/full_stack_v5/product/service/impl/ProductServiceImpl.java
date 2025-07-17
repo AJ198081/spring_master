@@ -8,11 +8,13 @@ import dev.aj.full_stack_v5.order.repositories.OrderItemRepository;
 import dev.aj.full_stack_v5.product.ProductService;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
+import dev.aj.full_stack_v5.product.domain.entities.Brand;
 import dev.aj.full_stack_v5.product.domain.entities.Category;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
 import dev.aj.full_stack_v5.product.domain.mappers.ProductMapper;
 import dev.aj.full_stack_v5.product.repositories.CategoryRepository;
 import dev.aj.full_stack_v5.product.repositories.ProductRepository;
+import dev.aj.full_stack_v5.product.service.BrandService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,18 +38,20 @@ public class ProductServiceImpl implements ProductService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final OrderItemRepository orderItemRepository;
+    private final BrandService brandService;
     private final ProductMapper productMapper;
 
     @Override
     public ProductResponseDto addProduct(ProductRequestDto newProduct) {
 
-        if (productRepository.findProductByNameAndBrand(newProduct.getName(), newProduct.getBrand()).isPresent()) {
+        if (productRepository.findProductByNameAndBrandName(newProduct.getName(), newProduct.getBrand()).isPresent()) {
             throw new IllegalArgumentException("Product with name: %s and brand: %s already exists.".formatted(newProduct.getName(), newProduct.getBrand()));
         }
 
         Product product = productMapper.toProduct(newProduct);
 
         product.setCategory(getCategory(newProduct.getCategoryName()));
+        product.setBrand(brandService.saveOrUpdateBrand(product.getBrand()));
 
         return productMapper.toProductResponseDto(productRepository.save(product));
     }
@@ -66,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponseDto(productRepository.findById(id)
                 .map(existingProduct -> {
                     existingProduct.setName(productRequestDto.getName());
-                    existingProduct.setBrand(productRequestDto.getBrand());
+                    existingProduct.setBrand(brandService.saveOrUpdateBrand(Brand.builder().name(productRequestDto.getBrand()).build()));
                     existingProduct.setPrice(productRequestDto.getPrice());
                     existingProduct.setInventory(productRequestDto.getInventory());
                     existingProduct.setDescription(productRequestDto.getDescription());
@@ -79,7 +83,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void updateProduct(Product product) {
-
         productRepository.save(product);
     }
 
@@ -109,6 +112,12 @@ public class ProductServiceImpl implements ProductService {
                             .ifPresent(category -> {
                                 category.getProducts().remove(product);
                                 product.setCategory(null);
+                            });
+
+                    Optional.ofNullable(product.getBrand())
+                            .ifPresent(brand -> {
+                                brand.getProducts().remove(product);
+                                product.setBrand(null);
                             });
 
                     productRepository.delete(product);
@@ -170,7 +179,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponseDto> getProductsByBrand(String brand) {
-        return productRepository.findByBrand(brand)
+        return productRepository.findByBrandName(brand)
                 .stream()
                 .map(productMapper::toProductResponseDto)
                 .toList();
@@ -185,8 +194,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponseDto> getProductsByCategoryNameAndBrand(String categoryName, String brand) {
-        return productRepository.findByCategoryNameAndBrand(categoryName, brand)
+    public List<ProductResponseDto> getProductsByCategoryNameAndBrand(String categoryName, String brandName) {
+        return productRepository.findByCategoryNameAndBrandName(categoryName, brandName)
                 .stream()
                 .map(productMapper::toProductResponseDto)
                 .toList();
@@ -202,7 +211,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponseDto> getProductsByBrandAndName(String brand, String name) {
-        return productRepository.findByBrandAndName(brand, name)
+        return productRepository.findByBrandNameAndName(brand, name)
                 .stream()
                 .map(productMapper::toProductResponseDto)
                 .toList();
@@ -225,8 +234,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<String> getDistinctBrands() {
-        return productRepository.getDistinctByBrand();
+        return brandService.getAvailableBrandNames();
     }
+
 
     @Override
     public List<ProductResponseDto> getProductResponseDtosByProductId(Long id) {

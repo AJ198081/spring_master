@@ -6,7 +6,7 @@ class TestFullStackV3Application {
 
     public static void main(String[] args) {
         SpringApplication.from(FullStackV3Application::main)
-                .with(PostgresTCConfig.class,
+                .with(
                         TestConfig.class,
                         CORSOverride.class,
                         InitDatabase.class,

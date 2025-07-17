@@ -47,6 +47,7 @@ export const Order = () => {
         )
 
     };
+
     const renderOrders = (orders: OrderType[]) => {
         return (
             <table className={'table table-striped table-borderless table-hover caption-top align-middle'}>

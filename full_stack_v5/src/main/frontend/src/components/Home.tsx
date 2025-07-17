@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {useProductStore} from "../store/ProductStore.tsx";
 import {Card} from "react-bootstrap";
 import {Link} from "react-router-dom";
-import {ProductImage} from "./ProductImage.tsx";
+import {ProductImage} from "./product/ProductImage.tsx";
 import {getDistinctProducts} from "../services/ProductService.ts";
 import {toast, ToastContainer} from "react-toastify";
 import {PaginatorComponent} from "./common/PaginatorComponent.tsx";
