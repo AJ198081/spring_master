@@ -14,4 +14,7 @@ public interface CategoryService {
     void deleteCategoryByName(String categoryName);
     List<CategoryDto> getAllCategories();
 
+    List<String> getAvailableCategories();
+
+    CategoryDto addCategory(String categoryName);
 }

@@ -15,6 +15,7 @@ import dev.aj.full_stack_v5.product.domain.mappers.ProductMapper;
 import dev.aj.full_stack_v5.product.repositories.CategoryRepository;
 import dev.aj.full_stack_v5.product.repositories.ProductRepository;
 import dev.aj.full_stack_v5.product.service.BrandService;
+import dev.aj.full_stack_v5.product.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
     private final OrderItemRepository orderItemRepository;
     private final BrandService brandService;
     private final ProductMapper productMapper;
+    private final CategoryService categoryService;
 
     @Override
     public ProductResponseDto addProduct(ProductRequestDto newProduct) {
@@ -237,14 +239,23 @@ public class ProductServiceImpl implements ProductService {
         return brandService.getAvailableBrandNames();
     }
 
+    @Override
+    public List<String> getDistinctCategories() {
+        return categoryService.getAvailableCategories();
+    }
 
     @Override
     public List<ProductResponseDto> getProductResponseDtosByProductId(Long id) {
-        
+
         return productRepository.findById(id)
                 .map(Product::getName)
                 .map(productRepository::findProductsByName)
                 .map(productMapper::toProductResponseDtos)
                 .orElseGet(List::of);
+    }
+
+    @Override
+    public Brand saveANewBrand(String brandName) {
+        return brandService.saveOrUpdateBrand(Brand.builder().name(brandName).build());
     }
 }

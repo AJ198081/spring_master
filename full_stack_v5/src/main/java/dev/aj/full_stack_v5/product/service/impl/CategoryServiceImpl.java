@@ -18,8 +18,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
-
     private final CategoryRepository categoryRepository;
+
     private final CategoryMapper categoryMapper;
 
     @Override
@@ -28,6 +28,18 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseGet(() -> categoryRepository.save(categoryMapper.toCategory(categoryDto)));
 
         return categoryMapper.toCategoryDto(persistedCategory);
+    }
+
+    @Override
+    public CategoryDto addCategory(String categoryName) {
+        return categoryMapper.toCategoryDto(
+                categoryRepository.findCategoryByNameIgnoreCase(categoryName)
+                        .orElseGet(() -> categoryRepository.save(
+                                Category.builder()
+                                        .name(categoryName)
+                                        .build())
+                        )
+        );
     }
 
     @Override
@@ -70,9 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.findById(id)
                 .ifPresent(category -> {
                             category.getProducts()
-                                    .forEach(product -> {
-                                        product.setCategory(null);
-                                    });
+                                    .forEach(product -> product.setCategory(null));
                             categoryRepository.delete(category);
                         }
                 );
@@ -92,5 +102,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDto> getAllCategories() {
         return categoryMapper.toCategoryDtos(categoryRepository.findAll());
+    }
+
+    @Override
+    public List<String> getAvailableCategories() {
+
+        return categoryRepository.findDistinctCategoryNames();
     }
 }

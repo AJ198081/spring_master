@@ -56,6 +56,10 @@ export const NavBar = () => {
                             All Products
                         </Nav.Link>
                     </Nav>
+                    <Nav className="me-5">
+                        <Nav.Link to={`/add-product`} as={Link}
+                                  className={"btn btn-outline-secondary"}>Add Product</Nav.Link>
+                    </Nav>
                     <Nav>
                         {isLoggedIn
                             ? <NavDropdown

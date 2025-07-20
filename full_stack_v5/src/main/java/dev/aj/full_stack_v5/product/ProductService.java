@@ -3,6 +3,7 @@ package dev.aj.full_stack_v5.product;
 import dev.aj.full_stack_v5.order.domain.entities.CartItem;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
+import dev.aj.full_stack_v5.product.domain.entities.Brand;
 import dev.aj.full_stack_v5.product.domain.entities.Product;
 
 import java.util.List;
@@ -45,4 +46,8 @@ public interface ProductService {
     List<String> getDistinctBrands();
 
     List<ProductResponseDto> getProductResponseDtosByProductId(Long id);
+
+    Brand saveANewBrand(String brandName);
+
+    List<String> getDistinctCategories();
 }

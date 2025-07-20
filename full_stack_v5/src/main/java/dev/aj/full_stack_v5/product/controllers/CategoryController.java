@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -23,8 +24,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/")
-    public ResponseEntity<CategoryDto> addCategory(@RequestBody CategoryDto categoryDto){
-        return ResponseEntity.ok(categoryService.addCategory(categoryDto));
+    public ResponseEntity<CategoryDto> addCategory(@RequestParam String categoryName){
+        return ResponseEntity.ok(categoryService.addCategory(categoryName));
     }
 
     @GetMapping("/all")

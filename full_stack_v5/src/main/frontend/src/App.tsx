@@ -5,6 +5,7 @@ import {Products} from "./components/product/Products.tsx";
 import {ProductDetails} from "./components/product/ProductDetails.tsx";
 import {Cart} from "./components/cart/Cart.tsx";
 import {Order} from "./components/order/Order.tsx";
+import {AddNewProduct} from "./components/product/AddNewProduct.tsx";
 
 function App() {
 
@@ -18,11 +19,14 @@ function App() {
                     index={true}
                     element={<Home/>}
                 />
-
                 <Route
                     path={"/products"}
                     element={<Products/>}
                 />
+                <Route
+                    path={"/add-product"}
+                    element={<AddNewProduct />}
+                    />
                 <Route
                     path={"/my-cart"}
                     element={<Cart />}

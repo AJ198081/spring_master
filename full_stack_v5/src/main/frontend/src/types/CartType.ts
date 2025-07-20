@@ -22,7 +22,7 @@ interface ProductType {
     images: ImageType[];
 }
 
-interface BrandType {
+export interface BrandType {
     id: number;
     name: string;
 }

@@ -3,6 +3,7 @@ package dev.aj.full_stack_v5.product.controllers;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import dev.aj.full_stack_v5.product.ProductService;
+import dev.aj.full_stack_v5.product.domain.entities.Brand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -122,6 +124,16 @@ public class ProductController {
     @GetMapping("/distinctBrands")
     public ResponseEntity<List<String>> getDistinctBrandsInTheDatabase() {
         return ResponseEntity.ok(productService.getDistinctBrands());
+    }
+
+    @GetMapping("/distinctCategories")
+    public ResponseEntity<List<String>> getDistinctCategoriesInTheDatabase(){
+        return ResponseEntity.ok(productService.getDistinctCategories());
+    }
+
+    @PostMapping("/brand")
+    public ResponseEntity<Brand> saveANewBrand(@RequestParam String brandName) {
+        return ResponseEntity.ok(productService.saveANewBrand(brandName));
     }
 
 }

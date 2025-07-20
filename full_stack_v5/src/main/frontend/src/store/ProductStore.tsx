@@ -3,7 +3,7 @@ import type {CartType} from "../types/CartType.ts";
 import type {OrderType} from "../types/OrderType.ts";
 
 export interface Product {
-    id: number,
+    id?: number,
     name: string,
     price: number,
     description: string,
@@ -29,6 +29,7 @@ interface ProductStore {
     setThisCustomerOrders: (orders: OrderType[]) => void;
     allProducts: Product[],
     searchedProducts: Product[],
+    addProduct: (product: Product) => void,
     setSearchedProducts: (products: Product[]) => void,
     setAllProducts: (products: Product[]) => void,
     productsToShow: () => Product[],
@@ -40,6 +41,8 @@ interface ProductStore {
     onProductsPerPageChange: (productsOnPage: number) => void,
     productBrands: string[],
     setProductBrands: (brands: string[]) => void,
+    productCategories: string[],
+    setProductCategories: (categories: string[]) => void,
     cartForThisCustomer: CartType | null,
     setCartForThisCustomer: (cart: CartType | null) => void,
     ordersForThisCustomer: OrderType[] | null,
@@ -47,9 +50,14 @@ interface ProductStore {
     updateOrderForThisCustomer: (order: OrderType) => void,
 }
 
+function sortStringsAlphabetically(categories: string[]) {
+    return categories.sort((a, b) => a.localeCompare(b));
+}
+
 export const useProductStore = create<ProductStore>((set, get) => ({
         allProducts: [] as Product[],
         setAllProducts: (products) => set({allProducts: products}),
+        addProduct: (product) => set({allProducts: [product, ...get().allProducts]}),
 
         searchedProducts: [] as Product[],
         setSearchedProducts: (products) => set({searchedProducts: products}),
@@ -91,7 +99,10 @@ export const useProductStore = create<ProductStore>((set, get) => ({
         },
 
         productBrands: [],
-        setProductBrands: (brands) => set({productBrands: brands}),
+        setProductBrands: (brands) => set({productBrands: sortStringsAlphabetically(brands)}),
+
+        productCategories: [],
+        setProductCategories: (categories) => set({productCategories: sortStringsAlphabetically(categories)}),
 
         cartForThisCustomer: null,
         setCartForThisCustomer: (cart) => set({cartForThisCustomer: cart}),
