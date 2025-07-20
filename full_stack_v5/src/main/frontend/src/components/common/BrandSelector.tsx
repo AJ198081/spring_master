@@ -12,7 +12,7 @@ export const BrandSelector = ({selectedBrand, setSelectedBrand}: BrandSelectorPr
 
     const availableBrands = useProductStore(state => state.productBrands);
     const setAvailableBrands = useProductStore(state => state.setProductBrands);
-    const [newBrand, setNewBrand] = useState<string>("");
+    const [newBrand, setNewBrand] = useState<string>(``);
     const [isNewBrand, setIsNewBrand] = useState(false);
 
     const brandsGetter = useCallback(() => {
@@ -48,8 +48,8 @@ export const BrandSelector = ({selectedBrand, setSelectedBrand}: BrandSelectorPr
 
     const handleCancelNewBrand = () => {
         setIsNewBrand(false);
-        setNewBrand("");
-        setSelectedBrand("new");
+        setNewBrand('');
+        setSelectedBrand(``);
     }
 
     return (

@@ -35,9 +35,9 @@ export const getProducts = async (uri: string): Promise<Product[]> => {
 };
 
 export const addNewProduct = async (product: Product) => {
-    const response: AxiosResponse<Product> = await backendClient.post('/products', product);
+    const response: AxiosResponse<Product> = await backendClient.post('/products/', product);
 
-    if (response.status === 200) {
+    if (response.status === 201) {
         return response.data;
     }
     const axiosError = new AxiosError(`Error thrown whilst adding new product ${product.name}`);

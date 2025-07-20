@@ -12,7 +12,7 @@ export const CategorySelector = ({selectedCategory, setSelectedCategory}: Catego
 
     const availableCategories = useProductStore(state => state.productCategories);
     const setAvailableCategories = useProductStore(state => state.setProductCategories);
-    const [newCategory, setNewCategory] = useState<string>("");
+    const [newCategory, setNewCategory] = useState<string>(``);
     const [isNewCategory, setIsNewCategory] = useState(false);
 
     const categoriesGetter = useCallback(() => {
@@ -48,8 +48,8 @@ export const CategorySelector = ({selectedCategory, setSelectedCategory}: Catego
 
     const handleCancelNewCategory = () => {
         setIsNewCategory(false);
-        setNewCategory("");
-        setSelectedCategory("new");
+        setNewCategory('');
+        setSelectedCategory(``);
     }
 
     return (

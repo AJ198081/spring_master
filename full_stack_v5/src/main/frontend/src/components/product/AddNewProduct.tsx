@@ -19,8 +19,8 @@ export const AddNewProduct = () => {
 
     const addProductToStore = useProductStore(state => state.addProduct);
     const [product, setProduct] = useState<Product>(initialProductState);
-    const [selectedBrand, setSelectedBrand] = useState<string>('');
-    const [selectedCategory, setSelectedCategory] = useState<string>('');
+    const [selectedBrand, setSelectedBrand] = useState<string>(initialProductState.brand || '');
+    const [selectedCategory, setSelectedCategory] = useState<string>(initialProductState.categoryName || '');
 
     const handleProductChange = (e: { target: { name: string; value: string | number; }; }) => {
         const {name, value} = e.target;
@@ -29,12 +29,27 @@ export const AddNewProduct = () => {
 
     const handleAddNewProduct = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log(product);
+        if (selectedBrand.trim() === '' || selectedCategory.trim() === '') {
+            toast.error('Please select a brand and a category');
+            return;
+        }
+
+        Object.keys(product).forEach(key => {
+            const value = product[key as keyof Product];
+            if (typeof value === 'string') {
+                product[key as keyof Product] = value.trim() as never;
+            }
+        });
+
+        product.brand = selectedBrand;
+        product.categoryName = selectedCategory;
 
         addNewProduct(product)
             .then(newProduct => {
                 toast.success(`Product "${newProduct.name}" added successfully!`);
                 addProductToStore(newProduct);
-                setProduct(initialProductState); //Only set the product to 'new' if everything has worked
+                resetProductState();
             })
             .catch(e =>
                 toast.error(`Error adding new product; issue is - ${e.response?.data?.detail}`)
@@ -42,9 +57,15 @@ export const AddNewProduct = () => {
     }
 
 
+    function resetProductState() {
+        setProduct(initialProductState);
+        setSelectedBrand(initialProductState.brand || '');
+        setSelectedCategory(initialProductState.categoryName || '');
+    }
+
     return (
 
-        <section className={'container mt-5'}>
+        <section className={'container my-5'}>
             <div>
                 <div>
                     <h4>Add new product</h4>
@@ -83,7 +104,9 @@ export const AddNewProduct = () => {
                                 <label
                                     htmlFor="brand"
                                     className="form-label"
-                                >Brand</label>
+                                >
+                                    Brand
+                                </label>
                                 <BrandSelector
                                     selectedBrand={selectedBrand}
                                     setSelectedBrand={setSelectedBrand}
@@ -93,7 +116,9 @@ export const AddNewProduct = () => {
                                 <label
                                     htmlFor="category"
                                     className="form-label"
-                                >Category</label>
+                                >
+                                    Category
+                                </label>
                                 <CategorySelector
                                     selectedCategory={selectedCategory}
                                     setSelectedCategory={setSelectedCategory}
@@ -113,6 +138,12 @@ export const AddNewProduct = () => {
                                     value={product.price}
                                     onChange={handleProductChange}
                                     required={true}
+                                    min={1.00}
+                                    step={0.01}
+                                    max={1000000}
+                                    style={{textAlign: 'right'}}
+                                    pattern="^\d+(?:\.\d{1,2})?$"
+                                    title="Numbers only, 2 decimal places allowed"
                                 />
                             </div>
                             <div className="mb-3">
@@ -143,11 +174,19 @@ export const AddNewProduct = () => {
                                 multiple={true}
                             />
                         </div>
-                        <button
-                            type="submit"
-                            className="btn btn-success my-3 w-15"
-                        >Add product
-                        </button>
+                        <div className={'my-4 d-flex justify-content-start gap-3'}>
+                            <button
+                                type={"reset"}
+                                className="btn btn-outline-secondary"
+                                onClick={resetProductState}
+                            >Reset
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn btn-success"
+                            >Add product
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
