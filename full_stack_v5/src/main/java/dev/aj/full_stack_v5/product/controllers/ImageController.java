@@ -32,7 +32,7 @@ public class ImageController {
     }
     @SneakyThrows
     @PostMapping(value = "/list")
-    public ResponseEntity<Set<ImageResponseDto>> saveImages(@RequestParam("file") List<MultipartFile> multipartFiles) {
+    public ResponseEntity<Set<ImageResponseDto>> saveImages(@RequestParam("files") List<MultipartFile> multipartFiles) {
         List<ImageRequestDto> imageRequests = multipartFiles.stream()
                 .map(ImageRequestDto::new)
                 .toList();

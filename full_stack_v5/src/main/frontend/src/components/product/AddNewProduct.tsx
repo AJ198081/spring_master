@@ -4,6 +4,9 @@ import {type FormEvent, useState} from "react";
 import {addNewProduct} from "../../services/ProductService.ts";
 import {BrandSelector} from "../common/BrandSelector.tsx";
 import {CategorySelector} from "../common/CategorySelector.tsx";
+import {Step, StepLabel, Stepper} from "@mui/material";
+import {ImageUploader} from "../common/ImageUploader.tsx";
+import {Link} from "react-router-dom";
 
 const initialProductState: Product = {
     name: '',
@@ -21,15 +24,24 @@ export const AddNewProduct = () => {
     const [product, setProduct] = useState<Product>(initialProductState);
     const [selectedBrand, setSelectedBrand] = useState<string>(initialProductState.brand || '');
     const [selectedCategory, setSelectedCategory] = useState<string>(initialProductState.categoryName || '');
+    const [activeStep, setActiveStep] = useState<number>(0);
+    const steps = [`Add new product`, `Upload product image(s)`];
 
     const handleProductChange = (e: { target: { name: string; value: string | number; }; }) => {
+
+        if (product.id) {
+            toast.warn(`This Product has already been saved, with id ${product.id}, try update the product tab`);
+            return;
+        }
+
         const {name, value} = e.target;
         setProduct(prevState => ({...prevState, [name]: value}));
     }
 
     const handleAddNewProduct = (e: FormEvent<HTMLFormElement>) => {
+
         e.preventDefault();
-        console.log(product);
+
         if (selectedBrand.trim() === '' || selectedCategory.trim() === '') {
             toast.error('Please select a brand and a category');
             return;
@@ -49,7 +61,8 @@ export const AddNewProduct = () => {
             .then(newProduct => {
                 toast.success(`Product "${newProduct.name}" added successfully!`);
                 addProductToStore(newProduct);
-                resetProductState();
+                setProduct(newProduct); //need productId in next step, can manage a state of its own too.
+                setActiveStep(1);
             })
             .catch(e =>
                 toast.error(`Error adding new product; issue is - ${e.response?.data?.detail}`)
@@ -63,13 +76,64 @@ export const AddNewProduct = () => {
         setSelectedCategory(initialProductState.categoryName || '');
     }
 
+    const handleImageUploadCancel = () => {
+        setActiveStep(0);
+    };
+
+    const renderNewProductButtons = () => (
+        <>
+            <button
+                type={"reset"}
+                className="btn btn-outline-secondary"
+                onClick={resetProductState}
+            >Reset
+            </button>
+            <button
+                type="submit"
+                className="btn btn-success"
+            >Add product
+            </button>
+        </>
+    );
+
+    const renderProceedToImageUploader =
+        <>
+            <button
+                type="button"
+                className="btn btn-outline-success"
+                onClick={() => setActiveStep(1)}
+            >
+                Add images
+            </button>
+            <Link to="/products">
+                <button
+                    type="button"
+                    className="btn btn-outline-danger"
+                >
+                    Done
+                </button>
+            </Link>
+        </>;
     return (
 
         <section className={'container my-5'}>
             <div>
                 <div>
-                    <h4>Add new product</h4>
-                    <form onSubmit={handleAddNewProduct}>
+
+                    <h4 className={'mb-4'}>Add new product</h4>
+                    <div className={`d-flex justify-content-center align-items-center`}>
+                        <Stepper
+                            activeStep={activeStep}
+                            className="m-4"
+                        >
+                            {steps.map((step) => (
+                                <Step key={step}>
+                                    <StepLabel>{step}</StepLabel>
+                                </Step>
+                            ))}
+                        </Stepper></div>
+
+                    {activeStep === 0 && <form onSubmit={handleAddNewProduct}>
                         <div className="mb-3">
                             <label
                                 htmlFor="name"
@@ -161,33 +225,21 @@ export const AddNewProduct = () => {
                                 />
                             </div>
                         </div>
-                        <div className="mb-3">
-                            <label
-                                htmlFor="images"
-                                className="form-label"
-                            >Images</label>
-                            <input
-                                type="file"
-                                className="form-control"
-                                id="images"
-                                name="images"
-                                multiple={true}
-                            />
-                        </div>
                         <div className={'my-4 d-flex justify-content-start gap-3'}>
-                            <button
-                                type={"reset"}
-                                className="btn btn-outline-secondary"
-                                onClick={resetProductState}
-                            >Reset
-                            </button>
-                            <button
-                                type="submit"
-                                className="btn btn-success"
-                            >Add product
-                            </button>
+                            {activeStep === 0 && !product.id
+                                ? renderNewProductButtons()
+                                : renderProceedToImageUploader
+                            }
                         </div>
-                    </form>
+                    </form>}
+                    {
+                        product.id
+                        && activeStep === 1
+                        && <ImageUploader
+                            productId={product.id}
+                            handleImageUploadCancel={handleImageUploadCancel}
+                        />
+                    }
                 </div>
             </div>
         </section>
