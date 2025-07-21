@@ -1,7 +1,7 @@
 import {type ChangeEvent, type FormEvent, useState} from "react";
 import {nanoid} from "nanoid";
 import {uploadImagesForProduct} from "../../services/ImageService.ts";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 
 interface ImageUploaderProps {
     productId: number;
@@ -61,7 +61,6 @@ export const ImageUploader = ({productId, handleImageUploadCancel}: ImageUploade
     };
     return (
         <div>
-            <ToastContainer/>
             <form onSubmit={handleImageUpload}>
                 <div className={'container'}>
                     <h5 className={'mb-5'}>Upload product image(s)</h5>

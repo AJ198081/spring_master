@@ -1,5 +1,5 @@
 import {useProductStore} from "../../store/ProductStore.tsx";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 import {CartItemComponent} from "./CartItemComponent.tsx";
 import {placeOrder} from "../../services/OrderService.ts";
 import {Link} from "react-router-dom";
@@ -28,15 +28,6 @@ export const Cart = () => {
 
     return (
         <div className={"container"}>
-            <ToastContainer
-                position={"bottom-right"}
-                autoClose={5000}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                pauseOnHover
-            />
             <table className={"table table-striped caption-top align-middle text-center"}>
                 <caption className={"h3 text-primary my-4"}>My Cart</caption>
                 <thead>

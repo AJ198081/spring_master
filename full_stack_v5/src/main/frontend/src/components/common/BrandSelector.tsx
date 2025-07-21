@@ -1,7 +1,7 @@
 import {useProductStore} from "../../store/ProductStore.tsx";
 import {useCallback, useEffect, useState} from "react";
 import {addNewBrand, getAvailableBrands} from "../../services/ProductService.ts";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 
 interface BrandSelectorProps {
     selectedBrand: string;
@@ -54,7 +54,6 @@ export const BrandSelector = ({selectedBrand, setSelectedBrand}: BrandSelectorPr
 
     return (
         <div>
-            <ToastContainer/>
             {isNewBrand ? (
                 <div className={``}>
                     <div className="input-group">

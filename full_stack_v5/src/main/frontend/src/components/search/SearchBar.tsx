@@ -1,6 +1,6 @@
 import {type Product, useProductStore} from "../../store/ProductStore.tsx";
 import {type ChangeEvent, type KeyboardEvent, useEffect, useState} from "react";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 
 const ALL = "all";
 export const SearchBar = () => {
@@ -90,7 +90,6 @@ export const SearchBar = () => {
 
     return (
         <div className={"search-bar input-group input-group-sm"}>
-            <ToastContainer />
             <select
                 className={"form-control-sm"}
                 value={selectedCategory}

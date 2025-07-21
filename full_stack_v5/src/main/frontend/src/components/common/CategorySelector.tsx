@@ -1,7 +1,7 @@
 import {useProductStore} from "../../store/ProductStore.tsx";
 import {useCallback, useEffect, useState} from "react";
 import {addNewCategory, getAvailableCategories} from "../../services/ProductService.ts";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 
 interface CategorySelectorProps {
     selectedCategory: string;
@@ -54,7 +54,6 @@ export const CategorySelector = ({selectedCategory, setSelectedCategory}: Catego
 
     return (
         <div>
-            <ToastContainer/>
             {isNewCategory ? (
                 <div className={``}>
                     <div className="input-group">

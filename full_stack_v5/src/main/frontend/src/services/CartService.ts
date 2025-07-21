@@ -1,5 +1,4 @@
 import {backendClient} from "./Api.ts";
-import {toast} from "react-toastify";
 import type {CartType} from "../types/CartType.ts";
 import {AxiosError, type AxiosResponse} from "axios";
 import type {CustomerType} from "../types/CustomerType.ts";
@@ -13,14 +12,6 @@ export interface AddCartItem {
 
 export const addProductToCartItems: (addCartItem: AddCartItem) => Promise<CartType> = async (addCartItem: AddCartItem) => {
     console.log(`Customer ID in request ${addCartItem.customerId}`);
-
-    if (!addCartItem.customerId) {
-        await getFirstCustomer()
-            .then(customer => {
-                addCartItem.customerId = customer.id;
-            })
-            .catch(e => toast.error(e.message));
-    }
 
     const addToCartResponse: AxiosResponse<CartType> = await backendClient.post("/cartItems/", null, {
         params: addCartItem

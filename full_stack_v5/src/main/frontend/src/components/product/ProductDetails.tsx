@@ -5,8 +5,8 @@ import {useEffect, useState} from "react";
 import {getProductById} from "../../services/ProductService.ts";
 import {CartQuantityUpdater} from "./CartQuantityUpdater.tsx";
 import {BsCart} from "react-icons/bs";
-import {toast, ToastContainer} from "react-toastify";
-import {type AddCartItem, addProductToCartItems} from "../../services/CartService.ts";
+import {toast} from "react-toastify";
+import {type AddCartItem, addProductToCartItems, getFirstCustomer} from "../../services/CartService.ts";
 
 export const ProductDetails = () => {
 
@@ -16,6 +16,8 @@ export const ProductDetails = () => {
     const allAvailableProducts = useProductStore(state => state.allProducts);
     const updateAllProducts = useProductStore(state => state.setAllProducts);
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
+    const setThisCustomerId = useProductStore(state => state.setThisCustomerId);
+    const thisCustomerId = useProductStore(state => state.thisCustomerId);
 
     useEffect(() => {
         if (productId && productId.length > 0) {
@@ -32,6 +34,16 @@ export const ProductDetails = () => {
                 )
         }
     }, [productId])
+
+    useEffect(() => {
+        getFirstCustomer()
+            .then(customer => {
+                setThisCustomerId(customer.id);
+            })
+            .catch(error => {
+                toast.error(`Error getting first customer; issue is - ${error.response?.data?.detail}`);
+            })
+    }, [setThisCustomerId]);
 
     const inventory = product?.inventory ?? 0;
 
@@ -52,6 +64,7 @@ export const ProductDetails = () => {
             }));
 
         const cartItemRequest : AddCartItem = {
+            customerId: thisCustomerId!,
             productId: Number(productId),
             quantity: quantity
         }
@@ -70,17 +83,10 @@ export const ProductDetails = () => {
             );
 
     };
+    
     return (
         product && <div className={'container'}>
             <div className="row product-details">
-                <ToastContainer
-                    position={"bottom-right"}
-                    autoClose={5000}
-                    newestOnTop={false}
-                    closeOnClick
-                    pauseOnFocusLoss
-                    pauseOnHover
-                />
                 <div className="col-md-2">
                     {
                         product.images.map((image) => (

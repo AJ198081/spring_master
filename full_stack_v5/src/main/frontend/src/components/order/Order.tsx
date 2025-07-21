@@ -1,4 +1,4 @@
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 import {useProductStore} from "../../store/ProductStore.tsx";
 import {useEffect} from "react";
 import {getOrdersForCustomer} from "../../services/OrderService.ts";
@@ -80,7 +80,6 @@ export const Order = () => {
 
     return (
         <div className={'container mt-5'}>
-            <ToastContainer/>
             <div className={'row'}>
                 <div className="col-4">
                     <h4 className={'mb-4'}>My Order History</h4>

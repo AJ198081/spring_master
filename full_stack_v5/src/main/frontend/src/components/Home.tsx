@@ -5,7 +5,7 @@ import {Card} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {ProductImage} from "./product/ProductImage.tsx";
 import {getDistinctProducts} from "../services/ProductService.ts";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 import {PaginatorComponent} from "./common/PaginatorComponent.tsx";
 import {LoadSpinner} from "./common/LoadSpinner.tsx";
 
@@ -78,15 +78,6 @@ export const Home = () => {
             <Hero/>
 
             <div className={"d-flex flex-wrap justify-content-center p-5"}>
-                <ToastContainer
-                    position={"bottom-right"}
-                    autoClose={5000}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    pauseOnHover
-                />
                 {!isLoading && (products.length === 0)
                 && <p className={"d-flex flex-wrap justify-content-center p-5 text-danger h3"} style={{marginTop: '160px'}}>No products found</p>}
                 {(!errorMessage && products && products.length > 0) && renderProductCards()}
