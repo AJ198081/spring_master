@@ -61,6 +61,7 @@ export const BrandSelector = ({selectedBrand, setSelectedBrand}: BrandSelectorPr
                             type="text"
                             className="form-control"
                             placeholder="Enter new brand name"
+                            name="brand"
                             value={newBrand}
                             onChange={(e) => setNewBrand(e.target.value)}
                         />

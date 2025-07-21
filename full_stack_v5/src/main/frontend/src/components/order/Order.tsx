@@ -37,7 +37,7 @@ export const Order = () => {
                 {orderItems.map(orderItem => (
                     <tr key={orderItem.id} className={'text-center'}>
                         <td>{orderItem.productName}</td>
-                        <td>{orderItem.price}</td>
+                        <td>{orderItem.price.toFixed(2)}</td>
                         <td>{orderItem.quantity}</td>
                         <td>{orderItem.orderItemTotal}</td>
                     </tr>

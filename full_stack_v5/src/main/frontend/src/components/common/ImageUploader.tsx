@@ -1,4 +1,4 @@
-import {type ChangeEvent, type FormEvent, useState} from "react";
+import {type ChangeEvent, type Dispatch, type FormEvent, type SetStateAction, useState} from "react";
 import {nanoid} from "nanoid";
 import {uploadImagesForProduct} from "../../services/ImageService.ts";
 import {toast} from "react-toastify";
@@ -6,6 +6,7 @@ import {toast} from "react-toastify";
 interface ImageUploaderProps {
     productId: number;
     handleImageUploadCancel: () => void;
+    setActiveStep: Dispatch<SetStateAction<number>>;
 }
 
 export interface ImageRequestType {
@@ -22,7 +23,7 @@ function mapFilesToImageRequests(files: File[]): ImageRequestType[] {
     }));
 }
 
-export const ImageUploader = ({productId, handleImageUploadCancel}: ImageUploaderProps) => {
+export const ImageUploader = ({productId, setActiveStep}: ImageUploaderProps) => {
 
     const [images, setImages] = useState<ImageRequestType[]>([]);
 
@@ -43,8 +44,9 @@ export const ImageUploader = ({productId, handleImageUploadCancel}: ImageUploade
         if (images.length > 0) {
             uploadImagesForProduct(productId, images.map(image => image.file))
                 .then(response => {
-                    console.log(typeof response);
-                    console.log(response);
+                    console.log(`typeof response ${typeof response}`);
+                    console.log(`response ${response}`);
+                    setActiveStep(prevState => prevState + 1);
                     toast.success("Image uploaded successfully.");
                 })
                 .catch(e => {
@@ -57,8 +59,9 @@ export const ImageUploader = ({productId, handleImageUploadCancel}: ImageUploade
 
     const handleImageStepReset = () => {
         setImages([]);
-        handleImageUploadCancel();
+        setActiveStep(prevState => prevState - 1);
     };
+
     return (
         <div>
             <form onSubmit={handleImageUpload}>

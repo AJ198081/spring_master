@@ -9,6 +9,7 @@ import {ImageUploader} from "../common/ImageUploader.tsx";
 import {Link} from "react-router-dom";
 
 const initialProductState: Product = {
+    // id: 161,
     name: '',
     description: '',
     brand: '',
@@ -25,7 +26,7 @@ export const AddNewProduct = () => {
     const [selectedBrand, setSelectedBrand] = useState<string>(initialProductState.brand || '');
     const [selectedCategory, setSelectedCategory] = useState<string>(initialProductState.categoryName || '');
     const [activeStep, setActiveStep] = useState<number>(0);
-    const steps = [`Add new product`, `Upload product image(s)`];
+    const steps = [`Add new product`, `Upload product image(s)`, 'Done'];
 
     const handleProductChange = (e: { target: { name: string; value: string | number; }; }) => {
 
@@ -133,112 +134,134 @@ export const AddNewProduct = () => {
                             ))}
                         </Stepper></div>
 
-                    {activeStep === 0 && <form onSubmit={handleAddNewProduct}>
-                        <div className="mb-3">
-                            <label
-                                htmlFor="name"
-                                className="form-label"
-                            >Name</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                id="name"
-                                name="name"
-                                value={product.name}
-                                onChange={handleProductChange}
-                                required={true}
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label
-                                htmlFor="description"
-                                className="form-label"
-                            >Description</label>
-                            <textarea
-                                className="form-control"
-                                id="description"
-                                name="description"
-                                value={product.description}
-                                onChange={handleProductChange}
-                                style={{height: '100px'}}
-                            />
-                        </div>
-                        <div className={`d-flex justify-content-between col-md-12`}>
+                    {activeStep === 0
+                        && <form onSubmit={handleAddNewProduct}>
                             <div className="mb-3">
                                 <label
-                                    htmlFor="brand"
+                                    htmlFor="name"
                                     className="form-label"
-                                >
-                                    Brand
-                                </label>
-                                <BrandSelector
-                                    selectedBrand={selectedBrand}
-                                    setSelectedBrand={setSelectedBrand}
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <label
-                                    htmlFor="category"
-                                    className="form-label"
-                                >
-                                    Category
-                                </label>
-                                <CategorySelector
-                                    selectedCategory={selectedCategory}
-                                    setSelectedCategory={setSelectedCategory}
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <label
-                                    htmlFor="price"
-                                    className="form-label"
-                                >Price</label>
+                                >Name</label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     className="form-control"
-                                    id="price"
-                                    name="price"
-                                    value={product.price}
+                                    id="name"
+                                    name="name"
+                                    value={product.name}
                                     onChange={handleProductChange}
                                     required={true}
-                                    min={1.00}
-                                    step={0.01}
-                                    max={1000000}
-                                    style={{textAlign: 'right'}}
-                                    pattern="^\d+(?:\.\d{1,2})?$"
-                                    title="Numbers only, 2 decimal places allowed"
                                 />
                             </div>
                             <div className="mb-3">
                                 <label
-                                    htmlFor="inventory"
+                                    htmlFor="description"
                                     className="form-label"
-                                >Inventory</label>
-                                <input
-                                    type="number"
+                                >Description</label>
+                                <textarea
                                     className="form-control"
-                                    id="inventory"
-                                    name="inventory"
-                                    value={product.inventory}
+                                    id="description"
+                                    name="description"
+                                    value={product.description}
                                     onChange={handleProductChange}
+                                    style={{height: '100px'}}
                                 />
                             </div>
-                        </div>
-                        <div className={'my-4 d-flex justify-content-start gap-3'}>
-                            {activeStep === 0 && !product.id
-                                ? renderNewProductButtons()
-                                : renderProceedToImageUploader
-                            }
-                        </div>
-                    </form>}
+                            <div className={`d-flex justify-content-between col-md-12`}>
+                                <div className="mb-3">
+                                    <label
+                                        htmlFor="brand"
+                                        className="form-label"
+                                    >
+                                        Brand
+                                    </label>
+                                    <BrandSelector
+                                        selectedBrand={selectedBrand}
+                                        setSelectedBrand={setSelectedBrand}
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label
+                                        htmlFor="category"
+                                        className="form-label"
+                                    >
+                                        Category
+                                    </label>
+                                    <CategorySelector
+                                        selectedCategory={selectedCategory}
+                                        setSelectedCategory={setSelectedCategory}
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label
+                                        htmlFor="price"
+                                        className="form-label"
+                                    >Price</label>
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        id="price"
+                                        name="price"
+                                        value={product.price}
+                                        onChange={handleProductChange}
+                                        required={true}
+                                        min={1.00}
+                                        step={0.01}
+                                        max={1000000}
+                                        style={{textAlign: 'right'}}
+                                        pattern="^\d+(?:\.\d{1,2})?$"
+                                        title="Numbers only, 2 decimal places allowed"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label
+                                        htmlFor="inventory"
+                                        className="form-label"
+                                    >Inventory</label>
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        id="inventory"
+                                        name="inventory"
+                                        value={product.inventory}
+                                        onChange={handleProductChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className={'my-4 d-flex justify-content-start gap-3'}>
+                                {activeStep === 0 && !product.id
+                                    ? renderNewProductButtons()
+                                    : renderProceedToImageUploader
+                                }
+                            </div>
+                        </form>
+                    }
+
                     {
                         product.id
                         && activeStep === 1
                         && <ImageUploader
                             productId={product.id}
                             handleImageUploadCancel={handleImageUploadCancel}
+                            setActiveStep={setActiveStep}
                         />
+                    }
+
+                    {
+                        activeStep === 2 &&
+                        <div className="d-flex justify-content-center align-items-center gap-5 mt-5">
+                            <Link
+                                to={`/products/${product.id}`}
+                                className="btn btn-outline-success"
+                            >
+                                Go to uploaded product
+                            </Link>
+                            <Link
+                                to={`/products/all`}
+                                className="btn btn-outline-danger"
+                            >
+                                Go to all products
+                            </Link>
+                        </div>
                     }
                 </div>
             </div>
