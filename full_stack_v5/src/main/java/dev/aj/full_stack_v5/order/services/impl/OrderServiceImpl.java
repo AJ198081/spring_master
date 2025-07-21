@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Unable to create an order for customerId: %s as no order items found".formatted(customerId));
         }
 
-        cartService.deleteCart(cart.getId());
+        cartService.clearCart(cart.getId());
 
         return savedOrder;
     }

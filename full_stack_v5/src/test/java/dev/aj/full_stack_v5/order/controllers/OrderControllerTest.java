@@ -8,7 +8,7 @@ import dev.aj.full_stack_v5.TestSecurityConfig;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.order.domain.entities.Customer;
 import dev.aj.full_stack_v5.order.domain.entities.Order;
-import dev.aj.full_stack_v5.product.domain.entities.Product;
+import dev.aj.full_stack_v5.product.domain.dtos.ProductResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -57,7 +57,7 @@ class OrderControllerTest {
 
     List<UserResponseDto> usersCreatedInThisSession;
     List<Customer> customersCreatedInThisSession;
-    List<Product> productsCreatedInThisSession;
+    List<ProductResponseDto> productsCreatedInThisSession;
     List<Order> ordersCreatedInThisSession = new ArrayList<>();
 
     @Autowired
@@ -114,7 +114,7 @@ class OrderControllerTest {
                             .headers(header -> header.addAll(bearerTokenHeader))
                             .body(productRequestDto)
                             .retrieve()
-                            .toEntity(Product.class)
+                            .toEntity(ProductResponseDto.class)
                             .getBody();
                 })
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
@@ -143,7 +143,7 @@ class OrderControllerTest {
     @Test
 //    @RepeatedTest(value = 10, name = "{displayName} {currentRepetition}/{totalRepetitions}")
     void createOrder() {
-        Customer customer = customersCreatedInThisSession.stream().findAny().orElseThrow();
+        Customer customer = customersCreatedInThisSession.removeFirst();
 
         ResponseEntity<Order> orderCreatedResponse = restClient.post()
                 .uri("/api/v1/orders/?customerId={customerId}", customer.getId())
@@ -177,7 +177,7 @@ class OrderControllerTest {
 
     @Test
     void getOrdersByCustomerId() {
-        Customer customer = customersCreatedInThisSession.stream().findAny().orElseThrow();
+        Customer customer = customersCreatedInThisSession.removeFirst();
 
         ResponseEntity<Void> createResponse = restClient.post()
                 .uri("/api/v1/orders/?customerId={customerId}", customer.getId())

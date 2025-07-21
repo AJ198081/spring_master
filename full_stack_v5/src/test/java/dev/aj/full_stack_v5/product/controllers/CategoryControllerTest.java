@@ -56,9 +56,11 @@ class CategoryControllerTest {
                 .limit(10)
                 .forEach(category -> {
                     ResponseEntity<CategoryDto> categoryResponse = restClient.post()
-                            .uri("/api/v1/categories/")
+                            .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                                    .queryParam("categoryName", category.getName())
+                                    .build())
                             .headers(header -> header.addAll(bearerTokenHeader))
-                            .body(category)
+//                            .body(category)
                             .retrieve()
                             .toEntity(CategoryDto.class);
 
@@ -73,9 +75,10 @@ class CategoryControllerTest {
                 .orElseThrow();
 
         ResponseEntity<CategoryDto> response = restClient.post()
-                .uri("/api/v1/categories/")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                        .queryParam("categoryName", categoryDto.getName())
+                        .build())
                 .headers(header -> header.addAll(bearerTokenHeader))
-                .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -109,9 +112,10 @@ class CategoryControllerTest {
                 .build();
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
-                .uri("/api/v1/categories/")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                        .queryParam("categoryName", categoryDto.getName())
+                        .build())
                 .headers(header -> header.addAll(bearerTokenHeader))
-                .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -149,9 +153,10 @@ class CategoryControllerTest {
                 .build();
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
-                .uri("/api/v1/categories/")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                        .queryParam("categoryName", categoryDto.getName())
+                        .build())
                 .headers(header -> header.addAll(bearerTokenHeader))
-                .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -178,9 +183,10 @@ class CategoryControllerTest {
                 .build();
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
-                .uri("/api/v1/categories/")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                        .queryParam("categoryName", categoryDto.getName())
+                        .build())
                 .headers(header -> header.addAll(bearerTokenHeader))
-                .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -195,9 +201,10 @@ class CategoryControllerTest {
 
         // Create a new category to update
         ResponseEntity<CategoryDto> createCategoryToUpdateResponse = restClient.post()
-                .uri("/api/v1/categories/")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                        .queryParam("categoryName", "CategoryToUpdate-" + System.currentTimeMillis())
+                        .build())
                 .headers(header -> header.addAll(bearerTokenHeader))
-                .body(CategoryDto.builder().name("CategoryToUpdate-" + System.currentTimeMillis()).build())
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -243,9 +250,10 @@ class CategoryControllerTest {
                 .build();
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
-                .uri("/api/v1/categories/")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                        .queryParam("categoryName", categoryDto.getName())
+                        .build())
                 .headers(header -> header.addAll(bearerTokenHeader))
-                .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
 
@@ -256,7 +264,9 @@ class CategoryControllerTest {
         // Create a category to delete
         String categoryToDeleteName = "CategoryToDelete-" + System.currentTimeMillis();
         ResponseEntity<CategoryDto> createCategoryToDeleteResponse = restClient.post()
-                .uri("/api/v1/categories/")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                        .queryParam("categoryName", categoryToDeleteName)
+                        .build())
                 .headers(header -> header.addAll(bearerTokenHeader))
                 .body(CategoryDto.builder().name(categoryToDeleteName).build())
                 .retrieve()
@@ -304,9 +314,10 @@ class CategoryControllerTest {
                 .build();
 
         ResponseEntity<CategoryDto> createResponse = restClient.post()
-                .uri("/api/v1/categories/")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/categories/")
+                        .queryParam("categoryName", categoryDto.getName())
+                        .build())
                 .headers(header -> header.addAll(bearerTokenHeader))
-                .body(categoryDto)
                 .retrieve()
                 .toEntity(CategoryDto.class);
 

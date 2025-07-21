@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v5.common.exceptionHandlers;
+package dev.aj.full_stack_v5.common.exception_handlers;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;

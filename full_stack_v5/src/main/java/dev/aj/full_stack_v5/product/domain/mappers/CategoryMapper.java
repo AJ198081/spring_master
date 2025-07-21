@@ -22,6 +22,7 @@ public interface CategoryMapper {
     Category toCategory(CategoryDto categoryDto);
 
     @Mapping(target = "id", source = "id")
+    @Mapping(target = "name", source = "name")
     CategoryDto toCategoryDto(Category category);
 
     List<CategoryDto> toCategoryDtos(List<Category> categories);

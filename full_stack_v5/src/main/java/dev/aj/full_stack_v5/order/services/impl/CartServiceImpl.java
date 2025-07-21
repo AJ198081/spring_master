@@ -94,6 +94,21 @@ public class CartServiceImpl implements CartService {
                 );
     }
 
+    @Override
+    public void clearCart(Long id) {
+        cartRepository.findById(id)
+                .ifPresentOrElse(
+                        cart -> {
+                            cart.removeCartItems();
+                            cartRepository.save(cart);
+                            log.info("Cart with id: {} cleared", id);
+                        },
+                        () -> log.error("Unable to find cart by id {}, hence wasn't cleared", id)
+
+                );
+
+    }
+
     public BigDecimal getTotalCartPriceByCartId(Long cartId) {
         return cartRepository.findById(cartId)
                 .map(Cart::getTotal)

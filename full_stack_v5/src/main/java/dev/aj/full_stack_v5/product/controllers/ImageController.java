@@ -26,10 +26,11 @@ public class ImageController {
 
     @SneakyThrows
     @PostMapping(value = "/")
-    public ResponseEntity<ImageResponseDto> saveImage(@RequestParam("file") MultipartFile multipartFile) {
+    public ResponseEntity<ImageResponseDto> saveImage(@RequestParam("files") MultipartFile multipartFile) {
         ImageRequestDto imageRequestDto = new ImageRequestDto(multipartFile);
         return ResponseEntity.ok(imageService.saveImage(imageRequestDto));
     }
+
     @SneakyThrows
     @PostMapping(value = "/list")
     public ResponseEntity<Set<ImageResponseDto>> saveImages(@RequestParam("files") List<MultipartFile> multipartFiles) {
@@ -40,7 +41,7 @@ public class ImageController {
     }
 
     @PostMapping(value = "/product/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(@RequestPart("file") List<MultipartFile> files, @PathVariable Long productId) {
+    public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(@RequestPart("files") List<MultipartFile> files, @PathVariable Long productId) {
         List<ImageRequestDto> imageDtos = files.stream()
                 .map(ImageRequestDto::new)
                 .toList();
@@ -90,7 +91,7 @@ public class ImageController {
 
     @SneakyThrows
     @PutMapping("/{imageId}")
-    public ResponseEntity<ImageResponseDto> updateImage(@RequestPart("file") MultipartFile image, @PathVariable Long imageId) {
+    public ResponseEntity<ImageResponseDto> updateImage(@RequestPart("files") MultipartFile image, @PathVariable Long imageId) {
         ImageRequestDto imageRequestDto = new ImageRequestDto(image);
         return ResponseEntity.ok(imageService.updateImage(imageRequestDto, imageId));
     }
@@ -100,5 +101,4 @@ public class ImageController {
         imageService.deleteImageById(id);
         return ResponseEntity.noContent().build();
     }
-
 }

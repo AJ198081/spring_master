@@ -27,4 +27,6 @@ public interface CartService {
     Cart getCartByIdOrThrow(Long id);
 
     Cart deleteCartItem(Long cartId, Long cartItemId);
+
+    void clearCart(Long id);
 }
