@@ -46,6 +46,19 @@ export const addNewProduct = async (product: Product) => {
     throw axiosError;
 }
 
+export const updateProduct = async (product: Product) => {
+    const response: AxiosResponse<Product> = await backendClient.put(`/products/${product.id}`, product);
+
+    if (response.status === 200) {
+        return response.data;
+    }
+
+    const axiosError = new AxiosError(`Error thrown whilst updating product ${product.name}`);
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
+}
+
 export const getAvailableBrands = async (): Promise<string[]> => {
     const response = await backendClient.get('/products/distinctBrands');
 
@@ -79,7 +92,10 @@ export const getProductById = async (id: number): Promise<Product> => {
         return response.data;
     }
 
-    throw new AxiosError(`Product with id ${id} not found, status code ${response.status}`);
+    const axiosError = new AxiosError(`Product with id ${id} not found, status code ${response.status}`);
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
 }
 
 export const addNewBrand = async (brandName: string) => {

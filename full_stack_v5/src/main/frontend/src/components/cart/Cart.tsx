@@ -79,7 +79,7 @@ export const Cart = () => {
                     to={"/products"}
                 >Continue shopping</Link>
                 <Link
-                    to={"/"}
+                    to={"/my-orders"}
                     className={` btn btn-success ${cartForThisCustomer?.cartItems?.length || 'disabled'}`}
                     onClick={handlePlaceOrder}
                 >Checkout</Link>

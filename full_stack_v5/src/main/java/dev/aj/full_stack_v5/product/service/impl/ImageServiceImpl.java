@@ -8,7 +8,6 @@ import dev.aj.full_stack_v5.product.domain.mappers.ImageMapper;
 import dev.aj.full_stack_v5.product.repositories.ImageRepository;
 import dev.aj.full_stack_v5.product.repositories.ProductRepository;
 import dev.aj.full_stack_v5.product.service.ImageService;
-import dev.aj.full_stack_v5.product.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -65,11 +64,17 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public Set<ImageResponseDto> saveImagesForProduct(List<ImageRequestDto> images, Long productId) {
-        log.info("Saving images for product with ID: {}", productId);
+    public Set<ImageResponseDto> saveImagesForProduct(List<ImageRequestDto> images, Long productId, boolean replaceAll) {
+        log.info("Saving images for product with ID: {}, replaceAll: {}", productId, replaceAll);
 
         Product savedProductWithImages = productRepository.findById(productId)
                 .map(product -> {
+
+                    if (replaceAll && product.getImages() != null && !product.getImages().isEmpty()) {
+                        log.info("Replacing all existing images for product with ID: {}", productId);
+                        product.getImages().clear();
+                    }
+
                     product.addImages(imageMapper.toImages(images));
                     Product updatedProduct = productRepository.save(product);
                     log.info("Images saved successfully for product with ID: {}", productId);

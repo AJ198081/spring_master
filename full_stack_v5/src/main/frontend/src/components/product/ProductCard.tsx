@@ -40,7 +40,12 @@ export const ProductCard = ({productsToDisplay}: ProductCardProps) => {
                                 <p className={`${product.inventory > 5 ? 'text-success' : 'text-danger'}`}>{product.inventory} in stock</p>
                                 <p>{product.categoryName}</p>
                                 <div className={"d-flex gap-2 justify-content-center mt-auto"}>
-                                    <button className={"shop-now-button"}>Add to cart</button>
+                                    <Link
+                                        to={`/products/${product.id}/details`}
+                                        className={"shop-now-button"}
+                                    >
+                                        Add to cart
+                                    </Link>
                                 </div>
                             </Card.Body>
                         </Card>

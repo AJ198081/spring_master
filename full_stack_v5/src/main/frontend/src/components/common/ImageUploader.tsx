@@ -5,7 +5,6 @@ import {toast} from "react-toastify";
 
 interface ImageUploaderProps {
     productId: number;
-    handleImageUploadCancel: () => void;
     setActiveStep: Dispatch<SetStateAction<number>>;
 }
 
@@ -15,7 +14,7 @@ export interface ImageRequestType {
     file: File
 }
 
-function mapFilesToImageRequests(files: File[]): ImageRequestType[] {
+export function mapFilesToImageRequests(files: File[]): ImageRequestType[] {
     return files.map(file => ({
         id: nanoid(),
         name: file.name,

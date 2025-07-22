@@ -15,7 +15,9 @@ export const getImageById = async (downloadUrl: string) => {
     throw axiosError;
 }
 
-export const uploadImagesForProduct = async (productId: number, images: File[]) => {
+export const uploadImagesForProduct = async (productId: number, images: File[], replaceAll: boolean = false) => {
+
+    console.log(`Uploading images for product ${productId}`);
 
     const formData = new FormData();
     if (images.length === 0) {
@@ -26,8 +28,16 @@ export const uploadImagesForProduct = async (productId: number, images: File[]) 
         formData.append('files', image);
     });
     formData.append('productId', productId.toString());
+    formData.append('replaceAll', replaceAll.toString());
 
-    const response = await backendClient.post(`/images/product/${productId}`, formData);
+    const response = await backendClient.post(
+        `/images/product/${productId}`,
+        formData,
+        {
+            params: {
+                replaceAll: replaceAll,
+            }
+        });
 
     if (response.status === 200) {
         return response.data;

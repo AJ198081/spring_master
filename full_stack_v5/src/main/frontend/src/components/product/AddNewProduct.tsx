@@ -8,7 +8,7 @@ import {Step, StepLabel, Stepper} from "@mui/material";
 import {ImageUploader} from "../common/ImageUploader.tsx";
 import {Link} from "react-router-dom";
 
-const initialProductState: Product = {
+export const initialProductState: Product = {
     // id: 161,
     name: '',
     description: '',
@@ -77,10 +77,6 @@ export const AddNewProduct = () => {
         setSelectedCategory(initialProductState.categoryName || '');
     }
 
-    const handleImageUploadCancel = () => {
-        setActiveStep(0);
-    };
-
     const renderNewProductButtons = () => (
         <>
             <button
@@ -97,7 +93,7 @@ export const AddNewProduct = () => {
         </>
     );
 
-    const renderProceedToImageUploader =
+   const renderProceedToImageUploader =
         <>
             <button
                 type="button"
@@ -120,7 +116,6 @@ export const AddNewProduct = () => {
         <section className={'container my-5'}>
             <div>
                 <div>
-
                     <h4 className={'mb-4'}>Add new product</h4>
                     <div className={`d-flex justify-content-center align-items-center`}>
                         <Stepper
@@ -241,7 +236,6 @@ export const AddNewProduct = () => {
                         && activeStep === 1
                         && <ImageUploader
                             productId={product.id}
-                            handleImageUploadCancel={handleImageUploadCancel}
                             setActiveStep={setActiveStep}
                         />
                     }
@@ -254,6 +248,12 @@ export const AddNewProduct = () => {
                                 className="btn btn-outline-success"
                             >
                                 Go to uploaded product
+                            </Link>
+                            <Link
+                                to={`/update-product/${product.id}`}
+                                className="btn btn-outline-primary"
+                            >
+                                Update product
                             </Link>
                             <Link
                                 to={`/products/all`}

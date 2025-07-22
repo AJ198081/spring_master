@@ -41,11 +41,14 @@ public class ImageController {
     }
 
     @PostMapping(value = "/product/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(@RequestPart("files") List<MultipartFile> files, @PathVariable Long productId) {
+    public ResponseEntity<Set<ImageResponseDto>> addImagesToAProduct(
+            @RequestPart("files") List<MultipartFile> files, 
+            @PathVariable Long productId,
+            @RequestParam(value = "replaceAll", required = false, defaultValue = "false") boolean replaceAll) {
         List<ImageRequestDto> imageDtos = files.stream()
                 .map(ImageRequestDto::new)
                 .toList();
-        return ResponseEntity.ok(imageService.saveImagesForProduct(imageDtos, productId));
+        return ResponseEntity.ok(imageService.saveImagesForProduct(imageDtos, productId, replaceAll));
     }
 
     @GetMapping("/all")

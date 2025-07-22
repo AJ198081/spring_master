@@ -11,7 +11,7 @@ import java.util.Set;
 
 public interface ImageService {
     ImageResponseDto saveImage(ImageRequestDto imageDto) throws IOException;
-    Set<ImageResponseDto> saveImagesForProduct(List<ImageRequestDto> images, Long productId);
+    Set<ImageResponseDto> saveImagesForProduct(List<ImageRequestDto> images, Long productId, boolean replaceAll);
     ImageResponseDto updateImage(ImageRequestDto imageDto, Long id) throws IOException;
     Image getImageById(Long id);
 

@@ -1,6 +1,6 @@
 import {ProductImage} from "./ProductImage.tsx";
 import {type Product, useProductStore} from "../../store/ProductStore.tsx";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {getProductById} from "../../services/ProductService.ts";
 import {CartQuantityUpdater} from "./CartQuantityUpdater.tsx";
@@ -18,6 +18,7 @@ export const ProductDetails = () => {
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
     const setThisCustomerId = useProductStore(state => state.setThisCustomerId);
     const thisCustomerId = useProductStore(state => state.thisCustomerId);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (productId && productId.length > 0) {
@@ -63,7 +64,7 @@ export const ProductDetails = () => {
                 return product;
             }));
 
-        const cartItemRequest : AddCartItem = {
+        const cartItemRequest: AddCartItem = {
             customerId: thisCustomerId!,
             productId: Number(productId),
             quantity: quantity
@@ -83,7 +84,7 @@ export const ProductDetails = () => {
             );
 
     };
-    
+
     return (
         product && <div className={'container'}>
             <div className="row product-details">
@@ -142,10 +143,22 @@ export const ProductDetails = () => {
                             onClick={addProductToCart}
                             disabled={inventory === 0}
                         >
-                           <BsCart /> Add to cart
+                            <BsCart/> Add to cart
                         </button>
                         <button className={"buy-now-button" + (inventory === 0 ? ' text-bg-dark' : '')}>
                             Buy Now
+                        </button>
+                        <button
+                            className={"btn btn-outline-success rounded-pill"}
+                            onClick={() => navigate(`/update-product/${product.id}`)}
+                        >
+                            Update Product
+                        </button>
+                        <button
+                            className={"btn btn-outline-danger rounded-pill"}
+                            onClick={handleDelete}
+                        >
+                            Delete Product
                         </button>
                     </div>
                 </div>

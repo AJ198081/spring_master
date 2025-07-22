@@ -46,7 +46,7 @@ export const Home = () => {
                 >
                     <Link to={`/products/${product.id}`}>
                         <div>
-                            {product.images.length > 0
+                            {product.images?.length > 0
                                 && <ProductImage
                                     key={product.images[0].downloadUrl}
                                     imageDownloadUrl={product.images[0].downloadUrl}

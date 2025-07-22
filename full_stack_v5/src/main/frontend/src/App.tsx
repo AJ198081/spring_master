@@ -6,6 +6,8 @@ import {ProductDetails} from "./components/product/ProductDetails.tsx";
 import {Cart} from "./components/cart/Cart.tsx";
 import {Order} from "./components/order/Order.tsx";
 import {AddNewProduct} from "./components/product/AddNewProduct.tsx";
+import {UpdateProduct} from "./components/product/UpdateProduct.tsx";
+import {ImageUpdater} from "./components/product/ImageUpdater.tsx";
 
 function App() {
 
@@ -25,24 +27,32 @@ function App() {
                 />
                 <Route
                     path={"/add-product"}
-                    element={<AddNewProduct />}
-                    />
+                    element={<AddNewProduct/>}
+                />
+                <Route
+                    path={"/update-product/:productId"}
+                    element={<UpdateProduct/>}
+                />
+                <Route
+                    path={`/update-product-images/:productId`}
+                    element={<ImageUpdater/>}
+                />
                 <Route
                     path={"/my-cart"}
-                    element={<Cart />}
+                    element={<Cart/>}
                 />
                 <Route
                     path={"/products/:id"}
-                    element={<Products />}
-                    />
+                    element={<Products/>}
+                />
                 <Route
                     path={"/products/:productId/details"}
-                    element={<ProductDetails />}
+                    element={<ProductDetails/>}
                 />
                 <Route
                     path={"/my-orders"}
-                    element={<Order />}
-                    />
+                    element={<Order/>}
+                />
             </Route>
         )
     );
