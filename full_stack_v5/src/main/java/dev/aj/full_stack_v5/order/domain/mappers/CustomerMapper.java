@@ -18,6 +18,8 @@ public interface CustomerMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "orders", ignore = true)
     @Mapping(target = "cart", ignore = true)
+    @Mapping(target = "shippingAddress", source = "customerDto.shippingAddress")
+    @Mapping(target = "billingAddress", source = "customerDto.billingAddress")
     Customer customerDtoToCustomer(CustomerDto customerDto);
 
 }

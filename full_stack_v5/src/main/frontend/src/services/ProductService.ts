@@ -129,3 +129,17 @@ export const addNewCategory = async (categoryName: string) => {
     axiosError.response = response;
     throw axiosError;
 }
+
+export const deleteProduct = async (id: number): Promise<void> => {
+    console.log(`Deleting product with id ${id}`);
+
+    const response = await backendClient.delete(`/products/${id}`);
+    if (response.status === 204 || response.status === 200) {
+        return;
+    }
+
+    const axiosError = new AxiosError(`Error deleting product with id ${id}, status code ${response.status}`);
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
+}

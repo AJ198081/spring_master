@@ -2,17 +2,19 @@ import {ProductImage} from "./ProductImage.tsx";
 import {type Product, useProductStore} from "../../store/ProductStore.tsx";
 import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
-import {getProductById} from "../../services/ProductService.ts";
+import {deleteProduct, getProductById} from "../../services/ProductService.ts";
 import {CartQuantityUpdater} from "./CartQuantityUpdater.tsx";
 import {BsCart} from "react-icons/bs";
 import {toast} from "react-toastify";
 import {type AddCartItem, addProductToCartItems, getFirstCustomer} from "../../services/CartService.ts";
+import {Modal, Button} from "react-bootstrap";
 
 export const ProductDetails = () => {
 
     const {productId} = useParams();
     const [product, setProduct] = useState<Product | null>(null);
     const [quantity, setQuantity] = useState(1);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const allAvailableProducts = useProductStore(state => state.allProducts);
     const updateAllProducts = useProductStore(state => state.setAllProducts);
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
@@ -85,12 +87,34 @@ export const ProductDetails = () => {
 
     };
 
+    const handleDelete = () => {
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (productId) {
+            try {
+                await deleteProduct(Number(productId));
+                toast.success(`Product ${product?.name} deleted successfully`);
+                navigate('/products');
+            } catch (error) {
+                if (error instanceof Error) {
+                    toast.error(`Error deleting product: ${error.message}`);
+                } else {
+                    toast.error('An unknown error occurred while deleting the product');
+                }
+            } finally {
+                setShowDeleteModal(false);
+            }
+        }
+    };
+
     return (
         product && <div className={'container'}>
             <div className="row product-details">
                 <div className="col-md-2">
                     {
-                        product.images.map((image) => (
+                        product.images?.map((image) => (
                             <div
                                 key={image.downloadUrl}
                                 className={"mt-4 image-container"}
@@ -104,7 +128,7 @@ export const ProductDetails = () => {
                     <h1 className={'product-name'}>{product.name}</h1>
                     <h4 className={'price'}>{product.price}</h4>
                     <p className={'product-description'}>{product.description}</p>
-                    <p className="product-name">Brand: {product.brand.toLowerCase()}</p>
+                    <p className="product-name">Brand: {product.brand?.toLowerCase()}</p>
                     <p className="product-name">
                         Rating: <span className="rating text-danger">4.5</span>
                     </p>
@@ -163,6 +187,23 @@ export const ProductDetails = () => {
                     </div>
                 </div>
             </div>
+
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Product</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete the product <b><i>{product.name}</i></b>?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDelete}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 }

@@ -215,7 +215,7 @@ class CustomerControllerTest {
 
     @Test
     void deleteCustomerById() {
-        Customer customer = customersCreatedInThisSession.stream().findAny().orElseThrow();
+        Customer customer = customersCreatedInThisSession.getFirst();
 
         ResponseEntity<Void> customerDResponseEntity = restClient.delete()
                 .uri("/api/v1/customers/{id}", customer.getId())
@@ -232,6 +232,5 @@ class CustomerControllerTest {
                 .headers(header -> header.addAll(bearerTokenHeader));
 
         Assertions.assertThrows(HttpClientErrorException.NotFound.class, () -> getCustomerRequest.retrieve().toEntity(Customer.class));
-
     }
 }

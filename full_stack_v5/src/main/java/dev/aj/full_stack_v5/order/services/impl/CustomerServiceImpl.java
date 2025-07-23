@@ -57,8 +57,11 @@ public class CustomerServiceImpl implements CustomerService {
         if (!Objects.isEmpty(customerDto.getPhone())) {
             customer.setPhone(customerDto.getPhone());
         }
-        if (!Objects.isEmpty(customerDto.getAddress())) {
-            customer.setAddress(customerDto.getAddress());
+        if (!Objects.isEmpty(customerDto.getBillingAddress())) {
+            customer.setBillingAddress(customerDto.getBillingAddress());
+        }
+        if (!Objects.isEmpty(customerDto.getShippingAddress())) {
+            customer.setShippingAddress(customerDto.getShippingAddress());
         }
 
         return customer;

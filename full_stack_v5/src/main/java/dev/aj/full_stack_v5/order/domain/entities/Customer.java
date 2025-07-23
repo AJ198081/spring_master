@@ -45,8 +45,23 @@ public class Customer {
     @Column(columnDefinition = "varchar(30)")
     private String phone;
 
-    @Column(columnDefinition = "varchar(150)")
-    private String address;
+    @Embedded
+    @AttributeOverride(name = "addressLine1", column = @Column(name = "billing_address_line1"))
+    @AttributeOverride(name = "addressLine2", column = @Column(name = "billing_address_line2"))
+    @AttributeOverride(name = "city", column = @Column(name = "billing_address_city"))
+    @AttributeOverride(name = "state", column = @Column(name = "billing_address_state"))
+    @AttributeOverride(name = "postalCode", column = @Column(name = "billing_address_post_code"))
+    @AttributeOverride(name = "country", column = @Column(name = "billing_address_country"))
+    private Address billingAddress;
+
+    @Embedded
+    @AttributeOverride(name = "addressLine1", column = @Column(name = "shipping_address_line1"))
+    @AttributeOverride(name = "addressLine2", column = @Column(name = "shipping_address_line2"))
+    @AttributeOverride(name = "city", column = @Column(name = "shipping_address_city"))
+    @AttributeOverride(name = "state", column = @Column(name = "shipping_address_state"))
+    @AttributeOverride(name = "postalCode", column = @Column(name = "shipping_address_post_code"))
+    @AttributeOverride(name = "country", column = @Column(name = "shipping_address_country"))
+    private Address shippingAddress;
 
     @OneToOne
     @JoinColumn(name = "user_id")

@@ -4,6 +4,8 @@ import dev.aj.full_stack_v5.auth.domain.dtos.UpdateUserDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserRegistrationDto;
 import dev.aj.full_stack_v5.auth.domain.dtos.UserResponseDto;
 import dev.aj.full_stack_v5.order.domain.dtos.CustomerDto;
+import dev.aj.full_stack_v5.order.domain.entities.Address;
+import dev.aj.full_stack_v5.order.domain.entities.enums.STATE;
 import dev.aj.full_stack_v5.product.domain.dtos.CategoryDto;
 import dev.aj.full_stack_v5.product.domain.dtos.ProductRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -106,11 +108,21 @@ public class TestDataFactory {
     }
 
     public Stream<CustomerDto> generateStreamOfCustomerRequests() {
+        STATE randomlyChosenState = Arrays.stream(STATE.values())
+                .toList()
+                .get(faker.random().nextInt(STATE.values().length));
+
         return Stream.generate(() -> CustomerDto.builder()
                 .firstName(faker.name().firstName())
                 .lastName(faker.name().lastName())
                 .email(faker.internet().emailAddress())
-                .address(faker.address().fullAddress())
+                .billingAddress(Address.builder()
+                        .addressLine1(faker.address().streetAddress())
+                        .addressLine2(faker.address().secondaryAddress())
+                        .city(faker.address().city())
+                        .state(randomlyChosenState)
+                        .postalCode(faker.address().zipCode())
+                        .build())
                 .phone(faker.phoneNumber().phoneNumber())
                 .build());
     }
