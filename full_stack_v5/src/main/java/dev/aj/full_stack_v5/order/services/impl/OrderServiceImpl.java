@@ -62,7 +62,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> getCustomerOrders(Long customerId) {
-
         return orderRepository.findOrderByCustomerId(customerId);
     }
 

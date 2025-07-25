@@ -8,6 +8,4 @@ public interface OrderService {
     Order createOrder(Long customerId);
 
     List<Order> getCustomerOrders(Long customerId);
-
-
 }

@@ -8,23 +8,27 @@ import {getFirstCustomer} from "../../services/CartService.ts";
 export const NavBar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(true);
     const customerCart = useProductStore(state => state.cartForThisCustomer);
-    const setCurrentCustomer = useProductStore(state => state.setThisCustomerId);
-
+    const setCurrentCustomerId = useProductStore(state => state.setThisCustomerId);
+    const setCurrentUser = useProductStore(state => state.setCurrentUser);
 
     useEffect(() => {
         getFirstCustomer()
             .then(customer => {
-                setCurrentCustomer(customer.id);
+                setCurrentCustomerId(customer.id!);
             })
-            .catch( error =>
+            .catch(error =>
                 console.log(`Error fetching this customer's details, ${error.response?.data?.detail}`)
             );
-    }, [setCurrentCustomer]);
+    }, [setCurrentCustomerId]);
 
     const handleLoginAction = (event: MouseEvent<HTMLElement>) => {
         event.preventDefault();
         setIsLoggedIn(prev => !prev);
     }
+    const handleUserRegistration = () => {
+        setCurrentUser(null);
+    };
+
     return (
         <Navbar
             collapseOnSelect
@@ -57,8 +61,11 @@ export const NavBar = () => {
                         </Nav.Link>
                     </Nav>
                     <Nav className="me-5">
-                        <Nav.Link to={`/add-product`} as={Link}
-                                  className={"btn btn-outline-secondary"}>Add Product</Nav.Link>
+                        <Nav.Link
+                            to={`/add-product`}
+                            as={Link}
+                            className={"btn btn-outline-secondary"}
+                        >Add Product</Nav.Link>
                     </Nav>
                     <Nav>
                         {isLoggedIn
@@ -87,11 +94,26 @@ export const NavBar = () => {
                                     Logout
                                 </NavDropdown.Item>
                             </NavDropdown>
-                            : <Nav.Link
-                                to={"/login"}
-                                as={Link}
-                                onClick={handleLoginAction}
-                            >Login</Nav.Link>
+                            : <NavDropdown
+                                title={"Sign-in"}
+                                id="collapsible-nav-dropdown"
+                            >
+                                <NavDropdown.Item
+                                    to={"/login"}
+                                    as={Link}
+                                    onClick={handleLoginAction}
+                                >
+                                    Login
+                                </NavDropdown.Item>
+                                <NavDropdown.Divider/>
+                                <NavDropdown.Item
+                                    to={"/register"}
+                                    onClick={handleUserRegistration}
+                                    as={Link}
+                                >
+                                    Register
+                                </NavDropdown.Item>
+                            </NavDropdown>
                         }
                         <Link
                             to={"/my-cart"}

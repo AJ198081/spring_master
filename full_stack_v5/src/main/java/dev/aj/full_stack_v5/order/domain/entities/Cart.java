@@ -49,7 +49,7 @@ public class Cart {
     private BigDecimal total = BigDecimal.ZERO;
 
     @OneToOne(optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private Customer customer;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)

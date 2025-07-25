@@ -7,7 +7,17 @@ import {CartQuantityUpdater} from "./CartQuantityUpdater.tsx";
 import {BsCart} from "react-icons/bs";
 import {toast} from "react-toastify";
 import {type AddCartItem, addProductToCartItems, getFirstCustomer} from "../../services/CartService.ts";
-import {Modal, Button} from "react-bootstrap";
+import {Button, Modal} from "react-bootstrap";
+
+function getStockLevelMessage(inventory: number) {
+    if (inventory === 0) {
+        return 'Out of stock';
+    } else if (inventory >= 5) {
+        return 'In stock';
+    } else {
+        return 'Low stock';
+    }
+}
 
 export const ProductDetails = () => {
 
@@ -41,14 +51,15 @@ export const ProductDetails = () => {
     useEffect(() => {
         getFirstCustomer()
             .then(customer => {
-                setThisCustomerId(customer.id);
+                setThisCustomerId(customer.id!);
             })
             .catch(error => {
-                toast.error(`Error getting first customer; issue is - ${error.response?.data?.detail}`);
+                toast.error(`You need to be logged in to be able to add product to cart: - ${error.response?.data?.detail}`);
             })
-    }, [setThisCustomerId]);
+    }, [navigate, setThisCustomerId]);
 
     const inventory = product?.inventory ?? 0;
+    const isAddToCartDisabled = (inventory > 0 && thisCustomerId !== null);
 
     const addProductToCart = () => {
         if (inventory <= 0 || quantity > inventory) {
@@ -133,11 +144,7 @@ export const ProductDetails = () => {
                         Rating: <span className="rating text-danger">4.5</span>
                     </p>
                     <p className={`${inventory >= 5 ? 'text-success' : 'text-danger'}`}>
-                        {inventory >= 5
-                            ? 'In stock'
-                            : inventory === 0
-                                ? 'Out of stock'
-                                : 'Low stock'}
+                        {getStockLevelMessage(inventory)}
                     </p>
                     <p>Quantity: {inventory}</p>
                     <CartQuantityUpdater
@@ -163,12 +170,18 @@ export const ProductDetails = () => {
 
                     <div className="d-flex gap-2 mt-3">
                         <button
-                            className={`add-to-cart-button ${inventory === 0 ? 'disabled text-bg-warning' : ''}`}
+                            type="button"
+                            className={`add-to-cart-button ${isAddToCartDisabled ? 'disabled text-bg-warning' : ''}`}
                             onClick={addProductToCart}
-                            disabled={inventory === 0}
+                            disabled={isAddToCartDisabled}
+                            data-bs-placement="top"
+                            data-bs-delay={0}
+                            data-bs-toggle="tooltip"
+                            title={isAddToCartDisabled ? 'You need to be logged in to add product to cart' : ''}
                         >
                             <BsCart/> Add to cart
                         </button>
+
                         <button className={"buy-now-button" + (inventory === 0 ? ' text-bg-dark' : '')}>
                             Buy Now
                         </button>
@@ -188,7 +201,10 @@ export const ProductDetails = () => {
                 </div>
             </div>
 
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            <Modal
+                show={showDeleteModal}
+                onHide={() => setShowDeleteModal(false)}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Delete Product</Modal.Title>
                 </Modal.Header>
@@ -196,10 +212,16 @@ export const ProductDetails = () => {
                     Are you sure you want to delete the product <b><i>{product.name}</i></b>?
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setShowDeleteModal(false)}
+                    >
                         Cancel
                     </Button>
-                    <Button variant="danger" onClick={confirmDelete}>
+                    <Button
+                        variant="danger"
+                        onClick={confirmDelete}
+                    >
                         Delete
                     </Button>
                 </Modal.Footer>

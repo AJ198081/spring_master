@@ -8,6 +8,8 @@ import {Order} from "./components/order/Order.tsx";
 import {AddNewProduct} from "./components/product/AddNewProduct.tsx";
 import {UpdateProduct} from "./components/product/UpdateProduct.tsx";
 import {ImageUpdater} from "./components/product/ImageUpdater.tsx";
+import {UserRegistrationComponent} from "./components/user/UserRegistrationComponent.tsx";
+import {CreateCustomerComponent} from "./components/customer/CreateCustomerComponent.tsx";
 
 function App() {
 
@@ -20,6 +22,14 @@ function App() {
                 <Route
                     index={true}
                     element={<Home/>}
+                />
+                <Route
+                    path={"/register"}
+                    element={<UserRegistrationComponent/>}
+                />
+                <Route
+                    path={"/add-customer"}
+                    element={<CreateCustomerComponent/>}
                 />
                 <Route
                     path={"/products"}

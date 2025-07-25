@@ -1,6 +1,8 @@
 import {create} from 'zustand';
 import type {CartType} from "../types/CartType.ts";
 import type {OrderType} from "../types/OrderType.ts";
+import type {UserResponseDto} from "../types/User.ts";
+import type {CustomerType} from "../types/CustomerType.ts";
 
 export interface Product {
     id?: number,
@@ -23,6 +25,10 @@ export interface Image {
 // An interface that will contain the state you want to manage, and the setter/update functions of the state
 
 interface ProductStore {
+    thisCustomer: CustomerType | null,
+    setThisCustomer: (customer: CustomerType) => void;
+    currentUser: UserResponseDto | null,
+    setCurrentUser: (user: UserResponseDto | null) => void;
     thisCustomerId: number | null;
     setThisCustomerId: (customerId: number) => void;
     thisCustomerOrders: OrderType[];
@@ -119,5 +125,11 @@ export const useProductStore = create<ProductStore>((set, get) => ({
 
         thisCustomerId: null,
         setThisCustomerId: (customerId) => set({thisCustomerId: customerId}),
+
+        currentUser: null,
+        setCurrentUser: (userResponse => set({currentUser: userResponse})),
+
+        thisCustomer: null,
+        setThisCustomer: (customer => set({thisCustomer: customer})),
     }
 ))
