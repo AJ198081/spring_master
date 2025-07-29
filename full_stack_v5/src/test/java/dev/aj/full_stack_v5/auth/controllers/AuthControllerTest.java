@@ -38,15 +38,6 @@ class AuthControllerTest {
     private TestConfig testConfig;
 
     @Autowired
-    private TestDataFactory testDataFactory;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private InitSecurityUser setSecurityUser;
 
     @Autowired
@@ -94,7 +85,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void refreshToken() {
+    void accessToken() {
 
         authenticateUser();
 

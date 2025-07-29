@@ -26,7 +26,7 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<String> refreshToken(@RequestParam("username") String username, @RequestParam("password") String password, HttpServletResponse response) {
+    public ResponseEntity<String> accessToken(@RequestParam("username") String username, @RequestParam("password") String password, HttpServletResponse response) {
         return ResponseEntity.ok(authService.authenticateUser(username, password, response));
     }
 

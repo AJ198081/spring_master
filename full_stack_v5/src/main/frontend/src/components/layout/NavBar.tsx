@@ -1,12 +1,13 @@
 import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Link} from "react-router-dom";
-import {type MouseEvent, useEffect, useState} from "react";
+import {useEffect} from "react";
 import {FaShoppingCart} from "react-icons/fa";
 import {useProductStore} from "../../store/ProductStore.tsx";
 import {getFirstCustomer} from "../../services/CartService.ts";
+import {useAuthStore} from "../../store/AuthStore.ts";
 
 export const NavBar = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const currentAuthentication = useAuthStore(state => state.authState);
     const customerCart = useProductStore(state => state.cartForThisCustomer);
     const setCurrentCustomerId = useProductStore(state => state.setThisCustomerId);
     const setCurrentUser = useProductStore(state => state.setCurrentUser);
@@ -21,10 +22,6 @@ export const NavBar = () => {
             );
     }, [setCurrentCustomerId]);
 
-    const handleLoginAction = (event: MouseEvent<HTMLElement>) => {
-        event.preventDefault();
-        setIsLoggedIn(prev => !prev);
-    }
     const handleUserRegistration = () => {
         setCurrentUser(null);
     };
@@ -68,7 +65,7 @@ export const NavBar = () => {
                         >Add Product</Nav.Link>
                     </Nav>
                     <Nav>
-                        {isLoggedIn
+                        {currentAuthentication?.isAuthenticated
                             ? <NavDropdown
                                 title="Account"
                                 id="collapsible-nav-dropdown"
@@ -87,9 +84,8 @@ export const NavBar = () => {
                                 </NavDropdown.Item>
                                 <NavDropdown.Divider/>
                                 <NavDropdown.Item
-                                    to={isLoggedIn ? "/logout" : "/login"}
+                                    to={"/logout"}
                                     as={Link}
-                                    onClick={event => handleLoginAction(event)}
                                 >
                                     Logout
                                 </NavDropdown.Item>
@@ -101,7 +97,6 @@ export const NavBar = () => {
                                 <NavDropdown.Item
                                     to={"/login"}
                                     as={Link}
-                                    onClick={handleLoginAction}
                                 >
                                     Login
                                 </NavDropdown.Item>

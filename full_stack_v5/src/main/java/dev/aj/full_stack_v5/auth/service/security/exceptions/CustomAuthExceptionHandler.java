@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v5.auth.service.security.util;
+package dev.aj.full_stack_v5.auth.service.security.exceptions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -24,11 +24,11 @@ public class CustomAuthExceptionHandler implements AuthenticationEntryPoint {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        final String message = "Unauthenticated User, exception : %s".formatted(authException.getMessage());
+        final String message = "Unauthenticated User tried accessing %s, exception : %s".formatted(request.getRequestURI(), authException.getMessage());
         log.error(message);
         final Map<String, Object> body = new HashMap<>();
         body.put("error", authException.getClass().getSimpleName());

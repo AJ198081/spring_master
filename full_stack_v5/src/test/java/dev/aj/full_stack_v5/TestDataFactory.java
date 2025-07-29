@@ -73,7 +73,7 @@ public class TestDataFactory {
 
     private Set<String> getRandomRoles() {
 
-        List<String> availableRoles = Arrays.asList("ROLE_USER", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_SALES_REP", "ROLE_GUEST");
+        List<String> availableRoles = Arrays.asList("USER", "ADMIN", "MANAGER", "SALES_REP", "GUEST");
 
         Collections.shuffle(availableRoles);
 

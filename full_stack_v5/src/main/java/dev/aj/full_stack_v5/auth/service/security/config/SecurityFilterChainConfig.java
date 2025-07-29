@@ -1,7 +1,7 @@
 package dev.aj.full_stack_v5.auth.service.security.config;
 
 import dev.aj.full_stack_v5.auth.service.security.filter.AuthTokenFilter;
-import dev.aj.full_stack_v5.auth.service.security.util.CustomAuthExceptionHandler;
+import dev.aj.full_stack_v5.auth.service.security.exceptions.CustomAuthExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,8 +40,11 @@ public class SecurityFilterChainConfig {
                 .sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/v1/auth/**", "/api/v1/users/**", "/api/v1/images/download/**")
+                            .permitAll()
+
+                        .anyRequest()
+                            .authenticated()
                 )
                 .build();
     }

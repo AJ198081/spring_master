@@ -10,6 +10,10 @@ import {UpdateProduct} from "./components/product/UpdateProduct.tsx";
 import {ImageUpdater} from "./components/product/ImageUpdater.tsx";
 import {UserRegistrationComponent} from "./components/user/UserRegistrationComponent.tsx";
 import {CreateCustomerComponent} from "./components/customer/CreateCustomerComponent.tsx";
+import {LoginComponent} from "./components/auth/LoginComponent.tsx";
+import {LogoutComponent} from "./components/auth/LogoutComponent.tsx";
+import {UnauthorizedAccessComponent} from "./components/auth/UnauthorizedAccessComponent.tsx";
+import {ProtectedRoute} from "./components/auth/ProtectedRoute.tsx";
 
 function App() {
 
@@ -26,6 +30,19 @@ function App() {
                 <Route
                     path={"/register"}
                     element={<UserRegistrationComponent/>}
+                />
+                <Route
+                    path={"/login"}
+                    element={<LoginComponent/>}
+                />
+
+                <Route
+                    path={"/logout"}
+                    element={<LogoutComponent/>}
+                />
+                <Route
+                    path={"/unauthorized"}
+                    element={<UnauthorizedAccessComponent/>}
                 />
                 <Route
                     path={"/add-customer"}
@@ -48,9 +65,23 @@ function App() {
                     element={<ImageUpdater/>}
                 />
                 <Route
-                    path={"/my-cart"}
-                    element={<Cart/>}
-                />
+                    element={
+                        <ProtectedRoute
+                            useOutlet={true}
+                            allowedRoles={['ADMIN']}
+                        />
+                    }
+                >
+                    <Route
+                        path={"/my-cart"}
+                        element={<Cart/>}
+                    />
+                    <Route
+                        path={"/my-orders"}
+                        element={<Order/>}
+                    />
+                </Route>
+
                 <Route
                     path={"/products/:id"}
                     element={<Products/>}
@@ -58,10 +89,6 @@ function App() {
                 <Route
                     path={"/products/:productId/details"}
                     element={<ProductDetails/>}
-                />
-                <Route
-                    path={"/my-orders"}
-                    element={<Order/>}
                 />
             </Route>
         )

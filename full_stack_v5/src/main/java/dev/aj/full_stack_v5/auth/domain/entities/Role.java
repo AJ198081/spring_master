@@ -35,17 +35,18 @@ public class Role {
     @JdbcTypeCode(SqlTypes.BIGINT)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    @NaturalId
+    private String name;
+
     @Builder.Default
     @ToString.Exclude
     @ManyToMany(mappedBy = "roles")
     @JsonIgnore
     private Set<User> users = new HashSet<>();
 
-    @Column(nullable = false, unique = true)
-    @NaturalId
-    private String name;
-
     @Builder.Default
     @Embedded
+    @JsonIgnore
     private AuditMetaData auditMetaData = new AuditMetaData();
 }

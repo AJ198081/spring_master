@@ -11,10 +11,10 @@ class TestFullStackV5Application {
 						InitSecurityUser.class,
 						TestDataFactory.class,
 						TestConfig.class,
-						PhotosFactory.class,
-						TestSecurityConfig.class
+						PhotosFactory.class
+//						TestSecurityConfig.class
 				)
-				.withAdditionalProfiles("test", "local")
+				.withAdditionalProfiles("test")
 				.run(args);
 	}
 

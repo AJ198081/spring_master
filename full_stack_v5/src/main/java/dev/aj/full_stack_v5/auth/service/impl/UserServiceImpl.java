@@ -15,10 +15,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,9 +30,12 @@ import java.util.stream.Collectors;
 @NullMarked
 public class UserServiceImpl implements UserService {
 
+    public static final String DEFAULT_USER_ROLE = "ROLE_USER";
+    public static final String USER_NOT_FOUND_MESSAGE = "User with username: %s not found.";
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponseDto registerUser(UserRegistrationDto userRegistrationDto) {
@@ -40,12 +45,26 @@ public class UserServiceImpl implements UserService {
                 .filter(newUser -> !isUsernameTaken(newUser.getUsername()))
                 .map(userMapper::userRegistrationToUser)
                 .map(this::attachRolesToUser)
+                .map(this::encryptPassword)
                 .orElseThrow(() -> new IllegalArgumentException("Username %s already taken".formatted(userRegistrationDto.getUsername())));
 
         return userMapper.userToUserResponseDto(userRepository.save(user));
     }
 
+    private @NonNull User encryptPassword(@NonNull User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return user;
+    }
+
     private User attachRolesToUser(@NotNull User user) {
+
+        // System invariant - a User at least needs to be 'User' able to perform some functions
+        if (user.getRoles() == null) {
+            Role userRole = roleRepository.findRoleByName(DEFAULT_USER_ROLE)
+                    .orElseGet(() -> roleRepository.save(Role.builder().name(DEFAULT_USER_ROLE).build()));
+            user.setRoles(Set.of(userRole));
+        }
+
         user.setRoles(user.getRoles()
                 .stream()
                 .map(role -> roleRepository.findRoleByName(role.getName())
@@ -64,13 +83,13 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto getUserByUsername(String username) {
         return userRepository.findUserByUsername(username)
                 .map(userMapper::userToUserResponseDto)
-                .orElseThrow(() -> new EntityNotFoundException("User with username: %s not found.".formatted(username)));
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_MESSAGE.formatted(username)));
     }
 
     @Override
     public @NonNull User getUserByTheUsername(String username) {
         return userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User with username: %s not found.".formatted(username)));
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_MESSAGE.formatted(username)));
     }
 
     @Override
@@ -108,13 +127,13 @@ public class UserServiceImpl implements UserService {
         Optional<User> existingUser = userRepository.findByUsername(updateUserDto.getUsername());
 
         if (existingUser.isEmpty()) {
-            throw new EntityNotFoundException("User with username: %s not found.".formatted(updateUserDto.getUsername()));
+            throw new EntityNotFoundException(USER_NOT_FOUND_MESSAGE.formatted(updateUserDto.getUsername()));
         }
 
         User userToBeUpdated = existingUser.get();
 
         if (updateUserDto.getPassword() != null) {
-            userToBeUpdated.setPassword(updateUserDto.getPassword());
+            userToBeUpdated.setPassword(passwordEncoder.encode(updateUserDto.getPassword()));
         }
 
         // Expect the caller to pass a complete set of 'new' roles, for this instance it is equivalent to 'PUT' operation
@@ -122,6 +141,7 @@ public class UserServiceImpl implements UserService {
 
         userToBeUpdated.setRoles(updateUserDto.getRolesToBeUpdated()
                 .stream()
+                .map(userMapper::roleNameMapper)
                 .map(mapRoleNameToRole())
                 .map(role -> roleRepository.findRoleByName(role.getName())
                         .orElse(roleRepository.save(role))

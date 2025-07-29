@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CookieUtils {
 
+    public static final String REFRESH_TOKEN = "refresh_token";
     private final Environment environment;
 
     public void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
@@ -23,17 +24,19 @@ public class CookieUtils {
             throw new IllegalArgumentException("HttpServletResponse cannot be null");
         }
 
-        boolean useSecureCookie = environment.getProperty("jwt.refresh.token.cookie.secure", Boolean.class, true);
+//        boolean useSecureCookie = environment.getProperty("jwt.refresh.token.cookie.secure", Boolean.class, true);
         int refreshTokenCookieMaxAge = environment.getProperty("jwt.refresh.token.cookie.max.age", Integer.class, 10_000_000);
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN, refreshToken);
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(useSecureCookie);
+//        refreshTokenCookie.setSecure(useSecureCookie);
         refreshTokenCookie.setMaxAge(refreshTokenCookieMaxAge);
+        refreshTokenCookie.setDomain(environment.getProperty("jwt.refresh.token.cookie.domain", String.class, "localhost"));
+
         refreshTokenCookie.setPath("/");
 
-        String sameSite = useSecureCookie ? "Strict" : "Lax";
-        refreshTokenCookie.setAttribute("SameSite", sameSite);
+//        String sameSite = useSecureCookie ? "Strict" : "Lax";
+        refreshTokenCookie.setAttribute("SameSite", "Lax");
 
         response.addCookie(refreshTokenCookie);
         log.info("Refresh token cookie added");
@@ -44,7 +47,7 @@ public class CookieUtils {
         if (response == null) {
             throw new IllegalArgumentException("HttpServletResponse cannot be null");
         }
-        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN, null);
         refreshTokenCookie.setMaxAge(0);
         refreshTokenCookie.setPath("/");
         response.addCookie(refreshTokenCookie);
@@ -55,7 +58,7 @@ public class CookieUtils {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refresh_token")) {
+                if (cookie.getName().equals(REFRESH_TOKEN)) {
                     return cookie.getValue();
                 }
             }

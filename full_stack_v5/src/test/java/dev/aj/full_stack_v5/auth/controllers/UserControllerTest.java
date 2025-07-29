@@ -35,6 +35,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,12 +56,6 @@ class UserControllerTest {
 
     @LocalServerPort
     private int port;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     private RestClient restClient;
 
@@ -96,11 +91,15 @@ class UserControllerTest {
                 .retrieve()
                 .toEntity(UserResponseDto.class);
 
-        assertNotNull(userRegistrationResponse.getBody());
-        Assertions.assertEquals(HttpStatus.CREATED, userRegistrationResponse.getStatusCode());
-        Assertions.assertNotNull(userRegistrationResponse.getBody());
-        Assertions.assertEquals(userRegistrationDto.getUsername(), userRegistrationResponse.getBody().getUsername());
-        Assertions.assertEquals(userRegistrationDto.getRoles(), userRegistrationResponse.getBody().getRoles());
+        assertAll(
+                () -> assertNotNull(userRegistrationResponse.getBody()),
+                () -> Assertions.assertEquals(HttpStatus.CREATED, userRegistrationResponse.getStatusCode()),
+                () -> Assertions.assertNotNull(userRegistrationResponse.getBody()),
+                () -> Assertions.assertEquals(userRegistrationDto.getUsername(), userRegistrationResponse.getBody().getUsername()),
+                () -> org.assertj.core.api.Assertions.assertThat(userRegistrationResponse.getBody().getRoles())
+                        .containsExactlyInAnyOrder(userRegistrationDto.getRoles().toArray(new String[0]))
+        );
+
 
     }
 

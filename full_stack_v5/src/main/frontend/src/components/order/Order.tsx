@@ -12,13 +12,18 @@ export const Order = () => {
     const thisCustomerId = useProductStore(state => state.thisCustomerId);
 
     useEffect(() => {
-        getOrdersForCustomer(thisCustomerId!)
-            .then(orders => {
-                setThisCustomerOrders(orders);
-            })
-            .catch(error => {
-                toast.error(`Exception ${error.response?.data?.data}`)
-            });
+        if (thisCustomerId !== null) {
+            getOrdersForCustomer(thisCustomerId)
+                .then(orders => {
+                    setThisCustomerOrders(orders);
+                })
+                .catch(error => {
+                    toast.error(`Exception ${error.response?.data?.data}`)
+                });
+        } else {
+            setThisCustomerOrders([]);
+            toast.error(`Customer Id is not set`);
+        }
 
     }, [setThisCustomerOrders, thisCustomerId]);
 
