@@ -2,13 +2,15 @@ import {useProductStore} from "../../store/ProductStore.tsx";
 import {toast} from "react-toastify";
 import {CartItemComponent} from "./CartItemComponent.tsx";
 import {placeOrder} from "../../services/OrderService.ts";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {Button} from "react-bootstrap";
 
 export const Cart = () => {
 
     const cartForThisCustomer = useProductStore(state => state.cartForThisCustomer);
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
     const updateCustomerOrders = useProductStore(state => state.updateOrderForThisCustomer);
+    const navigateTo = useNavigate();
 
     const handlePlaceOrder = () => {
         if (cartForThisCustomer?.cartItems?.length === 0) {
@@ -20,6 +22,7 @@ export const Cart = () => {
                 toast.success(`Order placed successfully. Order Id - ${placedOrder.id}`);
                 updateCustomerOrders(placedOrder);
                 setCartForThisCustomer(null);
+                navigateTo(`/my-orders`);
             })
             .catch(error => {
                 toast.error(`Error placing order; issue is - ${error.response?.data?.detail}`);
@@ -78,11 +81,10 @@ export const Cart = () => {
                     className={`btn btn-outline-info ${cartForThisCustomer?.cartItems?.length === 0 ? 'disabled' : ''}`}
                     to={"/products"}
                 >Continue shopping</Link>
-                <Link
-                    to={"/my-orders"}
+                <Button
                     className={` btn btn-success ${cartForThisCustomer?.cartItems?.length || 'disabled'}`}
                     onClick={handlePlaceOrder}
-                >Checkout</Link>
+                >Checkout</Button>
             </div>
         </div>
     );

@@ -7,7 +7,7 @@ export const addCustomer = async (customerDto: CustomerType) => {
     const customerResponse = await backendClient.post('/customers/', customerDto);
 
     if (customerResponse.status === 201) {
-        return customerResponse.data;
+        return customerResponse.data as CustomerType;
     }
 
     const axiosError = new AxiosError("Error adding customer");

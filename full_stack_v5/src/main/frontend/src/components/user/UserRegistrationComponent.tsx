@@ -31,9 +31,6 @@ export const UserRegistrationComponent = () => {
     const handleRoleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const {checked, value} = e.target;
 
-        console.log(`checked ${checked}`);
-        console.log(`value ${value}`);
-
         const updatedRoles = userRegistration.roles;
         if (checked) {
             updatedRoles.add(value);

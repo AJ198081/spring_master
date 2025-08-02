@@ -1,4 +1,4 @@
-import { backendClient } from "./Api";
+import {backendClient} from "./Api";
 import {AxiosError, type AxiosResponse} from "axios";
 
 export interface LoginRequestDto {

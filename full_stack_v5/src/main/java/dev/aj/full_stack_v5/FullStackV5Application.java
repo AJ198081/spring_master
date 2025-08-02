@@ -22,19 +22,13 @@ public class FullStackV5Application {
     @Bean
     public ObjectMapper jackson2ObjectMapperBuilderCustomizer(Jackson2ObjectMapperBuilder builder) {
         builder.indentOutput(true);
-//        builder.featuresToEnable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
-//        builder.featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(java.time.ZonedDateTime.class, new CustomTimeStampSerializer());
-
-//        builder.modules(simpleModule);
-
         return builder.build();
     }
 
-    @EventListener
-    public void onApplicationEvent(ApplicationReadyEvent event) {
+    @EventListener(classes = {ApplicationReadyEvent.class})
+    public void onApplicationEvent() {
         log.error("Application Started");
     }
 

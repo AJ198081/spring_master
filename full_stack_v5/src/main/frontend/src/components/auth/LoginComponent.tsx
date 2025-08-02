@@ -1,10 +1,24 @@
-import {type FormEvent, useState} from "react";
+import {type FormEvent, useEffect, useState} from "react";
 import {type LoginRequestDto, loginUser} from "../../services/LoginService.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
 import {Button, Card, Col, Container, Form, Row} from "react-bootstrap";
 import {type Authentication, useAuthStore} from "../../store/AuthStore.ts";
 import {isJwtValid, parseJwt} from "../../services/JwtUtil.ts";
+import {AxiosError} from "axios";
+
+const MIN_USERNAME_LENGTH = 3;
+const MIN_PASSWORD_LENGTH = 8;
+
+const errorCondition = {
+    username: MIN_USERNAME_LENGTH,
+    password: MIN_PASSWORD_LENGTH
+};
+
+const errorMessage = {
+    username: `Minimum user length is ${MIN_USERNAME_LENGTH}`,
+    password: `Minimum password length is ${MIN_PASSWORD_LENGTH}`
+};
 
 export const LoginComponent = () => {
 
@@ -14,9 +28,31 @@ export const LoginComponent = () => {
     });
 
     const setAuthentication = useAuthStore(state => state.setAuthState);
+    const isAuthenticated = useAuthStore(state => state.authState?.isAuthenticated);
+    const [inputError, setInputError] = useState({
+        username: null,
+        password: null
+    });
 
     const navigateTo = useNavigate();
     const {pathname, state} = useLocation();
+
+    const handleBlur = (field: 'username' | 'password') => {
+
+        setInputError(prevState => ({
+            ...prevState,
+            [field]: credentials[field].length < errorCondition[field] ? errorMessage[field] : null
+        }));
+    };
+
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigateTo(state?.from || '/', {
+                replace: true,
+            });
+        }
+    }, [isAuthenticated, navigateTo, state?.from]);
 
     const handleLogin = (e: FormEvent<HTMLFormElement>) => {
 
@@ -32,11 +68,12 @@ export const LoginComponent = () => {
                         isAuthenticated: isJwtValid(response),
                         token: response,
                         username: jwtClaims.sub,
-                        roles: jwtClaims.roles
+                        roles: jwtClaims.roles,
+                        customerId: jwtClaims.customer
                     }
 
                     setAuthentication(authenticationObject);
-                    
+
                     toast.success(`Welcome ${authenticationObject.username}!`);
 
                     navigateTo(state?.from || '/', {
@@ -49,8 +86,10 @@ export const LoginComponent = () => {
                 }
             })
             .catch(error => {
+                if (error instanceof AxiosError) {
+                    toast.error(`Error logging the user ${error.response?.data?.type}`);
+                }
                 console.log(error);
-                toast.error(`Error logging the user ${error.response?.data?.error} - ${error.response?.data?.message}`);
             });
 
     }
@@ -79,14 +118,16 @@ export const LoginComponent = () => {
                                         name="username"
                                         value={credentials.username}
                                         onChange={e => setCredentials({...credentials, username: e.target.value})}
+                                        onBlur={() => handleBlur('username')}
                                         placeholder="Enter username"
                                         required
-                                        minLength={3}
+                                        minLength={MIN_USERNAME_LENGTH}
                                         autoComplete="off"
                                         autoFocus
+                                        isInvalid={inputError.username !== null}
                                     />
                                     <Form.Control.Feedback type="invalid">
-                                        Please provide a valid username (minimum 3 characters).
+                                        {inputError.username}
                                     </Form.Control.Feedback>
                                 </Form.Group>
 
@@ -100,11 +141,14 @@ export const LoginComponent = () => {
                                         name="password"
                                         value={credentials.password}
                                         onChange={e => setCredentials({...credentials, password: e.target.value})}
+                                        onBlur={() => handleBlur('password')}
                                         placeholder="Enter password"
                                         autoComplete="off"
+                                        minLength={2}
+                                        isInvalid={inputError.password !== null}
                                     />
                                     <Form.Control.Feedback type="invalid">
-                                        Please provide a valid password.
+                                        {inputError.password}
                                     </Form.Control.Feedback>
                                 </Form.Group>
                                 <Form.Group className="my-5 d-flex justify-content-center gap-3">

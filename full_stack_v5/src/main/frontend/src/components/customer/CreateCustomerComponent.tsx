@@ -4,6 +4,8 @@ import {addCustomer} from "../../services/CustomerService.ts";
 import {useProductStore} from "../../store/ProductStore.tsx";
 import {toast} from "react-toastify";
 import {Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
+import {useLocation, useNavigate} from "react-router-dom";
+import {useAuthStore} from "../../store/AuthStore.ts";
 
 const initialCustomerState: CustomerType = {
     firstName: "",
@@ -35,7 +37,10 @@ export const CreateCustomerComponent = () => {
     const [shippingSameAsBilling, setShippingSameAsBilling] = useState<boolean>(true);
     const setThisCustomer = useProductStore(state => state.setThisCustomer);
     const setThisCustomerId = useProductStore(state => state.setThisCustomerId);
-    const currentUser = useProductStore(state => state.currentUser);
+    const currentUser = useAuthStore(state => state.authState);
+
+    const navigateTo = useNavigate();
+    const location = useLocation();
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const {name, value} = e.target;
@@ -92,15 +97,20 @@ export const CreateCustomerComponent = () => {
 
         customer.username = currentUser?.username;
 
+        if (shippingSameAsBilling) {
+            customer.shippingAddress = customer.billingAddress;
+        }
+
         addCustomer(customer)
             .then(response => {
                 setThisCustomer(response);
-                setThisCustomerId(response.id);
+                setThisCustomerId(response.id!);
                 toast.success(`Customer ${response.firstName} ${response.lastName} created successfully`);
                 setCustomer(initialCustomerState);
                 setValidated(false);
                 setShippingSameAsBilling(true);
                 form.reset();
+                navigateTo(location.state?.from ?? '/', {replace: true});
             })
             .catch(error => {
                 toast.error(`Error creating customer; issue is - ${error.response?.data?.detail ?? error.message}`);

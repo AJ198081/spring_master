@@ -5,6 +5,14 @@ export interface Authentication {
     username: string;
     roles: string[];
     token: string;
+    customerId?: number;
+}
+
+export const clearSessionAuthentication = {
+    isAuthenticated: false,
+    username: '',
+    roles: [],
+    token: '',
 }
 
 export interface AuthStore {
@@ -13,12 +21,7 @@ export interface AuthStore {
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-        authState: {
-            isAuthenticated: false,
-            username: '',
-            roles: [],
-            token: ''
-        },
+        authState: clearSessionAuthentication,
         
         setAuthState: (authState) => set({authState: authState})
     }

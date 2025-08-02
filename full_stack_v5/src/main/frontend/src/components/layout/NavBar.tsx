@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {useEffect} from "react";
 import {FaShoppingCart} from "react-icons/fa";
 import {useProductStore} from "../../store/ProductStore.tsx";
-import {getFirstCustomer} from "../../services/CartService.ts";
+import {getCustomer} from "../../services/CartService.ts";
 import {useAuthStore} from "../../store/AuthStore.ts";
 
 export const NavBar = () => {
@@ -13,14 +13,18 @@ export const NavBar = () => {
     const setCurrentUser = useProductStore(state => state.setCurrentUser);
 
     useEffect(() => {
-        getFirstCustomer()
+        getCustomer()
             .then(customer => {
-                setCurrentCustomerId(customer.id!);
+                if (customer) {
+                    setCurrentCustomerId(customer.id!);
+                }
             })
             .catch(error =>
                 console.log(`Error fetching this customer's details, ${error.response?.data?.detail}`)
             );
     }, [setCurrentCustomerId]);
+
+    console.log(`NavBar ${currentAuthentication?.isAuthenticated} ${currentAuthentication?.customerId === undefined}`);
 
     const handleUserRegistration = () => {
         setCurrentUser(null);
@@ -110,19 +114,21 @@ export const NavBar = () => {
                                 </NavDropdown.Item>
                             </NavDropdown>
                         }
-                        <Link
-                            to={"/my-cart"}
-                            className={`d-flex align-items-center gap-2 ms-4`}
-                        >
-                            <FaShoppingCart
-                                size={20}
-                                color={"black"}
-                            />
-                            <span className="translate-middle badge rounded-pill bg-danger">
+                        {currentAuthentication?.customerId !== undefined &&
+                            <Link
+                                to={"/my-cart"}
+                                className={`d-flex align-items-center gap-2 ms-4`}
+                            >
+                                <FaShoppingCart
+                                    size={20}
+                                    color={"black"}
+                                />
+                                <span className="translate-middle badge rounded-pill bg-danger">
                                 {customerCart?.cartItems.length ?? 0}
-                                <span className="visually-hidden">unread messages</span>
+                                    <span className="visually-hidden">unread messages</span>
                             </span>
-                        </Link>
+                            </Link>
+                        }
                     </Nav>
                 </Navbar.Collapse>
             </Container>

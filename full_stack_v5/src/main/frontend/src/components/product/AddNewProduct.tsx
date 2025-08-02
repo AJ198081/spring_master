@@ -7,17 +7,7 @@ import {CategorySelector} from "../common/CategorySelector.tsx";
 import {Step, StepLabel, Stepper} from "@mui/material";
 import {ImageUploader} from "../common/ImageUploader.tsx";
 import {Link} from "react-router-dom";
-
-export const initialProductState: Product = {
-    // id: 161,
-    name: '',
-    description: '',
-    brand: '',
-    categoryName: '',
-    price: 0,
-    inventory: 0,
-    images: [],
-}
+import {initialProductState} from "../../types/OrderType.ts";
 
 export const AddNewProduct = () => {
 

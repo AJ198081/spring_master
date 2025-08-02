@@ -3,6 +3,9 @@ package dev.aj.full_stack_v5.auth.service.security.impl;
 import dev.aj.full_stack_v5.auth.service.AuthService;
 import dev.aj.full_stack_v5.auth.service.security.util.CookieUtils;
 import dev.aj.full_stack_v5.auth.service.security.util.JwtUtils;
+import dev.aj.full_stack_v5.order.domain.entities.Customer;
+import dev.aj.full_stack_v5.order.services.CustomerService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +25,21 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtils jwtUtils;
     private final CookieUtils cookieUtils;
     private final SecurityUserDetailsService securityUserDetailsService;
+    private final CustomerService customerService;
 
     @Override
     public String authenticateUser(String username, String password, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-        String accessToken = jwtUtils.generateAccessToken(authentication);
+        String accessToken;
+
+        try {
+            Customer customer = customerService.getCustomerByUsername(username);
+            accessToken = jwtUtils.generateAccessToken(authentication, customer);
+        } catch (EntityNotFoundException e) {
+            accessToken = jwtUtils.generateAccessToken(authentication);
+        }
+
         String refreshToken = jwtUtils.generateRefreshToken(authentication);
 
         cookieUtils.addRefreshTokenCookie(response, refreshToken);

@@ -4,16 +4,19 @@ import {useEffect} from "react";
 import {getOrdersForCustomer} from "../../services/OrderService.ts";
 import type {OrderItemType, OrderType} from "../../types/OrderType.ts";
 import dayjs from "dayjs";
+import {useAuthStore} from "../../store/AuthStore.ts";
 
 export const Order = () => {
 
     const thisCustomerOrders = useProductStore(state => state.thisCustomerOrders);
     const setThisCustomerOrders = useProductStore(state => state.setThisCustomerOrders);
     const thisCustomerId = useProductStore(state => state.thisCustomerId);
+    const sessionAuthState = useAuthStore(state => state.authState);
 
     useEffect(() => {
-        if (thisCustomerId !== null) {
-            getOrdersForCustomer(thisCustomerId)
+        if (sessionAuthState?.isAuthenticated && sessionAuthState.customerId !== null) {
+            console.log(`Order ${thisCustomerId}`);
+            getOrdersForCustomer(sessionAuthState.customerId!)
                 .then(orders => {
                     setThisCustomerOrders(orders);
                 })
@@ -22,7 +25,7 @@ export const Order = () => {
                 });
         } else {
             setThisCustomerOrders([]);
-            toast.error(`Customer Id is not set`);
+            toast.error(`You need to create a profile, guest users aren't allowed to place orders!!`);
         }
 
     }, [setThisCustomerOrders, thisCustomerId]);

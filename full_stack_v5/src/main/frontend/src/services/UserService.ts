@@ -18,3 +18,21 @@ export const registerNewUser = async (newUser: UserRegistrationDto)=> {
     axiosError.response = userResponse;
     throw axiosError;
 }
+
+export const resetPassword = async (username: string, email: string, newPassword: string): Promise<number> => {
+    const response: AxiosResponse<void> = await backendClient.patch(`/users/resetPassword`, null, {
+        params: {
+            username: username,
+            email: email,
+            newPassword: newPassword
+        }
+    });
+
+    if (response.status !== 201) {
+        const axiosError = new AxiosError(`Error resetting password for user ${username}`);
+        axiosError.status = response.status;
+        axiosError.response = response;
+        throw axiosError;
+    }
+    return response.status;
+}

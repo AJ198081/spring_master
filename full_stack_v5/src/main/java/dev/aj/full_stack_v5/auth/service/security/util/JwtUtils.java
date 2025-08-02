@@ -1,7 +1,8 @@
 package dev.aj.full_stack_v5.auth.service.security.util;
 
 import dev.aj.full_stack_v5.auth.domain.dtos.SecurityUser;
-import dev.aj.full_stack_v5.auth.domain.entities.Role;
+import dev.aj.full_stack_v5.auth.domain.mapper.UserMapper;
+import dev.aj.full_stack_v5.order.domain.entities.Customer;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -17,7 +18,6 @@ import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 public class JwtUtils {
 
     private final Environment environment;
+    private final UserMapper userMapper;
 
     public String generateAccessToken(Authentication authentication) {
 
@@ -39,10 +40,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject(securityUser.getUsername())
                 .claim("id", securityUser.getId())
-                .claim("roles", securityUser.getRoles()
-                        .stream()
-                        .map(Role::getName)
-                        .collect(Collectors.toSet()))
+                .claim("roles", userMapper.mapSetRolesToSetStrings(securityUser.getRoles()))
                 .issuedAt(new Date())
                 .expiration(tokenExpiration)
                 .signWith(getSigingKey())
@@ -114,4 +112,22 @@ public class JwtUtils {
                 .getPayload();
     }
 
+    public String generateAccessToken(Authentication authentication, Customer customer) {
+        SecurityUser securityUser = extractSecurityUser(authentication);
+
+        Long jwtExpirationMillis = environment.getProperty("jwt.expiration.ms", Long.class, 100_000L);
+
+        Date tokenExpiration = new Date();
+        tokenExpiration.setTime(tokenExpiration.getTime() + jwtExpirationMillis);
+
+        return Jwts.builder()
+                .subject(securityUser.getUsername())
+                .claim("id", securityUser.getId())
+                .claim("roles", userMapper.mapSetRolesToSetStrings(securityUser.getRoles()))
+                .claim("customer", customer.getId())
+                .issuedAt(new Date())
+                .expiration(tokenExpiration)
+                .signWith(getSigingKey())
+                .compact();
+    }
 }

@@ -1,13 +1,15 @@
 import {ProductImage} from "./ProductImage.tsx";
 import {type Product, useProductStore} from "../../store/ProductStore.tsx";
-import {useNavigate, useParams} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {deleteProduct, getProductById} from "../../services/ProductService.ts";
 import {CartQuantityUpdater} from "./CartQuantityUpdater.tsx";
 import {BsCart} from "react-icons/bs";
 import {toast} from "react-toastify";
-import {type AddCartItem, addProductToCartItems, getFirstCustomer} from "../../services/CartService.ts";
+import {type AddCartItem, addProductToCartItems, getCustomer} from "../../services/CartService.ts";
 import {Button, Modal} from "react-bootstrap";
+import {AxiosError} from "axios";
+import {useAuthStore} from "../../store/AuthStore.ts";
 
 function getStockLevelMessage(inventory: number) {
     if (inventory === 0) {
@@ -30,7 +32,11 @@ export const ProductDetails = () => {
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
     const setThisCustomerId = useProductStore(state => state.setThisCustomerId);
     const thisCustomerId = useProductStore(state => state.thisCustomerId);
+    const authenticated = useAuthStore(state => state.authState?.isAuthenticated);
+
+
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         if (productId && productId.length > 0) {
@@ -48,53 +54,77 @@ export const ProductDetails = () => {
         }
     }, [productId])
 
-    useEffect(() => {
-        getFirstCustomer()
+    const getCustomerDetails = () => {
+
+        getCustomer()
             .then(customer => {
-                setThisCustomerId(customer.id!);
+                if (customer) {
+                    setThisCustomerId(customer.id!);
+                }
             })
             .catch(error => {
-                toast.error(`You need to be logged in to be able to add product to cart: - ${error.response?.data?.detail}`);
+                if (error instanceof AxiosError) {
+                    if (error.status === 404) {
+                        navigate('/add-customer', {
+                            replace: true,
+                            state: {from: '/products/' + productId + '/details'}
+                        });
+                    }
+                } else {
+                    toast.error(`You need to be logged in to be able to add product to cart: - ${error.message}`);
+                }
             })
-    }, [navigate, setThisCustomerId]);
+    }
+
 
     const inventory = product?.inventory ?? 0;
-    const isAddToCartDisabled = (inventory > 0 && thisCustomerId !== null);
+    console.log(`inventory ${inventory}`);
+    console.log(`thisCustomerId ${thisCustomerId}`);
+    const isAddToCartDisabled = authenticated && inventory === 0;
 
     const addProductToCart = () => {
-        if (inventory <= 0 || quantity > inventory) {
-            return;
+        if (!authenticated) {
+            navigate('/login', {state: {from: location.pathname}});
         }
 
-        updateAllProducts(allAvailableProducts
-            .map(product => {
-                if (product.id === Number(productId)) {
-                    return {
-                        ...product,
-                        inventory: product.inventory - quantity
+        if (thisCustomerId === null) {
+            console.log(`thisCustomerId is null`);
+            getCustomerDetails();
+        } else {
+            if (inventory <= 0 || quantity > inventory) {
+                return;
+            }
+
+            updateAllProducts(allAvailableProducts
+                .map(product => {
+                    if (product.id === Number(productId)) {
+                        return {
+                            ...product,
+                            inventory: product.inventory - quantity
+                        }
                     }
-                }
-                return product;
-            }));
+                    return product;
+                }));
 
-        const cartItemRequest: AddCartItem = {
-            customerId: thisCustomerId!,
-            productId: Number(productId),
-            quantity: quantity
+            const cartItemRequest: AddCartItem = {
+                customerId: thisCustomerId,
+                productId: Number(productId),
+                quantity: quantity
+            }
+
+            addProductToCartItems(cartItemRequest)
+                .then((updatedCart) => {
+                    setCartForThisCustomer(updatedCart);
+                    toast.success(`Product ${product?.name} added to cart successfully`);
+                })
+                .catch((error) => {
+                    toast.error(`Error adding product to cart; issue is - ${error.response?.data?.detail}`);
+                })
+                .finally(() => {
+                        setQuantity(0);
+                    }
+                );
         }
-
-        addProductToCartItems(cartItemRequest)
-            .then((updatedCart) => {
-                setCartForThisCustomer(updatedCart);
-                toast.success(`Product ${product?.name} added to cart successfully`);
-            })
-            .catch((error) => {
-                toast.error(`Error adding product to cart; issue is - ${error.response?.data?.detail}`);
-            })
-            .finally(() => {
-                    setQuantity(0);
-                }
-            );
 
     };
 

@@ -1,12 +1,12 @@
 import {Link, useParams} from "react-router-dom";
 import {type FormEvent, useEffect, useState} from "react";
 import type {Product} from "../../store/ProductStore.tsx";
-import {initialProductState} from "./AddNewProduct.tsx";
 import {getProductById, updateProduct} from "../../services/ProductService.ts";
 import {toast} from "react-toastify";
 import {LoadSpinner} from "../common/LoadSpinner.tsx";
 import {BrandSelector} from "../common/BrandSelector.tsx";
 import {CategorySelector} from "../common/CategorySelector.tsx";
+import {initialProductState} from "../../types/OrderType.ts";
 
 export const UpdateProduct = () => {
     const {productId} = useParams();

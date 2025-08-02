@@ -7,6 +7,7 @@ import dev.aj.full_stack_v5.product.domain.entities.Brand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +30,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProductResponseDto> addProduct(@RequestBody ProductRequestDto productRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.addProduct(productRequestDto));
     }
@@ -52,11 +54,13 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProductResponseDto> updateProduct(@RequestBody ProductRequestDto productDto, @PathVariable Long id) {
         return ResponseEntity.ok(productService.updateProduct(productDto, id));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteProductById(@PathVariable Long id) {
         productService.deleteProductById(id);
         return ResponseEntity.noContent().build();
@@ -132,6 +136,7 @@ public class ProductController {
     }
 
     @PostMapping("/brand")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Brand> saveANewBrand(@RequestParam String brandName) {
         return ResponseEntity.ok(productService.saveANewBrand(brandName));
     }

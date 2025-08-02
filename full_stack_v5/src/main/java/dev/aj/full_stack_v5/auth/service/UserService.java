@@ -26,4 +26,6 @@ public interface UserService {
     UserResponseDto updateUser(UpdateUserDto updateUserDto);
 
     List<UserResponseDto> getAllUsers();
+
+    void resetPassword(String username, String email, String newPassword);
 }

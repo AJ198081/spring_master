@@ -9,6 +9,7 @@ import dev.aj.full_stack_v5.auth.domain.mapper.UserMapper;
 import dev.aj.full_stack_v5.auth.repositories.RoleRepository;
 import dev.aj.full_stack_v5.auth.repositories.UserRepository;
 import dev.aj.full_stack_v5.auth.service.UserService;
+import dev.aj.full_stack_v5.order.repositories.CustomerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final CustomerRepository customerRepository;
 
     @Override
     public UserResponseDto registerUser(UserRegistrationDto userRegistrationDto) {
@@ -153,6 +155,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream().map(userMapper::userToUserResponseDto).toList();
+    }
+
+    @Override
+    public void resetPassword(String username, String email, String newPassword) {
+        userRepository.findUserByUsername(username)
+                .ifPresentOrElse(
+                        user -> {
+                            if (customerRepository.findCustomerByUsername(user.getUsername()).orElseThrow().getEmail().equals(email)) {
+                                user.setPassword(passwordEncoder.encode(newPassword));
+                                userRepository.save(user);
+                            } else {
+                                throw new IllegalArgumentException("Email does not match the email of the user.");
+                            }
+                            log.info("Password reset for user: {}", username);
+                        },
+                        () -> {
+                            throw new EntityNotFoundException("User with username: %s not found. Unable to reset password.".formatted(username));
+                        }
+                );
     }
 
     private Function<String, Role> mapRoleNameToRole() {

@@ -14,6 +14,7 @@ import {LoginComponent} from "./components/auth/LoginComponent.tsx";
 import {LogoutComponent} from "./components/auth/LogoutComponent.tsx";
 import {UnauthorizedAccessComponent} from "./components/auth/UnauthorizedAccessComponent.tsx";
 import {ProtectedRoute} from "./components/auth/ProtectedRoute.tsx";
+import {ResetPasswordComponent} from "./components/auth/ResetPasswordComponent.tsx";
 
 function App() {
 
@@ -53,10 +54,6 @@ function App() {
                     element={<Products/>}
                 />
                 <Route
-                    path={"/add-product"}
-                    element={<AddNewProduct/>}
-                />
-                <Route
                     path={"/update-product/:productId"}
                     element={<UpdateProduct/>}
                 />
@@ -69,6 +66,25 @@ function App() {
                         <ProtectedRoute
                             useOutlet={true}
                             allowedRoles={['ADMIN']}
+                        />
+                    }
+                >
+                    <Route
+                        path={"/add-product"}
+                        element={<AddNewProduct/>}
+                    />
+                </Route>
+
+                <Route
+                    path={"/reset-password"}
+                    element={<ResetPasswordComponent />}
+                    />
+
+                <Route
+                    element={
+                        <ProtectedRoute
+                            useOutlet={true}
+                            allowedRoles={['ADMIN', 'USER']}
                         />
                     }
                 >

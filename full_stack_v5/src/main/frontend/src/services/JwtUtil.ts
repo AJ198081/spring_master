@@ -13,6 +13,7 @@ interface JwtUserPayload {
     sub: string;
     id: number;
     roles: string[];
+    customer: number
     ist: Date
     exp: number;
 }

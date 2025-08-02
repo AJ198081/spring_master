@@ -2,6 +2,7 @@ import {backendClient} from "./Api.ts";
 import type {CartType} from "../types/CartType.ts";
 import {AxiosError, type AxiosResponse} from "axios";
 import type {CustomerType} from "../types/CustomerType.ts";
+import {useAuthStore} from "../store/AuthStore.ts";
 
 
 export interface AddCartItem {
@@ -57,14 +58,21 @@ export const updateCartItemQuantity = async (cartId: number, productId: number, 
     throw axiosError;
 }
 
-export const getFirstCustomer = async () => {
-    const response: AxiosResponse<CustomerType[]> = await backendClient.get("/customers/all");
-    if (response.status === 200) {
-        return response.data[0];
+export const getCustomer = async () => {
+    const currentUser = useAuthStore.getState().authState;
+    try {
+        const response: AxiosResponse<CustomerType> = await backendClient.get(`/customers/username/${currentUser?.username}`);
+        if (response.status === 200) {
+            return response.data;
+        } else {
+            return null;
+        }
+    } catch (e) {
+        console.log(`Error thrown whilst fetching customer details ${e}`);
+        if (e instanceof AxiosError) {
+            console.log(`Error thrown whilst fetching customer details, exception is ${e.message}`);
+        }
+        throw e;
     }
 
-    const axiosError = new AxiosError("Error fetching customer details");
-    axiosError.status = response.status;
-    axiosError.response = response;
-    throw axiosError;
 }

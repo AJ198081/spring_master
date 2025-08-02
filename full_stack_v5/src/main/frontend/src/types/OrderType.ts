@@ -1,3 +1,5 @@
+import type {Product} from "../store/ProductStore.tsx";
+
 export interface OrderItemType {
     id: number;
     quantity: number;
@@ -14,4 +16,14 @@ export interface OrderType {
     comments: string | null;
     total: number;
     orderItems: OrderItemType[];
+}
+
+export const initialProductState: Product = {
+    name: '',
+    description: '',
+    brand: '',
+    categoryName: '',
+    price: 0,
+    inventory: 0,
+    images: [],
 }
