@@ -1,4 +1,4 @@
-import {type Product, useProductStore} from "../../store/ProductStore.tsx";
+import {type Product, useProductStore} from "../../store/ProductStore.ts";
 import {toast} from "react-toastify";
 import {type FormEvent, useState} from "react";
 import {addNewProduct} from "../../services/ProductService.ts";

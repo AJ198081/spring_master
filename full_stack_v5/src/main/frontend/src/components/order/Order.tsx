@@ -1,34 +1,45 @@
 import {toast} from "react-toastify";
-import {useProductStore} from "../../store/ProductStore.tsx";
+import {useProductStore} from "../../store/ProductStore.ts";
 import {useEffect} from "react";
 import {getOrdersForCustomer} from "../../services/OrderService.ts";
 import type {OrderItemType, OrderType} from "../../types/OrderType.ts";
 import dayjs from "dayjs";
 import {useAuthStore} from "../../store/AuthStore.ts";
+import {AxiosError} from "axios";
+import {useLocation, useNavigate} from "react-router-dom";
 
 export const Order = () => {
 
     const thisCustomerOrders = useProductStore(state => state.thisCustomerOrders);
     const setThisCustomerOrders = useProductStore(state => state.setThisCustomerOrders);
-    const thisCustomerId = useProductStore(state => state.thisCustomerId);
     const sessionAuthState = useAuthStore(state => state.authState);
+    const navigateTo = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        if (sessionAuthState?.isAuthenticated && sessionAuthState.customerId !== null) {
-            console.log(`Order ${thisCustomerId}`);
-            getOrdersForCustomer(sessionAuthState.customerId!)
+        console.log(`isAuthenticated ${sessionAuthState?.isAuthenticated} customerId ${sessionAuthState?.customerId}`)
+        if (sessionAuthState?.isAuthenticated && sessionAuthState.customerId) {
+            getOrdersForCustomer(sessionAuthState.customerId)
                 .then(orders => {
                     setThisCustomerOrders(orders);
                 })
                 .catch(error => {
-                    toast.error(`Exception ${error.response?.data?.data}`)
+                    if (error instanceof AxiosError) {
+                        toast.error(`Exception: ${error.message}`);
+                    } else {
+                        toast.error(`Exception ${error.message}`);
+                    }
                 });
+        } else if (sessionAuthState?.isAuthenticated && !sessionAuthState.customerId) {
+            toast.error(`You need to create a profile, redirecting to create profile!!`);
+            navigateTo('/add-customer', {
+                state: {from: location.pathname}
+            });
         } else {
             setThisCustomerOrders([]);
             toast.error(`You need to create a profile, guest users aren't allowed to place orders!!`);
         }
-
-    }, [setThisCustomerOrders, thisCustomerId]);
+    }, [location.pathname, navigateTo, sessionAuthState?.customerId, sessionAuthState?.isAuthenticated, setThisCustomerOrders]);
 
     const renderOrderItems = (orderItems: OrderItemType[]) => {
         return (

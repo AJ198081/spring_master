@@ -1,4 +1,4 @@
-import {useProductStore} from "../../store/ProductStore.tsx";
+import {useProductStore} from "../../store/ProductStore.ts";
 import {useCallback, useEffect, useState} from "react";
 import {addNewCategory, getAvailableCategories} from "../../services/ProductService.ts";
 import {toast} from "react-toastify";

@@ -1,7 +1,7 @@
 import {Card} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {ProductImage} from "./ProductImage.tsx";
-import {type Product} from "../../store/ProductStore.tsx";
+import {type Product} from "../../store/ProductStore.ts";
 
 export interface ProductCardProps {
     productsToDisplay: Product[]

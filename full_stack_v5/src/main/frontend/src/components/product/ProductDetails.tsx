@@ -1,14 +1,13 @@
 import {ProductImage} from "./ProductImage.tsx";
-import {type Product, useProductStore} from "../../store/ProductStore.tsx";
+import {type Product, useProductStore} from "../../store/ProductStore.ts";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {deleteProduct, getProductById} from "../../services/ProductService.ts";
 import {CartQuantityUpdater} from "./CartQuantityUpdater.tsx";
 import {BsCart} from "react-icons/bs";
 import {toast} from "react-toastify";
-import {type AddCartItem, addProductToCartItems, getCustomer} from "../../services/CartService.ts";
+import {type AddCartItem, addProductToCartItems} from "../../services/CartService.ts";
 import {Button, Modal} from "react-bootstrap";
-import {AxiosError} from "axios";
 import {useAuthStore} from "../../store/AuthStore.ts";
 
 function getStockLevelMessage(inventory: number) {
@@ -30,9 +29,8 @@ export const ProductDetails = () => {
     const allAvailableProducts = useProductStore(state => state.allProducts);
     const updateAllProducts = useProductStore(state => state.setAllProducts);
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
-    const setThisCustomerId = useProductStore(state => state.setThisCustomerId);
-    const thisCustomerId = useProductStore(state => state.thisCustomerId);
     const authenticated = useAuthStore(state => state.authState?.isAuthenticated);
+    const thisCustomerId = useAuthStore(state => state.authState?.customerId);
 
 
     const navigate = useNavigate();
@@ -54,42 +52,14 @@ export const ProductDetails = () => {
         }
     }, [productId])
 
-    const getCustomerDetails = () => {
-
-        getCustomer()
-            .then(customer => {
-                if (customer) {
-                    setThisCustomerId(customer.id!);
-                }
-            })
-            .catch(error => {
-                if (error instanceof AxiosError) {
-                    if (error.status === 404) {
-                        navigate('/add-customer', {
-                            replace: true,
-                            state: {from: '/products/' + productId + '/details'}
-                        });
-                    }
-                } else {
-                    toast.error(`You need to be logged in to be able to add product to cart: - ${error.message}`);
-                }
-            })
-    }
-
-
     const inventory = product?.inventory ?? 0;
-    console.log(`inventory ${inventory}`);
-    console.log(`thisCustomerId ${thisCustomerId}`);
     const isAddToCartDisabled = authenticated && inventory === 0;
 
     const addProductToCart = () => {
-        if (!authenticated) {
-            navigate('/login', {state: {from: location.pathname}});
-        }
 
-        if (thisCustomerId === null) {
-            console.log(`thisCustomerId is null`);
-            getCustomerDetails();
+        console.log(`thisCustomerId is ${thisCustomerId}`);
+        if (!thisCustomerId) {
+            navigate('/add-customer', {state: {from: location.pathname}});
         } else {
             if (inventory <= 0 || quantity > inventory) {
                 return;

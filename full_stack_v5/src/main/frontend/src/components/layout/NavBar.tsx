@@ -2,7 +2,7 @@ import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {useEffect} from "react";
 import {FaShoppingCart} from "react-icons/fa";
-import {useProductStore} from "../../store/ProductStore.tsx";
+import {useProductStore} from "../../store/ProductStore.ts";
 import {getCustomer} from "../../services/CartService.ts";
 import {useAuthStore} from "../../store/AuthStore.ts";
 
@@ -75,7 +75,7 @@ export const NavBar = () => {
                                 id="collapsible-nav-dropdown"
                             >
                                 <NavDropdown.Item
-                                    to={"#action"}
+                                    to={"/update-profile"}
                                     as={Link}
                                 >
                                     Profile

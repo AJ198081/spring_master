@@ -1,5 +1,5 @@
 import {backendClient} from './Api.ts';
-import type {Product} from "../store/ProductStore.tsx";
+import type {Product} from "../store/ProductStore.ts";
 import {AxiosError, type AxiosResponse} from "axios";
 import type {BrandType} from "../types/CartType.ts";
 

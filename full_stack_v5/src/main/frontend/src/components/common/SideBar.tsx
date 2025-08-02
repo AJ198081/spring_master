@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {useProductStore} from "../../store/ProductStore.tsx";
+import {useProductStore} from "../../store/ProductStore.ts";
 
 
 export const Sidebar = () => {

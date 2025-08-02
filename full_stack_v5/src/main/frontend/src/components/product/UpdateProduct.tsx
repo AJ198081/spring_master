@@ -1,6 +1,6 @@
 import {Link, useParams} from "react-router-dom";
 import {type FormEvent, useEffect, useState} from "react";
-import type {Product} from "../../store/ProductStore.tsx";
+import type {Product} from "../../store/ProductStore.ts";
 import {getProductById, updateProduct} from "../../services/ProductService.ts";
 import {toast} from "react-toastify";
 import {LoadSpinner} from "../common/LoadSpinner.tsx";

@@ -1,6 +1,6 @@
 import {Hero} from "./hero/Hero.tsx";
 import {useEffect, useState} from "react";
-import {useProductStore} from "../store/ProductStore.tsx";
+import {useProductStore} from "../store/ProductStore.ts";
 import {Card} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {ProductImage} from "./product/ProductImage.tsx";

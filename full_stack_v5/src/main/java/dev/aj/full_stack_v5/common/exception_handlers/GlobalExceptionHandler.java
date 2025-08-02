@@ -39,6 +39,7 @@ public class GlobalExceptionHandler {
         ProblemDetail entityNotFoundDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         entityNotFoundDetail.setTitle("User Entity Not Found");
         entityNotFoundDetail.setType(URI.create("https://support.google.com/accounts/thread/258682975/account-not-found-username-is-taken?hl=en"));
+
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(entityNotFoundDetail);
@@ -50,8 +51,8 @@ public class GlobalExceptionHandler {
         authNProblem.setTitle("Authentication/Authorization Error");
         authNProblem.setProperty("error", """
                 Authentication/Authorization Error occurred.
-                Please check your credentials and try again.
-                If the problem persists, please contact the system administrator.
+                    Please check your credentials and try again.
+                        If the problem persists, please contact the system administrator.
                 """);
 
         return ResponseEntity

@@ -1,4 +1,4 @@
-import type {Product} from "../../store/ProductStore.tsx";
+import type {Product} from "../../store/ProductStore.ts";
 import {Paginator} from "./Paginator.tsx";
 
 interface PaginatorComponentProps {

@@ -1,4 +1,4 @@
-import type {Product} from "../store/ProductStore.tsx";
+import type {Product} from "../store/ProductStore.ts";
 
 export interface OrderItemType {
     id: number;

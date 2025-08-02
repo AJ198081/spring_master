@@ -15,6 +15,7 @@ import {LogoutComponent} from "./components/auth/LogoutComponent.tsx";
 import {UnauthorizedAccessComponent} from "./components/auth/UnauthorizedAccessComponent.tsx";
 import {ProtectedRoute} from "./components/auth/ProtectedRoute.tsx";
 import {ResetPasswordComponent} from "./components/auth/ResetPasswordComponent.tsx";
+import {UpdateCustomerProfileComponent} from "./components/customer/UpdateCustomerProfileComponent.tsx";
 
 function App() {
 
@@ -77,8 +78,8 @@ function App() {
 
                 <Route
                     path={"/reset-password"}
-                    element={<ResetPasswordComponent />}
-                    />
+                    element={<ResetPasswordComponent/>}
+                />
 
                 <Route
                     element={
@@ -95,6 +96,10 @@ function App() {
                     <Route
                         path={"/my-orders"}
                         element={<Order/>}
+                    />
+                    <Route
+                        path={"/update-profile"}
+                        element={<UpdateCustomerProfileComponent/>}
                     />
                 </Route>
 

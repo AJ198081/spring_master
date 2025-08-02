@@ -1,4 +1,4 @@
-import {useProductStore} from "../../store/ProductStore.tsx";
+import {useProductStore} from "../../store/ProductStore.ts";
 import {toast} from "react-toastify";
 import {CartItemComponent} from "./CartItemComponent.tsx";
 import {placeOrder} from "../../services/OrderService.ts";

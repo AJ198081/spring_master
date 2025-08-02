@@ -1,82 +1,85 @@
-import {type ChangeEvent, type FormEvent, useState} from "react";
-import type {CustomerType} from "../../types/CustomerType.ts";
-import {addCustomer} from "../../services/CustomerService.ts";
-import {useProductStore} from "../../store/ProductStore.ts";
-import {toast} from "react-toastify";
-import {Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
-import {useLocation, useNavigate} from "react-router-dom";
+import {type ChangeEvent, type FormEvent, useEffect, useState} from "react";
+import {useCustomerStore} from "../../store/CustomerStore.ts";
+import {getCustomer, updateCustomer} from "../../services/CustomerService.ts";
 import {useAuthStore} from "../../store/AuthStore.ts";
+import {toast} from "react-toastify";
+import {AxiosError} from "axios";
+import {useLocation, useNavigate} from "react-router-dom";
+import {Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
+import type {CustomerType} from "../../types/CustomerType.ts";
 
-const initialCustomerState: CustomerType = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    billingAddress: {
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        state: "NSW",
-        postalCode: "",
-        country: "Australia"
-    },
-    shippingAddress: {
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        state: "NSW",
-        postalCode: "",
-        country: "Australia"
-    }
-};
-
-export const CreateCustomerComponent = () => {
-    const [customer, setCustomer] = useState<CustomerType>(initialCustomerState);
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const [validated, setValidated] = useState(false);
-    const [shippingSameAsBilling, setShippingSameAsBilling] = useState<boolean>(true);
-    const setThisCustomer = useProductStore(state => state.setThisCustomer);
-    const setThisCustomerId = useProductStore(state => state.setThisCustomerId);
-    const currentUser = useAuthStore(state => state.authState);
-
+export const UpdateCustomerProfileComponent = () => {
+    const customer = useCustomerStore(state => state.customer);
+    const setCustomer = useCustomerStore(state => state.setCustomer);
+    const thisUser = useAuthStore(state => state.authState?.username);
     const navigateTo = useNavigate();
     const location = useLocation();
 
+    const [customerForm, setCustomerForm] = useState<CustomerType | undefined>(undefined);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [validated, setValidated] = useState(false);
+    const [shippingSameAsBilling, setShippingSameAsBilling] = useState<boolean>(true);
+
+    useEffect(() => {
+        if (thisUser) {
+            getCustomer(thisUser)
+                .then(response => {
+                    setCustomer(response);
+                })
+                .catch(error => {
+                    if (error instanceof AxiosError) {
+                        if (error.response?.status === 404) {
+                            toast.error(`Customer with username ${thisUser} not found, redirecting to create profile.`);
+                            navigateTo("/add-customer");
+                        }
+                    }
+                    toast.error(error.message);
+                });
+        }
+    }, [thisUser, setCustomer, navigateTo]);
+
+    useEffect(() => {
+        if (customer) {
+            setCustomerForm(customer);
+            const isSame = JSON.stringify(customer.billingAddress) === JSON.stringify(customer.shippingAddress);
+            setShippingSameAsBilling(isSame);
+        }
+    }, [customer]);
+
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        if (!customerForm) return;
+        
         const {name, value} = e.target;
 
         if (name.includes('.')) {
             const [addressType, field] = name.split('.');
 
-            setCustomer(prev => ({
-                ...prev,
+            setCustomerForm(prev => ({
+                ...prev!,
                 [addressType]: {
-                    ...prev[addressType as keyof Pick<CustomerType, 'billingAddress' | 'shippingAddress'>],
+                    ...prev![addressType as keyof Pick<CustomerType, 'billingAddress' | 'shippingAddress'>],
                     [field]: value
                 }
             }));
         } else {
-            setCustomer(prev => ({
-                ...prev,
+            setCustomerForm(prev => ({
+                ...prev!,
                 [name]: value
             }));
         }
     };
 
     const handleSameAddressChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (!customerForm) return;
+        
         const isSame = e.target.checked;
         setShippingSameAsBilling(isSame);
 
         if (isSame) {
-            setCustomer(prev => ({
-                ...prev,
-                shippingAddress: prev.billingAddress
+            setCustomerForm(prev => ({
+                ...prev!,
+                shippingAddress: prev!.billingAddress
             }));
-        } else{
-            setCustomer(prev => ({
-                ...prev,
-                shippingAddress: initialCustomerState.shippingAddress
-            }))
         }
     };
 
@@ -84,7 +87,7 @@ export const CreateCustomerComponent = () => {
         const form = e.currentTarget;
         e.preventDefault();
 
-        if (!form.checkValidity()) {
+        if (!form.checkValidity() || !customerForm) {
             e.stopPropagation();
             setValidated(true);
             return;
@@ -93,44 +96,43 @@ export const CreateCustomerComponent = () => {
         setValidated(true);
         setIsSubmitting(true);
 
-        customer.username = currentUser?.username;
+        customerForm.username = thisUser;
 
         if (shippingSameAsBilling) {
-            customer.shippingAddress = customer.billingAddress;
+            customerForm.shippingAddress = customerForm.billingAddress;
         }
 
-        addCustomer(customer)
+        updateCustomer(customerForm.id!, customerForm)
             .then(response => {
-                setThisCustomer(response);
-                setThisCustomerId(response.id!);
-                toast.success(`Customer ${response.firstName} ${response.lastName} created successfully`);
-                setCustomer(initialCustomerState);
-                setValidated(false);
-                setShippingSameAsBilling(true);
-                form.reset();
+                setCustomer(response);
+                toast.success(`Customer profile updated successfully`);
                 navigateTo(location.state?.from ?? '/', {replace: true});
             })
             .catch(error => {
-                toast.error(`Error creating customer; issue is - ${error.response?.data?.detail ?? error.message}`);
+                toast.error(`Error updating customer; issue is - ${error.response?.data?.detail ?? error.message}`);
             })
             .finally(() => {
                 setIsSubmitting(false);
             });
     }
 
-    const handleFormReset = () => {
-        setCustomer(initialCustomerState);
-        setValidated(false);
-        setShippingSameAsBilling(true);
-    };
+    if (!customerForm) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </div>
+        );
+    }
 
     return (
         <div className="container m-5">
             <Row className="justify-content-center">
                 <Col md={8} lg={6}>
                     <Card className="shadow">
-                        <Card.Header className="bg-primary text-white">
-                            <h3 className="mb-0">Create Customer</h3>
+                        <Card.Header className="text-bg-danger">
+                            <h3 className="mb-0">Update Customer Profile</h3>
                         </Card.Header>
                         <Card.Body>
                             <Form
@@ -143,7 +145,7 @@ export const CreateCustomerComponent = () => {
                                     <Form.Control
                                         type="text"
                                         name="firstName"
-                                        value={customer.firstName}
+                                        value={customerForm.firstName}
                                         onChange={handleInputChange}
                                         placeholder="Enter first name"
                                         required
@@ -158,7 +160,7 @@ export const CreateCustomerComponent = () => {
                                     <Form.Control
                                         type="text"
                                         name="lastName"
-                                        value={customer.lastName}
+                                        value={customerForm.lastName}
                                         onChange={handleInputChange}
                                         placeholder="Enter last name"
                                         required
@@ -173,7 +175,7 @@ export const CreateCustomerComponent = () => {
                                     <Form.Control
                                         type="email"
                                         name="email"
-                                        value={customer.email}
+                                        value={customerForm.email}
                                         onChange={handleInputChange}
                                         placeholder="Enter email"
                                         required
@@ -188,7 +190,7 @@ export const CreateCustomerComponent = () => {
                                     <Form.Control
                                         type="tel"
                                         name="phone"
-                                        value={customer.phone}
+                                        value={customerForm.phone}
                                         onChange={handleInputChange}
                                         placeholder="Enter phone number"
                                         required
@@ -206,7 +208,7 @@ export const CreateCustomerComponent = () => {
                                             <Form.Control
                                                 type="text"
                                                 name="billingAddress.addressLine1"
-                                                value={customer.billingAddress.addressLine1}
+                                                value={customerForm.billingAddress.addressLine1}
                                                 onChange={handleInputChange}
                                                 placeholder="Enter address line 1"
                                                 required
@@ -225,7 +227,7 @@ export const CreateCustomerComponent = () => {
                                             <Form.Control
                                                 type="text"
                                                 name="billingAddress.addressLine2"
-                                                value={customer.billingAddress.addressLine2}
+                                                value={customerForm.billingAddress.addressLine2}
                                                 onChange={handleInputChange}
                                                 placeholder="Enter address line 2 (optional)"
                                             />
@@ -240,7 +242,7 @@ export const CreateCustomerComponent = () => {
                                             <Form.Control
                                                 type="text"
                                                 name="billingAddress.city"
-                                                value={customer.billingAddress.city}
+                                                value={customerForm.billingAddress.city}
                                                 onChange={handleInputChange}
                                                 placeholder="Enter city"
                                                 required
@@ -255,7 +257,7 @@ export const CreateCustomerComponent = () => {
                                             <Form.Label>State</Form.Label>
                                             <Form.Select
                                                 name="billingAddress.state"
-                                                value={customer.billingAddress.state}
+                                                value={customerForm.billingAddress.state}
                                                 onChange={handleInputChange}
                                                 required
                                             >
@@ -282,7 +284,7 @@ export const CreateCustomerComponent = () => {
                                             <Form.Control
                                                 type="text"
                                                 name="billingAddress.postalCode"
-                                                value={customer.billingAddress.postalCode}
+                                                value={customerForm.billingAddress.postalCode}
                                                 onChange={handleInputChange}
                                                 placeholder="Enter postal code"
                                                 required
@@ -298,7 +300,7 @@ export const CreateCustomerComponent = () => {
                                             <Form.Control
                                                 type="text"
                                                 name="billingAddress.country"
-                                                value={customer.billingAddress.country}
+                                                value={customerForm.billingAddress.country}
                                                 onChange={handleInputChange}
                                                 placeholder="Enter country"
                                                 required
@@ -330,7 +332,7 @@ export const CreateCustomerComponent = () => {
                                                     <Form.Control
                                                         type="text"
                                                         name="shippingAddress.addressLine1"
-                                                        value={customer.shippingAddress.addressLine1}
+                                                        value={customerForm.shippingAddress.addressLine1}
                                                         onChange={handleInputChange}
                                                         placeholder="Enter address line 1"
                                                         required
@@ -349,7 +351,7 @@ export const CreateCustomerComponent = () => {
                                                     <Form.Control
                                                         type="text"
                                                         name="shippingAddress.addressLine2"
-                                                        value={customer.shippingAddress.addressLine2}
+                                                        value={customerForm.shippingAddress.addressLine2}
                                                         onChange={handleInputChange}
                                                         placeholder="Enter address line 2 (optional)"
                                                     />
@@ -364,7 +366,7 @@ export const CreateCustomerComponent = () => {
                                                     <Form.Control
                                                         type="text"
                                                         name="shippingAddress.city"
-                                                        value={customer.shippingAddress.city}
+                                                        value={customerForm.shippingAddress.city}
                                                         onChange={handleInputChange}
                                                         placeholder="Enter city"
                                                         required
@@ -379,7 +381,7 @@ export const CreateCustomerComponent = () => {
                                                     <Form.Label>State</Form.Label>
                                                     <Form.Select
                                                         name="shippingAddress.state"
-                                                        value={customer.shippingAddress.state}
+                                                        value={customerForm.shippingAddress.state}
                                                         onChange={handleInputChange}
                                                         required
                                                     >
@@ -406,7 +408,7 @@ export const CreateCustomerComponent = () => {
                                                     <Form.Control
                                                         type="text"
                                                         name="shippingAddress.postalCode"
-                                                        value={customer.shippingAddress.postalCode}
+                                                        value={customerForm.shippingAddress.postalCode}
                                                         onChange={handleInputChange}
                                                         placeholder="Enter postal code"
                                                         required
@@ -422,7 +424,7 @@ export const CreateCustomerComponent = () => {
                                                     <Form.Control
                                                         type="text"
                                                         name="shippingAddress.country"
-                                                        value={customer.shippingAddress.country}
+                                                        value={customerForm.shippingAddress.country}
                                                         onChange={handleInputChange}
                                                         placeholder="Enter country"
                                                         required
@@ -439,11 +441,10 @@ export const CreateCustomerComponent = () => {
                                 <div className="d-flex justify-content-between gap-2 mt-4">
                                     <Button
                                         variant="outline-secondary"
-                                        type="reset"
+                                        onClick={() => navigateTo('/')}
                                         className="w-50"
-                                        onClick={handleFormReset}
                                     >
-                                        Reset
+                                        Cancel
                                     </Button>
 
                                     <Button
@@ -462,10 +463,10 @@ export const CreateCustomerComponent = () => {
                                                     aria-hidden="true"
                                                     className="me-2"
                                                 />
-                                                Creating...
+                                                Updating...
                                             </>
                                         ) : (
-                                            'Create Customer'
+                                            'Update Profile'
                                         )}
                                     </Button>
                                 </div>

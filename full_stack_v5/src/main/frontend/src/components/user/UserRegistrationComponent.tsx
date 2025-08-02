@@ -1,7 +1,7 @@
 import {type ChangeEvent, type FormEvent, useState} from "react";
 import type {UserRegistrationDto} from "../../types/User.ts";
 import {registerNewUser} from "../../services/UserService.ts";
-import {useProductStore} from "../../store/ProductStore.tsx";
+import {useProductStore} from "../../store/ProductStore.ts";
 import {toast} from "react-toastify";
 import {Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
 import {Link} from "react-router-dom";

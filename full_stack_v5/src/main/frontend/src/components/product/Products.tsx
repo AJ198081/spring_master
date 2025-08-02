@@ -1,7 +1,7 @@
 import {ProductCard} from "./ProductCard.tsx";
 import {SearchBar} from "../search/SearchBar.tsx";
 import {useEffect, useState} from "react";
-import {type Product, useProductStore} from "../../store/ProductStore.tsx";
+import {type Product, useProductStore} from "../../store/ProductStore.ts";
 import {PaginatorComponent} from "../common/PaginatorComponent.tsx";
 import {Sidebar} from "../common/SideBar.tsx";
 import {useParams} from "react-router-dom";

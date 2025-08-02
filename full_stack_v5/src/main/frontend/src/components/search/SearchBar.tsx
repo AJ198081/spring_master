@@ -1,4 +1,4 @@
-import {type Product, useProductStore} from "../../store/ProductStore.tsx";
+import {type Product, useProductStore} from "../../store/ProductStore.ts";
 import {type ChangeEvent, type KeyboardEvent, useEffect, useState} from "react";
 import {toast} from "react-toastify";
 

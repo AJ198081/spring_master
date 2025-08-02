@@ -4,7 +4,7 @@ import {CartItemUpdater} from "../product/CartItemUpdater.tsx";
 import {deleteCartItem, updateCartItemQuantity} from "../../services/CartService.ts";
 import {toast} from "react-toastify";
 import {useState} from "react";
-import {useProductStore} from "../../store/ProductStore.tsx";
+import {useProductStore} from "../../store/ProductStore.ts";
 import {BsFloppy2Fill, BsPencilFill, BsTrash} from "react-icons/bs";
 
 interface CartItemComponentProps {
