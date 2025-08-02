@@ -32,7 +32,7 @@ public class AuthController {
 
     @GetMapping("/login/refresh-token")
     public ResponseEntity<String> refreshAccessToken(HttpServletRequest request) {
-        return ResponseEntity.ok(authService.refreshAccessToken(request));
+        return ResponseEntity.ok(authService.getAccessTokenFromRefreshToken(request));
     }
 
 }

@@ -31,7 +31,7 @@ export const Home = () => {
             .finally(() => setIsLoading(false));
     }, []);
 
-    const products = useProductStore(state => state.allProducts);
+    const products = useProductStore(state => state.searchedProducts);
 
     const indexOfLastItemOnPage = productStore.currentPageNumber * productStore.productsPerPage;
     const indexOfFirstItemOnPage = indexOfLastItemOnPage - productStore.productsPerPage;

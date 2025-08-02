@@ -22,13 +22,12 @@ export const HeroSlider = () => {
         <Slider {...settings} className={"hero-slider"}>
             {images.map((image, index) => (
                 <div
-                    key={index}
+                    key={`${image} - ${index}`}
                     className={"slide"}
                 >
                     <img
                         src={image}
                         alt={`Slide ${index + 1}`}
-                        // className={'slide-image'}
                     />
 
                 </div>))

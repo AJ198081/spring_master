@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {type Authentication, useAuthStore} from '../store/AuthStore';
+import {type Authentication, clearSessionAuthentication, useAuthStore} from '../store/AuthStore';
 import {isJwtValid, parseJwt} from "./JwtUtil.ts";
 
 export const BASE_URL = 'http://localhost:10006/api/v1';
@@ -21,13 +21,9 @@ backendClient.interceptors.request.use(
 
 backendClient.interceptors.response.use(
     response => {
-
         if (response.headers.authorization) {
-            console.log('Setting AuthState.');
             const authorizationHeader = response.headers.authorization;
-
             const jwtClaims = parseJwt(authorizationHeader);
-
             if (jwtClaims) {
                 const authenticationObject: Authentication = {
                     isAuthenticated: isJwtValid(authorizationHeader),
@@ -35,18 +31,18 @@ backendClient.interceptors.response.use(
                     username: jwtClaims.sub,
                     roles: jwtClaims.roles
                 }
-                console.log(`Setting an authentication object from response header`);
                 useAuthStore.getState().setAuthState(authenticationObject);
             }
         }
         return response
     },
+
     error => {
         if (error.response && error.response.status === 401) {
-            console.log('Unauthorized resetting AuthState.');
+            console.log('Unauthorized intercepted in AxiosResponse interceptor; resetting AuthState.');
             backendClient.defaults.headers.common['Authorization'] = '';
-            useAuthStore.getState().setAuthState(null);
+            useAuthStore.getState().setAuthState(clearSessionAuthentication);
         }
-        return Promise.reject(error);
+        return error;
     }
 )

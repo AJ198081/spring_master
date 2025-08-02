@@ -50,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String refreshAccessToken(HttpServletRequest request) {
+    public String getAccessTokenFromRefreshToken(HttpServletRequest request) {
 
         String refreshToken = cookieUtils.getRefreshTokenCookie(request)
                 .split("=")[1];

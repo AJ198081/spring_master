@@ -6,5 +6,5 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface AuthService {
     String authenticateUser(String username, String password, HttpServletResponse response);
 
-    String refreshAccessToken(HttpServletRequest request);
+    String getAccessTokenFromRefreshToken(HttpServletRequest request);
 }
