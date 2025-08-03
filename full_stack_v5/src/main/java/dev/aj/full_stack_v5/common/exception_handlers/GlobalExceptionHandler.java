@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.common.exception_handlers;
 
+import dev.aj.full_stack_v5.common.exception_handlers.exceptions.PaymentFailureException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -58,5 +59,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(authNProblem);
+    }
+
+    @ExceptionHandler(PaymentFailureException.class)
+    public ResponseEntity<ProblemDetail> handleException(PaymentFailureException e) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.PAYMENT_REQUIRED, e.getMessage());
+        problemDetail.setTitle("Payment processing error, with code %s".formatted(e.getCause().getMessage()));
+        problemDetail.setProperty("error", """
+                An unexpected error occurred whilst processing your payment.
+                    Please use a different card or contact your bank.
+                """);
+        problemDetail.setType(URI.create("https://docs.stripe.com/error-codes"));
+
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(problemDetail);
     }
 }

@@ -16,6 +16,7 @@ import {UnauthorizedAccessComponent} from "./components/auth/UnauthorizedAccessC
 import {ProtectedRoute} from "./components/auth/ProtectedRoute.tsx";
 import {ResetPasswordComponent} from "./components/auth/ResetPasswordComponent.tsx";
 import {UpdateCustomerProfileComponent} from "./components/customer/UpdateCustomerProfileComponent.tsx";
+import {ErrorPage} from "./components/common/ErrorPage.tsx";
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
             <Route
                 path="/"
                 element={<RootLayout/>}
+                errorElement={<ErrorPage />}
             >
                 <Route
                     index={true}

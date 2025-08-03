@@ -3,16 +3,29 @@ import {Link} from "react-router-dom";
 import {useEffect} from "react";
 import {FaShoppingCart} from "react-icons/fa";
 import {useProductStore} from "../../store/ProductStore.ts";
-import {getCustomer} from "../../services/CartService.ts";
+import {getCustomer, getCustomerCart} from "../../services/CartService.ts";
 import {useAuthStore} from "../../store/AuthStore.ts";
 
 export const NavBar = () => {
     const currentAuthentication = useAuthStore(state => state.authState);
     const customerCart = useProductStore(state => state.cartForThisCustomer);
+    const setCustomerCart = useProductStore(state => state.setCartForThisCustomer);
     const setCurrentCustomerId = useProductStore(state => state.setThisCustomerId);
     const setCurrentUser = useProductStore(state => state.setCurrentUser);
 
     useEffect(() => {
+
+        if (currentAuthentication?.isAuthenticated && currentAuthentication.customerId) {
+            setCurrentCustomerId(currentAuthentication.customerId);
+            getCustomerCart(currentAuthentication.customerId)
+                .then(response => {
+                    setCustomerCart(response);
+                })
+                .catch(error => {
+                    console.log(`Error fetching customer's cart, ${error.response?.data?.detail}`)
+                });
+        }
+        
         getCustomer()
             .then(customer => {
                 if (customer) {
@@ -22,7 +35,7 @@ export const NavBar = () => {
             .catch(error =>
                 console.log(`Error fetching this customer's details, ${error.response?.data?.detail}`)
             );
-    }, [setCurrentCustomerId]);
+    }, [currentAuthentication?.customerId, currentAuthentication?.isAuthenticated, setCurrentCustomerId, setCustomerCart]);
 
     console.log(`NavBar ${currentAuthentication?.isAuthenticated} ${currentAuthentication?.customerId === undefined}`);
 

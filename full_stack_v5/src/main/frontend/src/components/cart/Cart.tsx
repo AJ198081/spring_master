@@ -1,23 +1,24 @@
 import {useProductStore} from "../../store/ProductStore.ts";
 import {toast} from "react-toastify";
 import {CartItemComponent} from "./CartItemComponent.tsx";
-import {placeOrder} from "../../services/OrderService.ts";
 import {Link, useNavigate} from "react-router-dom";
 import {Button} from "react-bootstrap";
 
 export const Cart = () => {
 
     const cartForThisCustomer = useProductStore(state => state.cartForThisCustomer);
-    const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
-    const updateCustomerOrders = useProductStore(state => state.updateOrderForThisCustomer);
     const navigateTo = useNavigate();
+
+
 
     const handlePlaceOrder = () => {
         if (cartForThisCustomer?.cartItems?.length === 0) {
             toast.error('Your cart is empty, place some items in cart to place order');
         }
 
-        placeOrder(cartForThisCustomer!.customer.id)
+        navigateTo(`/checkout/${cartForThisCustomer?.customer.id}`);
+
+        /*placeOrder(cartForThisCustomer!.customer.id)
             .then(placedOrder => {
                 toast.success(`Order placed successfully. Order Id - ${placedOrder.id}`);
                 updateCustomerOrders(placedOrder);
@@ -26,7 +27,7 @@ export const Cart = () => {
             })
             .catch(error => {
                 toast.error(`Error placing order; issue is - ${error.response?.data?.detail}`);
-            })
+            })*/
     }
 
     return (

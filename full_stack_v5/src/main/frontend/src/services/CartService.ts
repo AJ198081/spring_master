@@ -74,5 +74,15 @@ export const getCustomer = async () => {
         }
         throw e;
     }
+}
 
+export const getCustomerCart = async (customerId: number) => {
+    const response: AxiosResponse<CartType> = await backendClient.get(`/customer/${customerId}`);
+    if (response.status === 200) {
+        return response.data;
+    }
+    const axiosError = new AxiosError("Error fetching customer cart");
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
 }
