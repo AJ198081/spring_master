@@ -17,6 +17,10 @@ import {ProtectedRoute} from "./components/auth/ProtectedRoute.tsx";
 import {ResetPasswordComponent} from "./components/auth/ResetPasswordComponent.tsx";
 import {UpdateCustomerProfileComponent} from "./components/customer/UpdateCustomerProfileComponent.tsx";
 import {ErrorPage} from "./components/common/ErrorPage.tsx";
+import {CheckoutComponent} from "./components/checkout/CheckoutComonent.tsx";
+import {StripeWrapper} from "./components/checkout/StripeWrapper.tsx";
+import {CheckoutSuccess} from "./components/checkout/CheckoutSuccess.tsx";
+import {CheckoutFailure} from "./components/checkout/CheckoutFailure.tsx";
 
 function App() {
 
@@ -25,7 +29,7 @@ function App() {
             <Route
                 path="/"
                 element={<RootLayout/>}
-                errorElement={<ErrorPage />}
+                errorElement={<ErrorPage/>}
             >
                 <Route
                     index={true}
@@ -60,6 +64,12 @@ function App() {
                     path={"/update-product/:productId"}
                     element={<UpdateProduct/>}
                 />
+
+                <Route
+                    path={"/reset-password"}
+                    element={<ResetPasswordComponent/>}
+                />
+
                 <Route
                     path={`/update-product-images/:productId`}
                     element={<ImageUpdater/>}
@@ -77,11 +87,6 @@ function App() {
                         element={<AddNewProduct/>}
                     />
                 </Route>
-
-                <Route
-                    path={"/reset-password"}
-                    element={<ResetPasswordComponent/>}
-                />
 
                 <Route
                     element={
@@ -102,6 +107,18 @@ function App() {
                     <Route
                         path={"/update-profile"}
                         element={<UpdateCustomerProfileComponent/>}
+                    />
+                    <Route
+                        path={"/checkout/:customerId"}
+                        element={<StripeWrapper><CheckoutComponent/></StripeWrapper>}
+                    />
+                    <Route
+                        path={"/checkout/success"}
+                        element={<CheckoutSuccess/>}
+                    />
+                    <Route
+                        path={"/checkout/failure"}
+                        element={<CheckoutFailure/>}
                     />
                 </Route>
 

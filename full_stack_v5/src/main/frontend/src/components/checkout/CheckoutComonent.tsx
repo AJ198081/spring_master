@@ -2,15 +2,17 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useProductStore} from "../../store/ProductStore.ts";
 import {CardElement, useElements, useStripe} from "@stripe/react-stripe-js";
 import {useState} from "react";
-import {createPaymentIntent} from "../../services/PaymentService.tsx";
+import {createPaymentIntent} from "../../services/PaymentService.ts";
 import {useCustomerStore} from "../../store/CustomerStore.ts";
 import {toast} from "react-toastify";
+import {placeOrder} from "../../services/OrderService.ts";
 
 export const CheckoutComponent = () => {
     const navigate = useNavigate();
     const {customerId} = useParams();
     const customerCart = useProductStore(state => state.cartForThisCustomer);
     const customer = useCustomerStore(state => state.customer);
+    const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
 
     const stripe = useStripe();
     const elements = useElements();
@@ -63,11 +65,17 @@ export const CheckoutComponent = () => {
                 toast.error(`Error processing payment: ${paymentIntentResult.error.message}`);
                 setError(paymentIntentResult.error.message || "Payment failed");
                 navigate('/checkout/failure');
-            } else {
-                if (paymentIntentResult.paymentIntent.status === 'succeeded') {
-                    toast.success(`Payment successful!`);
-                    navigate('/checkout/success');
-                }
+            } else if (paymentIntentResult.paymentIntent.status === 'succeeded') {
+                toast.success(`Payment successful!`);
+                placeOrder(Number(customerId))
+                    .then(placedOrder => {
+                        toast.success(`Order placed successfully. Order Id - ${placedOrder.id}`);
+                        setCartForThisCustomer(null);
+                    })
+                    .catch(error => {
+                        toast.error(`Error placing order; issue is - ${error.response?.data?.detail}`);
+                    })
+                navigate('/checkout/success');
             }
 
         } catch (e) {
@@ -129,7 +137,11 @@ export const CheckoutComponent = () => {
                                                 </tr>
                                             ))}
                                             <tr className="table-active">
-                                                <td colSpan={3} className="text-end fw-bold">Total:</td>
+                                                <td
+                                                    colSpan={3}
+                                                    className="text-end fw-bold"
+                                                >Total:
+                                                </td>
                                                 <td className="fw-bold">${customerCart.total.toFixed(2)}</td>
                                             </tr>
                                             </tbody>
@@ -142,7 +154,7 @@ export const CheckoutComponent = () => {
                                 <div className="mb-4">
                                     <h4>Payment Information</h4>
                                     <div className="card p-3 mb-3">
-                                        <CardElement options={CARD_ELEMENT_OPTIONS} />
+                                        <CardElement options={CARD_ELEMENT_OPTIONS}/>
                                     </div>
                                     {error && (
                                         <div className="alert alert-danger mt-2">{error}</div>
@@ -150,9 +162,9 @@ export const CheckoutComponent = () => {
                                 </div>
 
                                 <div className="d-grid gap-2">
-                                    <button 
-                                        type="submit" 
-                                        className="btn btn-primary" 
+                                    <button
+                                        type="submit"
+                                        className="btn btn-primary"
                                         disabled={isLoading || !stripe}
                                     >
                                         {isLoading ? 'Processing...' : 'Pay Now'}

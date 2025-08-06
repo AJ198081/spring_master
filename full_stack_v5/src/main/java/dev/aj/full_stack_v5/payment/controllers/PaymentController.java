@@ -16,7 +16,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/")
+    @PostMapping("/createPaymentIntent")
     public ResponseEntity<String> createPaymentIntent(@RequestBody PaymentRequest paymentRequest) {
         return ResponseEntity.ok(paymentService.createPaymentIntent(paymentRequest));
     }
