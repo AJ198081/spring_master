@@ -1,23 +1,37 @@
 import {useNavigate, useParams} from "react-router-dom";
 import {useProductStore} from "../../store/ProductStore.ts";
 import {CardElement, useElements, useStripe} from "@stripe/react-stripe-js";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {createPaymentIntent} from "../../services/PaymentService.ts";
 import {useCustomerStore} from "../../store/CustomerStore.ts";
 import {toast} from "react-toastify";
 import {placeOrder} from "../../services/OrderService.ts";
+import {getCustomerById} from "../../services/CustomerService.ts";
 
 export const CheckoutComponent = () => {
     const navigate = useNavigate();
     const {customerId} = useParams();
     const customerCart = useProductStore(state => state.cartForThisCustomer);
     const customer = useCustomerStore(state => state.customer);
+    const setCustomerHandler = useCustomerStore(state => state.setCustomer);
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
 
     const stripe = useStripe();
     const elements = useElements();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (customer === null || customer === undefined) {
+            getCustomerById(Number(customerId))
+                .then(customer => {
+                    setCustomerHandler(customer);
+                })
+                .catch(error => {
+                    toast.error(`Error fetching customer; issue is - ${error.response?.data?.detail}`);
+                });
+        }
+    }, [customer, customerId, setCustomerHandler]);
 
     const handlePaymentAndOrder = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
@@ -27,7 +41,10 @@ export const CheckoutComponent = () => {
         const cardElement = elements?.getElement(CardElement);
 
         if (!stripe || !customerId || !customerCart || !elements || !customer || !cardElement) {
-            console.log('stripe or customer id or customer dart or card elements null');
+            console.log('stripe or customer id or customer cart or card elements null');
+
+            console.log(`stripe ${stripe} customerId ${customerId} customerCart ${customerCart} elements ${elements} customer ${customer} cardElement ${cardElement}`);
+
             setError("Missing required information for checkout");
             setIsLoading(false);
             return;
