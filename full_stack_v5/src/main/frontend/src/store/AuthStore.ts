@@ -22,6 +22,7 @@ export interface AuthStore {
 
 export const useAuthStore = create<AuthStore>((set) => ({
         authState: clearSessionAuthentication,
-        setAuthState: (authState) => set({authState: authState})
+        setAuthState: (authState) => set({authState: authState}),
+
     }
 ));

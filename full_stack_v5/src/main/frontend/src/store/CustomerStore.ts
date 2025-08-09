@@ -2,11 +2,11 @@ import type { CustomerType } from "../types/CustomerType";
 import {create} from "zustand";
 
 export interface CustomerStore {
-    customer?: CustomerType;
-    setCustomer: (customer: CustomerType) => void;
+    customer: CustomerType | null;
+    setCustomer: (customer: CustomerType | null) => void;
 }
 
 export const useCustomerStore = create<CustomerStore>((set) => ({
-    customer: undefined,
-    setCustomer: (customer: CustomerType) => set({customer: customer}),
+    customer: null,
+    setCustomer: (customer: CustomerType | null) => set({customer: customer}),
 }));

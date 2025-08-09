@@ -2,7 +2,7 @@ import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {useEffect} from "react";
 import {useProductStore} from "../../store/ProductStore.ts";
-import {getCustomer, getCustomerCart} from "../../services/CartService.ts";
+import {getCustomerCart} from "../../services/CartService.ts";
 import {useAuthStore} from "../../store/AuthStore.ts";
 import {Badge} from "@mui/material";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -26,16 +26,6 @@ export const NavBar = () => {
                     console.log(`Error fetching customer's cart, ${error.response?.data?.detail}`)
                 });
         }
-        
-        getCustomer()
-            .then(customer => {
-                if (customer) {
-                    setCurrentCustomerId(customer.id!);
-                }
-            })
-            .catch(error =>
-                console.log(`Error fetching this customer's details, ${error.response?.data?.detail}`)
-            );
     }, [currentAuthentication?.customerId, currentAuthentication?.isAuthenticated, setCurrentCustomerId, setCustomerCart]);
 
     console.log(`NavBar ${currentAuthentication?.isAuthenticated} ${currentAuthentication?.customerId === undefined}`);

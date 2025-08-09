@@ -77,7 +77,7 @@ export const getCustomer = async () => {
 }
 
 export const getCustomerCart = async (customerId: number) => {
-    const response: AxiosResponse<CartType> = await backendClient.get(`/customer/${customerId}`);
+    const response: AxiosResponse<CartType> = await backendClient.get(`/customers/${customerId}`);
     if (response.status === 200) {
         return response.data;
     }

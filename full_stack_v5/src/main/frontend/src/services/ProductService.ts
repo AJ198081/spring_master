@@ -1,5 +1,5 @@
 import {backendClient} from './Api.ts';
-import type {Product} from "../store/ProductStore.ts";
+import {type Product} from "../store/ProductStore.ts";
 import {AxiosError, type AxiosResponse} from "axios";
 import type {BrandType} from "../types/CartType.ts";
 
@@ -143,3 +143,7 @@ export const deleteProduct = async (id: number): Promise<void> => {
     axiosError.response = response;
     throw axiosError;
 }
+
+export const queryAllProducts = async (): Promise<Product[]> => {
+    return getDistinctProducts();
+};

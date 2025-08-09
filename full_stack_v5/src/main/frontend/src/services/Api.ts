@@ -1,8 +1,11 @@
 import axios from 'axios';
 import {type Authentication, clearSessionAuthentication, useAuthStore} from '../store/AuthStore';
 import {isJwtValid, parseJwt} from "./JwtUtil.ts";
+import {QueryClient} from "@tanstack/react-query";
 
 export const BASE_URL = 'http://localhost:10006/api/v1';
+
+export const queryClient = new QueryClient();
 
 export const backendClient = axios.create({
     baseURL: BASE_URL
