@@ -9,6 +9,7 @@ import {toast} from "react-toastify";
 import {type AddCartItem, addProductToCartItems} from "../../services/CartService.ts";
 import {Button, Modal} from "react-bootstrap";
 import {useAuthStore} from "../../store/AuthStore.ts";
+import {Rating, Typography} from "@mui/material";
 
 function getStockLevelMessage(inventory: number) {
     if (inventory === 0) {
@@ -31,6 +32,7 @@ export const ProductDetails = () => {
     const setCartForThisCustomer = useProductStore(state => state.setCartForThisCustomer);
     const authenticated = useAuthStore(state => state.authState?.isAuthenticated);
     const thisCustomerId = useAuthStore(state => state.authState?.customerId);
+    const [ratings, setRatings] = useState(4.5);
 
 
     const navigate = useNavigate();
@@ -140,9 +142,17 @@ export const ProductDetails = () => {
                     <h4 className={'price'}>{product.price}</h4>
                     <p className={'product-description'}>{product.description}</p>
                     <p className="product-name">Brand: {product.brand?.toLowerCase()}</p>
-                    <p className="product-name">
-                        Rating: <span className="rating text-danger">4.5</span>
-                    </p>
+                    <div className="my-3">
+                        <Typography component="legend">Rating</Typography>
+                        <Rating
+                            name="simple-controlled"
+                            value={ratings}
+                            onChange={(event, newValue) => {
+                                console.log(event.target, newValue);
+                                setRatings(newValue!);
+                            }}
+                        />
+                    </div>
                     <p className={`${inventory >= 5 ? 'text-success' : 'text-danger'}`}>
                         {getStockLevelMessage(inventory)}
                     </p>

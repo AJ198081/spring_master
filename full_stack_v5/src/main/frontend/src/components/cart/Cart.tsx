@@ -17,17 +17,6 @@ export const Cart = () => {
         }
 
         navigateTo(`/checkout/${cartForThisCustomer?.customer.id}`);
-
-        /*placeOrder(cartForThisCustomer!.customer.id)
-            .then(placedOrder => {
-                toast.success(`Order placed successfully. Order Id - ${placedOrder.id}`);
-                updateCustomerOrders(placedOrder);
-                setCartForThisCustomer(null);
-                navigateTo(`/my-orders`);
-            })
-            .catch(error => {
-                toast.error(`Error placing order; issue is - ${error.response?.data?.detail}`);
-            })*/
     }
 
     return (

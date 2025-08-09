@@ -1,10 +1,11 @@
 import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {useEffect} from "react";
-import {FaShoppingCart} from "react-icons/fa";
 import {useProductStore} from "../../store/ProductStore.ts";
 import {getCustomer, getCustomerCart} from "../../services/CartService.ts";
 import {useAuthStore} from "../../store/AuthStore.ts";
+import {Badge} from "@mui/material";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 export const NavBar = () => {
     const currentAuthentication = useAuthStore(state => state.authState);
@@ -48,7 +49,7 @@ export const NavBar = () => {
             collapseOnSelect
             expand="lg"
             sticky={"top"}
-            className="nav-bg"
+            className="nav-bg bg-dark-subtle"
         >
             <Container>
                 <Nav.Link
@@ -132,14 +133,9 @@ export const NavBar = () => {
                                 to={"/my-cart"}
                                 className={`d-flex align-items-center gap-2 ms-4`}
                             >
-                                <FaShoppingCart
-                                    size={20}
-                                    color={"black"}
-                                />
-                                <span className="translate-middle badge rounded-pill bg-danger">
-                                {customerCart?.cartItems.length ?? 0}
-                                    <span className="visually-hidden">unread messages</span>
-                            </span>
+                                <Badge badgeContent={customerCart?.cartItems?.length ?? 0} color={"info"}>
+                                <ShoppingCartIcon color={"primary"} />
+                                </Badge>
                             </Link>
                         }
                     </Nav>
