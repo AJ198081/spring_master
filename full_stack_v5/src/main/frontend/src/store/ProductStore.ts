@@ -13,6 +13,7 @@ export interface Product {
     inventory: number,
     categoryName: string,
     images: Image[],
+    inWishList?: boolean
 }
 
 export interface Image {

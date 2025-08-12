@@ -59,6 +59,17 @@ export const updateProduct = async (product: Product) => {
     throw axiosError;
 }
 
+export const patchProduct = async (productId: string, product: Partial<Product>) => {
+    const response: AxiosResponse<Product> = await backendClient.patch(`/products/${productId}`, product);
+    if (response.status === 200) {
+        return response.data;
+    }
+    const axiosError = new AxiosError(`Error thrown whilst patching product ${product.name}`);
+    axiosError.status = response.status;
+    axiosError.response = response;
+    throw axiosError;
+}
+
 export const getAvailableBrands = async (): Promise<string[]> => {
     const response = await backendClient.get('/products/distinctBrands');
 

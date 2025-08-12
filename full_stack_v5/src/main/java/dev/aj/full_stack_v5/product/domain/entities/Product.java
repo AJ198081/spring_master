@@ -56,7 +56,7 @@ public class Product {
     @Column(name = "unit_price", precision = 10, scale = 2, columnDefinition = "numeric(10,2)")
     private BigDecimal price;
 
-    private int inventory;
+    private Integer inventory;
 
     @ManyToOne
     @JoinColumn(name = "brand_id")
@@ -82,6 +82,9 @@ public class Product {
     @Builder.Default
     @JsonIgnore
     private AuditMetaData auditMetaData = new AuditMetaData();
+
+    @Builder.Default
+    private Boolean inWishList = false;
 
     public void addImages(List<Image> images) {
         if (images != null) {

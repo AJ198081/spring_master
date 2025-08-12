@@ -1,15 +1,21 @@
 import {ProductImage} from "./ProductImage.tsx";
 import {type Product, useProductStore} from "../../store/ProductStore.ts";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
-import {deleteProduct, getProductById} from "../../services/ProductService.ts";
+import {useEffect, useReducer, useState} from "react";
+import {deleteProduct, getProductById, patchProduct} from "../../services/ProductService.ts";
 import {CartQuantityUpdater} from "./CartQuantityUpdater.tsx";
 import {BsCart} from "react-icons/bs";
 import {toast} from "react-toastify";
 import {type AddCartItem, addProductToCartItems} from "../../services/CartService.ts";
 import {Button, Modal} from "react-bootstrap";
 import {useAuthStore} from "../../store/AuthStore.ts";
-import {Rating, Typography} from "@mui/material";
+import {Box, IconButton, Rating, Tooltip, Typography, Zoom} from "@mui/material";
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import PlaylistAddCircleIcon from '@mui/icons-material/PlaylistAddCircle';
+import {useMutation} from "@tanstack/react-query";
+import {queryClient} from "../../services/Api.ts";
+import {AxiosError} from "axios";
+import {getObjectPatch} from "../../utils/Utilities.ts";
 
 function getStockLevelMessage(inventory: number) {
     if (inventory === 0) {
@@ -24,6 +30,7 @@ function getStockLevelMessage(inventory: number) {
 export const ProductDetails = () => {
 
     const {productId} = useParams();
+    const[originalProduct, setOriginalProduct] = useState<Product | null>(null);
     const [product, setProduct] = useState<Product | null>(null);
     const [quantity, setQuantity] = useState(1);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -33,7 +40,7 @@ export const ProductDetails = () => {
     const authenticated = useAuthStore(state => state.authState?.isAuthenticated);
     const thisCustomerId = useAuthStore(state => state.authState?.customerId);
     const [ratings, setRatings] = useState(4.5);
-
+    const [addedToPlayList, toggleAddToPlayList] = useReducer(prevState => !prevState, product?.inWishList ?? false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -44,18 +51,50 @@ export const ProductDetails = () => {
                 .then((product) => {
                     if (product) {
                         setProduct(product);
+                        setOriginalProduct(product);
                     }
                 })
                 .catch((error) => {
                         console.log(error);
                         setProduct({} as Product);
+                        setOriginalProduct({} as Product);
                     }
                 )
         }
-    }, [productId])
+    }, [productId]);
+
+    const mutation = useMutation({
+        // Accept a single variables object so we can pass both values from mutate
+        mutationFn: ({ productId, productChanges }: { productId: string, productChanges: Partial<Product> }) =>
+            patchProduct(productId, productChanges),
+        onSuccess: (updatedProduct) => {
+            toast.success(`Product ${product?.name} added to cart successfully`);
+            console.log(`updatedProduct ${updatedProduct}`);
+            void queryClient.invalidateQueries({queryKey: ['products']});
+        },
+        onError: (error) => {
+            if (error instanceof AxiosError) {
+                toast.error(`Error adding product to cart; issue is - ${error.response?.data?.detail}`);
+            } else {
+                toast.error('An unknown error occurred while adding the product to cart');
+            }
+        },
+    });
 
     const inventory = product?.inventory ?? 0;
     const isAddToCartDisabled = authenticated && inventory === 0;
+
+    const handleWishList = () => {
+        if (productId && product && originalProduct) {
+            const updatedProduct = {...product, inWishList: !addedToPlayList};
+            const productChanges = getObjectPatch(updatedProduct, originalProduct) as Partial<Product>;
+            console.log(`productChanges ${JSON.stringify(productChanges)}`);
+            mutation.mutate({ productId, productChanges });
+            setProduct(updatedProduct);
+            setOriginalProduct(updatedProduct);
+            toggleAddToPlayList();
+        }
+    }
 
     const addProductToCart = () => {
 
@@ -153,9 +192,42 @@ export const ProductDetails = () => {
                             }}
                         />
                     </div>
-                    <p className={`${inventory >= 5 ? 'text-success' : 'text-danger'}`}>
-                        {getStockLevelMessage(inventory)}
-                    </p>
+                    <Box
+                        display="flex"
+                        alignItems="flex-end"
+                        justifyContent="start"
+                        gap={4}
+                    >
+                        <p className={`${inventory >= 5 ? 'text-success' : 'text-danger'}`}>
+                            {getStockLevelMessage(inventory)}
+                        </p>
+                        <Tooltip
+                            title={`${addedToPlayList ? 'Remove from wishlist' : 'Added to wishlist'}`}
+                            placement="top"
+                            arrow={true}
+                            slots={{
+                                transition: Zoom
+                            }}
+                            slotProps={{
+                                transition: {
+                                    timeout: 400,
+                                },
+                            }}
+                        >
+                            <IconButton
+                                aria-label="add to wishlist"
+                                color={"info"}
+                            >
+                                {addedToPlayList ? <PlaylistAddCheckIcon
+                                    fontSize={"large"}
+                                    onClick={handleWishList}
+                                /> : <PlaylistAddCircleIcon
+                                    fontSize="large"
+                                    onClick={handleWishList}
+                                />}
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
                     <p>Quantity: {inventory}</p>
                     <CartQuantityUpdater
                         quantity={quantity}

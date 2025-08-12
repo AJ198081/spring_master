@@ -9,14 +9,14 @@ import {ImageUploader} from "../common/ImageUploader.tsx";
 import {Link} from "react-router-dom";
 import {initialProductState} from "../../types/OrderType.ts";
 
-export const AddNewProduct = () => {
+const STEPS = [`Add new product`, `Upload product image(s)`, 'Done'];
 
+export const AddNewProduct = () => {
     const addProductToStore = useProductStore(state => state.addProduct);
     const [product, setProduct] = useState<Product>(initialProductState);
     const [selectedBrand, setSelectedBrand] = useState<string>(initialProductState.brand || '');
     const [selectedCategory, setSelectedCategory] = useState<string>(initialProductState.categoryName || '');
     const [activeStep, setActiveStep] = useState<number>(0);
-    const steps = [`Add new product`, `Upload product image(s)`, 'Done'];
 
     const handleProductChange = (e: { target: { name: string; value: string | number; }; }) => {
 
@@ -112,7 +112,7 @@ export const AddNewProduct = () => {
                             activeStep={activeStep}
                             className="m-4"
                         >
-                            {steps.map((step) => (
+                            {STEPS.map((step) => (
                                 <Step key={step}>
                                     <StepLabel>{step}</StepLabel>
                                 </Step>

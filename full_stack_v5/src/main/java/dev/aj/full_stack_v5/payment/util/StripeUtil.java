@@ -4,7 +4,6 @@ import com.stripe.Stripe;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
@@ -21,7 +20,7 @@ public class StripeUtil {
     }
 
 
-    @Bean
+//    @Bean
     public Dotenv setEnvironment() {
 
 //      Load environment variables into System properties, thus making all environment variables accessible via System.getProperty(...) or environment.getProperty(...)

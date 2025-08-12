@@ -34,10 +34,12 @@ public class ProductRequestDto {
 
     private BigDecimal price;
 
-    private int inventory;
+    private Integer inventory;
 
     private String categoryName;
 
     @Builder.Default
     private Set<ImageRequestDto> images = new HashSet<>();
+
+    private Boolean inWishList;
 }

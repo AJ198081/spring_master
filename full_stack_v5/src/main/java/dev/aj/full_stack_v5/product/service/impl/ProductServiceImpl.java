@@ -245,6 +245,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductResponseDto patchProduct(Long productId, ProductRequestDto productRequestDto) {
+
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product with id: %s doesn't exist.".formatted(productId)));
+
+        Product patchedProduct = productMapper.patchDtoToProduct(productRequestDto, existingProduct);
+        Product saved = productRepository.save(patchedProduct);
+        return productMapper.toProductResponseDto(saved);
+    }
+
+    @Override
     public List<ProductResponseDto> getProductResponseDtosByProductId(Long id) {
 
         return productRepository.findById(id)

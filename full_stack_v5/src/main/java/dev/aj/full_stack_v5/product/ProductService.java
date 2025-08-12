@@ -50,4 +50,6 @@ public interface ProductService {
     Brand saveANewBrand(String brandName);
 
     List<String> getDistinctCategories();
+
+    ProductResponseDto patchProduct(Long productId, ProductRequestDto productRequestDto);
 }

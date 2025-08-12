@@ -9,6 +9,9 @@
     "lint": "eslint .",
     "vulnerability fixes": "npm audit fix"
   },
+  "quokka": {
+    "tsConfig": "./tsconfig.quokka.json"
+  },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -29,6 +32,8 @@
     "react-medium-image-zoom": "^5.2.14",
     "react-router-dom": "^7.6.2",
     "react-slick": "^0.30.3",
+    "lodash": "^4.17.21",
+    "@types/lodash": "^4.14.182",
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
     "zustand": "^5.0.5"

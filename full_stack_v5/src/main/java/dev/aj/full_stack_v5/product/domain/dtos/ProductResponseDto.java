@@ -40,10 +40,12 @@ public class ProductResponseDto implements Serializable {
 
     private BigDecimal price;
 
-    private int inventory;
+    private Integer inventory;
 
     private String categoryName;
 
     @Builder.Default
     private Set<ImageResponseDto> images = new HashSet<>();
+
+    private Boolean inWishList;
 }

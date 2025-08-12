@@ -2,6 +2,7 @@ import './App.css'
 import {Container, createTheme, ThemeProvider} from "@mui/material";
 import {AppBarComponent} from "./components/AppBarComponent.tsx";
 import {FooterComponent} from './components/FooterComponent.tsx';
+import {AlertComponent} from './components/AlertComponent.tsx';
 
 function App() {
 
@@ -56,6 +57,7 @@ function App() {
                 {/*<FormControlComponent />*/}
                 {/*<MenuComponent />*/}
                 {/*<CardComponent/>*/}
+                <AlertComponent/>
                 <FooterComponent/>
 
             </Container>

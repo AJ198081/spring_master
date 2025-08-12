@@ -8,9 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.NonNull;
 import org.mapstruct.AnnotateWith;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import java.io.IOException;
@@ -60,4 +63,28 @@ public abstract class ProductMapper {
     }
 
     public abstract List<ProductResponseDto> toProductResponseDtos(@NonNull List<Product> products);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "category.name", source = "categoryName")
+    @Mapping(target = "images", expression = "java(this.getImagesIfPresent(productRequestDto, existingProduct))")
+    @Mapping(target = "brand.name", source = "brand")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "auditMetaData", ignore = true)
+    public abstract Product patchDtoToProduct(ProductRequestDto productRequestDto, @MappingTarget Product existingProduct);
+
+    Set<Image> getImagesIfPresent(ProductRequestDto productRequestDto, Product existingProduct) {
+        if (productRequestDto != null && productRequestDto.getImages() != null && !productRequestDto.getImages().isEmpty()) {
+            return productRequestDto.getImages().stream()
+                    .map(imageRequestDto -> {
+                        try {
+                            return imageMapper.toImage(imageRequestDto);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .collect(Collectors.toSet());
+        } else {
+            return existingProduct.getImages();
+        }
+    }
 }
