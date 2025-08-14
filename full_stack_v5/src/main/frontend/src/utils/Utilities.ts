@@ -1,17 +1,30 @@
 import _ from "lodash";
 
-export function getObjectPatch<T extends object>(modified: Partial<T>, original: Partial<T>): Partial<T> {
-    // @ts-ignore
-    return _.transform(modified, (result, value: T[keyof T], key: keyof T) => {
-    if (!_.isEqual(value, original[key])) {
-      // @ts-ignore
-        result[key] = (_.isObject(value) && _.isObject(original[key]))
-          && !_.isArray(value) && !_.isArray(original[key])
-          ? getObjectPatch(value, original[key])
-          : value;
-    }
-  });
+export function getObjectPatch<T extends object>(
+    modified: Partial<T>,
+    original: Partial<T>
+): Partial<T> {
+    return _.transform(
+        modified,
+        (result: Partial<T>, value, keyStr) => {
+            const key = keyStr as keyof T;
+
+            if (!_.isEqual(value, original[key])) {
+                if (_.isPlainObject(value)
+                    && _.isPlainObject(original[key])) {
+                    result[key] = getObjectPatch(
+                        value as Partial<T[keyof T]>,
+                        original[key]!
+                    ) as T[keyof T];
+                } else {
+                    result[key] = value as T[keyof T];
+                }
+            }
+        },
+        {} as Partial<T>
+    );
 }
+
 
 const originalProduct = {
     id: 1,
@@ -23,7 +36,7 @@ const originalProduct = {
     images: ["image1.jpg", "image2.jpg"],
     quantity: 10,
     rating: 4.5,
-    
+
 }
 
 const modifiedProduct = {
