@@ -6,8 +6,7 @@ export function getObjectPatch<T extends object>(
 ): Partial<T> {
     return _.transform(
         modified,
-        (result: Partial<T>, value, keyStr) => {
-            const key = keyStr as keyof T;
+        (result: Partial<T>, value, key: keyof T) => {
 
             if (!_.isEqual(value, original[key])) {
                 if (_.isPlainObject(value)
@@ -24,7 +23,6 @@ export function getObjectPatch<T extends object>(
         {} as Partial<T>
     );
 }
-
 
 const originalProduct = {
     id: 1,
