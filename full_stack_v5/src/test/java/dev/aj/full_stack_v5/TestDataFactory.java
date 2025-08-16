@@ -89,7 +89,7 @@ public class TestDataFactory {
     @SneakyThrows
     public MockMultipartFile getRandomImageFile() {
         String photoPath = photosFactory.getRandomPhoto();
-        File photoFile = new File(PhotosFactory.ABSOLUTE_PHOTOS_DIRECTORY_PATH + "/" + photoPath);
+        File photoFile = new File(PhotosFactory.RELATIVE_PHOTOS_DIRECTORY_PATH + "/" + photoPath);
         return new MockMultipartFile(
                 "files",
                 photoFile.getName(),

@@ -48,11 +48,11 @@ public class SecurityFilterChainConfig {
                                 "/api/v1/users/**",
                                 "/api/v1/images/download/**"
                         )
-                        .permitAll()
+                            .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**")
-                        .permitAll()
+                            .permitAll()
                         .anyRequest()
-                        .authenticated()
+                            .authenticated()
                 )
                 .build();
     }
