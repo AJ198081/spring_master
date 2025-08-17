@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import {clearSessionAuthentication, useAuthStore} from "../../store/AuthStore.ts";
+import {authDefaultValues, useAuthStore} from "../../store/AuthStore.ts";
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import { Spinner } from "react-bootstrap";
@@ -12,7 +12,7 @@ export const LogoutComponent = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        setCurrentAuthentication(clearSessionAuthentication);
+        setCurrentAuthentication(authDefaultValues);
         setCustomer(null);
         toast.success('Logged out successfully');
         navigate('/login', {replace: true});

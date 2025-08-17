@@ -36,7 +36,8 @@ export const CreateCustomerComponent = () => {
     const [validated, setValidated] = useState(false);
     const [shippingSameAsBilling, setShippingSameAsBilling] = useState<boolean>(true);
     const setThisCustomer = useProductStore(state => state.setThisCustomer);
-    const setThisCustomerId = useProductStore(state => state.setThisCustomerId);
+    const patchAuthenticationState = useAuthStore(state => state.patchAuthState);
+    const authState = useAuthStore(state => state.setAuthState);
     const currentUser = useAuthStore(state => state.authState);
 
     const navigateTo = useNavigate();
@@ -72,7 +73,7 @@ export const CreateCustomerComponent = () => {
                 ...prev,
                 shippingAddress: prev.billingAddress
             }));
-        } else{
+        } else {
             setCustomer(prev => ({
                 ...prev,
                 shippingAddress: initialCustomerState.shippingAddress
@@ -102,11 +103,10 @@ export const CreateCustomerComponent = () => {
         addCustomer(customer)
             .then(response => {
                 setThisCustomer(response);
-                setThisCustomerId(response.id!);
+                patchAuthenticationState({customerId: response.id!})
                 toast.success(`Customer ${response.firstName} ${response.lastName} created successfully`);
                 setCustomer(initialCustomerState);
                 setValidated(false);
-                setShippingSameAsBilling(true);
                 form.reset();
                 navigateTo(location.state?.from ?? '/', {replace: true});
             })
@@ -118,6 +118,8 @@ export const CreateCustomerComponent = () => {
             });
     }
 
+    console.log('Auth State: ', JSON.stringify(authState));
+
     const handleFormReset = () => {
         setCustomer(initialCustomerState);
         setValidated(false);
@@ -127,7 +129,10 @@ export const CreateCustomerComponent = () => {
     return (
         <div className="container m-5">
             <Row className="justify-content-center">
-                <Col md={8} lg={6}>
+                <Col
+                    md={8}
+                    lg={6}
+                >
                     <Card className="shadow">
                         <Card.Header className="bg-primary text-white">
                             <h3 className="mb-0">Create Customer</h3>
@@ -138,7 +143,10 @@ export const CreateCustomerComponent = () => {
                                 validated={validated}
                                 onSubmit={handleSubmit}
                             >
-                                <Form.Group className="mb-3" controlId="firstName">
+                                <Form.Group
+                                    className="mb-3"
+                                    controlId="firstName"
+                                >
                                     <Form.Label>First Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -153,7 +161,10 @@ export const CreateCustomerComponent = () => {
                                     </Form.Control.Feedback>
                                 </Form.Group>
 
-                                <Form.Group className="mb-3" controlId="lastName">
+                                <Form.Group
+                                    className="mb-3"
+                                    controlId="lastName"
+                                >
                                     <Form.Label>Last Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -168,7 +179,10 @@ export const CreateCustomerComponent = () => {
                                     </Form.Control.Feedback>
                                 </Form.Group>
 
-                                <Form.Group className="mb-3" controlId="email">
+                                <Form.Group
+                                    className="mb-3"
+                                    controlId="email"
+                                >
                                     <Form.Label>Email</Form.Label>
                                     <Form.Control
                                         type="email"
@@ -183,7 +197,10 @@ export const CreateCustomerComponent = () => {
                                     </Form.Control.Feedback>
                                 </Form.Group>
 
-                                <Form.Group className="mb-4" controlId="phone">
+                                <Form.Group
+                                    className="mb-4"
+                                    controlId="phone"
+                                >
                                     <Form.Label>Phone</Form.Label>
                                     <Form.Control
                                         type="tel"
@@ -201,7 +218,10 @@ export const CreateCustomerComponent = () => {
                                 <h5 className="mt-4 mb-3">Billing Address</h5>
                                 <Row>
                                     <Col md={12}>
-                                        <Form.Group className="mb-3" controlId="billingAddressLine1">
+                                        <Form.Group
+                                            className="mb-3"
+                                            controlId="billingAddressLine1"
+                                        >
                                             <Form.Label>Address Line 1</Form.Label>
                                             <Form.Control
                                                 type="text"
@@ -220,7 +240,10 @@ export const CreateCustomerComponent = () => {
 
                                 <Row>
                                     <Col md={12}>
-                                        <Form.Group className="mb-3" controlId="billingAddressLine2">
+                                        <Form.Group
+                                            className="mb-3"
+                                            controlId="billingAddressLine2"
+                                        >
                                             <Form.Label>Address Line 2</Form.Label>
                                             <Form.Control
                                                 type="text"
@@ -235,7 +258,10 @@ export const CreateCustomerComponent = () => {
 
                                 <Row>
                                     <Col md={6}>
-                                        <Form.Group className="mb-3" controlId="billingCity">
+                                        <Form.Group
+                                            className="mb-3"
+                                            controlId="billingCity"
+                                        >
                                             <Form.Label>City</Form.Label>
                                             <Form.Control
                                                 type="text"
@@ -251,7 +277,10 @@ export const CreateCustomerComponent = () => {
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
-                                        <Form.Group className="mb-3" controlId="billingState">
+                                        <Form.Group
+                                            className="mb-3"
+                                            controlId="billingState"
+                                        >
                                             <Form.Label>State</Form.Label>
                                             <Form.Select
                                                 name="billingAddress.state"
@@ -277,7 +306,10 @@ export const CreateCustomerComponent = () => {
 
                                 <Row>
                                     <Col md={6}>
-                                        <Form.Group className="mb-3" controlId="billingPostalCode">
+                                        <Form.Group
+                                            className="mb-3"
+                                            controlId="billingPostalCode"
+                                        >
                                             <Form.Label>Postal Code</Form.Label>
                                             <Form.Control
                                                 type="text"
@@ -293,7 +325,10 @@ export const CreateCustomerComponent = () => {
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
-                                        <Form.Group className="mb-3" controlId="billingCountry">
+                                        <Form.Group
+                                            className="mb-3"
+                                            controlId="billingCountry"
+                                        >
                                             <Form.Label>Country</Form.Label>
                                             <Form.Control
                                                 type="text"
@@ -325,7 +360,10 @@ export const CreateCustomerComponent = () => {
                                         <h5 className="mt-4 mb-3">Shipping Address</h5>
                                         <Row>
                                             <Col md={12}>
-                                                <Form.Group className="mb-3" controlId="shippingAddressLine1">
+                                                <Form.Group
+                                                    className="mb-3"
+                                                    controlId="shippingAddressLine1"
+                                                >
                                                     <Form.Label>Address Line 1</Form.Label>
                                                     <Form.Control
                                                         type="text"
@@ -344,7 +382,10 @@ export const CreateCustomerComponent = () => {
 
                                         <Row>
                                             <Col md={12}>
-                                                <Form.Group className="mb-3" controlId="shippingAddressLine2">
+                                                <Form.Group
+                                                    className="mb-3"
+                                                    controlId="shippingAddressLine2"
+                                                >
                                                     <Form.Label>Address Line 2</Form.Label>
                                                     <Form.Control
                                                         type="text"
@@ -359,7 +400,10 @@ export const CreateCustomerComponent = () => {
 
                                         <Row>
                                             <Col md={6}>
-                                                <Form.Group className="mb-3" controlId="shippingCity">
+                                                <Form.Group
+                                                    className="mb-3"
+                                                    controlId="shippingCity"
+                                                >
                                                     <Form.Label>City</Form.Label>
                                                     <Form.Control
                                                         type="text"
@@ -375,7 +419,10 @@ export const CreateCustomerComponent = () => {
                                                 </Form.Group>
                                             </Col>
                                             <Col md={6}>
-                                                <Form.Group className="mb-3" controlId="shippingState">
+                                                <Form.Group
+                                                    className="mb-3"
+                                                    controlId="shippingState"
+                                                >
                                                     <Form.Label>State</Form.Label>
                                                     <Form.Select
                                                         name="shippingAddress.state"
@@ -401,7 +448,10 @@ export const CreateCustomerComponent = () => {
 
                                         <Row>
                                             <Col md={6}>
-                                                <Form.Group className="mb-3" controlId="shippingPostalCode">
+                                                <Form.Group
+                                                    className="mb-3"
+                                                    controlId="shippingPostalCode"
+                                                >
                                                     <Form.Label>Postal Code</Form.Label>
                                                     <Form.Control
                                                         type="text"
@@ -417,7 +467,10 @@ export const CreateCustomerComponent = () => {
                                                 </Form.Group>
                                             </Col>
                                             <Col md={6}>
-                                                <Form.Group className="mb-3" controlId="shippingCountry">
+                                                <Form.Group
+                                                    className="mb-3"
+                                                    controlId="shippingCountry"
+                                                >
                                                     <Form.Label>Country</Form.Label>
                                                     <Form.Control
                                                         type="text"

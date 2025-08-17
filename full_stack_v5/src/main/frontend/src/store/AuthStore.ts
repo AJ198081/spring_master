@@ -8,21 +8,26 @@ export interface Authentication {
     customerId?: number;
 }
 
-export const clearSessionAuthentication = {
+export const authDefaultValues: Authentication = {
     isAuthenticated: false,
     username: '',
     roles: [],
     token: '',
-}
+};
 
 export interface AuthStore {
     authState: Authentication | null;
     setAuthState: (authState: Authentication | null) => void;
+    patchAuthState: (authState: Partial<Authentication>) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-        authState: clearSessionAuthentication,
-        setAuthState: (authState) => set({authState: authState}),
-
-    }
-));
+    authState: authDefaultValues,
+    setAuthState: (authState) => set({authState}),
+    patchAuthState: (stateToUpdate: Partial<Authentication>) => set((prevStoreState) => ({
+        authState: {
+            ...(prevStoreState.authState ?? authDefaultValues),
+            ...stateToUpdate,
+        },
+    })),
+}));

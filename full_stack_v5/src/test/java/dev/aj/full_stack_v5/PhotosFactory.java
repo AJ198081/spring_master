@@ -30,7 +30,13 @@ public class PhotosFactory {
     @PostConstruct
     public void init() {
 
-        Path absolutePhotosPath = Paths.get(System.getProperty("user.dir"), RELATIVE_PHOTOS_DIRECTORY_PATH);
+        Path currentDirectory = Path.of(System.getProperty("user.dir"));
+
+        if (!currentDirectory.endsWith(Paths.get("full_stack_v5"))) {
+            currentDirectory = currentDirectory.resolve("full_stack_v5");
+        }
+
+        Path absolutePhotosPath = currentDirectory.resolve(RELATIVE_PHOTOS_DIRECTORY_PATH);
 
         File photosDirectory = new File(absolutePhotosPath.toUri());
 

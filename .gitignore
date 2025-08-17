@@ -74,4 +74,4 @@ dist-ssr
 *.sln
 *.sw?
 
-**/Practice.ts*
+**/Practice.tsx*

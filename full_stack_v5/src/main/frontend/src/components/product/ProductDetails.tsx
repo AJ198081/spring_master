@@ -64,12 +64,10 @@ export const ProductDetails = () => {
     }, [productId]);
 
     const mutation = useMutation({
-        // Accept a single variables object so we can pass both values from mutate
         mutationFn: ({ productId, productChanges }: { productId: string, productChanges: Partial<Product> }) =>
             patchProduct(productId, productChanges),
-        onSuccess: (updatedProduct) => {
+        onSuccess: (_) => {
             toast.success(`Product ${product?.name} added to cart successfully`);
-            console.log(`updatedProduct ${updatedProduct}`);
             void queryClient.invalidateQueries({queryKey: ['products']});
         },
         onError: (error) => {
@@ -97,11 +95,13 @@ export const ProductDetails = () => {
     }
 
     const addProductToCart = () => {
-
         console.log(`thisCustomerId is ${thisCustomerId}`);
-        if (!thisCustomerId) {
+        if (!authenticated) {
+            navigate('/login', {state: {from: location.pathname}});
+        } else if (!thisCustomerId) {
             navigate('/add-customer', {state: {from: location.pathname}});
         } else {
+
             if (inventory <= 0 || quantity > inventory) {
                 return;
             }
@@ -121,7 +121,7 @@ export const ProductDetails = () => {
                 customerId: thisCustomerId,
                 productId: Number(productId),
                 quantity: quantity
-            }
+            };
 
             addProductToCartItems(cartItemRequest)
                 .then((updatedCart) => {

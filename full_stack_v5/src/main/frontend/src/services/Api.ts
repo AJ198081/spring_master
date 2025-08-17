@@ -1,10 +1,10 @@
 import axios from 'axios';
-import {type Authentication, clearSessionAuthentication, useAuthStore} from '../store/AuthStore';
+import {type Authentication, authDefaultValues, useAuthStore} from '../store/AuthStore';
 import {isJwtValid, parseJwt} from "./JwtUtil.ts";
 import {QueryClient} from "@tanstack/react-query";
 
-// Use a relative base URL so it works with whatever host/port the app is served from at runtime
-export const BASE_URL = '/api/v1';
+const isDevelopment = import.meta.env.MODE === 'development';
+export const BASE_URL = isDevelopment ? 'http://localhost:10006/api/v1' : '/api/v1';
 
 export const queryClient = new QueryClient();
 
@@ -45,7 +45,7 @@ backendClient.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             console.log('Unauthorized intercepted in AxiosResponse interceptor; resetting AuthState.');
             backendClient.defaults.headers.common['Authorization'] = '';
-            useAuthStore.getState().setAuthState(clearSessionAuthentication);
+            useAuthStore.getState().setAuthState(authDefaultValues);
         }
         return error;
     }

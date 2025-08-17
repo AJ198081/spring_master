@@ -9,8 +9,9 @@
     "strict": true,
     "jsx": "react-jsx",
     "resolveJsonModule": true,
-    "types": ["node"],
-    "baseUrl": "."
+    "types": [
+      "node"
+    ],
   },
   "include": [
     "src/**/*.ts",
