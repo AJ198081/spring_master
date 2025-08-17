@@ -3,7 +3,8 @@ import {type Authentication, clearSessionAuthentication, useAuthStore} from '../
 import {isJwtValid, parseJwt} from "./JwtUtil.ts";
 import {QueryClient} from "@tanstack/react-query";
 
-export const BASE_URL = 'http://localhost:10006/api/v1';
+// Use a relative base URL so it works with whatever host/port the app is served from at runtime
+export const BASE_URL = '/api/v1';
 
 export const queryClient = new QueryClient();
 
@@ -16,8 +17,8 @@ backendClient.interceptors.request.use(
         const authState = useAuthStore.getState().authState;
         if (authState && authState.isAuthenticated && authState.token) {
             config.headers.Authorization = `Bearer ${authState.token}`;
+            config.withCredentials = true;
         }
-        config.withCredentials = true;
         return config;
     }
 );

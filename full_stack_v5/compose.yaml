@@ -9,6 +9,12 @@ services:
       - 'POSTGRES_PASSWORD=password'
     ports:
       - '10005:5432'
+    networks:
+      - full_stack_v5_network
+
+networks:
+  full_stack_v5_network:
+    driver: bridge
 #    volumes:
 #      - ./src/test/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 

@@ -12,6 +12,7 @@ services:
     volumes:
       - ./src/test/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
+
   rabbit-mq:
     image: 'rabbitmq:3-management'
     container_name: 'gateway_broker_container'
@@ -22,3 +23,10 @@ services:
     ports:
       - '5672:5672'
       - '15672:15672'
+    networks:
+      - full_stack_v5_network
+
+networks:
+  full_stack_v5_network:
+    driver: bridge
+    name: full_stack_v5_network
