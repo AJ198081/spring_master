@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: full-stack-v5
+spec:
+  containers:
+    - name: full-stack-v5
+      image: "full_stack_v5"
+      imagePullPolicy: Never
+
+      resources:
+        requests:
+          memory: "128Mi"
+          cpu: "0.5"
+        limits:
+          memory: "256Mi"
+          cpu: "1"
+  automountServiceAccountToken: false
+
+
+# kind load docker-image full_stack_v5:0.0.1 --name dev-cluster
