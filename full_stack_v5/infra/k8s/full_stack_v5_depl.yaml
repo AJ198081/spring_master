@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: full-stack-v5-depl
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: full-stack-v5
+  template:
+    metadata:
+      labels:
+        app: full-stack-v5
+    spec:
+      containers:
+        - name: full-stack-v5
+          image: "full_stack_v5:0.0.1"
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 10006
+          resources:
+            requests:
+              memory: "1024Mi"
+              cpu: "1"
+            limits:
+              memory: "2048Mi"
+              cpu: "2"
