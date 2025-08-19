@@ -25,3 +25,5 @@ spec:
             limits:
               memory: "2048Mi"
               cpu: "2"
+
+#kind load docker-image full_stack_v5:0.0.1 --name kind-full-stack-v5-cluster

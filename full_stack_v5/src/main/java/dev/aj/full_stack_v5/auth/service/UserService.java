@@ -8,24 +8,14 @@ import dev.aj.full_stack_v5.auth.domain.entities.User;
 import java.util.List;
 
 public interface UserService {
-
     UserResponseDto registerUser(UserRegistrationDto userRegistrationDto);
-
     UserResponseDto getUserByUsername(String username);
-
     User getUserByTheUsername(String username);
-
     UserResponseDto getUserById(Long id);
-
     void deleteUserById(Long id);
-
     void deleteUserByUsername(String username);
-
     boolean isUsernameTaken(String username);
-
     UserResponseDto updateUser(UpdateUserDto updateUserDto);
-
     List<UserResponseDto> getAllUsers();
-
     void resetPassword(String username, String email, String newPassword);
 }

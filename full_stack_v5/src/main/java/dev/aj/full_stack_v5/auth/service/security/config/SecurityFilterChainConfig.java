@@ -35,7 +35,6 @@ public class SecurityFilterChainConfig {
         AuthenticationManagerBuilder authManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
         authManagerBuilder.authenticationProvider(authenticationProvider);
 
-
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
