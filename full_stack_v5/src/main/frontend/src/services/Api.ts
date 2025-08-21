@@ -33,7 +33,8 @@ backendClient.interceptors.response.use(
                     isAuthenticated: isJwtValid(authorizationHeader),
                     token: authorizationHeader,
                     username: jwtClaims.sub,
-                    roles: jwtClaims.roles
+                    roles: jwtClaims.roles,
+                    customerId: jwtClaims.customer
                 }
                 useAuthStore.getState().setAuthState(authenticationObject);
             }

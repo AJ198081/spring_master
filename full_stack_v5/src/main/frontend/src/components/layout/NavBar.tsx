@@ -8,17 +8,16 @@ import {Badge} from "@mui/material";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 export const NavBar = () => {
-    const currentAuthentication = useAuthStore(state => state.authState);
+    const sessionAuthState = useAuthStore(state => state.authState);
     const customerCart = useProductStore(state => state.cartForThisCustomer);
     const setCustomerCart = useProductStore(state => state.setCartForThisCustomer);
     const setCurrentCustomerId = useProductStore(state => state.setThisCustomerId);
     const setCurrentUser = useProductStore(state => state.setCurrentUser);
 
     useEffect(() => {
-
-        if (currentAuthentication?.isAuthenticated && currentAuthentication.customerId) {
-            setCurrentCustomerId(currentAuthentication.customerId);
-            getCustomerCart(currentAuthentication.customerId)
+        if (sessionAuthState?.isAuthenticated && sessionAuthState.customerId) {
+            setCurrentCustomerId(sessionAuthState.customerId);
+            getCustomerCart(sessionAuthState.customerId)
                 .then(response => {
                     setCustomerCart(response);
                 })
@@ -26,9 +25,9 @@ export const NavBar = () => {
                     console.log(`Error fetching customer's cart, ${error.response?.data?.detail}`)
                 });
         }
-    }, [currentAuthentication?.customerId, currentAuthentication?.isAuthenticated, setCurrentCustomerId, setCustomerCart]);
+    }, [sessionAuthState?.customerId, sessionAuthState?.isAuthenticated, setCurrentCustomerId, setCustomerCart]);
 
-    console.log(`NavBar ${currentAuthentication?.isAuthenticated} ${currentAuthentication?.customerId === undefined}`);
+    console.log(`NavBar ${sessionAuthState?.isAuthenticated} ${sessionAuthState?.customerId === undefined}`);
 
     const handleUserRegistration = () => {
         setCurrentUser(null);
@@ -73,7 +72,7 @@ export const NavBar = () => {
                         >Add Product</Nav.Link>
                     </Nav>
                     <Nav>
-                        {currentAuthentication?.isAuthenticated
+                        {sessionAuthState?.isAuthenticated
                             ? <NavDropdown
                                 title="Account"
                                 id="collapsible-nav-dropdown"
@@ -118,7 +117,7 @@ export const NavBar = () => {
                                 </NavDropdown.Item>
                             </NavDropdown>
                         }
-                        {currentAuthentication?.customerId !== undefined &&
+                        {sessionAuthState?.customerId !== undefined &&
                             <Link
                                 to={"/my-cart"}
                                 className={`d-flex align-items-center gap-2 ms-4`}
