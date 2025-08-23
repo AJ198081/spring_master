@@ -23,6 +23,7 @@ import {CheckoutSuccess} from "./components/checkout/CheckoutSuccess.tsx";
 import {CheckoutFailure} from "./components/checkout/CheckoutFailure.tsx";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {queryClient} from "./services/Api.ts";
+import {Scheduler} from "./components/Scheduler.tsx";
 
 function App() {
 
@@ -38,6 +39,10 @@ function App() {
                     element={<Home/>}
                 />
                 <Route
+                    path={"/scheduler"}
+                    element={<Scheduler />}
+                    />
+                <Route
                     path={"/register"}
                     element={<UserRegistrationComponent/>}
                 />
@@ -45,7 +50,6 @@ function App() {
                     path={"/login"}
                     element={<LoginComponent/>}
                 />
-
                 <Route
                     path={"/logout"}
                     element={<LogoutComponent/>}

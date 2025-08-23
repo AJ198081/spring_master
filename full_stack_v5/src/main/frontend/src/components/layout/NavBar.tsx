@@ -70,6 +70,11 @@ export const NavBar = () => {
                             as={Link}
                             className={"btn btn-outline-secondary"}
                         >Add Product</Nav.Link>
+                        <Nav.Link
+                            to={`/scheduler`}
+                            as={Link}
+                            className={"btn btn-outline-secondary"}
+                            >Schedule</Nav.Link>
                     </Nav>
                     <Nav>
                         {sessionAuthState?.isAuthenticated
