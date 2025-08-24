@@ -17,7 +17,6 @@ public class CookieUtils {
     private final Environment environment;
 
     public void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-
         log.info("Adding refresh token cookie");
 
         if (response == null) {
@@ -25,19 +24,16 @@ public class CookieUtils {
         }
 
 //        boolean useSecureCookie = environment.getProperty("jwt.refresh.token.cookie.secure", Boolean.class, true);
-        int refreshTokenCookieMaxAge = environment.getProperty("jwt.refresh.token.cookie.max.age", Integer.class, 10_000_000);
+        int refreshTokenCookieMaxAge = environment.getProperty("jwt.refresh.token.cookie.max.age", Integer.class, 1_000);
 
         Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN, refreshToken);
         refreshTokenCookie.setHttpOnly(true);
 //        refreshTokenCookie.setSecure(useSecureCookie);
         refreshTokenCookie.setMaxAge(refreshTokenCookieMaxAge);
         refreshTokenCookie.setDomain(environment.getProperty("jwt.refresh.token.cookie.domain", String.class, "localhost"));
-
         refreshTokenCookie.setPath("/");
-
-//        String sameSite = useSecureCookie ? "Strict" : "Lax";
         refreshTokenCookie.setAttribute("SameSite", "Lax");
-
+//        String sameSite = useSecureCookie ? "Strict" : "Lax";
         response.addCookie(refreshTokenCookie);
         log.info("Refresh token cookie added");
     }

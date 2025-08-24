@@ -1,5 +1,5 @@
 import {type FormEvent, useEffect, useState} from "react";
-import {type LoginRequestDto, loginUser} from "../../services/LoginService.ts";
+import {type LoginRequestDto, loginUser} from "../../services/AuthService.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
 import {Button, Card, Col, Container, Form, Row} from "react-bootstrap";

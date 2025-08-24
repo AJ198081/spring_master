@@ -21,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateUser(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
+    public ResponseEntity<String> authenticateUser(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         return ResponseEntity.ok(authService.authenticateUser(loginRequestDto.getUsername(), loginRequestDto.getPassword(), response));
     }
 
@@ -35,4 +35,9 @@ public class AuthController {
         return ResponseEntity.ok(authService.getAccessTokenFromRefreshToken(request));
     }
 
+    @GetMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        authService.logout(response);
+        return ResponseEntity.ok().build();
+    }
 }

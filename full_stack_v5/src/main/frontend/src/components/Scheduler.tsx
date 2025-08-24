@@ -410,7 +410,10 @@ export function Scheduler(props: Readonly<SchedulerProps>) {
                         variant="outlined"
                         color="error"
                         type="button"
-                        onClick={() => props.onCancel?.()}
+                        onClick={() => {
+                            props.onCancel?.();
+                            navigateTo("/");
+                        }}
                     >Cancel
                     </Button>
                     <button

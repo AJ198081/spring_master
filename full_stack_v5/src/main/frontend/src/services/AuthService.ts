@@ -19,3 +19,17 @@ export const loginUser = async (loginRequestDto: LoginRequestDto) => {
     axiosError.response = loginResponse;
     throw axiosError;
 };
+
+export const logoutUser = async (signal: typeof AbortCSignal) => {
+    const logoutResponse: AxiosResponse<void> = await backendClient.get(`/auth/logout`,
+        {
+            signal: signal
+        });
+
+    if (!signal.aborted && logoutResponse.status !== 200) {
+        const axiosError = new AxiosError(`Error logging out the user`);
+        axiosError.status = logoutResponse.status;
+        axiosError.response = logoutResponse;
+        throw axiosError;
+    }
+}

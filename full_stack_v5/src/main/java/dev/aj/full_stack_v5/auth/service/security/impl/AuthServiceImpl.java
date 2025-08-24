@@ -66,4 +66,10 @@ public class AuthServiceImpl implements AuthService {
             throw new CredentialsExpiredException("Refresh token is invalid");
         }
     }
+
+    @Override
+    public void logout(HttpServletResponse response) {
+        cookieUtils.deleteRefreshTokenCookie(response);
+        log.info("Logout successful");
+    }
 }
