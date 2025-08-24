@@ -77,6 +77,10 @@ const allDays = [
     {key: 6, label: "Saturday"}
 ];
 
+const monthsOfYear = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const DAYS_OF_WEEK = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
 const MODE_OPTIONS: { k: ScheduleMode; t: string }[] = [
     {k: "DAILY", t: "Daily"},
     {k: "WEEKLY", t: "Weekly"},
@@ -106,7 +110,7 @@ function buildCron(value: SchedulerValue) {
         const days = value.weekly.days.length ? value.weekly.days : defaultWeeklyDays;
 
         const dowNames = sortNumbersArray(days)
-            .map(d => ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][d])
+            .map(d => DAYS_OF_WEEK[d])
             .join(",");
         const cron5 = `${m} ${h} * * ${dowNames}`;
         return {cron5};
@@ -121,28 +125,35 @@ function buildCron(value: SchedulerValue) {
 }
 
 const cronToText = (cronExpression: string) => {
-        const [minute, hour, dayMonth, dayWeek] = cronExpression.split(' ');
-        let explanation = ' ';
+    const [minute, hour, dayMonth, month, daysOfWeek] = cronExpression.split(' ');
+    let explanation = ' ';
 
-        if (dayWeek !== '*') {
-            const days = dayWeek.split(',')
-                .map(d => allDays.find(day => day.key === parseInt(d) ||
-                    ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][day.key] === d)?.label || d)
-                .join(', ');
-            explanation += `every ${days} `;
-        } else if (dayMonth !== '*') {
-            explanation += `on day ${dayMonth} of each month `;
-        } else {
-            explanation += 'every day ';
-        }
+    const dayOfMonthExplanation = dayMonth !== '*' ? `on day ${dayMonth} of` : 'every day of';
 
-        const hourNum = parseInt(hour);
-        const minuteNum = parseInt(minute);
-        const timeStr = `${hourNum % 12 || 12}:${minuteNum.toString().padStart(2, '0')} ${hourNum >= 12 ? 'PM' : 'AM'}`;
-        explanation += `at ${timeStr}`;
+    if (daysOfWeek !== '*') {
+        const days = daysOfWeek.split(',')
+            .map(d => allDays.find(day => day.key === parseInt(d) ||
+                ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][day.key] === d)?.label || d)
+            .join(', ');
+        explanation += `every ${days} `;
+    } else if (month !== '*') {
+        const selectedMonths = month.split(',');
+        explanation += `${dayOfMonthExplanation} ${selectedMonths.map(mon => monthsOfYear[parseInt(mon) - 1])} of year `;
+    } else if (dayMonth !== '*') {
+        explanation += `on day ${dayMonth} of each month `;
+    } else {
+        explanation += 'every day ';
+    }
 
-        return explanation;
-    };
+    const hourNum = parseInt(hour);
+    const minuteNum = parseInt(minute);
+    const timeStr = `${hourNum % 12 || 12}:${minuteNum.toString().padStart(2, '0')} ${hourNum >= 12 ? 'PM' : 'AM'}`;
+    explanation += `at ${timeStr}`;
+
+    return explanation;
+};
+
+console.log(cronToText("0 12 * * *"));
 
 export function Scheduler(props: Readonly<SchedulerProps>) {
     const initialHour24 = typeof props.value?.time?.hour24 === "number" ? props.value.time.hour24 : 12;
@@ -368,7 +379,7 @@ export function Scheduler(props: Readonly<SchedulerProps>) {
                                     className="text-primary"
                                     sx={{fontStyle: 'italic'}}
                                 >
-                                    { openCronDialog && cronToText(cron5)}
+                                    {openCronDialog && cronToText(cron5)}
                                 </Typography>
                                 .
                             </DialogContentText>
