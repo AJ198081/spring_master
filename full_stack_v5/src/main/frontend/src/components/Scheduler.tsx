@@ -45,7 +45,7 @@ export interface SchedulerProps {
 
 const defaultWeeklyDays = [0];
 
-function toHourMinuteAmPm(hour24: number) {
+function hours24ToHour12(hour24: number) {
     const ampm = hour24 >= 12
         ? "pm"
         : "am";
@@ -63,7 +63,7 @@ function fromHour12(hour12: number, ampm: "am" | "pm"): number {
     return ampm === "pm" ? h + 12 : h;
 }
 
-function clamp(n: number, min: number, max: number) {
+function boundANumber(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }
 
@@ -88,7 +88,7 @@ function pad2(n: number) {
     return n.toString().padStart(2, "0");
 }
 
-function toSorted(arr: number[]) {
+function sortNumbersArray(arr: number[]) {
     return arr.sort((a, b) => a - b);
 }
 
@@ -105,14 +105,14 @@ function buildCron(value: SchedulerValue) {
     if (value.mode === "WEEKLY" && value.weekly) {
         const days = value.weekly.days.length ? value.weekly.days : defaultWeeklyDays;
 
-        const dowNames = toSorted(days)
+        const dowNames = sortNumbersArray(days)
             .map(d => ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][d])
             .join(",");
         const cron5 = `${m} ${h} * * ${dowNames}`;
         return {cron5};
     }
     if (value.mode === "MONTHLY" && value.monthly) {
-        const dom = clamp(value.monthly.dayOfMonth, 1, 31);
+        const dom = boundANumber(value.monthly.dayOfMonth, 1, 31);
         const cron5 = `${m} ${h} ${dom} * *`;
         return {cron5};
     }
@@ -149,9 +149,9 @@ export function Scheduler(props: Readonly<SchedulerProps>) {
     const initialMinute = typeof props.value?.time?.minute === "number" ? props.value.time.minute : 0;
 
     const [mode, setMode] = useState<ScheduleMode>(props.value?.mode ?? "WEEKLY");
-    const [hour12, setHour12] = useState<number>(toHourMinuteAmPm(initialHour24).hour12);
+    const [hour12, setHour12] = useState<number>(hours24ToHour12(initialHour24).hour12);
     const [minute, setMinute] = useState<number>(initialMinute);
-    const [amPm, setAmPm] = useState<"am" | "pm">(toHourMinuteAmPm(initialHour24).ampm as "am" | "pm");
+    const [amPm, setAmPm] = useState<"am" | "pm">(hours24ToHour12(initialHour24).ampm as "am" | "pm");
 
     const [weeklyDays, setWeeklyDays] = useState<number[]>(props.value?.weekly?.days ?? defaultWeeklyDays);
     const [monthlyDay, setMonthlyDay] = useState<number>(props.value?.monthly?.dayOfMonth ?? 1);
@@ -269,7 +269,7 @@ export function Scheduler(props: Readonly<SchedulerProps>) {
                         max={31}
                         className="form-control w-auto"
                         value={monthlyDay}
-                        onChange={e => setMonthlyDay(clamp(parseInt(e.target.value || "1", 10), 1, 31))}
+                        onChange={e => setMonthlyDay(boundANumber(parseInt(e.target.value || "1", 10), 1, 31))}
                     />
                     <span>of each month</span>
                 </div>
