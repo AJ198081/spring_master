@@ -20,7 +20,7 @@ export const loginUser = async (loginRequestDto: LoginRequestDto) => {
     throw axiosError;
 };
 
-export const logoutUser = async (signal: typeof AbortCSignal) => {
+export const logoutUser = async (signal: AbortSignal) => {
     const logoutResponse: AxiosResponse<void> = await backendClient.get(`/auth/logout`,
         {
             signal: signal

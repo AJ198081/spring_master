@@ -32,7 +32,7 @@ public class CookieUtils {
         refreshTokenCookie.setMaxAge(refreshTokenCookieMaxAge);
         refreshTokenCookie.setDomain(environment.getProperty("jwt.refresh.token.cookie.domain", String.class, "localhost"));
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setAttribute("SameSite", "Lax");
+        refreshTokenCookie.setAttribute("SameSite", "Strict");
 //        String sameSite = useSecureCookie ? "Strict" : "Lax";
         response.addCookie(refreshTokenCookie);
         log.info("Refresh token cookie added");
