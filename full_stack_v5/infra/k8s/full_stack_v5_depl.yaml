@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: full-stack-v5
-          image: "full_stack_v5:0.0.2"
+          image: "full_stack_v5:0.0.3"
           imagePullPolicy: Never
           ports:
             - containerPort: 10006
@@ -26,5 +26,5 @@ spec:
               memory: "2048Mi"
               cpu: "2"
 
-#kind load docker-image full_stack_v5:0.0.1 --name full-stack-v5-cluster
+#kind load docker-image full_stack_v5:0.0.3 --name full-stack-v5-cluster
 # kubectl get pod full-stack-v5-depl-55f74bd4bf-bgxw -o jsonpath='{.spec.containers[*].image}'
