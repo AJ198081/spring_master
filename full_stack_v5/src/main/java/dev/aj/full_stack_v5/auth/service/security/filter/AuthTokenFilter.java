@@ -56,6 +56,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
                     String accessToken = jwtUtils.generateAccessToken(SecurityContextHolder.getContext().getAuthentication());
                     response.addHeader("Authorization", accessToken);
+                } else {
+                    log.error("Refresh token cookie also has invalid JWT.");
                 }
             }
         }

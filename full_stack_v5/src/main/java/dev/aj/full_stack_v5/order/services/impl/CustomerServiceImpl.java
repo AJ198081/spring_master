@@ -11,6 +11,7 @@ import io.jsonwebtoken.lang.Objects;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -68,9 +69,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getCustomerByUsername(String username) {
+    public @Nullable Customer getCustomerByUsername(String username) {
         return customerRepository.findCustomerByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Customer with username: %s not found".formatted(username)));
+                .orElse(null);
     }
 
     @Override

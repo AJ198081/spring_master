@@ -21,9 +21,10 @@ import {CheckoutComponent} from "./components/checkout/CheckoutComonent.tsx";
 import {StripeWrapper} from "./components/checkout/StripeWrapper.tsx";
 import {CheckoutSuccess} from "./components/checkout/CheckoutSuccess.tsx";
 import {CheckoutFailure} from "./components/checkout/CheckoutFailure.tsx";
-import { QueryClientProvider } from "@tanstack/react-query";
+import {QueryClientProvider} from "@tanstack/react-query";
 import {queryClient} from "./services/Api.ts";
 import {Scheduler} from "./components/Scheduler.tsx";
+import {AdminDashboard} from "./components/dashboard/AdminDashboard.tsx";
 
 function App() {
 
@@ -40,8 +41,8 @@ function App() {
                 />
                 <Route
                     path={"/scheduler"}
-                    element={<Scheduler />}
-                    />
+                    element={<Scheduler/>}
+                />
                 <Route
                     path={"/register"}
                     element={<UserRegistrationComponent/>}
@@ -128,6 +129,19 @@ function App() {
                     />
                 </Route>
 
+                <Route
+                    element={
+                        <ProtectedRoute
+                            useOutlet={true}
+                            allowedRoles={['ADMIN']}
+                        />
+                    }
+                >
+                    <Route
+                        path={"/admin-dashboard"}
+                        element={<AdminDashboard/>}
+                    />
+                </Route>
                 <Route
                     path={"/products/:id"}
                     element={<Products/>}

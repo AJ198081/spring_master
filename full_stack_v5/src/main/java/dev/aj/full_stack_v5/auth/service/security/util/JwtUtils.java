@@ -3,6 +3,7 @@ package dev.aj.full_stack_v5.auth.service.security.util;
 import dev.aj.full_stack_v5.auth.domain.dtos.SecurityUser;
 import dev.aj.full_stack_v5.auth.domain.mapper.UserMapper;
 import dev.aj.full_stack_v5.order.domain.entities.Customer;
+import dev.aj.full_stack_v5.order.services.CustomerService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -27,6 +28,7 @@ public class JwtUtils {
 
     private final Environment environment;
     private final UserMapper userMapper;
+    private final CustomerService customerService;
 
     public String generateAccessToken(Authentication authentication) {
 
@@ -37,10 +39,13 @@ public class JwtUtils {
         Date tokenExpiration = new Date();
         tokenExpiration.setTime(tokenExpiration.getTime() + jwtExpirationMillis);
 
+        Customer customer = customerService.getCustomerByUsername(securityUser.getUsername());
+
         return Jwts.builder()
                 .subject(securityUser.getUsername())
                 .claim("id", securityUser.getId())
                 .claim("roles", userMapper.mapSetRolesToSetStrings(securityUser.getRoles()))
+                .claim("customer", Objects.isNull(customer) ? null : customer.getId())
                 .issuedAt(new Date())
                 .expiration(tokenExpiration)
                 .signWith(getSigingKey())
@@ -124,7 +129,7 @@ public class JwtUtils {
                 .subject(securityUser.getUsername())
                 .claim("id", securityUser.getId())
                 .claim("roles", userMapper.mapSetRolesToSetStrings(securityUser.getRoles()))
-                .claim("customer", customer.getId())
+                .claim("customer", Objects.isNull(customer) ? null : customer.getId())
                 .issuedAt(new Date())
                 .expiration(tokenExpiration)
                 .signWith(getSigingKey())

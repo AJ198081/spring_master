@@ -35,7 +35,7 @@ public class InitSecurityUser {
         UserRegistrationDto userRegistrationDto = testDataFactory.generateStreamOfUserRegistrationDtos()
                 .limit(1)
                 .peek(user -> user.setRoles(Set.of("ADMIN")))
-                .findFirst().orElseThrow(() -> new NoSuchElementException("Unable to generate stream of UserRegistrationDtos"));
+                .findFirst().orElseThrow(() -> new NoSuchElementException("Unable to generate a stream of UserRegistrationDtos"));
 
         // Get the raw password so it can be used to call the login endpoint
         LoginRequestDto validLoginRequestDto = LoginRequestDto.builder()
@@ -43,7 +43,6 @@ public class InitSecurityUser {
                 .password(userRegistrationDto.getPassword())
                 .build();
 
-        // Encode password as in the Database we need the password to be encoded
         UserResponseDto userResponseDto = userService.registerUser(userRegistrationDto);
 
         String rolesOfUser = userResponseDto.getRoles()
