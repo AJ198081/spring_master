@@ -24,7 +24,14 @@ public class CORSOverride implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOrigins(frontendHost)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                .allowedMethods(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "OPTIONS",
+                        "PATCH"
+                )
                 .allowedHeaders("*")
                 .allowCredentials(true) // We will set and want to receive the httpOnly cookies
                 .maxAge(3000L)
@@ -38,14 +45,42 @@ public class CORSOverride implements WebMvcConfigurer {
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of(frontendHost));
-        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        corsConfiguration.setExposedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        corsConfiguration.setAllowedMethods(List.of(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.PATCH.name(), HttpMethod.DELETE.name()));
+
+        corsConfiguration.setAllowedHeaders(
+                List.of("Authorization",
+                        "Content-Type",
+                        "X-Requested-With",
+                        "Accept",
+                        "Origin",
+                        "Access-Control-Request-Method",
+                        "Access-Control-Request-Headers")
+        );
+
+        corsConfiguration.setExposedHeaders(
+                List.of("Authorization",
+                        "Content-Type",
+                        "X-Requested-With",
+                        "Accept",
+                        "Origin",
+                        "Access-Control-Request-Method",
+                        "Access-Control-Request-Headers")
+        );
+
+        corsConfiguration.setAllowedMethods(
+                List.of(
+                        HttpMethod.GET.name(),
+                        HttpMethod.POST.name(),
+                        HttpMethod.PUT.name(),
+                        HttpMethod.PATCH.name(),
+                        HttpMethod.DELETE.name(),
+                        HttpMethod.OPTIONS.name()
+                )
+        );
+
         corsConfiguration.setAllowCredentials(true); // We will set and want to receive the httpOnly cookies
         corsConfiguration.setMaxAge(3000L);
 
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
-
         return urlBasedCorsConfigurationSource;
     }
 }

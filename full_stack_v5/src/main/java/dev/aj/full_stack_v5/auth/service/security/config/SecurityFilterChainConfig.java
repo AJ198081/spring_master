@@ -52,6 +52,8 @@ public class SecurityFilterChainConfig {
                             .permitAll()
                         .requestMatchers(HttpMethod.GET, "/*", "/assets/*")
                             .permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**")
+                            .permitAll()
                         .anyRequest()
                             .authenticated()
                 )
