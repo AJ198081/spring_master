@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {type Authentication, authDefaultValues, useAuthStore} from '../store/AuthStore';
-import {isJwtValid, parseJwt} from "./JwtUtil.ts";
+import {authDefaultValues, type Authentication, useAuthStore} from '../store/AuthStore';
+import {isJwtValid, type JwtUserPayload, parseJwt} from "./JwtUtil.ts";
 import {QueryClient} from "@tanstack/react-query";
 
 const isDevelopment = import.meta.env.MODE === 'development';
@@ -23,21 +23,28 @@ backendClient.interceptors.request.use(
     }
 );
 
+export function updateAuthStateWithJwt(jwt: string | null | undefined) {
+    if (jwt !== null && jwt !== undefined && jwt.trim() !== '') {
+        const jwtClaims: JwtUserPayload | null = parseJwt(jwt);
+        // debugger
+        if (jwtClaims) {
+            const authenticationObject: Authentication = {
+                isAuthenticated: isJwtValid(jwt),
+                token: jwt,
+                username: jwtClaims.sub,
+                roles: jwtClaims.roles,
+                customerId: jwtClaims.customer
+            }
+            useAuthStore.getState().setAuthState(authenticationObject);
+        }
+    }
+}
+
 backendClient.interceptors.response.use(
     response => {
         if (response.headers.authorization) {
-            const authorizationHeader = response.headers.authorization;
-            const jwtClaims = parseJwt(authorizationHeader);
-            if (jwtClaims) {
-                const authenticationObject: Authentication = {
-                    isAuthenticated: isJwtValid(authorizationHeader),
-                    token: authorizationHeader,
-                    username: jwtClaims.sub,
-                    roles: jwtClaims.roles,
-                    customerId: jwtClaims.customer
-                }
-                useAuthStore.getState().setAuthState(authenticationObject);
-            }
+            const jwt = response.headers.authorization;
+            updateAuthStateWithJwt(jwt);
         }
         return response
     },

@@ -40,6 +40,10 @@ function App() {
                     element={<Home/>}
                 />
                 <Route
+                    path={"/oauth2/callback"}
+                    element={<AdminDashboard />}
+                    />
+                <Route
                     path={"/scheduler"}
                     element={<Scheduler/>}
                 />

@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v5.auth.service.security.impl;
 
+import dev.aj.full_stack_v5.auth.domain.dtos.SecurityUser;
 import dev.aj.full_stack_v5.auth.service.AuthService;
 import dev.aj.full_stack_v5.auth.service.security.util.CookieUtils;
 import dev.aj.full_stack_v5.auth.service.security.util.JwtUtils;
@@ -57,7 +58,8 @@ public class AuthServiceImpl implements AuthService {
 
         if (refreshToken != null && jwtUtils.isJwtValid(refreshToken)) {
             String username = jwtUtils.getUsernameFromToken(refreshToken);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(securityUserDetailsService.loadUserByUsername(username), null);
+            SecurityUser securityUser = securityUserDetailsService.loadUserByUsername(username);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
             String accessToken = jwtUtils.generateAccessToken(authentication);
             log.info("Refresh token is valid for user: {}, accessToken generated.", username);
             return accessToken;

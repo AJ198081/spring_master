@@ -2,6 +2,7 @@ package dev.aj.full_stack_v5.auth.service.security.util;
 
 import dev.aj.full_stack_v5.auth.domain.dtos.SecurityUser;
 import dev.aj.full_stack_v5.auth.domain.mapper.UserMapper;
+import dev.aj.full_stack_v5.auth.service.UserService;
 import dev.aj.full_stack_v5.order.domain.entities.Customer;
 import dev.aj.full_stack_v5.order.services.CustomerService;
 import io.jsonwebtoken.Claims;
@@ -13,13 +14,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class JwtUtils {
     private final Environment environment;
     private final UserMapper userMapper;
     private final CustomerService customerService;
+    private final UserService userService;
 
     public String generateAccessToken(Authentication authentication) {
 
@@ -69,12 +71,21 @@ public class JwtUtils {
                 .compact();
     }
 
-    private static SecurityUser extractSecurityUser(Authentication authentication) {
-        return Stream.ofNullable(authentication.getPrincipal())
-                .filter(SecurityUser.class::isInstance)
-                .map(SecurityUser.class::cast)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Unable to extract user '%s' from Authentication object".formatted(authentication.getPrincipal())));
+    private SecurityUser extractSecurityUser(Authentication authentication) {
+
+        if (authentication != null && authentication.isAuthenticated() && DefaultOAuth2User.class.isAssignableFrom(authentication.getPrincipal().getClass())) {
+            DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+            return oAuth2SecurityUser(oAuth2User);
+        } else if (authentication != null && authentication.isAuthenticated() && SecurityUser.class.isAssignableFrom(authentication.getPrincipal().getClass())) {
+            return (SecurityUser) authentication.getPrincipal();
+        } else {
+            throw new IllegalStateException("Unable to extract user from Authentication object");
+        }
+    }
+
+
+    private SecurityUser oAuth2SecurityUser(DefaultOAuth2User oAuth2User) {
+        return new SecurityUser(userService.getUserByTheUsername(oAuth2User.getName()));
     }
 
     public String getUsernameFromToken(String token) {

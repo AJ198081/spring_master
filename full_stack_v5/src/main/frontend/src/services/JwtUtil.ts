@@ -9,7 +9,7 @@ export const parseJwt = (token: string) => {
 }
 
 
-interface JwtUserPayload {
+export interface JwtUserPayload {
     sub: string;
     id: number;
     roles: string[];

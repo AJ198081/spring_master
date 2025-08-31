@@ -28,6 +28,7 @@ public class SecurityFilterChainConfig {
     private final CustomAuthExceptionHandler authExceptionHandler;
     private final AuthenticationProvider authenticationProvider;
     private final AuthTokenFilter authTokenFilter;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -36,27 +37,30 @@ public class SecurityFilterChainConfig {
         authManagerBuilder.authenticationProvider(authenticationProvider);
 
         return httpSecurity
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .exceptionHandling(exceptionHandler -> exceptionHandler.authenticationEntryPoint(authExceptionHandler))
-                .sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 "/api/v1/auth/**",
                                 "/api/v1/users/**",
                                 "/api/v1/images/download/**"
                         )
-                            .permitAll()
+                        .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**")
-                            .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/*", "/assets/*")
-                            .permitAll()
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/assets/*")
+                        .permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**")
-                            .permitAll()
+                        .permitAll()
                         .anyRequest()
-                            .authenticated()
+                        .authenticated()
                 )
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .exceptionHandling(exceptionHandler -> exceptionHandler.authenticationEntryPoint(authExceptionHandler))
+                .sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2 -> {
+                    oauth2.successHandler(oAuth2LoginSuccessHandler);
+                })
                 .build();
     }
 

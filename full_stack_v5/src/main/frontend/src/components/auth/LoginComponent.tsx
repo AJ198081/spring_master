@@ -1,11 +1,15 @@
 import {type FormEvent, useEffect, useState} from "react";
+import {GitHub, Google} from "@mui/icons-material";
 import {type LoginRequestDto, loginUser} from "../../services/AuthService.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
-import {Button, Card, Col, Container, Form, Row} from "react-bootstrap";
+import {Card, Col, Container, Form, Row} from "react-bootstrap";
 import {type Authentication, useAuthStore} from "../../store/AuthStore.ts";
 import {isJwtValid, parseJwt} from "../../services/JwtUtil.ts";
 import {AxiosError} from "axios";
+import {Button, ButtonGroup} from "@mui/material";
+import ResetTvIcon from '@mui/icons-material/ResetTv';
+import LoginIcon from '@mui/icons-material/Login';
 
 const MIN_USERNAME_LENGTH = 3;
 const MIN_PASSWORD_LENGTH = 8;
@@ -91,7 +95,14 @@ export const LoginComponent = () => {
                 }
                 console.log(error);
             });
+    }
 
+    const handleOauth2Login = (provider: string) => {
+        const authorizationUrl = new URL(`/oauth2/authorization/${provider}`, import.meta.env.VITE_API_BASE_URL);
+        authorizationUrl.searchParams.set('redirect_uri', 'http://localhost:5174/')
+        console.log(JSON.stringify(authorizationUrl));
+
+        window.location.assign(authorizationUrl);
     }
 
     return (
@@ -151,18 +162,53 @@ export const LoginComponent = () => {
                                         {inputError.password}
                                     </Form.Control.Feedback>
                                 </Form.Group>
-                                <Form.Group className="my-5 d-flex justify-content-center gap-3">
+
+                                <ButtonGroup className="mt-5 d-flex justify-content-center">
                                     <Button
-                                        variant="outline-secondary"
-                                        className={'w-25'}
+                                        variant="outlined"
+                                        color="info"
+                                        className={'d-flex align-items-center justify-content-center gap-2'}
                                         type="reset"
-                                    >Reset</Button>
+                                        disabled={!credentials.username && !credentials.password}
+                                        sx={{
+                                            minWidth: 600,
+                                        }}
+                                    >
+                                        <ResetTvIcon/> Reset
+                                    </Button>
                                     <Button
-                                        variant="primary"
-                                        className={'w-25'}
+                                        variant="contained"
+                                        color="info"
+                                        className={'d-flex align-items-center justify-content-center gap-2'}
                                         type="submit"
-                                    >Login</Button>
-                                </Form.Group>
+                                        disabled={!credentials.username || !credentials.password}
+                                    >
+                                        Login <LoginIcon/>
+                                    </Button>
+                                </ButtonGroup>
+
+                                <ButtonGroup className="mt-4 d-flex justify-content-center">
+                                    <Button
+                                        variant="outlined"
+                                        color="success"
+                                        className={'d-flex align-items-center justify-content-center gap-2'}
+                                        type="button"
+                                        onClick={() => navigateTo('/login/google')}
+                                    >
+                                        <Google/> Login with Google
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        color="error"
+                                        className={'d-flex align-items-center justify-content-center gap-2'}
+                                        type="button"
+                                        onClick={() => handleOauth2Login('github')}
+
+                                    >
+                                        <GitHub/> Login with GitHub
+                                    </Button>
+                                </ButtonGroup>
+
 
                                 <Form.Group className="mt-5 gap-3 d-flex justify-content-around">
                                     <Form.Text className="text-muted">
@@ -178,5 +224,5 @@ export const LoginComponent = () => {
                 </Col>
             </Row>
         </Container>
-    )
+    );
 }

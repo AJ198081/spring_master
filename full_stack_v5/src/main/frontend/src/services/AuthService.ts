@@ -33,3 +33,7 @@ export const logoutUser = async (signal: AbortSignal) => {
         throw axiosError;
     }
 }
+
+export const loginRequestToGithub = async () => {
+    return await backendClient.get(`http://localhost:10006/oauth2/authorization/github`);
+}

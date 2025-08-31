@@ -6,7 +6,6 @@ import dev.aj.full_stack_v5.TestConfig;
 import dev.aj.full_stack_v5.TestDataFactory;
 import dev.aj.full_stack_v5.TestSecurityConfig;
 import dev.aj.full_stack_v5.auth.domain.dtos.LoginRequestDto;
-import dev.aj.full_stack_v5.auth.service.UserService;
 import dev.aj.full_stack_v5.auth.service.security.util.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
@@ -22,7 +21,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestClient;
 
@@ -85,7 +83,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void accessToken() {
+    void accessTokenFromRefreshCookie() {
 
         authenticateUser();
 

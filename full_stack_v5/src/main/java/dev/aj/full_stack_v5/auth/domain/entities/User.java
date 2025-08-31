@@ -1,6 +1,7 @@
 package dev.aj.full_stack_v5.auth.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.aj.full_stack_v5.auth.domain.enums.UserType;
 import dev.aj.full_stack_v5.common.domain.AuditMetaData;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -50,6 +51,10 @@ public class User {
     @ToString.Exclude
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private UserType userType = UserType.REGULAR;
 
     @Builder.Default
     @JsonIgnore

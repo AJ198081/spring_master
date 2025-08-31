@@ -14,7 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
+import org.apache.commons.collections4.CollectionUtils;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static dev.aj.full_stack_v5.auth.domain.enums.UserType.OAUTH;
 
 @Service
 @RequiredArgsConstructor
@@ -41,19 +43,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto registerUser(UserRegistrationDto userRegistrationDto) {
-        log.info("Registering user: {}", userRegistrationDto.getUsername());
+        return userMapper.userToUserResponseDto(registerNewUser(userRegistrationDto));
+    }
 
-        User user = Optional.of(userRegistrationDto)
+    @Override
+    public User registerNewUser(UserRegistrationDto userRegistrationDto) {
+        log.info("Registering user: {}", userRegistrationDto.getUsername());
+        return Optional.of(userRegistrationDto)
                 .filter(newUser -> !isUsernameTaken(newUser.getUsername()))
                 .map(userMapper::userRegistrationToUser)
                 .map(this::attachRolesToUser)
                 .map(this::encryptPassword)
+                .map(userRepository::save)
                 .orElseThrow(() -> new IllegalArgumentException("Username %s already taken".formatted(userRegistrationDto.getUsername())));
-
-        return userMapper.userToUserResponseDto(userRepository.save(user));
     }
 
-    private @NonNull User encryptPassword(@NonNull User user) {
+    private User encryptPassword(User user) {
+        if (user.getUserType().equals(OAUTH)) {
+            return user;
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return user;
     }
@@ -89,9 +98,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public @NonNull User getUserByTheUsername(String username) {
+    public User getUserByTheUsername(String username) {
         return userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_MESSAGE.formatted(username)));
+    }
+
+    @Override
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findUserByUsername(username);
     }
 
     @Override
@@ -174,6 +188,18 @@ public class UserServiceImpl implements UserService {
                             throw new EntityNotFoundException("User with username: %s not found. Unable to reset password.".formatted(username));
                         }
                 );
+    }
+
+    @Override
+    public void addRoles(User user, Set<String> rolesToBeAdded) {
+        if (CollectionUtils.isNotEmpty(rolesToBeAdded)) {
+            rolesToBeAdded.forEach(roleName -> {
+                Role role = roleRepository.findRoleByName(roleName)
+                        .orElseGet(() -> roleRepository.save(Role.builder().name(roleName).build()));
+                user.getRoles().add(role);
+                userRepository.save(user);
+            });
+        }
     }
 
     private Function<String, Role> mapRoleNameToRole() {

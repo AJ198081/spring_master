@@ -17,13 +17,14 @@ import java.util.List;
 @TestConfiguration
 public class CORSOverride implements WebMvcConfigurer {
 
+    private static final String LOCALHOST_URL = "http://localhost";
     @Value("${frontend.app.host}")
     private String frontendHost;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(frontendHost)
+                .allowedOrigins(frontendHost, LOCALHOST_URL)
                 .allowedMethods(
                         "GET",
                         "POST",
@@ -44,7 +45,7 @@ public class CORSOverride implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of(frontendHost));
+        corsConfiguration.setAllowedOrigins(List.of(frontendHost, LOCALHOST_URL));
 
         corsConfiguration.setAllowedHeaders(
                 List.of("Authorization",

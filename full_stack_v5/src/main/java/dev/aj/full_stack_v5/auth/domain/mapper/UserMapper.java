@@ -27,6 +27,9 @@ public abstract class UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "auditMetaData", ignore = true)
+    @Mapping(target = "userType", source = "userType")
+    @Mapping(target = "username", source = "userRegistrationDto.username")
+    @Mapping(target = "password", source = "userRegistrationDto.password")
     @Mapping(target = "roles", qualifiedByName = "mapSetStringsToSetRoles", source = "userRegistrationDto.roles")
     public abstract User userRegistrationToUser(UserRegistrationDto userRegistrationDto);
 
