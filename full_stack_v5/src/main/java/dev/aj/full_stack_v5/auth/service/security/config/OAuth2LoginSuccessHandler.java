@@ -48,11 +48,11 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                 Map<String, Object> userAttributes = oAuth2AuthenticationToken.getPrincipal().getAttributes();
 
                 if (oAuth2AuthenticationToken.getAuthorizedClientRegistrationId().equals("github")) {
-                    username = userAttributes.getOrDefault("login", "github_user_default").toString();
+                    username = userAttributes.get("login").toString();
                     nameAttributeKey = "login";
                 } else {
-                    username = userAttributes.getOrDefault("email", "missing_email@oauth2.com").toString().split("@")[0];
-                    nameAttributeKey = "sub";
+                    username = userAttributes.get("email").toString();
+                    nameAttributeKey = "email";
                 }
                 userService.findUserByUsername(username)
                         .ifPresentOrElse(
@@ -92,8 +92,6 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
                 super.onAuthenticationSuccess(request, response, authentication);
             }
-
-
     }
 
     private void setAuthenticationContext(OAuth2AuthenticationToken oAuth2AuthenticationToken, Map<String, Object> userAttributes, User registeredUser) {

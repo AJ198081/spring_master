@@ -66,7 +66,7 @@ export const ErrorPage = () => {
                                     <p className="mt-3 text-muted">{error.details}</p>
                                 )}
                                 <p className="text-muted mt-3">
-                                    <small>Timestamp: {dayjs(error.timestamp).format('LL LTS')}</small>
+                                    <small>Timestamp: {dayjs(error.timestamp || new Date()).format('LL LTS')}</small>
                                 </p>
                             </div>
 

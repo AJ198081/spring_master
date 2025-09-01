@@ -24,6 +24,9 @@ const errorMessage = {
     password: `Minimum password length is ${MIN_PASSWORD_LENGTH}`
 };
 
+const googleAuthorizationUrl = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google?redirect_uri=http://localhost:5174/`;
+const githubAuthorizationUrl = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/github?redirect_uri=http://localhost:5174/`;
+
 export const LoginComponent = () => {
 
     const [credentials, setCredentials] = useState<LoginRequestDto>({
@@ -41,7 +44,7 @@ export const LoginComponent = () => {
     const navigateTo = useNavigate();
     const {pathname, state} = useLocation();
 
-    const handleBlur = (field: 'username' | 'password') => {
+    const validateFields = (field: 'username' | 'password') => {
 
         setInputError(prevState => ({
             ...prevState,
@@ -59,7 +62,6 @@ export const LoginComponent = () => {
     }, [isAuthenticated, navigateTo, state?.from]);
 
     const handleLogin = (e: FormEvent<HTMLFormElement>) => {
-
         e.preventDefault();
 
         loginUser(credentials)
@@ -97,13 +99,6 @@ export const LoginComponent = () => {
             });
     }
 
-    const handleOauth2Login = (provider: string) => {
-        const authorizationUrl = new URL(`/oauth2/authorization/${provider}`, import.meta.env.VITE_API_BASE_URL);
-        authorizationUrl.searchParams.set('redirect_uri', 'http://localhost:5174/')
-        console.log(JSON.stringify(authorizationUrl));
-
-        window.location.assign(authorizationUrl);
-    }
 
     return (
         <Container
@@ -129,7 +124,6 @@ export const LoginComponent = () => {
                                         name="username"
                                         value={credentials.username}
                                         onChange={e => setCredentials({...credentials, username: e.target.value})}
-                                        onBlur={() => handleBlur('username')}
                                         placeholder="Enter username"
                                         required
                                         minLength={MIN_USERNAME_LENGTH}
@@ -152,7 +146,7 @@ export const LoginComponent = () => {
                                         name="password"
                                         value={credentials.password}
                                         onChange={e => setCredentials({...credentials, password: e.target.value})}
-                                        onBlur={() => handleBlur('password')}
+                                        onBlur={() => validateFields('password')}
                                         placeholder="Enter password"
                                         autoComplete="off"
                                         minLength={2}
@@ -192,8 +186,8 @@ export const LoginComponent = () => {
                                         variant="outlined"
                                         color="success"
                                         className={'d-flex align-items-center justify-content-center gap-2'}
-                                        type="button"
-                                        onClick={() => navigateTo('/login/google')}
+                                        component="a"
+                                        href={googleAuthorizationUrl}
                                     >
                                         <Google/> Login with Google
                                     </Button>
@@ -201,9 +195,8 @@ export const LoginComponent = () => {
                                         variant="outlined"
                                         color="error"
                                         className={'d-flex align-items-center justify-content-center gap-2'}
-                                        type="button"
-                                        onClick={() => handleOauth2Login('github')}
-
+                                        component="a"
+                                        href={githubAuthorizationUrl}
                                     >
                                         <GitHub/> Login with GitHub
                                     </Button>

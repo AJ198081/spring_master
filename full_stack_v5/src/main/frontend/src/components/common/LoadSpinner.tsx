@@ -8,10 +8,12 @@ export const LoadSpinner = ({variant = 'secondary'}: LoadSpinnerProps) => {
     return (
         <div
             className={"d-flex justify-content-center align-items-center"}
-             // style={{height: '400px'}}
-             style={{height: '100vh'}}
+            style={{height: '100vh'}}
         >
-            < Spinner animation="border" variant={variant}/>
+            < Spinner
+                animation="border"
+                variant={variant}
+            />
         </div>
     )
 }
