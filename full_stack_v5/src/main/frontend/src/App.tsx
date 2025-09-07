@@ -25,8 +25,21 @@ import {QueryClientProvider} from "@tanstack/react-query";
 import {queryClient} from "./services/Api.ts";
 import {Scheduler} from "./components/Scheduler.tsx";
 import {AdminDashboard} from "./components/dashboard/AdminDashboard.tsx";
+import {useLayoutEffect, useState} from "react";
 
 function App() {
+    const [firstRender, setFirstRender] = useState(true);
+
+    useLayoutEffect(() => {
+        if (localStorage.getItem('token') === null) {
+            console.log(`App.tsx - useLayoutEffect started`);
+            localStorage.setItem('token', 'token-set');
+            console.log(`App.tsx - useLayoutEffect set token`);
+        } else {
+            console.log(`App.tsx - useLayoutEffect token already set`);
+        }
+        setFirstRender(false);
+    }, [])
 
     const router = createBrowserRouter(
         createRoutesFromElements(
@@ -41,8 +54,8 @@ function App() {
                 />
                 <Route
                     path={"/oauth2/callback"}
-                    element={<AdminDashboard />}
-                    />
+                    element={<AdminDashboard/>}
+                />
                 <Route
                     path={"/scheduler"}
                     element={<Scheduler/>}
@@ -159,7 +172,7 @@ function App() {
     );
     return (
         <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router}/>
+            {!firstRender &&  <RouterProvider router={router}/>}
         </QueryClientProvider>
     );
 }
