@@ -45,6 +45,7 @@
         <module>full_stack_restaurant</module>
         <module>kafka</module>
         <module>full_stack_v5</module>
+        <module>full_stack_v6</module>
     </modules>
 
     <properties>
@@ -106,12 +107,6 @@
             <artifactId>spring-data-envers</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.modulith</groupId>
-            <artifactId>spring-modulith-starter-jpa</artifactId>
-            <version>${spring-modulith.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
             <version>0.12.6</version>
@@ -157,9 +152,25 @@
 
         <dependency>
             <groupId>org.springframework.modulith</groupId>
-            <artifactId>spring-modulith-actuator</artifactId>
+            <artifactId>spring-modulith-starter-jpa</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-starter-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-events-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-docs</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -233,6 +244,8 @@
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-starter-test</artifactId>
         </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

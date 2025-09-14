@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -18,6 +19,7 @@ import org.hibernate.type.SqlTypes;
 @Builder
 @Entity
 @Getter
+@Setter
 public class PromotionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "promotion_entity_gen")

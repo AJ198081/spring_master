@@ -41,6 +41,22 @@ public class CodeValidationService {
         }
     }
 
+    public void validateAndUpdatePromotions(RestClient restClient) {
+        promotionRepository.findAll().forEach(promotion -> {
+            if (promotion.getActive()) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                if (!fetchPromotionDetails(restClient, promotion.getPromotionCode()).getStatusCode().is2xxSuccessful()) {
+                    promotion.setActive(false);
+                    promotionRepository.save(promotion);
+                }
+            }
+        });
+    }
+
     private ResponseEntity<Void> fetchPromotionDetails(RestClient builder, String code) {
         RestClient.ResponseSpec responseSpec = builder.get()
                 .uri(uriBuilder -> uriBuilder
@@ -49,7 +65,7 @@ public class CodeValidationService {
                         .queryParam("merchantId", "3927")
                         .build())
                 .retrieve();
-        try{
+        try {
             return responseSpec
                     .toBodilessEntity();
         } catch (Exception e) {
@@ -64,9 +80,9 @@ public class CodeValidationService {
 
     private static final String ALPHABETS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String NUMBERS = "0123456789";
+    private static final String ALLOWED_CHARS = ALPHABETS + NUMBERS;
 
     private String generateRandomCode() {
-        String ALLOWED_CHARS = ALPHABETS + NUMBERS;
 
         Random random = new Random();
         StringBuilder code = new StringBuilder();
@@ -74,7 +90,7 @@ public class CodeValidationService {
         code.append("F");
 
         for (int i = 0; i < 5; i++) {
-            if (i == 0) {
+            if (i == 0 || i == 4) {
                 code.append(ALPHABETS.charAt(random.nextInt(ALPHABETS.length())));
             } else if (i == 2) {
                 code.append(NUMBERS.charAt(random.nextInt(NUMBERS.length())));

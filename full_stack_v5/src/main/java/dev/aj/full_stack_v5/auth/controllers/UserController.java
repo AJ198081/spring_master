@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -37,6 +38,13 @@ public class UserController {
     @PatchMapping("/resetPassword")
     public ResponseEntity<Void> resetPassword(@RequestParam String username, @RequestParam String newPassword, @RequestParam String email) {
         userService.resetPassword(username, email, newPassword);
+
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(
+                UriComponentsBuilder.fromUriString("/api/v1/users/username/%s")
+                        .pathSegment(username)
+                .build()
+                .toUri()
+        );
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();

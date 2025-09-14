@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: 'full_stack_v6_compose_container'
+    env_file:
+      - .env
+    restart: no
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    networks:
+      - full_stack_v6_network
+
+networks:
+  full_stack_v6_network:
+    driver: bridge
