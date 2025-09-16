@@ -26,6 +26,8 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestDataFactory.class, TestConfig.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"})
@@ -49,17 +51,10 @@ class CategoryControllerTest {
 
     private RestClient restClient;
 
-    private List<String> existingCategoryName;
-
     @BeforeEach
     void setUp() {
-        restClient = testConfig.restClient("http://localhost:%d%s"
-                .formatted(port, CATEGORY_CONTROLLER_BASE_PATH));
-
-        existingCategoryName = Objects.requireNonNull(getAllCategoriesResponse().getBody())
-                .stream()
-                .map(Category::getName)
-                .toList();
+        restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, CATEGORY_CONTROLLER_BASE_PATH));
+        categoryRepository.deleteAll();
     }
 
     @AfterEach
@@ -71,7 +66,6 @@ class CategoryControllerTest {
 
     @Test
     void saveCategory() {
-
         Category newCategory = createSampleCategory();
         ResponseEntity<Category> createdCategoryResponse = saveANewRandomCategory(newCategory);
 
@@ -86,6 +80,18 @@ class CategoryControllerTest {
                                     .isEqualTo(newCategory.getName()));
                 });
 
+    }
+
+    @Test
+    void saveCategoryWithValidationErrors() {
+        Assertions.assertThatThrownBy(() -> saveANewRandomCategory(new Category()))
+                .isInstanceOf(HttpClientErrorException.BadRequest.class);
+
+        HttpClientErrorException.BadRequest badRequest = assertThrows(HttpClientErrorException.BadRequest.class, () -> saveANewRandomCategory(new Category()));
+        Assertions.assertThat(badRequest.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(badRequest.getResponseBodyAsString()).contains("category.name");
+        Assertions.assertThat(badRequest.getResponseBodyAsString()).contains("must not be empty");
+        Assertions.assertThat(badRequest.getResponseBodyAsString()).contains("must not be null");
     }
 
     @Test
@@ -149,7 +155,7 @@ class CategoryControllerTest {
                 .isNotNull()
                 .satisfies(response -> Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK));
 
-        org.junit.jupiter.api.Assertions.assertThrows(HttpClientErrorException.NotFound.class, () -> deleteCategoryById(categoryId));
+        assertThrows(HttpClientErrorException.NotFound.class, () -> deleteCategoryById(categoryId));
     }
 
     @Test
@@ -190,7 +196,7 @@ class CategoryControllerTest {
                 .isNotNull()
                 .satisfies(response -> Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
 
-        org.junit.jupiter.api.Assertions.assertThrows(HttpClientErrorException.Conflict.class, () -> restClient.put()
+        assertThrows(HttpClientErrorException.Conflict.class, () -> restClient.put()
                 .uri("/{id}", categoryId)
                 .body(newCategory)
                 .retrieve()

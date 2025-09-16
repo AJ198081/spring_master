@@ -9,6 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,6 +37,9 @@ public class Category {
     @JdbcTypeCode(SqlTypes.BIGINT)
     private Long id;
 
+    @NotNull
+    @NotEmpty
+    @Size(min = 2, max = 100)
     @Column(name = "name", nullable = false, unique = true, columnDefinition = "VARCHAR(100)")
     private String name;
 

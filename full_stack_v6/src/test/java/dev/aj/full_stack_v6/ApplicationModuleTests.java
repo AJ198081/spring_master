@@ -11,10 +11,12 @@ public class ApplicationModuleTests {
     @Test
     void writeDocumentationSnippets() {
         ApplicationModules applicationModules = ApplicationModules.of(FullStackV6Application.class).verify();
+    }
 
-        applicationModules.forEach(System.out::println);
+    @Test
+    void writeApplicationDocumentation() {
 
-        new Documenter(applicationModules)
+        new Documenter(ApplicationModules.of(FullStackV6Application.class))
                 .writeModulesAsPlantUml()
                 .writeIndividualModulesAsPlantUml();
     }

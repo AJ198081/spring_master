@@ -2,7 +2,6 @@
         allowedDependencies = {
                 "common :: entities",
                 "common :: exception_handlers"
-
         }
 )
 

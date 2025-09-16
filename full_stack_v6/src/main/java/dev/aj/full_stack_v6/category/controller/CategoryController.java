@@ -2,6 +2,7 @@ package dev.aj.full_stack_v6.category.controller;
 
 import dev.aj.full_stack_v6.category.CategoryService;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/")
-    public ResponseEntity<Category> saveCategory(@RequestBody @Validated Category category) {
+    public ResponseEntity<Category> saveCategory(@Valid @RequestBody Category category) {
         return ResponseEntity.ok(categoryService.saveCategory(category));
     }
 
