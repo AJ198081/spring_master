@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6.common.exception_handlers;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,19 @@ public class CommonExceptionHandlers {
         return ResponseEntity
                 .status(notFound)
                 .body(entityNotFoundProblemDetail);
+    }
+
+    @ExceptionHandler(value = {EntityExistsException.class})
+    public ResponseEntity<ProblemDetail> handleEntityExistsException(EntityExistsException ex) {
+        HttpStatus conflictStatus = HttpStatus.CONFLICT;
+        ProblemDetail conflictProblemDetail = ProblemDetail.forStatusAndDetail(
+                conflictStatus,
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(conflictStatus)
+                .body(conflictProblemDetail);
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})

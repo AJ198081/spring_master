@@ -14,7 +14,7 @@ public class TestDataFactory {
     private final Faker faker;
 
     public Stream<Category> getStreamOfCategories() {
-        return Stream.of(Category.builder()
+        return Stream.generate(() -> Category.builder()
                 .name(faker.commerce().department())
                 .build());
     }
