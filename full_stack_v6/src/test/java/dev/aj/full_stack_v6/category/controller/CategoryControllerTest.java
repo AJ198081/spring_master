@@ -78,7 +78,7 @@ class CategoryControllerTest {
     }
 
     @Nested
-    class SaveCategoryTests {
+    class PostCategoryTests {
 
         @Test
         void whenValidCategory_thenCreatesCategory() {
@@ -129,7 +129,7 @@ class CategoryControllerTest {
 
             saveANewRandomCategory(createSampleCategory());
 
-            ResponseEntity<List<Category>> allCategoriesResponse = getAllCategoriesResponse();
+            ResponseEntity<List<Category>> allCategoriesResponse = getAllCategories();
 
             log.info("All Categories: {}", allCategoriesResponse.getBody());
 
@@ -161,7 +161,7 @@ class CategoryControllerTest {
         }
 
         @Test
-        void whenCategoryByIdDoesNotExist_thenReturnsNotFound() {
+        void whenCategoryByIdDoesNotExist_thenThrowsNotFound() {
             Assertions.assertThatThrownBy(() -> getCategoryById(Long.MAX_VALUE))
                     .isInstanceOf(HttpClientErrorException.NotFound.class);
         }
@@ -177,8 +177,6 @@ class CategoryControllerTest {
                     savedCategories.add(Objects.requireNonNull(categoryResponseEntity.getBody()));
                 }
             }
-
-
 
             ResponseEntity<PageResponse<Category>> pageResponse = restClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -332,7 +330,7 @@ class CategoryControllerTest {
     }
 
     private @NonNull Category createSampleCategory() {
-        ResponseEntity<List<Category>> allCategoriesResponse = this.getAllCategoriesResponse();
+        ResponseEntity<List<Category>> allCategoriesResponse = this.getAllCategories();
         if (allCategoriesResponse.getStatusCode().is2xxSuccessful()) {
             alreadyCommittedCategoryNames = Objects.requireNonNull(allCategoriesResponse.getBody())
                     .stream()
@@ -355,7 +353,7 @@ class CategoryControllerTest {
                 .toEntity(Category.class);
     }
 
-    private @NotNull ResponseEntity<List<Category>> getAllCategoriesResponse() {
+    private @NotNull ResponseEntity<List<Category>> getAllCategories() {
         return restClient.get()
                 .uri("/all")
                 .retrieve()
