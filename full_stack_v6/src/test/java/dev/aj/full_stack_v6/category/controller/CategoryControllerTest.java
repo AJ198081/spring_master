@@ -3,6 +3,7 @@ package dev.aj.full_stack_v6.category.controller;
 import dev.aj.full_stack_v6.TestConfig;
 import dev.aj.full_stack_v6.TestDataFactory;
 import dev.aj.full_stack_v6.category.repositories.CategoryRepository;
+import dev.aj.full_stack_v6.common.domain.dtos.PageResponse;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -374,20 +375,4 @@ class CategoryControllerTest {
                 .retrieve()
                 .toBodilessEntity();
     }
-
-    record PageResponse<T>(
-            List<T> content,
-            int number,
-            int size,
-            long totalElements,
-            int totalPages,
-            int numberOfElements,
-            boolean first,
-            boolean last,
-            boolean empty,
-            Map<String, Object> sort,
-            Map<String, Object> pageable
-    ) {
-    }
-
 }

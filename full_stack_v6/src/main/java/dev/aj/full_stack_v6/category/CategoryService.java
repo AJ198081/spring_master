@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface CategoryService {
-
     List<Category> getAllCategories();
     Category saveCategory(Category category);
     Category getCategoryById(Long id);
