@@ -207,14 +207,15 @@ class ProductControllerTest {
         void deleteProductById_Successful() {
 
             ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(createSampleProduct());
-            Long id = Objects.requireNonNull(createdProductResponse.getBody()).getId();
-            productId = String.valueOf(id).isBlank() ? id : Long.parseLong(String.valueOf(id));
+            productId = Objects.requireNonNull(createdProductResponse.getBody()).getId();
 
             ResponseEntity<Void> productDeletionResponse = deleteProductById(productId);
 
             Assertions.assertThat(productDeletionResponse)
                     .isNotNull()
-                    .satisfies(response -> Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK));
+                    .satisfies(response ->
+                            Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK)
+                    );
         }
 
         @Test
