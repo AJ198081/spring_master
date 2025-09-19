@@ -106,7 +106,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Category saveOrGetExistingCategory(Category category) {
-
         try {
             return categoryService.saveCategory(category);
         } catch (EntityExistsException e) {
