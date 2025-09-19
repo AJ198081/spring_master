@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "frontend.app.host",
+      "type": "java.lang.String",
+      "description": "Host URL of the frontend application."
+    }
+  ]
+}

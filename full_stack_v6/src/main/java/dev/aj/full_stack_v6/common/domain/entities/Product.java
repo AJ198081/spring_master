@@ -1,13 +1,7 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,14 +27,30 @@ public class Product {
     @JdbcTypeCode(SqlTypes.BIGINT)
     private Long id;
 
+    @Column(nullable = false, unique = true, columnDefinition = "VARCHAR(255)")
     private String name;
+
+    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
     private String description;
+
+    @Column(nullable = false)
     private BigDecimal price;
+
     private BigDecimal discountedPrice;
+
     private Integer stock;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Version
+    @JdbcTypeCode(SqlTypes.INTEGER)
+    private Integer version;
+
+    @Embedded
+    @Builder.Default
+    @JsonIgnore
+    private AuditMetaData auditMetaData = new AuditMetaData();
 
 }

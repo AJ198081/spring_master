@@ -42,6 +42,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public Category getCategoryByName(String name) {
+        return categoryRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException("Category '%s' not found".formatted(name)));
+    }
+
+    @Override
     public void deleteCategoryById(Long id) {
         categoryRepository.findById(id)
                 .ifPresentOrElse(

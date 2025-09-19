@@ -9,8 +9,8 @@ import org.springframework.modulith.test.ApplicationModuleTest;
 public class ApplicationModuleTests {
 
     @Test
-    void writeDocumentationSnippets() {
-        ApplicationModules applicationModules = ApplicationModules.of(FullStackV6Application.class).verify();
+    void verifyApplicationModules() {
+        ApplicationModules.of(FullStackV6Application.class).verify();
     }
 
     @Test

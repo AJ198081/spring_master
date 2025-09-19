@@ -1,10 +1,12 @@
 package dev.aj.full_stack_v6.product.controller;
 
 import dev.aj.full_stack_v6.TestConfig;
+import dev.aj.full_stack_v6.TestDataFactory;
 import dev.aj.full_stack_v6.common.domain.dtos.PageResponse;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.product.repositories.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jetbrains.annotations.NotNull;
@@ -33,14 +35,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestConfig.class})
-@TestPropertySource(locations = {"classpath:application-test.properties"})
+@Import(value = {TestConfig.class, TestDataFactory.class})
+@TestPropertySource(locations = {"classpath:application-log.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class ProductControllerTest {
@@ -52,6 +53,9 @@ class ProductControllerTest {
 
     @Autowired
     private TestConfig testConfig;
+
+    @Autowired
+    private TestDataFactory testDataFactory;
 
     @Autowired
     private ProductRepository productRepository;
@@ -314,25 +318,23 @@ class ProductControllerTest {
     }
 
     private @NonNull Product createSampleProduct() {
-        ResponseEntity<List<Product>> allProductsResponse = this.getAllProducts();
-        if (allProductsResponse.getStatusCode().is2xxSuccessful()) {
-            alreadyCommittedProductNames = Objects.requireNonNull(allProductsResponse.getBody())
-                    .stream()
-                    .map(Product::getName)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(alreadyCommittedProductNames)) {
+            ResponseEntity<List<Product>> allProductsResponse = this.getAllProducts();
+            if (allProductsResponse.getStatusCode().is2xxSuccessful()) {
+                alreadyCommittedProductNames = Objects.requireNonNull(allProductsResponse.getBody())
+                        .stream()
+                        .map(Product::getName)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+            }
         }
-        String baseName = "Product-" + UUID.randomUUID();
-        String uniqueName = baseName;
-        int counter = 0;
-        while (alreadyCommittedProductNames.contains(uniqueName)) {
-            uniqueName = baseName + "-" + (++counter);
-        }
-        alreadyCommittedProductNames.add(uniqueName);
 
-        Product product = new Product();
-        product.setName(uniqueName);
-        return product;
+        return testDataFactory.getStreamOfProducts()
+                .filter(product -> !alreadyCommittedProductNames.contains(product.getName()))
+                .limit(1)
+                .peek(product -> alreadyCommittedProductNames.add(product.getName()))
+                .findFirst()
+                .orElseThrow();
     }
 
     private @NonNull ResponseEntity<Product> saveANewRandomProduct(Product newProduct) {
