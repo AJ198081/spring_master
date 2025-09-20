@@ -44,7 +44,7 @@ public class Image {
     @JsonIgnore
     private byte[] contents;
 
-    @ManyToOne(optional = true)
+    @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     @JsonIgnore
     private Product product;
@@ -54,7 +54,6 @@ public class Image {
 
     @Builder.Default
     @Embedded
-    @JsonIgnore
     private AuditMetaData auditMetaData = new AuditMetaData();
 
     public Image(MultipartFile multipartFile) {

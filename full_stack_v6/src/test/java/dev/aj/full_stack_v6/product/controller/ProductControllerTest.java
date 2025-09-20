@@ -5,6 +5,7 @@ import dev.aj.full_stack_v6.TestDataFactory;
 import dev.aj.full_stack_v6.common.domain.dtos.PageResponse;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.product.repositories.ProductRepository;
+import io.micrometer.core.instrument.config.MeterFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.assertj.core.api.Assertions;
@@ -37,11 +38,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestConfig.class, TestDataFactory.class})
-@TestPropertySource(locations = {"classpath:application-log.properties"})
+@TestPropertySource(locations = {"/application-log.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class ProductControllerTest {
@@ -85,15 +87,24 @@ class ProductControllerTest {
             Product newProduct = createSampleProduct();
             ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(newProduct);
 
-            Assertions.assertThat(createdProductResponse)
+            assertThat(createdProductResponse)
                     .isNotNull()
                     .satisfies(response -> {
-                        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-                        Assertions.assertThat(response.getBody())
+                        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(response.getBody())
                                 .isNotNull()
-                                .satisfies(product -> Assertions.assertThat(product.getName())
+                                .satisfies(product -> assertThat(product.getName())
                                         .isNotNull()
-                                        .isEqualTo(newProduct.getName()));
+                                        .isEqualTo(newProduct.getName()))
+                                .extracting(Product::getAuditMetaData)
+                                .satisfies(auditMetaData ->
+                                        assertThat(auditMetaData)
+                                        .isNotNull()
+                                        .satisfies(metaData -> {
+                                            assertThat(metaData.getCreatedBy()).isNotBlank();
+                                            assertThat(metaData.getCreatedDate()).isInThePast();
+                                        }));
+
                     });
         }
 
@@ -119,11 +130,11 @@ class ProductControllerTest {
 
             log.info("All Products: {}", allProductsResponse.getBody());
 
-            Assertions.assertThat(allProductsResponse)
+            assertThat(allProductsResponse)
                     .isNotNull()
                     .satisfies(response -> {
-                        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-                        Assertions.assertThat(response.getBody())
+                        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(response.getBody())
                                 .isNotNull()
                                 .isNotEmpty();
                     });
@@ -136,13 +147,13 @@ class ProductControllerTest {
             Long productId = Objects.requireNonNull(createdProductResponse.getBody()).getId();
 
             ResponseEntity<Product> productResponse = getProductById(productId);
-            Assertions.assertThat(productResponse)
+            assertThat(productResponse)
                     .isNotNull()
                     .satisfies(response -> {
-                        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-                        Assertions.assertThat(response.getBody())
+                        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        assertThat(response.getBody())
                                 .isNotNull()
-                                .satisfies(product -> Assertions.assertThat(product.getId()).isEqualTo(productId));
+                                .satisfies(product -> assertThat(product.getId()).isEqualTo(productId));
                     });
         }
 
@@ -178,14 +189,14 @@ class ProductControllerTest {
                     .toEntity(new ParameterizedTypeReference<>() {
                     });
 
-            Assertions.assertThat(pageResponse)
+            assertThat(pageResponse)
                     .isNotNull()
                     .satisfies(response -> {
-                        Assertions.assertThat(response.getStatusCode())
+                        assertThat(response.getStatusCode())
                                 .isEqualTo(HttpStatus.OK);
-                        Assertions.assertThat(response.getBody())
+                        assertThat(response.getBody())
                                 .isNotNull()
-                                .satisfies(products -> Assertions.assertThat(products)
+                                .satisfies(products -> assertThat(products)
                                         .extracting(PageResponse::content)
                                         .asInstanceOf(InstanceOfAssertFactories.LIST)
                                         .hasSizeLessThanOrEqualTo(10)
@@ -211,10 +222,10 @@ class ProductControllerTest {
 
             ResponseEntity<Void> productDeletionResponse = deleteProductById(productId);
 
-            Assertions.assertThat(productDeletionResponse)
+            assertThat(productDeletionResponse)
                     .isNotNull()
                     .satisfies(response ->
-                            Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK)
+                            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK)
                     );
         }
 
@@ -255,10 +266,10 @@ class ProductControllerTest {
                     .retrieve()
                     .toBodilessEntity();
 
-            Assertions.assertThat(productPatchResponse)
+            assertThat(productPatchResponse)
                     .isNotNull()
                     .satisfies(response ->
-                            Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
+                            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
         }
 
         @Test
@@ -292,10 +303,10 @@ class ProductControllerTest {
                     .retrieve()
                     .toBodilessEntity();
 
-            Assertions.assertThat(putProductResponse)
+            assertThat(putProductResponse)
                     .isNotNull()
                     .satisfies(response ->
-                            Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED)
+                            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED)
                     );
         }
 

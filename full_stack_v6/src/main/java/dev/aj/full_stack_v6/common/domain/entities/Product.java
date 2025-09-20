@@ -1,6 +1,5 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,7 +57,6 @@ public class Product {
 
     @Embedded
     @Builder.Default
-    @JsonIgnore
     private AuditMetaData auditMetaData = new AuditMetaData();
 
 }
