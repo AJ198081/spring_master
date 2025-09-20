@@ -8,10 +8,11 @@ import org.springframework.data.domain.AuditorAware;
 import java.util.Optional;
 
 /**
- * @Configuration - disabling proxying for the beans defined in this class.
+ * Disabling proxying for the beans defined in this class.
  * Static beans that are called every time, without Spring proxying them,
  * especially for the auditorProvider, which needs to look at the SecurityContextHolder for each thread.
  */
+//TODO: Spring Modulith throwing unable to instantiate bean exception. Clean it up once it's fixed.
 @Configuration(proxyBeanMethods = false)
 public class AuditingEntityConfig {
 
