@@ -93,7 +93,7 @@ class ImageControllerTest {
                         Assertions.assertThat(img.getId()).isNotNull();
                         Assertions.assertThat(img.getFileName()).isEqualTo(randomImageFile.getOriginalFilename());
                         Assertions.assertThat(img.getContentType()).isEqualTo(randomImageFile.getContentType());
-                        Assertions.assertThat(img.getDownloadUrl()).contains("download/");
+                        Assertions.assertThat(img.getDownloadUrl()).contains("/api/v1/images/".concat(img.getId().toString()));
                     });
         }
 
@@ -115,12 +115,14 @@ class ImageControllerTest {
             MockMultipartFile f2 = testDataFactory.getRandomImageFile();
             MockMultipartFile f3 = testDataFactory.getRandomImageFile();
 
-            mockMvc.perform(MockMvcRequestBuilders.multipart(IMAGE_BASE + "/product/{productId}", productId)
-                            .file(f1)
-                            .file(f2)
-                            .file(f3)
-                            .contentType(MediaType.MULTIPART_FORM_DATA)
-                            .param("replaceAll", "true"))
+            mockMvc.perform(
+                            MockMvcRequestBuilders.multipart(IMAGE_BASE + "/product/{productId}", productId)
+                                    .file(f1)
+                                    .file(f2)
+                                    .file(f3)
+                                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                                    .param("replaceAll", "true")
+                    )
                     .andExpect(status().isOk());
 
             ResponseEntity<List<Image>> listResp = imageClient.get()
@@ -149,14 +151,14 @@ class ImageControllerTest {
                     .extracting(Product::getImages)
                     .satisfies(images ->
                             Assertions.assertThat(images)
-                                    .allMatch(image -> !image.getDownloadUrl().isBlank()));
+                                    .allMatch(image -> image.getDownloadUrl().contains("/api/v1/images/".concat(image.getId().toString()))));
         }
     }
 
     @Nested
     class GetImageTests {
         @Test
-        void whenGetAllImages_thenReturnsList() throws Exception {
+        void whenGetAllImages_thenReturnsList() {
             // add a few images first
             List<Image> uploaded = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
@@ -175,7 +177,7 @@ class ImageControllerTest {
         }
 
         @Test
-        void whenDownloadImageById_thenOk() throws Exception {
+        void whenDownloadImageById_thenOk() {
             Image saved = uploadOne(testDataFactory.getRandomImageFile());
 
             ResponseEntity<Resource> resp = imageClient.get()
@@ -241,7 +243,7 @@ class ImageControllerTest {
     @Nested
     class DeleteImageTests {
         @Test
-        void whenDeleteImage_thenIdempotent() throws Exception {
+        void whenDeleteImage_thenIdempotent() {
             Image saved = uploadOne(testDataFactory.getRandomImageFile());
 
             ResponseEntity<Void> resp = imageClient.delete()

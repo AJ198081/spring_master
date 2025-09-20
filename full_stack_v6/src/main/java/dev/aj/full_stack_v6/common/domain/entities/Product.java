@@ -48,7 +48,12 @@ public class Product {
     private Category category;
 
     @Builder.Default
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(
+            fetch = FetchType.EAGER,
+            mappedBy = "product",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true
+    )
     private Set<Image> images = new HashSet<>();
 
     @Version

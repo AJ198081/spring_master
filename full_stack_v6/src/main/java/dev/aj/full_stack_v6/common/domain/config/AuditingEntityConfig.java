@@ -11,7 +11,7 @@ import java.util.Optional;
 public class AuditingEntityConfig {
 
     @Bean
-    public AuditorAware<String> auditorProvider() {
+    public static AuditorAware<String> auditorProvider() {
         return () -> {
             /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof SecurityUser user) {
@@ -22,7 +22,7 @@ public class AuditingEntityConfig {
     }
 
     @Bean
-    public DateTimeProvider dateTimeProvider() {
+    public static DateTimeProvider dateTimeProvider() {
         return () -> Optional.of(java.time.ZonedDateTime.now());
     }
 

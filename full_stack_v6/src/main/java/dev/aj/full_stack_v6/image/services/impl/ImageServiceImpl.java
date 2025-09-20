@@ -12,7 +12,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -61,20 +60,18 @@ public class ImageServiceImpl implements ImageService {
             return new HashSet<>();
         }
 
+
         return images.stream()
                 .filter(Objects::nonNull)
                 .filter(img -> img.getContents() != null && img.getContents().length > 0)
-                .map(img -> {
-                    img.setProduct(product);
-                    return img;
-                })
+                .peek(img -> img.setProduct(product))
                 .map(imageRepository::save)
                 .collect(Collectors.toSet());
     }
 
     @Override
     @Transactional
-    public Image updateImage(Image image, Long id) throws IOException {
+    public Image updateImage(Image image, Long id) {
         Objects.requireNonNull(id, "Image ID cannot be null");
         log.info("Updating image with ID: {}", id);
         Image existing = imageRepository.findById(id)
@@ -141,9 +138,8 @@ public class ImageServiceImpl implements ImageService {
                 .filter(Objects::nonNull)
                 .filter(img -> img.getContents() != null && img.getContents().length > 0)
                 .map(imageRepository::save)
-                .peek(img -> {
-                    img.setDownloadUrl("download/%d".formatted(img.getId()));
-                })
+//                Not needed, as is set in the @PrePersist and @PreUpdate method
+//                .peek(img -> img.setDownloadUrl("download/%d".formatted(img.getId())))
                 .map(imageRepository::save)
                 .collect(Collectors.toSet());
     }

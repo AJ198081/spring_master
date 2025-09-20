@@ -18,13 +18,13 @@ public class AuditMetaData {
     @Column(nullable = false, updatable = false)
     private String createdBy;
 
-    @LastModifiedBy
-    @Column(insertable = false)
-    private String lastModifiedBy;
-
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private ZonedDateTime createdDate;
+
+    @LastModifiedBy
+    @Column(insertable = false)
+    private String lastModifiedBy;
 
     @LastModifiedDate
     @Column(insertable = false)

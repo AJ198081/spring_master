@@ -2,6 +2,7 @@ package dev.aj.full_stack_v6.common.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,6 +43,7 @@ public class Image {
     @Column(nullable = false, columnDefinition = "bytea")
     @ToString.Exclude
     @JsonIgnore
+    @NotNull
     private byte[] contents;
 
     @ManyToOne
@@ -52,8 +54,8 @@ public class Image {
     @Version
     private Integer version;
 
-    @Builder.Default
     @Embedded
+    @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
 
     public Image(MultipartFile multipartFile) {
@@ -64,7 +66,7 @@ public class Image {
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to read image file error message %s".formatted(e.getMessage()));
         }
-
+        this.auditMetaData = new AuditMetaData();
     }
 
     @Override
@@ -90,7 +92,7 @@ public class Image {
     @PreUpdate
     public void prePersistUpdate() {
         if (this.getId() != null) {
-            this.downloadUrl = "/api/images/%d".formatted(this.getId());
+            this.downloadUrl = "/api/v1/images/%d".formatted(this.getId());
         }
     }
 }
