@@ -3,10 +3,12 @@ package dev.aj.full_stack_v6.image.repositories;
 import dev.aj.full_stack_v6.common.domain.entities.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Set;
 
+@Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
     List<Image> findByProduct_Id(Long productId);

@@ -74,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
             category.setName(modifiedCategory.getName());
             categoryRepository.save(category);
         } else {
-            log.info("No changes were made, as existing entity has same characteristics as the modified category");
+            log.info("No changes were made, as the existing entity has the same characteristics as the modified category");
         }
     }
 

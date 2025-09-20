@@ -43,6 +43,20 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
+    public Set<Image> saveImages(List<Image> images) {
+        if (CollectionUtils.isEmpty(images)) return new HashSet<>();
+        return images.stream()
+                .filter(Objects::nonNull)
+                .filter(img -> img.getContents() != null && img.getContents().length > 0)
+                .map(imageRepository::save)
+//                Not needed, as is set in the @PrePersist and @PreUpdate method
+//                .peek(img -> img.setDownloadUrl("download/%d".formatted(img.getId())))
+                .map(imageRepository::save)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    @Transactional
     public Set<Image> saveImagesForProduct(List<Image> images, Long productId, boolean replaceAll) {
         log.info("Saving {} images for product {}, replaceAll={}",
                 CollectionUtils.size(images), productId, replaceAll);
@@ -71,7 +85,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
-    public Image updateImage(Image image, Long id) {
+    public Image putImage(Image image, Long id) {
         Objects.requireNonNull(id, "Image ID cannot be null");
         log.info("Updating image with ID: {}", id);
         Image existing = imageRepository.findById(id)
@@ -110,12 +124,6 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Image> getImagesByProductName(String name) {
-        return imageRepository.findByProduct_Name(name);
-    }
-
-    @Override
     @Transactional
     public void deleteImageById(Long id) {
         imageRepository.findById(id)
@@ -128,20 +136,6 @@ public class ImageServiceImpl implements ImageService {
                             log.info("Deleted image with ID: {}", id);
                         },
                         () -> log.warn("Image ID {} not found, no deletion occurred", id));
-    }
-
-    @Override
-    @Transactional
-    public Set<Image> saveImages(List<Image> images) {
-        if (CollectionUtils.isEmpty(images)) return new HashSet<>();
-        return images.stream()
-                .filter(Objects::nonNull)
-                .filter(img -> img.getContents() != null && img.getContents().length > 0)
-                .map(imageRepository::save)
-//                Not needed, as is set in the @PrePersist and @PreUpdate method
-//                .peek(img -> img.setDownloadUrl("download/%d".formatted(img.getId())))
-                .map(imageRepository::save)
-                .collect(Collectors.toSet());
     }
 
     @Override

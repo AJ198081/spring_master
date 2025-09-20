@@ -102,11 +102,11 @@ public class ImageController {
     @PutMapping("/{imageId}")
     public ResponseEntity<Image> updateImage(@RequestPart("files") MultipartFile multipartFile, @PathVariable Long imageId) {
         Image image = new Image(multipartFile);
-        return ResponseEntity.ok(imageService.updateImage(image, imageId));
+        return ResponseEntity.ok(imageService.putImage(image, imageId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteImageById(@PathVariable(value = "id", required = true) Long id) {
+    public ResponseEntity<Void> deleteImageById(@PathVariable(value = "id") Long id) {
         imageService.deleteImageById(id);
         return ResponseEntity.noContent().build();
     }

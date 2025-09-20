@@ -46,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> findProductPage(String name, int page, int size, String sortDirection) {
+
         return productRepository.findPageByNameContainingIgnoreCase(
                 name,
                 PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), "name"))
@@ -98,7 +99,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void assertProductNameUniqueness(Product product) {
-        // Only enforce uniqueness on product name; be null-safe.
         if (product.getName() != null && productRepository.existsByName(product.getName())) {
             throw new EntityExistsException("Product with name '%s' already exists".formatted(product.getName()));
         }
@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             return categoryService.saveCategory(category);
         } catch (EntityExistsException e) {
-            log.info("Category with name {} already exists, fetching existing category", category.getName());
+            log.info("Category with name {} already exists, fetching the existing category", category.getName());
             return categoryService.getCategoryByName(category.getName());
         }
     }
