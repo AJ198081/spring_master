@@ -30,8 +30,7 @@ public class ProductServiceImpl implements ProductService {
     public Product saveProduct(Product product) {
         assertProductNameUniqueness(product);
         product.setCategory(saveOrGetExistingCategory(product.getCategory()));
-        productRepository.save(product);
-        return product;
+        return productRepository.save(product);
     }
 
     @Override

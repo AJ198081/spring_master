@@ -31,14 +31,14 @@ public class ImageController {
     private final ImageService imageService;
 
     @SneakyThrows
-    @PostMapping(value = "/")
+    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Image> saveImage(@RequestParam("files") MultipartFile multipartFile) {
         Image image = new Image(multipartFile);
         return ResponseEntity.ok(imageService.saveImage(image));
     }
 
     @SneakyThrows
-    @PostMapping(value = "/list")
+    @PostMapping(value = "/list", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Set<Image>> saveImages(@RequestParam("files") List<MultipartFile> multipartFiles) {
         List<Image> imageRequests = multipartFiles.stream()
                 .map(Image::new)

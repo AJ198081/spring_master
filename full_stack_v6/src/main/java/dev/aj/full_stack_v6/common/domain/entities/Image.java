@@ -53,13 +53,19 @@ public class Image {
     private Integer version;
 
     @Builder.Default
+    @Embedded
     @JsonIgnore
     private AuditMetaData auditMetaData = new AuditMetaData();
 
-    public Image(MultipartFile multipartFile) throws IOException {
+    public Image(MultipartFile multipartFile) {
         this.contentType = multipartFile.getContentType();
-        this.contents = multipartFile.getBytes();
         this.fileName = multipartFile.getResource().getFilename();
+        try {
+            this.contents = multipartFile.getBytes();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to read image file error message %s".formatted(e.getMessage()));
+        }
+
     }
 
     @Override
@@ -79,5 +85,13 @@ public class Image {
                 Arrays.hashCode(getContents()),
                 getProduct()
         );
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void prePersistUpdate() {
+        if (this.getId() != null) {
+            this.downloadUrl = "/api/images/%d".formatted(this.getId());
+        }
     }
 }

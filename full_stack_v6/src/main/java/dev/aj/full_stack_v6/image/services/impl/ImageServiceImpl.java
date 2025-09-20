@@ -9,13 +9,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.io.IOException;
-import java.lang.reflect.Parameter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -38,11 +35,11 @@ public class ImageServiceImpl implements ImageService {
         }
 
         log.info("Saving image: {}", image.getFileName());
-        Image saved = imageRepository.save(image);
-        saved.setDownloadUrl("download/%d".formatted(saved.getId()));
-        saved = imageRepository.save(saved);
-        log.info("Image saved with ID: {} and downloadUrl: {}", saved.getId(), saved.getDownloadUrl());
-        return saved;
+        Image savedImage = imageRepository.save(image);
+
+        log.info("Image savedImage with ID: {} and downloadUrl: {}", savedImage.getId(), savedImage.getDownloadUrl());
+
+        return savedImage;
     }
 
     @Override
@@ -51,40 +48,28 @@ public class ImageServiceImpl implements ImageService {
         log.info("Saving {} images for product {}, replaceAll={}",
                 CollectionUtils.size(images), productId, replaceAll);
 
-        Product product = productService.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product with ID %d not found".formatted(productId)));
+        Product product = productService.getProductById(productId);
 
-        if (replaceAll && CollectionUtils.isNotEmpty(product.getImages())) {
-            product.getImages().clear();
-            productService.save(product); // ensure orphanRemoval deletes existing images
+        if (replaceAll) {
+            imageRepository.deleteByProductId(productId);
+            if (CollectionUtils.isNotEmpty(product.getImages())) {
+                product.getImages().clear();
+            }
         }
 
         if (CollectionUtils.isEmpty(images)) {
             return new HashSet<>();
         }
 
-        Set<Image> saved = new HashSet<>();
-        for (Image img : images) {
-            if (img == null || img.getContents() == null || img.getContents().length == 0) {
-                log.warn("Skipping empty image payload for product {}", productId);
-                continue;
-            }
-            img.setProduct(product);
-            Image persisted = imageRepository.save(img);
-            persisted.setDownloadUrl("download/%d".formatted(persisted.getId()));
-            persisted = imageRepository.save(persisted);
-            saved.add(persisted);
-        }
-
-        // refresh product images set if needed
-        if (!saved.isEmpty()) {
-            Set<Image> current = product.getImages();
-            if (current != null) {
-                current.addAll(saved);
-            }
-        }
-
-        return saved;
+        return images.stream()
+                .filter(Objects::nonNull)
+                .filter(img -> img.getContents() != null && img.getContents().length > 0)
+                .map(img -> {
+                    img.setProduct(product);
+                    return img;
+                })
+                .map(imageRepository::save)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -102,11 +87,10 @@ public class ImageServiceImpl implements ImageService {
         existing.setFileName(image.getFileName());
         existing.setContentType(image.getContentType());
         existing.setContents(image.getContents());
-        // preserve product and audit metadata
+
         Image saved = imageRepository.save(existing);
         saved.setDownloadUrl("download/%d".formatted(saved.getId()));
-        saved = imageRepository.save(saved);
-        return saved;
+        return imageRepository.save(saved);
     }
 
     @Override
@@ -139,10 +123,9 @@ public class ImageServiceImpl implements ImageService {
     public void deleteImageById(Long id) {
         imageRepository.findById(id)
                 .ifPresentOrElse(image -> {
-                            Product associatedProduct = image.getProduct();
+                    Product associatedProduct = image.getProduct();
                             if (associatedProduct != null) {
                                 associatedProduct.getImages().remove(image);
-                                productService.save(associatedProduct);
                             }
                             imageRepository.delete(image);
                             log.info("Deleted image with ID: {}", id);

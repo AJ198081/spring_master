@@ -11,7 +11,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     List<Image> findByProduct_Id(Long productId);
 
-    void deleteByProduct_Id(Long productId);
+    void deleteByProductId(Long productId);
 
     @Query("SELECT i FROM Image i WHERE i.product.name = :productName")
     List<Image> findByProduct_Name(String productName);
