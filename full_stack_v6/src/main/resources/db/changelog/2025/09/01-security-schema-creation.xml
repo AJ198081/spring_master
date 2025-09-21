@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="spring-security-users-and-authorities-1" author="AJ">
+
+        <createTable tableName="users">
+            <column name="username" type="varchar(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="password" type="varchar(500)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="enabled" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="authorities">
+            <column name="username" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authority" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="authorities" columnNames="username, authority" constraintName="pk_authorities"/>
+
+        <addForeignKeyConstraint
+                baseTableName="authorities"
+                baseColumnNames="username"
+                referencedTableName="users"
+                referencedColumnNames="username"
+                constraintName="fk_authorities_users"
+                onDelete="CASCADE"/>
+
+        <createIndex tableName="users" indexName="ix_users_username" unique="true">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex tableName="authorities" indexName="ix_authorities_username">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex tableName="authorities" indexName="ix_authorities_authority">
+            <column name="authority"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

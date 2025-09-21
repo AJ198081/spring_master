@@ -52,6 +52,7 @@ public class CodeValidationService {
                 if (!fetchPromotionDetails(restClient, promotion.getPromotionCode()).getStatusCode().is2xxSuccessful()) {
                     promotion.setActive(false);
                     promotionRepository.save(promotion);
+                    log.info("Promotion with code: {} is no longer active", promotion.getPromotionCode());
                 }
             }
         });

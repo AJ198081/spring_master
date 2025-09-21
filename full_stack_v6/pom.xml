@@ -15,7 +15,7 @@
     <description>Full stack e-commerce application</description>
 
     <dependencies>
-          <dependency>
+        <dependency>
             <groupId>net.datafaker</groupId>
             <artifactId>datafaker</artifactId>
             <version>2.4.3</version>
@@ -98,7 +98,7 @@
                 </executions>
             </plugin>
 
-<!--            Didn't work, .envFile plugin from IntelliJ might be a better way forward -->
+            <!--            Didn't work, .envFile plugin from IntelliJ might be a better way forward -->
             <!--<plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
