@@ -10,7 +10,7 @@ import java.io.IOException;
 public class AuthEntryPointJwt implements org.springframework.security.web.AuthenticationEntryPoint{
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
 
     }
 }

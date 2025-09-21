@@ -70,7 +70,7 @@ public class CodeValidationService {
             return responseSpec
                     .toBodilessEntity();
         } catch (Exception e) {
-            if (e instanceof HttpClientErrorException.BadRequest exception) {
+            if (e instanceof HttpClientErrorException.BadRequest) {
                 return ResponseEntity.badRequest().build();
             } else {
                 log.error("Error fetching promotion details: {}", e.getMessage());
