@@ -38,9 +38,10 @@
       "defaultValue": "Bearer "
     },
     {
-      "name": "jwt.refresh.token.cookie.secure",
+      "name": "jwt.refresh.token.cookie.http.only",
       "type": "java.lang.Boolean",
-      "description": "Whether the Refresh Token Cookie should be secure or not, i.e., https only."
+      "description": "Whether the Refresh Token Cookie should be secure or not, i.e., https only.",
+      "defaultValue": true
     },
     {
       "name": "jwt.refresh.token.cookie.domain",

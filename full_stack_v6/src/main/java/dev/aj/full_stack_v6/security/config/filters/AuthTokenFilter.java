@@ -1,6 +1,7 @@
 package dev.aj.full_stack_v6.security.config.filters;
 
 import dev.aj.full_stack_v6.common.exception_handlers.custom_exceptions.JwtValidationException;
+import dev.aj.full_stack_v6.security.utils.CookieUtils;
 import dev.aj.full_stack_v6.security.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +25,9 @@ import java.io.IOException;
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
+    private final CookieUtils cookieUtils;
     private final UserDetailsService userDetailsService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,21 +39,34 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         if (jwt != null) {
 
             try {
-                boolean isValid = jwtUtils.validateJwt(jwt);
-
-                if (isValid) {
+                if (jwtUtils.validateJwt(jwt)) {
                     String username = jwtUtils.getUsernameFromJwt(jwt);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    setSecurityContextHolderWithValidAuthentication(request, username);
                 }
-
             } catch (JwtValidationException e) {
                 log.warn("JWT validation failed for {}", request.getRequestURI());
+                // Check if the request is an OPTIONS request, if so, return 200 OK
+                if (request.getMethod().equals("OPTIONS")) {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    // Otherwise, check if the refreshToken cookie is present, if so, try to refresh the token
+                } else if (cookieUtils.requestContainsValidRefreshTokenCookie(request)) {
+                    log.info("Fetching the refresh token from the request cookies");
+                  String username = cookieUtils.getUsernameFromRefreshTokenCookie(request);
+                  setSecurityContextHolderWithValidAuthentication(request, username);
+                } else {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+                }
+                return;
             }
 
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void setSecurityContextHolderWithValidAuthentication(HttpServletRequest request, String username) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

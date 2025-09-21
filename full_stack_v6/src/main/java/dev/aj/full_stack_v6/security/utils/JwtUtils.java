@@ -96,4 +96,14 @@ public class JwtUtils {
         byte[] jwtSecretBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(jwtSecretBytes);
     }
+
+    public String generateRefreshJwt(String username) {
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now()
+                        .plusMillis(environment.getRequiredProperty("jwt.refresh.expiration.ms", Long.class))))
+                .signWith(getSecretKey())
+                .compact();
+    }
 }
