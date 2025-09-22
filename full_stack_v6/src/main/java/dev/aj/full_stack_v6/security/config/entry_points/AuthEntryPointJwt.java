@@ -1,29 +1,54 @@
 package dev.aj.full_stack_v6.security.config.entry_points;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
+import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
+@Slf4j
+@RequiredArgsConstructor
 public class AuthEntryPointJwt implements AuthenticationEntryPoint, RequestCache {
 
     private static final String SPRING_SECURITY_REQUEST_CACHE = "SPRING_SECURITY_REQUEST_CACHE";
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
 
+        log.error("Unauthenticated user detected: {}", authException.getMessage());
+
         HttpStatus status = HttpStatus.UNAUTHORIZED;
+
         Map<String, String> parameters = new LinkedHashMap<>();
+        parameters.put("error", "Unauthenticated");
+        parameters.put("message", authException.getMessage());
+        parameters.put("path", request.getRequestURI());
+        parameters.put("servletPath", request.getServletPath());
+        parameters.put("status", String.valueOf(status.value()));
+
         response.setStatus(status.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        try {
+            objectMapper.writeValue(response.getOutputStream(), parameters);
+        } catch (Exception e) {
+            log.error("Error writing unauthorized response: {}", e.getMessage());
+        }
 
     }
 

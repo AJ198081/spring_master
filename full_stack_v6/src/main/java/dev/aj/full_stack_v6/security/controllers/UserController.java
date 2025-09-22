@@ -1,11 +1,11 @@
 package dev.aj.full_stack_v6.security.controllers;
 
-import dev.aj.full_stack_v6.common.domain.dtos.LoginDto;
-import dev.aj.full_stack_v6.security.utils.CookieUtils;
-import dev.aj.full_stack_v6.security.utils.JwtUtils;
+import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
+import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
+import dev.aj.full_stack_v6.security.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,15 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserDetailsManager userDetailsManager;
-    private final JwtUtils jwtUtils;
-    private final CookieUtils cookieUtils;
+    private final UserService userService;
 
     @PostMapping("/login")
-    public void login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginDto, jakarta.servlet.http.HttpServletResponse response) {
 
-        UserDetails userDetails = userDetailsManager.loadUserByUsername(loginDto.username());
+        return ResponseEntity.ok(userService.login(loginDto, response));
+    }
 
-
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) {
+        userService.logout(request, response);
+        return ResponseEntity.accepted().build();
     }
 }

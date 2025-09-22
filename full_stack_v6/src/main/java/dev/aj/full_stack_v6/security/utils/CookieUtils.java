@@ -2,9 +2,9 @@ package dev.aj.full_stack_v6.security.utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -44,5 +44,17 @@ public class CookieUtils {
             }
         }
         return null;
+    }
+
+    public void invalidateRefreshTokenCookie(HttpServletRequest request, HttpServletResponse response) {
+        if (requestContainsValidRefreshTokenCookie(request)) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if (cookie.getName().equals("refreshToken")) {
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                    return;
+                }
+            }
+        }
     }
 }

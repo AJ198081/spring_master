@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -89,6 +90,17 @@ public class CommonExceptionHandlers {
         badRequestProblemDetail.setProperty("message", ex.getMessage());
         return ResponseEntity
                 .status(conflictStatus)
+                .body(badRequestProblemDetail);
+    }
+
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ProblemDetail> handleBadCredentialsException(BadCredentialsException ex) {
+        HttpStatus unauthorizedStatus = HttpStatus.UNAUTHORIZED;
+        ProblemDetail badRequestProblemDetail = ProblemDetail.forStatus(unauthorizedStatus);
+        badRequestProblemDetail.setProperty("message", ex.getMessage());
+
+        return ResponseEntity
+                .status(unauthorizedStatus)
                 .body(badRequestProblemDetail);
     }
 
