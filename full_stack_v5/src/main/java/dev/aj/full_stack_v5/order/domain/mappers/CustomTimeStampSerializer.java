@@ -21,6 +21,5 @@ public class CustomTimeStampSerializer extends StdSerializer<ZonedDateTime> {
     @Override
     public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeString(String.valueOf(value.toInstant().toEpochMilli()));
-
     }
 }

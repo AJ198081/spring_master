@@ -2,7 +2,7 @@ package dev.aj.full_stack_v6.security.services.impl;
 
 import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
-import dev.aj.full_stack_v6.security.UserService;
+import dev.aj.full_stack_v6.security.AuthService;
 import dev.aj.full_stack_v6.security.utils.CookieUtils;
 import dev.aj.full_stack_v6.security.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class AuthServiceImpl implements AuthService {
 
     private final JwtUtils jwtUtils;
     private final CookieUtils cookieUtils;
