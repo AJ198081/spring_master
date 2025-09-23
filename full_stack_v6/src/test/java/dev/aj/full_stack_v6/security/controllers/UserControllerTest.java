@@ -7,13 +7,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -29,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(value = {TestConfig.class, TestDataFactory.class})
 @TestPropertySource(locations = {"/application-log.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
 class UserControllerTest {
 
@@ -60,7 +64,10 @@ class UserControllerTest {
     }
 
     @Nested
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     class saveUserTests {
+
+        @Order(1)
         @Test
         void whenValidUser_thenReturnsAccepted() {
             UserCreateRequest userCreateRequest = testDataFactory.getStreamOfUserRequests()
@@ -76,7 +83,22 @@ class UserControllerTest {
 
             assertThat(response)
                     .isNotNull()
-                    .satisfies(resp -> assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
+                    .satisfies(responseEntity -> assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
+        }
+
+        @Order(2)
+        @Test
+        void whenDuplicateUsername_thenReturnsConflict() {
+            UserCreateRequest userCreateRequestWithExistingUsername = testDataFactory.userCreateRequest(alreadySavedUsernames.stream().findFirst().orElseThrow());
+
+            Assertions.assertThatThrownBy(
+                            () -> restClient.post()
+                                    .uri("/")
+                                    .body(userCreateRequestWithExistingUsername)
+                                    .retrieve()
+                                    .toBodilessEntity()
+                    )
+                    .isInstanceOf(HttpClientErrorException.Conflict.class);
         }
     }
 

@@ -57,4 +57,12 @@ public class TestDataFactory {
                 roles.get(faker.random().nextInt(roles.size())))
         );
     }
+
+    public UserCreateRequest userCreateRequest(String username) {
+        return new UserCreateRequest(username,
+                faker.internet().password(),
+                roles.get(faker.random().nextInt(roles.size()))
+        );
+    }
+
 }

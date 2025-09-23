@@ -2,6 +2,7 @@ package dev.aj.full_stack_v6.security.services.impl;
 
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import dev.aj.full_stack_v6.security.UserService;
+import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -23,6 +24,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createUser(UserCreateRequest userCreateRequest) {
         log.info("Received request to create user: {}", userCreateRequest);
+
+        if (userDetailsManager.userExists(userCreateRequest.username())) {
+            throw new EntityExistsException("User already exists: %s");
+        }
+
         userDetailsManager.createUser(userCreateRequest);
     }
 
