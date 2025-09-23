@@ -1,6 +1,5 @@
 package dev.aj.full_stack_v6;
 
-import com.tngtech.archunit.core.domain.JavaClass;
 import dev.aj.full_stack_v6.common.domain.config.AuditingEntityConfig;
 import dev.aj.full_stack_v6.security.config.beans.AuthManager;
 import org.junit.jupiter.api.Test;
