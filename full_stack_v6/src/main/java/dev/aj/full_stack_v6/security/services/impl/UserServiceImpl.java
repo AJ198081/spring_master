@@ -9,6 +9,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import java.security.Principal;
 public class UserServiceImpl implements UserService {
 
     private final UserDetailsManager userDetailsManager;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void createUser(UserCreateRequest userCreateRequest) {
@@ -29,7 +31,8 @@ public class UserServiceImpl implements UserService {
             throw new EntityExistsException("User already exists: %s");
         }
 
-        userDetailsManager.createUser(userCreateRequest);
+        userDetailsManager.createUser(userCreateRequest.encodePassword(passwordEncoder));
+
     }
 
     @Override

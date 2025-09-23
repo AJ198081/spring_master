@@ -5,10 +5,12 @@ import dev.aj.full_stack_v6.TestDataFactory;
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -16,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.junit.jupiter.api.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -32,11 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(value = {TestConfig.class, TestDataFactory.class})
 @TestPropertySource(locations = {"/application-log.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
 class UserControllerTest {
 
-    private static final String USER_CONTROLLER_BASE_PATH = "/api/v1/users";
+    public static final String USER_CONTROLLER_BASE_PATH = "/api/v1/users";
 
     @LocalServerPort
     private Integer port;
@@ -75,11 +75,7 @@ class UserControllerTest {
                     .findFirst()
                     .orElseThrow();
 
-            ResponseEntity<Void> response = restClient.post()
-                    .uri("/")
-                    .body(userCreateRequest)
-                    .retrieve()
-                    .toBodilessEntity();
+            ResponseEntity<Void> response = postANewUser(userCreateRequest);
 
             assertThat(response)
                     .isNotNull()
@@ -106,7 +102,6 @@ class UserControllerTest {
     class deleteUser {
         @Test
         void whenDeleteEndpointNotPresent_thenNotFound() {
-            // No delete mapping exists in UserController; verify 404 when calling a likely delete path
             Assertions.assertThatThrownBy(() -> restClient.delete()
                             .uri("/nonexistent-user")
                             .retrieve()
@@ -149,5 +144,35 @@ class UserControllerTest {
                             .toBodilessEntity())
                     .isInstanceOf(HttpClientErrorException.MethodNotAllowed.class);
         }
+    }
+
+    public UserCreateRequest addANewUniqueUser() {
+
+        UserCreateRequest userCreateRequest = getAUniqueUserCreateRequest();
+
+        ResponseEntity<Void> response = postANewUser(userCreateRequest);
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            addANewUniqueUser();
+        }
+        return userCreateRequest;
+    }
+
+    private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
+
+        return restClient.post()
+                .uri("/")
+                .body(userCreateRequest)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    private @NotNull UserCreateRequest getAUniqueUserCreateRequest() {
+
+        return testDataFactory.getStreamOfUserRequests()
+                .filter(user -> !alreadySavedUsernames.contains(user.username()))
+                .limit(1)
+                .peek(req -> alreadySavedUsernames.add(req.username()))
+                .findFirst()
+                .orElseThrow();
     }
 }
