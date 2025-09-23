@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.Optional;
 
@@ -12,17 +13,17 @@ import java.util.Optional;
  * Static beans that are called every time, without Spring proxying them,
  * especially for the auditorProvider, which needs to look at the SecurityContextHolder for each thread.
  */
-//TODO: Spring Modulith throwing unable to instantiate bean exception. Clean it up once it's fixed.
-@Configuration(proxyBeanMethods = false)
+@Configuration
+@EnableJpaAuditing(auditorAwareRef = "auditorProvider", dateTimeProviderRef = "dateTimeProvider")
 public class AuditingEntityConfig {
 
     /**
      * Provides the current auditor for entity auditing.
      *
-     * @return AuditorAware instance that supplies the current user identifier
+     * @return AuditorAware instance that supplies the current username along with the roles
      */
     @Bean
-    public static AuditorAware<String> auditorProvider() {
+    public AuditorAware<String> auditorProvider() {
         return () -> {
             /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof SecurityUser user) {
@@ -38,7 +39,7 @@ public class AuditingEntityConfig {
      * @return DateTimeProvider instance that supplies the current ZonedDateTime
      */
     @Bean
-    public static DateTimeProvider dateTimeProvider() {
+    public DateTimeProvider dateTimeProvider() {
         return () -> Optional.of(java.time.ZonedDateTime.now());
     }
 

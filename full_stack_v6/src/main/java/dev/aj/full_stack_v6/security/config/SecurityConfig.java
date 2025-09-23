@@ -4,6 +4,7 @@ import dev.aj.full_stack_v6.security.config.entry_points.AuthEntryPointJwt;
 import dev.aj.full_stack_v6.security.config.filters.AuthTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -22,22 +23,18 @@ public class SecurityConfig {
             AuthEntryPointJwt authEntryPointJwt
     ) throws Exception {
 
-        /*AuthenticationManagerBuilder authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authManagerBuilder.authenticationProvider(authenticationProvider);*/
-
         return http.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("/api/v1/auth", "/api/v1/users")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated()
+                                .requestMatchers("/api/v1/auths/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/users/").permitAll()
+                                .anyRequest().authenticated()
                 )
                 .csrf(CsrfConfigurer::disable)
-                .sessionManagement(httpSessionConfigurer ->
-                        httpSessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPointJwt))
-//                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(httpSessionConfigurer ->
+                        httpSessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
+
 }

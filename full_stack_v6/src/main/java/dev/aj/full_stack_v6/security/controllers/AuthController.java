@@ -12,19 +12,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/auths")
 @RequiredArgsConstructor
 public class AuthController {
-        private final AuthService userService;
+
+    private final AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginDto, jakarta.servlet.http.HttpServletResponse response) {
-        return ResponseEntity.ok(userService.login(loginDto, response));
+        return ResponseEntity.ok(authService.login(loginDto, response));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) {
-        userService.logout(request, response);
+        authService.logout(request, response);
         return ResponseEntity.accepted().build();
     }
 }

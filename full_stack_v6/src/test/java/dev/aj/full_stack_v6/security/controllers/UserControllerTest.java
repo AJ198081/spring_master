@@ -1,0 +1,131 @@
+package dev.aj.full_stack_v6.security.controllers;
+
+import dev.aj.full_stack_v6.TestConfig;
+import dev.aj.full_stack_v6.TestDataFactory;
+import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(value = {TestConfig.class, TestDataFactory.class})
+@TestPropertySource(locations = {"/application-log.properties"})
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Slf4j
+class UserControllerTest {
+
+    private static final String USER_CONTROLLER_BASE_PATH = "/api/v1/users";
+
+    @LocalServerPort
+    private Integer port;
+
+    @Autowired
+    private TestConfig testConfig;
+
+    @Autowired
+    private TestDataFactory testDataFactory;
+
+    private RestClient restClient;
+
+    private final Set<String> alreadySavedUsernames = new HashSet<>();
+
+    @BeforeAll
+    void setUp() {
+        restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
+    }
+
+    @AfterAll
+    void afterAll() {
+        if (restClient != null) {
+            restClient = null;
+        }
+    }
+
+    @Nested
+    class saveUserTests {
+        @Test
+        void whenValidUser_thenReturnsAccepted() {
+            UserCreateRequest userCreateRequest = testDataFactory.getStreamOfUserRequests()
+                    .filter(req -> alreadySavedUsernames.add(req.username()))
+                    .findFirst()
+                    .orElseThrow();
+
+            ResponseEntity<Void> response = restClient.post()
+                    .uri("/")
+                    .body(userCreateRequest)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            assertThat(response)
+                    .isNotNull()
+                    .satisfies(resp -> assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
+        }
+    }
+
+    @Nested
+    class deleteUser {
+        @Test
+        void whenDeleteEndpointNotPresent_thenNotFound() {
+            // No delete mapping exists in UserController; verify 404 when calling a likely delete path
+            Assertions.assertThatThrownBy(() -> restClient.delete()
+                            .uri("/nonexistent-user")
+                            .retrieve()
+                            .toBodilessEntity())
+                    .isInstanceOf(HttpClientErrorException.NotFound.class);
+        }
+    }
+
+    @Nested
+    class updateUser {
+        @Test
+        void whenPutNotSupported_thenMethodNotAllowed() {
+            UserCreateRequest req = testDataFactory.getStreamOfUserRequests()
+                    .filter(r -> alreadySavedUsernames.add(r.username()))
+                    .findFirst()
+                    .orElseThrow();
+
+            Assertions.assertThatThrownBy(() -> restClient.put()
+                            .uri("/")
+                            .body(req)
+                            .retrieve()
+                            .toBodilessEntity())
+                    .isInstanceOf(HttpClientErrorException.MethodNotAllowed.class);
+        }
+    }
+
+    @Nested
+    class changePassword {
+        @Test
+        void whenPatchNotSupported_thenMethodNotAllowed() {
+            UserCreateRequest req = testDataFactory.getStreamOfUserRequests()
+                    .filter(r -> alreadySavedUsernames.add(r.username()))
+                    .findFirst()
+                    .orElseThrow();
+
+            Assertions.assertThatThrownBy(() -> restClient.patch()
+                            .uri("/")
+                            .body(req)
+                            .retrieve()
+                            .toBodilessEntity())
+                    .isInstanceOf(HttpClientErrorException.MethodNotAllowed.class);
+        }
+    }
+}
