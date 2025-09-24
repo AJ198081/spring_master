@@ -51,6 +51,7 @@ class AuthControllerTest {
 
     @BeforeAll
     void setUp() {
+
         restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, AUTH_CONTROLLER_BASE_PATH));
         userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
 
@@ -72,7 +73,7 @@ class AuthControllerTest {
     class TestLogin {
         @Test
         void whenValidCredentials_thenReturnsOkWithJwt() {
-            // Use the created user's credentials to login
+            // Use the created user's credentials to log in
             LoginRequest loginRequest = new LoginRequest(userCreateRequest.username(), userCreateRequest.getPassword());
 
             ResponseEntity<LoginResponse> response = restClient.post()

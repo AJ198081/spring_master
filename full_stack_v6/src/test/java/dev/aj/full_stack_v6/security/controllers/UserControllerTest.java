@@ -47,8 +47,6 @@ class UserControllerTest {
     @Autowired
     private TestDataFactory testDataFactory;
 
-
-
     private RestClient restClient;
 
     private final Set<String> alreadySavedUsernames = new HashSet<>();
@@ -72,10 +70,7 @@ class UserControllerTest {
         @Order(1)
         @Test
         void whenValidUser_thenReturnsAccepted() {
-            UserCreateRequest userCreateRequest = testDataFactory.getStreamOfUserRequests()
-                    .filter(req -> alreadySavedUsernames.add(req.username()))
-                    .findFirst()
-                    .orElseThrow();
+            UserCreateRequest userCreateRequest = getAUniqueUserCreateRequest();
 
             ResponseEntity<Void> response = postANewUser(userCreateRequest);
 
@@ -146,17 +141,6 @@ class UserControllerTest {
                             .toBodilessEntity())
                     .isInstanceOf(HttpClientErrorException.MethodNotAllowed.class);
         }
-    }
-
-    public UserCreateRequest addANewUniqueUser() {
-
-        UserCreateRequest userCreateRequest = getAUniqueUserCreateRequest();
-
-        ResponseEntity<Void> response = postANewUser(userCreateRequest);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            addANewUniqueUser();
-        }
-        return userCreateRequest;
     }
 
     private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
