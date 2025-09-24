@@ -7,6 +7,7 @@ import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -44,28 +45,17 @@ class AuthControllerTest {
     private TestDataFactory testDataFactory;
 
     private RestClient restClient;
+    private RestClient userClient;
+
     private UserCreateRequest userCreateRequest;
 
     @BeforeAll
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, AUTH_CONTROLLER_BASE_PATH));
-        RestClient userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
+        userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
 
-        // Try a few times in case of accidental username collision
-        for (int i = 0; i < 3; i++) {
-            UserCreateRequest candidate = testDataFactory.getStreamOfUserRequests().findFirst().orElseThrow();
-            try {
-                userClient.post()
-                        .uri("/")
-                        .body(candidate)
-                        .retrieve()
-                        .toBodilessEntity();
-                userCreateRequest = candidate;
-                break;
-            } catch (HttpClientErrorException.Conflict e) {
-                // try another username
-            }
-        }
+        userCreateRequest = addANewUniqueUser();
+
         if (userCreateRequest == null) {
             throw new IllegalStateException("Failed to create a user for AuthControllerTest");
         }
@@ -97,10 +87,12 @@ class AuthControllerTest {
                     .extracting(ResponseEntity::getBody)
                     .isNotNull()
                     .satisfies(body -> {
-                        assertThat(body.jwt()).isNotBlank();
-                        assertThat(body.username()).isEqualTo(userCreateRequest.username());
+                        assertThat(body.jwt())
+                                .isNotBlank();
+                        assertThat(body.username())
+                                .isEqualTo(userCreateRequest.username());
                         assertThat(body.roles())
-                                 .isNotNull();
+                                .isNotNull();
                     });
         }
 
@@ -131,4 +123,28 @@ class AuthControllerTest {
                     .satisfies(entity -> assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
         }
     }
+
+    public UserCreateRequest addANewUniqueUser() {
+
+        UserCreateRequest userCreateRequest = testDataFactory.getStreamOfUserRequests()
+                .limit(1)
+                .findFirst()
+                .orElseThrow();
+
+        ResponseEntity<Void> response = postANewUser(userCreateRequest);
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            addANewUniqueUser();
+        }
+        return userCreateRequest;
+    }
+
+    private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
+
+        return userClient.post()
+                .uri("/")
+                .body(userCreateRequest)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
 }

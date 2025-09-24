@@ -47,6 +47,8 @@ class UserControllerTest {
     @Autowired
     private TestDataFactory testDataFactory;
 
+
+
     private RestClient restClient;
 
     private final Set<String> alreadySavedUsernames = new HashSet<>();
