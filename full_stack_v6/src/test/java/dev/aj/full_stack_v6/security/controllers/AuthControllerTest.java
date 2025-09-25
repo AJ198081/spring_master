@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestConfig.class, TestDataFactory.class})
-@TestPropertySource(locations = {"/application-log.properties"})
+@TestPropertySource(locations = {"/application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class AuthControllerTest {

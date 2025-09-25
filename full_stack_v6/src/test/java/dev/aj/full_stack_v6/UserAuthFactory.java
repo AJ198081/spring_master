@@ -11,11 +11,12 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.Objects;
 
-@TestConfiguration(proxyBeanMethods = false)
+@TestConfiguration
 @Slf4j
 @RequiredArgsConstructor
 public class UserAuthFactory {
@@ -24,9 +25,19 @@ public class UserAuthFactory {
     private final TestDataFactory testDataFactory;
     private final Environment environment;
 
+    private static UserCreateRequest userCreateRequest;
+    private static String jwt;
+
     private RestClient authClient;
     private RestClient userClient;
 
+    public RestClient secureRestClient(String baseUrl, Integer port) {
+        return RestClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeaders(headers -> headers.addAll(this.getBearerTokenHeader(port)))
+                .build();
+
+    }
 
     public UserCreateRequest addANewUniqueUser(Integer port) {
         if (userClient == null) {
@@ -38,17 +49,22 @@ public class UserAuthFactory {
                 .findFirst()
                 .orElseThrow();
 
-        ResponseEntity<Void> response = postANewUser(userCreateRequest);
-        if (!response.getStatusCode().is2xxSuccessful()) {
+        try {
+            ResponseEntity<Void> response = postANewUser(userCreateRequest);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                addANewUniqueUser(port);
+            }
+        } catch (HttpClientErrorException.Conflict e) {
+            log.error("User already existed: {}; trying again.", e.getMessage());
             addANewUniqueUser(port);
         }
+
         return userCreateRequest;
     }
 
     public HttpHeaders getBearerTokenHeader(Integer port) {
 
         String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
-                .concat(" ")
                 .concat(getJWT(port));
 
         HttpHeaders httpHeaders = new HttpHeaders();

@@ -2,10 +2,10 @@ package dev.aj.full_stack_v6.product.controller;
 
 import dev.aj.full_stack_v6.TestConfig;
 import dev.aj.full_stack_v6.TestDataFactory;
+import dev.aj.full_stack_v6.UserAuthFactory;
 import dev.aj.full_stack_v6.common.domain.dtos.PageResponse;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.product.repositories.ProductRepository;
-import io.micrometer.core.instrument.config.MeterFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.assertj.core.api.Assertions;
@@ -25,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -36,14 +37,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestConfig.class, TestDataFactory.class})
-@TestPropertySource(locations = {"/application-log.properties"})
+@Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
+@TestPropertySource(locations = {"/application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class ProductControllerTest {
@@ -60,16 +62,26 @@ class ProductControllerTest {
     private TestDataFactory testDataFactory;
 
     @Autowired
+    private UserAuthFactory userTestData;
+
+    @Autowired
     private ProductRepository productRepository;
 
     private RestClient restClient;
 
     private Set<String> alreadyCommittedProductNames = new HashSet<>();
 
+    private HttpHeaders authTokenHeader;
+
     @BeforeEach
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, PRODUCT_CONTROLLER_BASE_PATH));
         productRepository.deleteAll();
+
+        if (authTokenHeader == null) {
+            authTokenHeader = userTestData.getBearerTokenHeader(port);
+        }
+
     }
 
     @AfterEach
@@ -99,11 +111,11 @@ class ProductControllerTest {
                                 .extracting(Product::getAuditMetaData)
                                 .satisfies(auditMetaData ->
                                         assertThat(auditMetaData)
-                                        .isNotNull()
-                                        .satisfies(metaData -> {
-                                            assertThat(metaData.getCreatedBy()).isNotBlank();
-                                            assertThat(metaData.getCreatedDate()).isInThePast();
-                                        }));
+                                                .isNotNull()
+                                                .satisfies(metaData -> {
+                                                    assertThat(metaData.getCreatedBy()).isNotBlank();
+                                                    assertThat(metaData.getCreatedDate()).isInThePast();
+                                                }));
 
                     });
         }
@@ -185,6 +197,7 @@ class ProductControllerTest {
                             .queryParam("size", 10)
                             .queryParam("sortDirection", "asc")
                             .build())
+                    .headers(addBearerTokenHeaders())
                     .retrieve()
                     .toEntity(new ParameterizedTypeReference<>() {
                     });
@@ -262,6 +275,7 @@ class ProductControllerTest {
 
             ResponseEntity<Void> productPatchResponse = restClient.patch()
                     .uri("/{id}", newProduct.getId())
+                    .headers(addBearerTokenHeaders())
                     .body(patchedProduct)
                     .retrieve()
                     .toBodilessEntity();
@@ -279,6 +293,7 @@ class ProductControllerTest {
 
             assertDoesNotThrow(() -> restClient.patch()
                     .uri("/{id}", newProduct.getId())
+                    .headers(addBearerTokenHeaders())
                     .body(patchedProduct)
                     .retrieve()
                     .toBodilessEntity())
@@ -299,6 +314,7 @@ class ProductControllerTest {
 
             ResponseEntity<Void> putProductResponse = restClient.put()
                     .uri("/{id}", productId)
+                    .headers(addBearerTokenHeaders())
                     .body(newProduct)
                     .retrieve()
                     .toBodilessEntity();
@@ -320,6 +336,7 @@ class ProductControllerTest {
 
             ResponseEntity<Void> productUpdateResponse = assertDoesNotThrow(() -> restClient.put()
                     .uri("/{id}", productId)
+                    .headers(addBearerTokenHeaders())
                     .body(newProduct)
                     .retrieve()
                     .toBodilessEntity());
@@ -352,6 +369,7 @@ class ProductControllerTest {
     private @NonNull ResponseEntity<Product> saveANewRandomProduct(Product newProduct) {
         return restClient.post()
                 .uri("/")
+                .headers(addBearerTokenHeaders())
                 .body(newProduct)
                 .retrieve()
                 .toEntity(Product.class);
@@ -360,14 +378,20 @@ class ProductControllerTest {
     private @NotNull ResponseEntity<List<Product>> getAllProducts() {
         return restClient.get()
                 .uri("/all")
+                .headers(addBearerTokenHeaders())
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
     }
 
+    private @NotNull Consumer<HttpHeaders> addBearerTokenHeaders() {
+        return headers -> headers.addAll(authTokenHeader);
+    }
+
     private @NotNull ResponseEntity<Product> getProductById(Long productId) {
         return restClient.get()
                 .uri("/{id}", productId)
+                .headers(addBearerTokenHeaders())
                 .retrieve()
                 .toEntity(Product.class);
     }
@@ -375,6 +399,7 @@ class ProductControllerTest {
     private @NotNull ResponseEntity<Void> deleteProductById(Long productId) {
         return restClient.delete()
                 .uri("/{id}", productId)
+                .headers(addBearerTokenHeaders())
                 .retrieve()
                 .toBodilessEntity();
     }
