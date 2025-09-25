@@ -117,7 +117,8 @@ class ImageControllerTest {
                     .getResponse()
                     .getContentAsString(StandardCharsets.UTF_8);
 
-            List<Image> imagesByProduct = objectMapper.readValue(listJson, new TypeReference<List<Image>>() {});
+            List<Image> imagesByProduct = objectMapper.readValue(listJson, new TypeReference<>() {
+            });
 
             Assertions.assertThat(imagesByProduct)
                     .isNotNull()
@@ -158,7 +159,8 @@ class ImageControllerTest {
                     .getResponse()
                     .getContentAsString(StandardCharsets.UTF_8);
 
-            List<Image> allImages = objectMapper.readValue(respJson, new TypeReference<List<Image>>() {});
+            List<Image> allImages = objectMapper.readValue(respJson, new TypeReference<>() {
+            });
             Assertions.assertThat(allImages)
                     .isNotNull()
                     .hasSizeGreaterThanOrEqualTo(uploaded.size());
@@ -202,7 +204,8 @@ class ImageControllerTest {
                     .getResponse()
                     .getContentAsString(StandardCharsets.UTF_8);
 
-            List<Image> images2 = objectMapper.readValue(listJson2, new TypeReference<List<Image>>() {});
+            List<Image> images2 = objectMapper.readValue(listJson2, new TypeReference<>() {
+            });
             Assertions.assertThat(images2)
                     .isNotNull()
                     .hasSizeGreaterThanOrEqualTo(2);
