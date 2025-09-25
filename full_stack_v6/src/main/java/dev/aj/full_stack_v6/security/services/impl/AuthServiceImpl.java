@@ -2,6 +2,7 @@ package dev.aj.full_stack_v6.security.services.impl;
 
 import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
+import dev.aj.full_stack_v6.common.domain.events.UserLogoutEvent;
 import dev.aj.full_stack_v6.security.AuthService;
 import dev.aj.full_stack_v6.security.utils.CookieUtils;
 import dev.aj.full_stack_v6.security.utils.JwtUtils;
@@ -9,11 +10,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -51,5 +54,21 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         cookieUtils.invalidateRefreshTokenCookie(request, response);
+    }
+
+    @Override
+    @ApplicationModuleListener
+    public void processLogoutEvent(UserLogoutEvent userLogoutEvent) {
+        String name = userLogoutEvent.principal().getName();
+        log.info("User {} has been logged out", name);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null) {
+            Object details = authentication.getDetails();
+            if (details instanceof HttpServletRequest currentRequest) {
+                log.debug("Logging out the current user: {}", currentRequest.getRequestURI());
+            }
+        }
     }
 }

@@ -99,6 +99,7 @@ class UserControllerTest {
 
     @Nested
     class deleteUser {
+
         @Test
         void whenDeletingOwnAccount_thenAccepted() {
             String currentUsername = userAuthFactory.currentUsername();
@@ -117,22 +118,27 @@ class UserControllerTest {
 
         @Test
         void whenDeletingSomeoneElseAccount_andNotAdmin_thenThrowsSecurityException() {
-            String currentUsername = userAuthFactory.loginAndReturnNonAdminUsername(port);
+
+            UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole(port);
+
+            userAuthFactory.loginAsDifferentNewUser(port, UserAuthFactory.ROLE_USER, otherUser.username());
 
             assertThatThrownBy(() -> restClient.delete()
-                    .uri("/%s".formatted(currentUsername.concat("-Not-Mine-I-Am-Not-Admin")))
+                    .uri("/%s".formatted(otherUser.username()))
                     .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
                     .retrieve()
                     .toBodilessEntity())
-                    .isInstanceOf(SecurityException.class);
+                    .isInstanceOf(HttpClientErrorException.NotAcceptable.class);
         }
 
         @Test
         void whenDeletingSomeoneElseAccount_andIsAdmin_thenAccepted() {
+            UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole(port);
+
             String currentUsername = userAuthFactory.loginAndReturnAdminUsername(port);
 
             ResponseEntity<Void> deleteUserResponse = restClient.delete()
-                    .uri("/%s".formatted(currentUsername.concat("-Not-Mine-I-Am-Admin")))
+                    .uri("/%s".formatted(otherUser.username()))
                     .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
                     .retrieve()
                     .toBodilessEntity();

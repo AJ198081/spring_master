@@ -89,7 +89,6 @@ public class UserAuthFactory {
     }
 
 
-
     private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
 
         return userClient.post()
@@ -134,15 +133,23 @@ public class UserAuthFactory {
         return currentUserCreateRequest.username();
     }
 
+    public void loginAsDifferentNewUser(Integer port, String role, String notThisUsername) {
+        if (currentUserCreateRequest.username().equals(notThisUsername)) {
+            addANewUniqueUser(port, role);
+            loginAsDifferentNewUser(port, role, notThisUsername);
+        }
+    }
+
+
     private void addANewUniqueUser(Integer port, String role) {
-              if (userClient == null) {
+        if (userClient == null) {
             userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/users"));
         }
 
         currentUserCreateRequest = testDataFactory.getStreamOfUserRequests()
                 .filter(userRequest -> userRequest.getAuthorities()
                         .stream()
-                        .anyMatch(authority -> !authority.getAuthority().equals(role)))
+                        .anyMatch(authority -> authority.getAuthority().equals(role)))
                 .limit(1)
                 .findFirst()
                 .orElseThrow();
@@ -150,11 +157,11 @@ public class UserAuthFactory {
         try {
             ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                addANewUniqueUser(port, ROLE_ADMIN);
+                addANewUniqueUser(port, role);
             }
         } catch (HttpClientErrorException.Conflict e) {
             log.error("User already existed with the same non-admin role: {}; trying again.", e.getMessage());
-            addANewUniqueUser(port, ROLE_ADMIN);
+            addANewUniqueUser(port, role);
         }
     }
 
