@@ -23,6 +23,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserAuthFactory {
 
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String ROLE_USER = "ROLE_USER";
+
     private final TestConfig testConfig;
     private final TestDataFactory testDataFactory;
     private final Environment environment;
@@ -41,7 +44,7 @@ public class UserAuthFactory {
 
     }
 
-    public UserCreateRequest addANewUniqueUser(Integer port) {
+    public UserCreateRequest addANewUniqueUserWithAnyRole(Integer port) {
         if (userClient == null) {
             userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/users"));
         }
@@ -54,11 +57,11 @@ public class UserAuthFactory {
         try {
             ResponseEntity<Void> response = postANewUser(userCreateRequest);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                return addANewUniqueUser(port);
+                return addANewUniqueUserWithAnyRole(port);
             }
         } catch (HttpClientErrorException.Conflict e) {
             log.error("User already existed: {}; trying again.", e.getMessage());
-            return addANewUniqueUser(port);
+            return addANewUniqueUserWithAnyRole(port);
         }
 
         return userCreateRequest;
@@ -81,7 +84,7 @@ public class UserAuthFactory {
 
     public @NonNull String getCurrentUsername(Integer port) {
         if (currentUserCreateRequest != null) return currentUserCreateRequest.username();
-        addANewUniqueUser(port);
+        addANewUniqueUserWithAnyRole(port);
         return currentUserCreateRequest.username();
     }
 
@@ -105,7 +108,7 @@ public class UserAuthFactory {
             return currentJwt;
         }
 
-        currentUserCreateRequest = addANewUniqueUser(port);
+        currentUserCreateRequest = addANewUniqueUserWithAnyRole(port);
         LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
 
         ResponseEntity<LoginResponse> response = authClient.post()
@@ -116,5 +119,47 @@ public class UserAuthFactory {
 
         currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
         return currentJwt;
+    }
+
+    public @NonNull String loginAndReturnNonAdminUsername(Integer port) {
+        if (Objects.nonNull(currentUserCreateRequest)
+                && currentUserCreateRequest.getAuthorities()
+                .stream()
+                .anyMatch(authority -> !authority.getAuthority().equals(ROLE_ADMIN))) {
+
+            return currentUserCreateRequest.username();
+        }
+
+        addANewUniqueUser(port, ROLE_ADMIN);
+        return currentUserCreateRequest.username();
+    }
+
+    private void addANewUniqueUser(Integer port, String role) {
+              if (userClient == null) {
+            userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/users"));
+        }
+
+        currentUserCreateRequest = testDataFactory.getStreamOfUserRequests()
+                .filter(userRequest -> userRequest.getAuthorities()
+                        .stream()
+                        .anyMatch(authority -> !authority.getAuthority().equals(role)))
+                .limit(1)
+                .findFirst()
+                .orElseThrow();
+
+        try {
+            ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                addANewUniqueUser(port, ROLE_ADMIN);
+            }
+        } catch (HttpClientErrorException.Conflict e) {
+            log.error("User already existed with the same non-admin role: {}; trying again.", e.getMessage());
+            addANewUniqueUser(port, ROLE_ADMIN);
+        }
+    }
+
+    public String loginAndReturnAdminUsername(Integer port) {
+        addANewUniqueUser(port, ROLE_USER);
+        return currentUserCreateRequest.username();
     }
 }

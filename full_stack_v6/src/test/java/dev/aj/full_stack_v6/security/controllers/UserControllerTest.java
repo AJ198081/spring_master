@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
@@ -99,7 +100,7 @@ class UserControllerTest {
     @Nested
     class deleteUser {
         @Test
-        void whenDeletingOwnAccount_thenInternalServerError() {
+        void whenDeletingOwnAccount_thenAccepted() {
             String currentUsername = userAuthFactory.currentUsername();
             if (currentUsername == null) {
                 userAuthFactory.getBearerTokenHeader(port);
@@ -112,6 +113,31 @@ class UserControllerTest {
                     .toBodilessEntity();
 
             assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        }
+
+        @Test
+        void whenDeletingSomeoneElseAccount_andNotAdmin_thenThrowsSecurityException() {
+            String currentUsername = userAuthFactory.loginAndReturnNonAdminUsername(port);
+
+            assertThatThrownBy(() -> restClient.delete()
+                    .uri("/%s".formatted(currentUsername.concat("-Not-Mine-I-Am-Not-Admin")))
+                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
+                    .retrieve()
+                    .toBodilessEntity())
+                    .isInstanceOf(SecurityException.class);
+        }
+
+        @Test
+        void whenDeletingSomeoneElseAccount_andIsAdmin_thenAccepted() {
+            String currentUsername = userAuthFactory.loginAndReturnAdminUsername(port);
+
+            ResponseEntity<Void> deleteUserResponse = restClient.delete()
+                    .uri("/%s".formatted(currentUsername.concat("-Not-Mine-I-Am-Admin")))
+                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
+                    .retrieve()
+                    .toBodilessEntity();
+
+            assertThat(deleteUserResponse.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         }
     }
 
