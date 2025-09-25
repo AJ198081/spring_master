@@ -136,7 +136,7 @@ public class UserAuthFactory {
     public void loginAsDifferentNewUser(Integer port, String role, String notThisUsername) {
         if (currentUserCreateRequest.username().equals(notThisUsername)) {
             addANewUniqueUser(port, role);
-            loginAsDifferentNewUser(port, role, notThisUsername);
+            loginAsDifferentNewUser(port, role,  notThisUsername);
         }
     }
 
