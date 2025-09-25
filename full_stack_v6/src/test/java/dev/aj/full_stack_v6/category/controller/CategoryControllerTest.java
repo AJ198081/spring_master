@@ -53,9 +53,6 @@ class CategoryControllerTest {
     private Integer port;
 
     @Autowired
-    private TestConfig testConfig;
-
-    @Autowired
     private TestDataFactory testDataFactory;
 
     @Autowired
