@@ -7,13 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
-
-import java.security.Principal;
 
 @Component
 @RequiredArgsConstructor
@@ -43,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @PreAuthorize("isAuthenticated()")
     public void updateUser(@NonNull UserCreateRequest userCreateRequest,
-                           Principal principal) {
+                           AuthenticatedPrincipal principal) {
         log.info("Received request to update user: {}", userCreateRequest.username());
 
         UserDetails userDetails = userDetailsManager.loadUserByUsername(userCreateRequest.username());
@@ -57,7 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String username, Principal principal) {
+    public void deleteUser(String username, AuthenticatedPrincipal principal) {
         log.info("Received request to delete user: {}", username);
         UserDetails userDetails = userDetailsManager.loadUserByUsername(username);
 
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(String username,
                                String password,
-                               Principal principal) {
+                               AuthenticatedPrincipal principal) {
 
         log.info("Received request to change password for user: {}", username);
 
@@ -87,7 +86,7 @@ public class UserServiceImpl implements UserService {
         userDetailsManager.changePassword(userDetails.getUsername(), password);
     }
 
-    private static boolean isNeitherAdminNorCurrentUser(Principal principal, UserDetails userDetails) {
+    private static boolean isNeitherAdminNorCurrentUser(AuthenticatedPrincipal principal, UserDetails userDetails) {
         return !userDetails.getUsername().equals(principal.getName())
                 && userDetails.getAuthorities()
                 .stream()

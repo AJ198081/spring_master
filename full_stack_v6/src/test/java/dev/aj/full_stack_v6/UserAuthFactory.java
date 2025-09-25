@@ -7,6 +7,8 @@ import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -25,8 +27,8 @@ public class UserAuthFactory {
     private final TestDataFactory testDataFactory;
     private final Environment environment;
 
-    private static UserCreateRequest userCreateRequest;
-    private static String jwt;
+    private static UserCreateRequest currentUserCreateRequest;
+    private static String currentJwt;
 
     private RestClient authClient;
     private RestClient userClient;
@@ -52,11 +54,11 @@ public class UserAuthFactory {
         try {
             ResponseEntity<Void> response = postANewUser(userCreateRequest);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                addANewUniqueUser(port);
+                return addANewUniqueUser(port);
             }
         } catch (HttpClientErrorException.Conflict e) {
             log.error("User already existed: {}; trying again.", e.getMessage());
-            addANewUniqueUser(port);
+            return addANewUniqueUser(port);
         }
 
         return userCreateRequest;
@@ -65,13 +67,25 @@ public class UserAuthFactory {
     public HttpHeaders getBearerTokenHeader(Integer port) {
 
         String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
-                .concat(getJWT(port));
+                .concat(getExistingOrNewJWT(port));
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.AUTHORIZATION, bearerToken);
 
         return httpHeaders;
     }
+
+    public @Nullable String currentUsername() {
+        return currentUserCreateRequest != null ? currentUserCreateRequest.username() : null;
+    }
+
+    public @NonNull String getCurrentUsername(Integer port) {
+        if (currentUserCreateRequest != null) return currentUserCreateRequest.username();
+        addANewUniqueUser(port);
+        return currentUserCreateRequest.username();
+    }
+
+
 
     private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
 
@@ -82,13 +96,17 @@ public class UserAuthFactory {
                 .toBodilessEntity();
     }
 
-    private String getJWT(Integer port) {
+    private String getExistingOrNewJWT(Integer port) {
         if (authClient == null) {
             authClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/auths"));
         }
 
-        UserCreateRequest userCreateRequest = addANewUniqueUser(port);
-        LoginRequest loginRequest = new LoginRequest(userCreateRequest.username(), userCreateRequest.getPassword());
+        if (currentJwt != null) {
+            return currentJwt;
+        }
+
+        currentUserCreateRequest = addANewUniqueUser(port);
+        LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
 
         ResponseEntity<LoginResponse> response = authClient.post()
                 .uri("/login")
@@ -96,6 +114,7 @@ public class UserAuthFactory {
                 .retrieve()
                 .toEntity(LoginResponse.class);
 
-        return Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
+        currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
+        return currentJwt;
     }
 }

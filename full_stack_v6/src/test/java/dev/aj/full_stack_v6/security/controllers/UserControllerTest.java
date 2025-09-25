@@ -2,6 +2,7 @@ package dev.aj.full_stack_v6.security.controllers;
 
 import dev.aj.full_stack_v6.TestConfig;
 import dev.aj.full_stack_v6.TestDataFactory;
+import dev.aj.full_stack_v6.UserAuthFactory;
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -30,7 +31,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestConfig.class, TestDataFactory.class})
+@Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
 @TestPropertySource(locations = {"/application-log.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
@@ -42,10 +43,10 @@ class UserControllerTest {
     private Integer port;
 
     @Autowired
-    private TestConfig testConfig;
+    private TestDataFactory testDataFactory;
 
     @Autowired
-    private TestDataFactory testDataFactory;
+    private UserAuthFactory userAuthFactory;
 
     private RestClient restClient;
 
@@ -53,7 +54,7 @@ class UserControllerTest {
 
     @BeforeAll
     void setUp() {
-        restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
+        restClient = userAuthFactory.secureRestClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH), port);
     }
 
     @AfterAll
@@ -98,48 +99,54 @@ class UserControllerTest {
     @Nested
     class deleteUser {
         @Test
-        void whenDeleteEndpointNotPresent_thenNotFound() {
-            Assertions.assertThatThrownBy(() -> restClient.delete()
-                            .uri("/nonexistent-user")
-                            .retrieve()
-                            .toBodilessEntity())
-                    .isInstanceOf(HttpClientErrorException.NotFound.class);
+        void whenDeletingOwnAccount_thenInternalServerError() {
+            String currentUsername = userAuthFactory.currentUsername();
+            if (currentUsername == null) {
+                userAuthFactory.getBearerTokenHeader(port);
+            }
+
+            ResponseEntity<Void> deleteResponse = restClient.delete()
+                    .uri("/%s".formatted(currentUsername))
+                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
+                    .retrieve()
+                    .toBodilessEntity();
+
+            assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         }
     }
 
     @Nested
     class updateUser {
         @Test
-        void whenPutNotSupported_thenMethodNotAllowed() {
-            UserCreateRequest req = testDataFactory.getStreamOfUserRequests()
-                    .filter(r -> alreadySavedUsernames.add(r.username()))
-                    .findFirst()
-                    .orElseThrow();
+        void whenUpdatingOwnAccount_thenInternalServerError() {
+            String currentUsername = userAuthFactory.getCurrentUsername(port);
 
-            Assertions.assertThatThrownBy(() -> restClient.put()
-                            .uri("/")
-                            .body(req)
-                            .retrieve()
-                            .toBodilessEntity())
-                    .isInstanceOf(HttpClientErrorException.MethodNotAllowed.class);
+            UserCreateRequest updateUserRequest = testDataFactory.userCreateRequest(currentUsername);
+
+            ResponseEntity<Void> updateUserResponse = restClient.put()
+                    .uri("/")
+                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
+                    .body(updateUserRequest)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            assertThat(updateUserResponse.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         }
     }
 
     @Nested
     class changePassword {
         @Test
-        void whenPatchNotSupported_thenMethodNotAllowed() {
-            UserCreateRequest req = testDataFactory.getStreamOfUserRequests()
-                    .filter(r -> alreadySavedUsernames.add(r.username()))
-                    .findFirst()
-                    .orElseThrow();
+        void whenChangingOwnPassword_thenInternalServerError() {
+            String currentUsername = userAuthFactory.currentUsername();
+            assertThat(currentUsername).isNotBlank();
 
-            Assertions.assertThatThrownBy(() -> restClient.patch()
-                            .uri("/")
-                            .body(req)
-                            .retrieve()
-                            .toBodilessEntity())
-                    .isInstanceOf(HttpClientErrorException.MethodNotAllowed.class);
+            ResponseEntity<Void> changePasswordResult = restClient.patch()
+                    .uri("/%s/password?password=%s".formatted(currentUsername, "newPassword123!"))
+                    .retrieve()
+                    .toBodilessEntity();
+
+            assertThat(changePasswordResult.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         }
     }
 
