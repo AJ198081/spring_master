@@ -7,7 +7,7 @@ import java.security.Principal;
 
 public interface UserService {
     void createUser(UserCreateRequest userCreateRequest);
-    boolean isUserExists(String username);
+
     @PreAuthorize("isAuthenticated()")
     void deleteUser(String username,
                     Principal principal);
