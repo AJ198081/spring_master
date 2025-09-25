@@ -36,11 +36,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isUserExists(String username) {
-        return userDetailsManager.userExists(username);
-    }
-
-    @Override
     @PreAuthorize("isAuthenticated()")
     public void updateUser(@NonNull UserCreateRequest userCreateRequest,
                            Principal principal) {
