@@ -4,10 +4,6 @@ import io.jsonwebtoken.JwtException;
 
 public class UnauthorisedOperationException extends Throwable {
 
-      public UnauthorisedOperationException(String message, JwtException exception) {
-        super(message, exception);
-    }
-
     public UnauthorisedOperationException(String message) {
         super(message);
     }
