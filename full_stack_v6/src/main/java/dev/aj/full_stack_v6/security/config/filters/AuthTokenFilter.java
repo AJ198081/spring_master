@@ -62,6 +62,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             }
 
         } else {
+            log.info("Jwt is null");
             SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
