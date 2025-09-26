@@ -117,7 +117,7 @@ class UserControllerTest {
         }
 
         @Test
-        void whenDeletingSomeoneElseAccount_andNotAdmin_thenThrowsSecurityException() {
+        void whenDeletingSomeoneElseAccount_andNotAdmin_thenThrowsNotAcceptableException() {
 
             UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole(port);
 

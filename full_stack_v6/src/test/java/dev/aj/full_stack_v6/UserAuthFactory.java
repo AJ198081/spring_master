@@ -45,9 +45,6 @@ public class UserAuthFactory {
     }
 
     public UserCreateRequest addANewUniqueUserWithAnyRole(Integer port) {
-        if (userClient == null) {
-            userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/users"));
-        }
 
         UserCreateRequest userCreateRequest = testDataFactory.getStreamOfUserRequests()
                 .limit(1)
@@ -55,7 +52,7 @@ public class UserAuthFactory {
                 .orElseThrow();
 
         try {
-            ResponseEntity<Void> response = postANewUser(userCreateRequest);
+            ResponseEntity<Void> response = postANewUser(userCreateRequest, port);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 return addANewUniqueUserWithAnyRole(port);
             }
@@ -89,7 +86,11 @@ public class UserAuthFactory {
     }
 
 
-    private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
+    private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest, Integer port) {
+
+        if (userClient == null) {
+            userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/users"));
+        }
 
         return userClient.post()
                 .uri("/")
@@ -99,24 +100,25 @@ public class UserAuthFactory {
     }
 
     private String getExistingOrNewJWT(Integer port) {
+
         if (authClient == null) {
             authClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/auths"));
         }
 
-        if (currentJwt != null) {
-            return currentJwt;
+        if (currentJwt == null) {
+            currentUserCreateRequest = addANewUniqueUserWithAnyRole(port);
+            LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
+
+            ResponseEntity<LoginResponse> response = authClient.post()
+                    .uri("/login")
+                    .body(loginRequest)
+                    .retrieve()
+                    .toEntity(LoginResponse.class);
+
+            currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
         }
 
-        currentUserCreateRequest = addANewUniqueUserWithAnyRole(port);
-        LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
 
-        ResponseEntity<LoginResponse> response = authClient.post()
-                .uri("/login")
-                .body(loginRequest)
-                .retrieve()
-                .toEntity(LoginResponse.class);
-
-        currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
         return currentJwt;
     }
 
@@ -134,10 +136,20 @@ public class UserAuthFactory {
     }
 
     public void loginAsDifferentNewUser(Integer port, String role, String notThisUsername) {
-        if (currentUserCreateRequest.username().equals(notThisUsername)) {
+        if (Objects.nonNull(currentUserCreateRequest)
+                && currentUserCreateRequest.username().equals(notThisUsername)) {
             addANewUniqueUser(port, role);
-            loginAsDifferentNewUser(port, role,  notThisUsername);
+            loginAsDifferentNewUser(port, role, notThisUsername);
         }
+
+        LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
+        ResponseEntity<LoginResponse> response = authClient.post()
+                .uri("/login")
+                .body(loginRequest)
+                .retrieve()
+                .toEntity(LoginResponse.class);
+
+        currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
     }
 
 
@@ -155,7 +167,7 @@ public class UserAuthFactory {
                 .orElseThrow();
 
         try {
-            ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
+            ResponseEntity<Void> response = postANewUser(currentUserCreateRequest, port);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 addANewUniqueUser(port, role);
             }
@@ -166,7 +178,36 @@ public class UserAuthFactory {
     }
 
     public String loginAndReturnAdminUsername(Integer port) {
-        addANewUniqueUser(port, ROLE_USER);
+        if (authClient == null) {
+            authClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/auths"));
+        }
+        if (userClient == null) {
+            userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/users"));
+        }
+
+        currentUserCreateRequest = testDataFactory.getStreamOfUserRequests()
+                .filter(userRequest -> userRequest.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(ROLE_ADMIN)))
+                .limit(1)
+                .findFirst()
+                .orElseThrow();
+
+        try {
+            ResponseEntity<Void> response = postANewUser(currentUserCreateRequest, port);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                return loginAndReturnAdminUsername(port);
+            }
+        } catch (HttpClientErrorException.Conflict e) {
+            log.warn("Admin user already existed: {}", currentUserCreateRequest.username());
+        }
+
+        LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
+        ResponseEntity<LoginResponse> response = authClient.post()
+                .uri("/login")
+                .body(loginRequest)
+                .retrieve()
+                .toEntity(LoginResponse.class);
+
+        currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
         return currentUserCreateRequest.username();
     }
 }

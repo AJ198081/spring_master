@@ -10,14 +10,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.event.EventListener;
-import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -59,17 +60,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @EventListener
-    public void processLogoutEvent(UserLogoutEvent userLogoutEvent) {
+    public void processLogoutEvent(@NonNull UserLogoutEvent userLogoutEvent) {
         String name = userLogoutEvent.principal().getName();
-        log.info("User {} has been logged out", name);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null) {
-            Object details = authentication.getDetails();
-            if (details instanceof HttpServletRequest currentRequest) {
-                log.debug("Logging out the current user: {}", currentRequest.getRequestURI());
-            }
-        }
+        log.debug("Logging out the current user: {}", ((User) authentication.getPrincipal()).getUsername());
     }
 }

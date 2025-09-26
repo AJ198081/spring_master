@@ -61,6 +61,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 return;
             }
 
+        } else {
+            SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
     }
