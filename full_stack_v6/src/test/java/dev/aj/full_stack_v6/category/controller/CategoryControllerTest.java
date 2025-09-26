@@ -67,6 +67,7 @@ class CategoryControllerTest {
 
     @BeforeEach
     void setUp() {
+        userAuthFactory.setClients(port);
         restClient = userAuthFactory.secureRestClient("http://localhost:%d%s".formatted(port, CATEGORY_CONTROLLER_BASE_PATH));
         categoryRepository.deleteAll();
     }

@@ -8,20 +8,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.Optional;
 
-/**
- * Disabling proxying for the beans defined in this class.
- * Static beans that are called every time, without Spring proxying them,
- * especially for the auditorProvider, which needs to look at the SecurityContextHolder for each thread.
- */
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider", dateTimeProviderRef = "dateTimeProvider")
 public class AuditingEntityConfig {
 
-    /**
-     * Provides the current auditor for entity auditing.
-     *
-     * @return AuditorAware instance that supplies the current username along with the roles
-     */
     @Bean
     public AuditorAware<String> auditorProvider() {
         return () -> {
@@ -33,11 +23,6 @@ public class AuditingEntityConfig {
         };
     }
 
-    /**
-     * Provides the current date-time for entity auditing.
-     *
-     * @return DateTimeProvider instance that supplies the current ZonedDateTime
-     */
     @Bean
     public DateTimeProvider dateTimeProvider() {
         return () -> Optional.of(java.time.ZonedDateTime.now());
