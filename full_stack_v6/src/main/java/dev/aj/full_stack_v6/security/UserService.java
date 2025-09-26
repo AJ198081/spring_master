@@ -20,4 +20,6 @@ public interface UserService {
     void changePassword(String username,
                         String password,
                         Principal principal);
+
+    Boolean exists(String username);
 }

@@ -12,14 +12,7 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -62,7 +55,7 @@ class ProductControllerTest {
     private TestDataFactory testDataFactory;
 
     @Autowired
-    private UserAuthFactory userTestData;
+    private UserAuthFactory userAuthFactory;
 
     @Autowired
     private ProductRepository productRepository;
@@ -73,15 +66,19 @@ class ProductControllerTest {
 
     private HttpHeaders authTokenHeader;
 
+    @BeforeAll
+    void init() {
+        userAuthFactory.setClients(port);
+    }
+
     @BeforeEach
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, PRODUCT_CONTROLLER_BASE_PATH));
         productRepository.deleteAll();
 
         if (authTokenHeader == null) {
-            authTokenHeader = userTestData.getBearerTokenHeader(port);
+            authTokenHeader = userAuthFactory.getBearerTokenHeader();
         }
-
     }
 
     @AfterEach
@@ -89,6 +86,11 @@ class ProductControllerTest {
         if (restClient != null) {
             restClient = null;
         }
+    }
+
+    @AfterAll
+    void destroy() {
+        userAuthFactory.resetClients();
     }
 
     @Nested

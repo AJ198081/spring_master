@@ -22,6 +22,11 @@ public class UserController {
         return ResponseEntity.accepted().build();
     }
 
+    @GetMapping("/usernameTaken/{username}")
+    public ResponseEntity<Boolean> usernameTaken(@PathVariable String username) {
+        return ResponseEntity.ok(userService.exists(username));
+    }
+
     @DeleteMapping("/{username}")
     public ResponseEntity<Void> deleteUser(@PathVariable String username, Principal principal) {
         userService.deleteUser(username, principal);

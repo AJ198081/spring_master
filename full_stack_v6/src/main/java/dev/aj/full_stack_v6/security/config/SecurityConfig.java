@@ -27,6 +27,7 @@ public class SecurityConfig {
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/auths/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/v1/users/").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/users/usernameTaken/*").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .csrf(CsrfConfigurer::disable)

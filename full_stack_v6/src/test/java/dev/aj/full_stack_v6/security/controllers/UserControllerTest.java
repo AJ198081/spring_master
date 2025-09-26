@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -24,9 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,45 +47,49 @@ class UserControllerTest {
     @Autowired
     private UserAuthFactory userAuthFactory;
 
-    private RestClient restClient;
-
-    private final Set<String> alreadySavedUsernames = new HashSet<>();
+    private RestClient authenticatedRestClient;
 
     @BeforeAll
     void setUp() {
-        restClient = userAuthFactory.secureRestClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH), port);
+        userAuthFactory.setClients(port);
+        authenticatedRestClient = userAuthFactory.secureRestClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
     }
 
     @AfterAll
     void afterAll() {
-        if (restClient != null) {
-            restClient = null;
+        if (authenticatedRestClient != null) {
+            authenticatedRestClient = null;
         }
+        userAuthFactory.resetClients();
     }
 
     @Nested
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     class saveUserTests {
 
+        private String persistedUsername;
+
         @Order(1)
         @Test
         void whenValidUser_thenReturnsAccepted() {
-            UserCreateRequest userCreateRequest = getAUniqueUserCreateRequest();
+            UserCreateRequest userCreateRequest = userAuthFactory.getAUniqueUserCreateRequest();
 
             ResponseEntity<Void> response = postANewUser(userCreateRequest);
 
             assertThat(response)
                     .isNotNull()
                     .satisfies(responseEntity -> assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
+
+            persistedUsername = userCreateRequest.username();
         }
 
         @Order(2)
         @Test
         void whenDuplicateUsername_thenReturnsConflict() {
-            UserCreateRequest userCreateRequestWithExistingUsername = testDataFactory.userCreateRequest(alreadySavedUsernames.stream().findFirst().orElseThrow());
+            UserCreateRequest userCreateRequestWithExistingUsername = testDataFactory.userCreateRequest(persistedUsername);
 
             Assertions.assertThatThrownBy(
-                            () -> restClient.post()
+                            () -> authenticatedRestClient.post()
                                     .uri("/")
                                     .body(userCreateRequestWithExistingUsername)
                                     .retrieve()
@@ -104,28 +106,31 @@ class UserControllerTest {
         void whenDeletingOwnAccount_thenAccepted() {
             String currentUsername = userAuthFactory.currentUsername();
             if (currentUsername == null) {
-                userAuthFactory.getBearerTokenHeader(port);
+                userAuthFactory.getBearerTokenHeader();
             }
 
-            ResponseEntity<Void> deleteResponse = restClient.delete()
+            ResponseEntity<Void> deleteResponse = authenticatedRestClient.delete()
                     .uri("/%s".formatted(currentUsername))
-                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
+                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader()))
                     .retrieve()
                     .toBodilessEntity();
-
+            userAuthFactory.deleteCurrentUser();
             assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         }
 
-        @Test
+        @RepeatedTest(value = 1)
         void whenDeletingSomeoneElseAccount_andNotAdmin_thenThrowsNotAcceptableException() {
 
-            UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole(port);
+            UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole();
 
-            userAuthFactory.loginAsDifferentNewUser(port, UserAuthFactory.ROLE_USER, otherUser.username());
+            userAuthFactory.loginAsDifferentNewUser(
+                    UserAuthFactory.ROLE_USER,
+                    otherUser.username()
+            );
 
-            assertThatThrownBy(() -> restClient.delete()
+            assertThatThrownBy(() -> authenticatedRestClient.delete()
                     .uri("/%s".formatted(otherUser.username()))
-                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
+                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader()))
                     .retrieve()
                     .toBodilessEntity())
                     .isInstanceOf(HttpClientErrorException.NotAcceptable.class);
@@ -133,16 +138,18 @@ class UserControllerTest {
 
         @Test
         void whenDeletingSomeoneElseAccount_andIsAdmin_thenAccepted() {
-            UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole(port);
 
-            String currentUsername = userAuthFactory.loginAndReturnAdminUsername(port);
+            UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole();
 
-            ResponseEntity<Void> deleteUserResponse = restClient.delete()
+            String currentUsername = userAuthFactory.loginAndReturnAdminUsername();
+
+            ResponseEntity<Void> deleteUserResponse = authenticatedRestClient.delete()
                     .uri("/%s".formatted(otherUser.username()))
-                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
+                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader()))
                     .retrieve()
                     .toBodilessEntity();
 
+            userAuthFactory.deleteCurrentUser();
             assertThat(deleteUserResponse.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         }
     }
@@ -150,17 +157,20 @@ class UserControllerTest {
     @Nested
     class updateUser {
         @Test
-        void whenUpdatingOwnAccount_thenInternalServerError() {
-            String currentUsername = userAuthFactory.getCurrentUsername(port);
+        void whenUpdatingOwnAccount_thenAccepted() {
+
+            String currentUsername = userAuthFactory.getCurrentUsername();
 
             UserCreateRequest updateUserRequest = testDataFactory.userCreateRequest(currentUsername);
 
-            ResponseEntity<Void> updateUserResponse = restClient.put()
+            ResponseEntity<Void> updateUserResponse = authenticatedRestClient.put()
                     .uri("/")
-                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader(port)))
+                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader()))
                     .body(updateUserRequest)
                     .retrieve()
                     .toBodilessEntity();
+
+            userAuthFactory.deleteCurrentUser();
 
             assertThat(updateUserResponse.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         }
@@ -169,14 +179,16 @@ class UserControllerTest {
     @Nested
     class changePassword {
         @Test
-        void whenChangingOwnPassword_thenInternalServerError() {
+        void whenChangingOwnPassword_thenAccepted() {
             String currentUsername = userAuthFactory.currentUsername();
             assertThat(currentUsername).isNotBlank();
 
-            ResponseEntity<Void> changePasswordResult = restClient.patch()
+            ResponseEntity<Void> changePasswordResult = authenticatedRestClient.patch()
                     .uri("/%s/password?password=%s".formatted(currentUsername, "newPassword123!"))
                     .retrieve()
                     .toBodilessEntity();
+
+            userAuthFactory.deleteCurrentUser();
 
             assertThat(changePasswordResult.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         }
@@ -184,20 +196,10 @@ class UserControllerTest {
 
     private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
 
-        return restClient.post()
+        return authenticatedRestClient.post()
                 .uri("/")
                 .body(userCreateRequest)
                 .retrieve()
                 .toBodilessEntity();
-    }
-
-    private @NotNull UserCreateRequest getAUniqueUserCreateRequest() {
-
-        return testDataFactory.getStreamOfUserRequests()
-                .filter(user -> !alreadySavedUsernames.contains(user.username()))
-                .limit(1)
-                .peek(req -> alreadySavedUsernames.add(req.username()))
-                .findFirst()
-                .orElseThrow();
     }
 }

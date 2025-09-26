@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         log.info("Received request to create user: {}", userCreateRequest);
 
         if (userDetailsManager.userExists(userCreateRequest.username())) {
-            throw new EntityExistsException("User already exists: %s");
+            throw new EntityExistsException("User already exists: %s".formatted(userCreateRequest.username()));
         }
 
         userDetailsManager.createUser(userCreateRequest.encodePassword(passwordEncoder));
@@ -59,13 +59,21 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(String usernameToBeDeleted, Principal principal) {
         log.info("Received request to delete user: {}", usernameToBeDeleted);
 
+        UserDetails loggedInUserDetails = userDetailsManager.loadUserByUsername(principal.getName());
+
         if (isNeitherAdminNorCurrentUser(
-                userDetailsManager.loadUserByUsername(principal.getName()),
+                loggedInUserDetails,
                 usernameToBeDeleted)
         ) {
-            log.error("User: {} is not allowed to delete user: {}", principal.getName(), usernameToBeDeleted);
+            log.error("User: {} is not allowed to delete user: {}", loggedInUserDetails.getUsername(), usernameToBeDeleted);
             throw new UnauthorisedOperationException("User is not allowed to delete user: %s".formatted(usernameToBeDeleted));
         }
+
+        log.info("User: {}, with Authority: {} is deleting user: {}",
+                loggedInUserDetails.getUsername(),
+                loggedInUserDetails.getAuthorities().stream().toList(),
+                usernameToBeDeleted
+        );
 
         userDetailsManager.deleteUser(usernameToBeDeleted);
     }
@@ -86,6 +94,13 @@ public class UserServiceImpl implements UserService {
         }
 
         userDetailsManager.changePassword(userDetails.getPassword(), password);
+    }
+
+    @Override
+    public Boolean exists(String username) {
+        boolean isUserExists = userDetailsManager.userExists(username);
+        log.info("User: {} exists: {}", username, isUserExists);
+        return isUserExists;
     }
 
     private static boolean isNeitherAdminNorCurrentUser(UserDetails loggedInUserDetails, String username) {
