@@ -2,12 +2,12 @@ package dev.aj.full_stack_v6.security.controllers;
 
 import dev.aj.full_stack_v6.TestConfig;
 import dev.aj.full_stack_v6.TestDataFactory;
+import dev.aj.full_stack_v6.UserAuthFactory;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -23,39 +23,31 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import static dev.aj.full_stack_v6.security.controllers.UserControllerTest.USER_CONTROLLER_BASE_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestConfig.class, TestDataFactory.class})
+@Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
 @TestPropertySource(locations = {"/application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class AuthControllerTest {
 
-    public static final String AUTH_CONTROLLER_BASE_PATH = "/api/v1/auths";
-
     @LocalServerPort
     private Integer port;
 
     @Autowired
-    private TestConfig testConfig;
+    private UserAuthFactory userAuthFactory;
 
-    @Autowired
-    private TestDataFactory testDataFactory;
-
-    private RestClient restClient;
-    private RestClient userClient;
+    private RestClient authClient;
 
     private UserCreateRequest userCreateRequest;
 
     @BeforeAll
     void setUp() {
 
-        restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, AUTH_CONTROLLER_BASE_PATH));
-        userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
-
-        userCreateRequest = addANewUniqueUser();
+        userAuthFactory.setClients(port);
+        userCreateRequest = userAuthFactory.addANewUniqueUserWithAnyRole();
+        authClient = userAuthFactory.getAuthClient();
 
         if (userCreateRequest == null) {
             throw new IllegalStateException("Failed to create a user for AuthControllerTest");
@@ -64,19 +56,17 @@ class AuthControllerTest {
 
     @AfterAll
     void afterAll() {
-        if (restClient != null) {
-            restClient = null;
-        }
+        userAuthFactory.resetClients();
     }
 
     @Nested
     class TestLogin {
         @Test
         void whenValidCredentials_thenReturnsOkWithJwt() {
-            // Use the created user's credentials to log in
+
             LoginRequest loginRequest = new LoginRequest(userCreateRequest.username(), userCreateRequest.getPassword());
 
-            ResponseEntity<LoginResponse> response = restClient.post()
+            ResponseEntity<LoginResponse> response = authClient.post()
                     .uri("/login")
                     .body(loginRequest)
                     .retrieve()
@@ -101,7 +91,7 @@ class AuthControllerTest {
         void whenWrongPassword_thenUnauthorized() {
             LoginRequest badLogin = new LoginRequest(userCreateRequest.username(), userCreateRequest.getPassword() + "_wrong");
 
-            Assertions.assertThatThrownBy(() -> restClient.post()
+            Assertions.assertThatThrownBy(() -> authClient.post()
                             .uri("/login")
                             .body(badLogin)
                             .retrieve()
@@ -114,7 +104,7 @@ class AuthControllerTest {
     class TestLogout {
         @Test
         void whenLogout_thenAccepted() {
-            ResponseEntity<Void> resp = restClient.post()
+            ResponseEntity<Void> resp = authClient.post()
                     .uri("/logout")
                     .retrieve()
                     .toBodilessEntity();
@@ -124,28 +114,4 @@ class AuthControllerTest {
                     .satisfies(entity -> assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED));
         }
     }
-
-    public UserCreateRequest addANewUniqueUser() {
-
-        UserCreateRequest userCreateRequest = testDataFactory.getStreamOfUserRequests()
-                .limit(1)
-                .findFirst()
-                .orElseThrow();
-
-        ResponseEntity<Void> response = postANewUser(userCreateRequest);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            addANewUniqueUser();
-        }
-        return userCreateRequest;
-    }
-
-    private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
-
-        return userClient.post()
-                .uri("/")
-                .body(userCreateRequest)
-                .retrieve()
-                .toBodilessEntity();
-    }
-
 }

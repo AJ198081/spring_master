@@ -233,4 +233,9 @@ public class UserAuthFactory {
         currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
         return currentUserCreateRequest.username();
     }
+
+    public RestClient getAuthClient() {
+        Objects.requireNonNull(authClient, "Auth client is null");
+        return authClient;
+    }
 }

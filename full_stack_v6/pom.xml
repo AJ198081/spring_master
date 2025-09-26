@@ -14,6 +14,12 @@
     <name>full_stack_v6</name>
     <description>Full stack e-commerce application</description>
 
+    <properties>
+        <java.version>22</java.version>
+        <maven.compiler.source>22</maven.compiler.source>
+        <maven.compiler.target>22</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.datafaker</groupId>
@@ -112,6 +118,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>22</source>
+                    <target>22</target>
+                </configuration>
             </plugin>
 
             <!--            Didn't work, .envFile plugin from IntelliJ might be a better way forward -->

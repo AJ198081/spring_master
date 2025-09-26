@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(locations = {"classpath:application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
-@AutoConfigureMockMvc(addFilters = false) // Disables Spring Security filters
+@AutoConfigureMockMvc(addFilters = false) // Disables all filters, including Spring Security
 class ImageControllerTest {
 
     private static final String IMAGE_BASE = "/api/v1/images";
@@ -145,7 +145,7 @@ class ImageControllerTest {
     class GetImageTests {
         @Test
         void whenGetAllImages_thenReturnsList() throws Exception {
-            // add a few images first
+
             List<Image> uploaded = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 uploaded.add(uploadOne(testDataFactory.getRandomImageFile()));
@@ -161,6 +161,7 @@ class ImageControllerTest {
 
             List<Image> allImages = objectMapper.readValue(respJson, new TypeReference<>() {
             });
+
             Assertions.assertThat(allImages)
                     .isNotNull()
                     .hasSizeGreaterThanOrEqualTo(uploaded.size());

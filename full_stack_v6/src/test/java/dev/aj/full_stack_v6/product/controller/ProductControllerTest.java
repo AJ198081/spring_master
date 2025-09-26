@@ -117,7 +117,8 @@ class ProductControllerTest {
                                                 .satisfies(metaData -> {
                                                     assertThat(metaData.getCreatedBy()).isNotBlank();
                                                     assertThat(metaData.getCreatedDate()).isInThePast();
-                                                }));
+                                                })
+                                );
 
                     });
         }
