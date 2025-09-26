@@ -20,7 +20,7 @@ import java.security.Principal;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl implements UserService {
+class UserServiceImpl implements UserService {
 
     private final UserDetailsManager userDetailsManager;
     private final PasswordEncoder passwordEncoder;

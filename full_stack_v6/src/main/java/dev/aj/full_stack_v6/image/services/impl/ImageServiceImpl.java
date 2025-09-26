@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ImageServiceImpl implements ImageService {
+class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
     private final ProductService productService;

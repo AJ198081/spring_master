@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService {
+class AuthServiceImpl implements AuthService {
 
     private final JwtUtils jwtUtils;
     private final CookieUtils cookieUtils;
@@ -61,7 +61,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @EventListener
     public void processLogoutEvent(@NonNull UserLogoutEvent userLogoutEvent) {
-        String name = userLogoutEvent.principal().getName();
+
+        log.info("Logging {} out", userLogoutEvent.principal().getName());
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.debug("Logging out the current user: {}", ((User) authentication.getPrincipal()).getUsername());

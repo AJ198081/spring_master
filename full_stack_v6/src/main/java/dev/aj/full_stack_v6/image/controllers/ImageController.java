@@ -26,7 +26,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/v1/images")
 @RequiredArgsConstructor
-public class ImageController {
+class ImageController {
 
     private final ImageService imageService;
 
