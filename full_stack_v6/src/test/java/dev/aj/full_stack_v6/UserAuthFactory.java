@@ -25,6 +25,8 @@ public class UserAuthFactory {
 
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String ROLE_USER = "ROLE_USER";
+    public static final String AUTH_API_BASE_PATH = "/api/v1/auths";
+    public static final String USERS_API_BASE_PATH = "/api/v1/users";
 
     private final TestConfig testConfig;
     private final TestDataFactory testDataFactory;
@@ -38,11 +40,11 @@ public class UserAuthFactory {
 
     public void setClients(Integer port) {
         if (authClient == null) {
-            authClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/auths"));
+            authClient = testConfig.restClient("http://localhost:%d%s".formatted(port, AUTH_API_BASE_PATH));
         }
 
         if (userClient == null) {
-            userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, "/api/v1/users"));
+            userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, USERS_API_BASE_PATH));
         }
     }
 
@@ -51,7 +53,7 @@ public class UserAuthFactory {
         userClient = null;
     }
 
-    public RestClient secureRestClient(String baseUrl) {
+    public RestClient authenticatedRestClient(String baseUrl) {
         return RestClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeaders(headers -> headers.addAll(this.getBearerTokenHeader()))
@@ -156,19 +158,6 @@ public class UserAuthFactory {
 
 
         return currentJwt;
-    }
-
-    public @NonNull String loginAndReturnNonAdminUsername() {
-        if (Objects.nonNull(currentUserCreateRequest)
-                && currentUserCreateRequest.getAuthorities()
-                .stream()
-                .anyMatch(authority -> !authority.getAuthority().equals(ROLE_ADMIN))) {
-
-            return currentUserCreateRequest.username();
-        }
-
-        addANewUniqueUser(ROLE_ADMIN);
-        return currentUserCreateRequest.username();
     }
 
     public void loginAsDifferentNewUser(String role, String notThisUsername) {

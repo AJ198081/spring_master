@@ -52,7 +52,7 @@ class UserControllerTest {
     @BeforeAll
     void setUp() {
         userAuthFactory.setClients(port);
-        authenticatedRestClient = userAuthFactory.secureRestClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
+        authenticatedRestClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
     }
 
     @AfterAll
@@ -141,7 +141,9 @@ class UserControllerTest {
 
             UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole();
 
-            String currentUsername = userAuthFactory.loginAndReturnAdminUsername();
+            String _currentUsername = userAuthFactory.loginAndReturnAdminUsername();
+
+
 
             ResponseEntity<Void> deleteUserResponse = authenticatedRestClient.delete()
                     .uri("/%s".formatted(otherUser.username()))

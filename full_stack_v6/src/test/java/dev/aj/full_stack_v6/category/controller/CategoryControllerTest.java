@@ -11,14 +11,7 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -44,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Import(value = {TestDataFactory.class, TestConfig.class, UserAuthFactory.class})
 @TestPropertySource(locations = {"classpath:application-log.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
 class CategoryControllerTest {
 
@@ -61,22 +55,24 @@ class CategoryControllerTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    private RestClient restClient;
+    private RestClient categoryClient;
 
     private Set<String> alreadyCommittedCategoryNames = new HashSet<>();
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         userAuthFactory.setClients(port);
-        restClient = userAuthFactory.secureRestClient("http://localhost:%d%s".formatted(port, CATEGORY_CONTROLLER_BASE_PATH));
+        categoryClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, CATEGORY_CONTROLLER_BASE_PATH));
         categoryRepository.deleteAll();
     }
 
-    @AfterEach
+    @AfterAll
     void tearDown() {
-        if (restClient != null) {
-            restClient = null;
+        if (categoryClient != null) {
+            categoryClient = null;
         }
+
+        userAuthFactory.resetClients();
     }
 
     @Nested
@@ -180,7 +176,7 @@ class CategoryControllerTest {
                 }
             }
 
-            ResponseEntity<PageResponse<Category>> pageResponse = restClient.get()
+            ResponseEntity<PageResponse<Category>> pageResponse = categoryClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/page")
                             .queryParam("name", savedCategories.getFirst().getName().split("")[0])
@@ -258,11 +254,12 @@ class CategoryControllerTest {
         }
 
         @Test
+        @Order(1)
         void whenValidPatch_thenAccepted() {
             Category patchedCategory = new Category();
-            patchedCategory.setName(newCategory.getName() + " Patched");
+            patchedCategory.setName(newCategory.getName() + "-Patched");
 
-            ResponseEntity<Void> categoryPatchResponse = restClient.patch()
+            ResponseEntity<Void> categoryPatchResponse = categoryClient.patch()
                     .uri("/{id}", newCategory.getId())
                     .body(patchedCategory)
                     .retrieve()
@@ -275,11 +272,12 @@ class CategoryControllerTest {
         }
 
         @Test
+        @Order(2)
         void testIdempotentPatch_thenSuccessful() {
             Category patchedCategory = new Category();
-            patchedCategory.setName(newCategory.getName() + " Patched");
+            patchedCategory.setName(newCategory.getName() + "-Patched");
 
-            assertDoesNotThrow(() -> restClient.patch()
+            assertDoesNotThrow(() -> categoryClient.patch()
                     .uri("/{id}", newCategory.getId())
                     .body(patchedCategory)
                     .retrieve()
@@ -299,7 +297,7 @@ class CategoryControllerTest {
             Long categoryId = Objects.requireNonNull(createdCategoryResponse.getBody()).getId();
             newCategory.setName(newCategory.getName() + " Put");
 
-            ResponseEntity<Void> putCategoryResponse = restClient.put()
+            ResponseEntity<Void> putCategoryResponse = categoryClient.put()
                     .uri("/{id}", categoryId)
                     .body(newCategory)
                     .retrieve()
@@ -320,7 +318,7 @@ class CategoryControllerTest {
             Long categoryId = Objects.requireNonNull(createdCategoryResponse.getBody()).getId();
             newCategory.setName(newCategory.getName() + " Put");
 
-            ResponseEntity<Void> categoryUpdateResponse = assertDoesNotThrow(() -> restClient.put()
+            ResponseEntity<Void> categoryUpdateResponse = assertDoesNotThrow(() -> categoryClient.put()
                     .uri("/{id}", categoryId)
                     .body(newCategory)
                     .retrieve()
@@ -333,6 +331,7 @@ class CategoryControllerTest {
 
     private @NonNull Category createSampleCategory() {
         ResponseEntity<List<Category>> allCategoriesResponse = this.getAllCategories();
+
         if (allCategoriesResponse.getStatusCode().is2xxSuccessful()) {
             alreadyCommittedCategoryNames = Objects.requireNonNull(allCategoriesResponse.getBody())
                     .stream()
@@ -348,7 +347,7 @@ class CategoryControllerTest {
     }
 
     private @NonNull ResponseEntity<Category> saveANewRandomCategory(Category newCategory) {
-        return restClient.post()
+        return categoryClient.post()
                 .uri("/")
                 .body(newCategory)
                 .retrieve()
@@ -356,7 +355,7 @@ class CategoryControllerTest {
     }
 
     private @NotNull ResponseEntity<List<Category>> getAllCategories() {
-        return restClient.get()
+        return categoryClient.get()
                 .uri("/all")
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
@@ -364,14 +363,14 @@ class CategoryControllerTest {
     }
 
     private @NotNull ResponseEntity<Category> getCategoryById(Long categoryId) {
-        return restClient.get()
+        return categoryClient.get()
                 .uri("/{id}", categoryId)
                 .retrieve()
                 .toEntity(Category.class);
     }
 
     private @NotNull ResponseEntity<Void> deleteCategoryById(Long categoryId) {
-        return restClient.delete()
+        return categoryClient.delete()
                 .uri("/{id}", categoryId)
                 .retrieve()
                 .toBodilessEntity();
