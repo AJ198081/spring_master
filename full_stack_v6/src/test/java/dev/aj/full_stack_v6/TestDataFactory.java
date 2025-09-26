@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6;
 
+import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.stream.Stream;
 
 @TestConfiguration(proxyBeanMethods = false)
@@ -16,6 +18,7 @@ import java.util.stream.Stream;
 public class TestDataFactory {
 
     private final Faker faker;
+    private final List<String> roles = List.of("ROLE_USER", "ROLE_ADMIN");
 
     public Stream<Category> getStreamOfCategories() {
         return Stream.generate(() -> Category.builder()
@@ -46,4 +49,20 @@ public class TestDataFactory {
         String fileName = (faker.file().fileName(null, null, "png", null)).replace("\\", "_");
         return new MockMultipartFile("files", fileName, MediaType.IMAGE_PNG_VALUE, bytes);
     }
+
+    public Stream<UserCreateRequest> getStreamOfUserRequests() {
+        return Stream.generate(() -> new UserCreateRequest(
+                faker.internet().username(),
+                faker.internet().password(),
+                roles.get(faker.random().nextInt(roles.size())))
+        );
+    }
+
+    public UserCreateRequest userCreateRequest(String username) {
+        return new UserCreateRequest(username,
+                faker.internet().password(),
+                roles.get(faker.random().nextInt(roles.size()))
+        );
+    }
+
 }

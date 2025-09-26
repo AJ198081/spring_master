@@ -2,6 +2,7 @@ package dev.aj.full_stack_v6.category.controller;
 
 import dev.aj.full_stack_v6.TestConfig;
 import dev.aj.full_stack_v6.TestDataFactory;
+import dev.aj.full_stack_v6.UserAuthFactory;
 import dev.aj.full_stack_v6.category.repositories.CategoryRepository;
 import dev.aj.full_stack_v6.common.domain.dtos.PageResponse;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
@@ -32,7 +33,6 @@ import org.springframework.web.client.RestClient;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,8 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestDataFactory.class, TestConfig.class})
-@TestPropertySource(locations = {"classpath:application-test.properties"})
+@Import(value = {TestDataFactory.class, TestConfig.class, UserAuthFactory.class})
+@TestPropertySource(locations = {"classpath:application-log.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
 class CategoryControllerTest {
@@ -53,10 +53,10 @@ class CategoryControllerTest {
     private Integer port;
 
     @Autowired
-    private TestConfig testConfig;
+    private TestDataFactory testDataFactory;
 
     @Autowired
-    private TestDataFactory testDataFactory;
+    private UserAuthFactory userAuthFactory;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -67,7 +67,7 @@ class CategoryControllerTest {
 
     @BeforeEach
     void setUp() {
-        restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, CATEGORY_CONTROLLER_BASE_PATH));
+        restClient = userAuthFactory.secureRestClient("http://localhost:%d%s".formatted(port, CATEGORY_CONTROLLER_BASE_PATH));
         categoryRepository.deleteAll();
     }
 

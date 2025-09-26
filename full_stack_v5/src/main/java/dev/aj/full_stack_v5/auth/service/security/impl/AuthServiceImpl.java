@@ -38,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
             Customer customer = customerService.getCustomerByUsername(username);
             accessToken = jwtUtils.generateAccessToken(authentication, customer);
         } catch (EntityNotFoundException e) {
+            log.error("Customer not found for username: {}", username);
             accessToken = jwtUtils.generateAccessToken(authentication);
         }
 

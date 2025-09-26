@@ -1,21 +1,30 @@
 package dev.aj.full_stack_v6.common.exception_handlers;
 
+import dev.aj.full_stack_v6.common.domain.events.UserLogoutEvent;
+import dev.aj.full_stack_v6.common.exception_handlers.custom_exceptions.UnauthorisedOperationException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class CommonExceptionHandlers {
+
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @ExceptionHandler(value = {EntityNotFoundException.class})
     public ResponseEntity<ProblemDetail> handleEntityNotFoundException(EntityNotFoundException ex) {
@@ -90,6 +99,31 @@ public class CommonExceptionHandlers {
         return ResponseEntity
                 .status(conflictStatus)
                 .body(badRequestProblemDetail);
+    }
+
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ProblemDetail> handleBadCredentialsException(BadCredentialsException ex) {
+        HttpStatus unauthorizedStatus = HttpStatus.UNAUTHORIZED;
+        ProblemDetail badRequestProblemDetail = ProblemDetail.forStatus(unauthorizedStatus);
+        badRequestProblemDetail.setProperty("message", ex.getMessage());
+
+        return ResponseEntity
+                .status(unauthorizedStatus)
+                .body(badRequestProblemDetail);
+    }
+
+    @ExceptionHandler(value = UnauthorisedOperationException.class)
+    public ResponseEntity<ProblemDetail> handleSecurityException(UnauthorisedOperationException ex, Principal principal) {
+
+        UserLogoutEvent userLogoutEvent = new UserLogoutEvent(principal);
+        applicationEventPublisher.publishEvent(userLogoutEvent);
+
+        HttpStatus notAcceptable = HttpStatus.NOT_ACCEPTABLE;
+        ProblemDetail notAcceptableProblemDetail = ProblemDetail.forStatus(notAcceptable);
+        notAcceptableProblemDetail.setProperty("message", ex.getMessage());
+        return ResponseEntity
+                .status(notAcceptable)
+                .body(notAcceptableProblemDetail);
     }
 
     // catch all, needed because I can't use spring's problem.details.enabled property

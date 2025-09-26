@@ -30,7 +30,7 @@ public class CustomAuthExceptionHandler implements AuthenticationEntryPoint, Req
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        final String message = "Unauthenticated User tried accessing %s, exception : %s".formatted(request.getRequestURI(), authException.getMessage());
+        final String message = "Unauthenticated User tried accessing: %s, exception: %s".formatted(request.getRequestURI(), authException.getMessage());
         log.error(message);
         final Map<String, Object> body = new HashMap<>();
         body.put("error", authException.getClass().getSimpleName());
@@ -45,6 +45,7 @@ public class CustomAuthExceptionHandler implements AuthenticationEntryPoint, Req
     @Override
     public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
         log.info("Saving request for redirect");
+        request.getSession().setAttribute("SPRING_SECURITY_SAVED_REQUEST", request);
     }
 
     @Override
@@ -63,5 +64,6 @@ public class CustomAuthExceptionHandler implements AuthenticationEntryPoint, Req
     @Override
     public void removeRequest(HttpServletRequest request, HttpServletResponse response) {
         log.info("Removing request from the cache");
+        request.getSession().removeAttribute("SPRING_SECURITY_SAVED_REQUEST");
     }
 }

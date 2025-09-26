@@ -52,6 +52,7 @@ public class CodeValidationService {
                 if (!fetchPromotionDetails(restClient, promotion.getPromotionCode()).getStatusCode().is2xxSuccessful()) {
                     promotion.setActive(false);
                     promotionRepository.save(promotion);
+                    log.info("Promotion with code: {} is no longer active", promotion.getPromotionCode());
                 }
             }
         });
@@ -69,7 +70,7 @@ public class CodeValidationService {
             return responseSpec
                     .toBodilessEntity();
         } catch (Exception e) {
-            if (e instanceof HttpClientErrorException.BadRequest exception) {
+            if (e instanceof HttpClientErrorException.BadRequest) {
                 return ResponseEntity.badRequest().build();
             } else {
                 log.error("Error fetching promotion details: {}", e.getMessage());
