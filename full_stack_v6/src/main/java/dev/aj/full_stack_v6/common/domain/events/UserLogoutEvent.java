@@ -1,6 +1,12 @@
 package dev.aj.full_stack_v6.common.domain.events;
 
-import java.security.Principal;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dev.aj.full_stack_v6.common.domain.json.PrincipalDeserializer;
 
-public record UserLogoutEvent(Principal principal) {
+import java.security.Principal;
+import java.time.Instant;
+
+public record UserLogoutEvent(@JsonDeserialize(using = PrincipalDeserializer.class) Principal principal, String message, Instant timestamp) {
 }
+
+

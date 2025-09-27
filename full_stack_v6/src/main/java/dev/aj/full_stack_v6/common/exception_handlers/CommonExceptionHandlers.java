@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6.common.exception_handlers;
 
+import dev.aj.full_stack_v6.common.domain.events.MaliciousOperationEvent;
 import dev.aj.full_stack_v6.common.domain.events.UserLogoutEvent;
 import dev.aj.full_stack_v6.common.exception_handlers.custom_exceptions.UnauthorisedOperationException;
 import jakarta.persistence.EntityExistsException;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -115,12 +117,16 @@ public class CommonExceptionHandlers {
     @ExceptionHandler(value = UnauthorisedOperationException.class)
     public ResponseEntity<ProblemDetail> handleSecurityException(UnauthorisedOperationException ex, Principal principal) {
 
-        UserLogoutEvent userLogoutEvent = new UserLogoutEvent(principal);
+        UserLogoutEvent userLogoutEvent = new UserLogoutEvent(principal, ex.getMessage(), Instant.now());
         applicationEventPublisher.publishEvent(userLogoutEvent);
+
+        MaliciousOperationEvent maliciousOperationEvent = new MaliciousOperationEvent(principal.getName(), principal.getName().concat("@gmail.com"), ex.getMessage(), Instant.now());
+        applicationEventPublisher.publishEvent(maliciousOperationEvent);
 
         HttpStatus notAcceptable = HttpStatus.NOT_ACCEPTABLE;
         ProblemDetail notAcceptableProblemDetail = ProblemDetail.forStatus(notAcceptable);
         notAcceptableProblemDetail.setProperty("message", ex.getMessage());
+
         return ResponseEntity
                 .status(notAcceptable)
                 .body(notAcceptableProblemDetail);

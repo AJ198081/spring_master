@@ -47,6 +47,13 @@
       "name": "jwt.refresh.token.cookie.domain",
       "type": "java.lang.String",
       "description": "Domain for the Refresh Token Cookie, if omitted, the Cookie will be set to 'host-only'."
+    },
+    {
+      "name": "spring.modulith.events.jdbc-schema-initialization.enabled",
+      "type": "java.lang.Boolean",
+      "description": "The JDBC-based event publication registry support expects the following database schemas to be present in the database. If you would like Spring Modulith to create the schema for you, set the application property.",
+      "sourceType": "org.springframework.modulith.events.jpa.JpaEventPublication",
+      "defaultValue": false
     }
   ]
 }

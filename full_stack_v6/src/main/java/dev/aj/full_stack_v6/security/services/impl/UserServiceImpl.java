@@ -90,7 +90,7 @@ class UserServiceImpl implements UserService {
 
         if (isNeitherAdminNorCurrentUser(userDetails, username)) {
             log.error("User: {} is not allowed to change the password for user: {}", principal.getName(), username);
-            throw new SecurityException("User is not allowed to change password for user: %s".formatted(username));
+            throw new UnauthorisedOperationException("User is not allowed to change password for user: %s".formatted(username));
         }
 
         userDetailsManager.changePassword(userDetails.getPassword(), password);

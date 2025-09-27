@@ -10,6 +10,14 @@ services:
     networks:
       - full_stack_v6_network
 
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog_container
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
 networks:
   full_stack_v6_network:
     driver: bridge
