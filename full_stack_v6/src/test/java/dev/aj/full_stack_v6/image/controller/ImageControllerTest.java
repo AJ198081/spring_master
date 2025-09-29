@@ -1,70 +1,89 @@
 package dev.aj.full_stack_v6.image.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.aj.full_stack_v6.TestConfig;
 import dev.aj.full_stack_v6.TestDataFactory;
+import dev.aj.full_stack_v6.UserAuthFactory;
 import dev.aj.full_stack_v6.common.domain.entities.Image;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(value = {TestConfig.class, TestDataFactory.class})
+@Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
 @TestPropertySource(locations = {"classpath:application-test.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
-@AutoConfigureMockMvc(addFilters = false) // Disables all filters, including Spring Security
 class ImageControllerTest {
 
     private static final String IMAGE_BASE = "/api/v1/images";
     private static final String PRODUCT_BASE = "/api/v1/products";
 
+    @LocalServerPort
+    private Integer port;
+
     @Autowired
     private TestDataFactory testDataFactory;
 
     @Autowired
-    private MockMvc mockMvc;
+    private UserAuthFactory userAuthFactory;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private RestClient imageClient;
+    private RestClient productClient;
+
+    private HttpHeaders authTokenHeader;
+
+    @BeforeAll
+    void init() {
+        userAuthFactory.setClients(port);
+        if (authTokenHeader == null) {
+            authTokenHeader = userAuthFactory.getBearerTokenHeader();
+        }
+        imageClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, IMAGE_BASE));
+        productClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, PRODUCT_BASE));
+    }
+
+    @AfterAll
+    void destroy() {
+        imageClient = null;
+        productClient = null;
+        userAuthFactory.resetClients();
+    }
 
     @Nested
     class PostImageTests {
         @Test
-        void whenAddImage_thenReturnsSavedImage() throws Exception {
+        void whenAddImage_thenReturnsSavedImage() {
             MockMultipartFile randomImageFile = testDataFactory.getRandomImageFile();
 
-            String responseJson = mockMvc.perform(multipart(IMAGE_BASE + "/")
-                            .file(randomImageFile))
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString(StandardCharsets.UTF_8);
-
-            Image image = objectMapper.readValue(responseJson, Image.class);
+            Image image = uploadOne(randomImageFile);
 
             Assertions.assertThat(image)
                     .isNotNull()
@@ -77,65 +96,52 @@ class ImageControllerTest {
         }
 
         @Test
-        void whenAddImagesToProduct_thenReturnsImages() throws Exception {
+        void whenAddImagesToProduct_thenReturnsImages() {
             Product newProduct = testDataFactory.getStreamOfProducts()
                     .findFirst()
                     .orElseThrow();
 
-            String productReq = objectMapper.writeValueAsString(newProduct);
-            String productResp = mockMvc.perform(
-                            MockMvcRequestBuilders.post(PRODUCT_BASE + "/")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(productReq)
-                    )
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString(StandardCharsets.UTF_8);
+            ResponseEntity<Product> productResponse = productClient.post()
+                    .uri("/")
+                    .body(newProduct)
+                    .retrieve()
+                    .toEntity(Product.class);
 
-            Long productId = Objects.requireNonNull(objectMapper.readValue(productResp, Product.class)).getId();
+            Long productId = Objects.requireNonNull(productResponse.getBody()).getId();
 
             MockMultipartFile f1 = testDataFactory.getRandomImageFile();
             MockMultipartFile f2 = testDataFactory.getRandomImageFile();
             MockMultipartFile f3 = testDataFactory.getRandomImageFile();
 
-            mockMvc.perform(
-                            MockMvcRequestBuilders.multipart(IMAGE_BASE + "/product/{productId}", productId)
-                                    .file(f1)
-                                    .file(f2)
-                                    .file(f3)
-                                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                                    .param("replaceAll", "true")
-                    )
-                    .andExpect(status().isOk());
+            ResponseEntity<Void> uploadResponse = imageClient.post()
+                    .uri(uriBuilder -> uriBuilder.path("/product/{productId}").queryParam("replaceAll", true).build(productId))
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(buildMultipart(f1, f2, f3))
+                    .retrieve()
+                    .toBodilessEntity();
+            assertThat(uploadResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-            String listJson = mockMvc.perform(
-                            MockMvcRequestBuilders.get(IMAGE_BASE + "/product/{productId}", productId)
-                    )
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString(StandardCharsets.UTF_8);
+            ResponseEntity<List<Image>> listResponse = imageClient.get()
+                    .uri("/product/{productId}", productId)
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<>() {
+                    });
 
-            List<Image> imagesByProduct = objectMapper.readValue(listJson, new TypeReference<>() {
-            });
+            List<Image> imagesByProduct = listResponse.getBody();
 
             Assertions.assertThat(imagesByProduct)
                     .isNotNull()
                     .hasSizeGreaterThanOrEqualTo(3);
 
-            String prodJson = mockMvc.perform(
-                            MockMvcRequestBuilders.get(PRODUCT_BASE + "/{id}", productId)
-                    )
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString(StandardCharsets.UTF_8);
+            ResponseEntity<Product> fetchedProductResp = productClient.get()
+                    .uri("/{id}", productId)
+                    .retrieve()
+                    .toEntity(Product.class);
 
-            Product fetched = objectMapper.readValue(prodJson, Product.class);
+            Product fetched = fetchedProductResp.getBody();
             Assertions.assertThat(fetched)
                     .isNotNull();
-            Assertions.assertThat(fetched.getImages()).hasSizeGreaterThanOrEqualTo(3);
+            Assertions.assertThat(Objects.requireNonNull(fetched).getImages()).hasSizeGreaterThanOrEqualTo(3);
             Assertions.assertThat(fetched.getImages())
                     .allMatch(image -> image.getDownloadUrl().contains("/api/v1/images/".concat(image.getId().toString())));
         }
@@ -144,23 +150,20 @@ class ImageControllerTest {
     @Nested
     class GetImageTests {
         @Test
-        void whenGetAllImages_thenReturnsList() throws Exception {
+        void whenGetAllImages_thenReturnsList() {
 
             List<Image> uploaded = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 uploaded.add(uploadOne(testDataFactory.getRandomImageFile()));
             }
 
-            String respJson = mockMvc.perform(
-                            MockMvcRequestBuilders.get(IMAGE_BASE + "/all")
-                    )
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString(StandardCharsets.UTF_8);
+            ResponseEntity<List<Image>> resp = imageClient.get()
+                    .uri("/all")
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<>() {
+                    });
 
-            List<Image> allImages = objectMapper.readValue(respJson, new TypeReference<>() {
-            });
+            List<Image> allImages = resp.getBody();
 
             Assertions.assertThat(allImages)
                     .isNotNull()
@@ -168,45 +171,44 @@ class ImageControllerTest {
         }
 
         @Test
-        void whenDownloadImageById_thenOk() throws Exception {
+        void whenDownloadImageById_thenOk() {
             Image saved = uploadOne(testDataFactory.getRandomImageFile());
 
-            mockMvc.perform(
-                            MockMvcRequestBuilders.get(IMAGE_BASE + "/download/{id}", saved.getId())
-                    )
-                    .andExpect(status().isOk());
+            ResponseEntity<Void> downloadResp = imageClient.get()
+                    .uri("/download/{id}", saved.getId())
+                    .retrieve()
+                    .toBodilessEntity();
+
+            assertThat(downloadResp.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
 
         @Test
-        void whenGetImagesByProductId_thenReturnsImages() throws Exception {
+        void whenGetImagesByProductId_thenReturnsImages() {
             Product newProduct = testDataFactory.getStreamOfProducts().findFirst().orElseThrow();
-            String productReq = objectMapper.writeValueAsString(newProduct);
-            String productResp = mockMvc.perform(
-                            MockMvcRequestBuilders.post(PRODUCT_BASE + "/")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(productReq)
-                    )
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString(StandardCharsets.UTF_8);
-            Long productId = Objects.requireNonNull(objectMapper.readValue(productResp, Product.class)).getId();
 
-            mockMvc.perform(MockMvcRequestBuilders.multipart(IMAGE_BASE + "/product/{productId}", productId)
-                            .file(testDataFactory.getRandomImageFile())
-                            .file(testDataFactory.getRandomImageFile()))
-                    .andExpect(status().isOk());
+            Long productId = Objects.requireNonNull(productClient.post()
+                            .uri("/")
+                            .body(newProduct)
+                            .retrieve()
+                            .toEntity(Product.class)
+                            .getBody())
+                    .getId();
 
-            String listJson2 = mockMvc.perform(
-                            MockMvcRequestBuilders.get(IMAGE_BASE + "/product/{productId}", productId)
-                    )
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString(StandardCharsets.UTF_8);
+            ResponseEntity<Void> uploadResp = imageClient.post()
+                    .uri("/product/{productId}", productId)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(buildMultipart(testDataFactory.getRandomImageFile(), testDataFactory.getRandomImageFile()))
+                    .retrieve()
+                    .toBodilessEntity();
+            assertThat(uploadResp.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-            List<Image> images2 = objectMapper.readValue(listJson2, new TypeReference<>() {
-            });
+            ResponseEntity<List<Image>> listResp = imageClient.get()
+                    .uri("/product/{productId}", productId)
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<>() {
+                    });
+
+            List<Image> images2 = listResp.getBody();
             Assertions.assertThat(images2)
                     .isNotNull()
                     .hasSizeGreaterThanOrEqualTo(2);
@@ -216,58 +218,61 @@ class ImageControllerTest {
     @Nested
     class PutImageTests {
         @Test
-        void whenUpdateImage_thenOk() throws Exception {
+        void whenUpdateImage_thenOk() {
             Image saved = uploadOne(testDataFactory.getRandomImageFile());
 
             MockMultipartFile newFile = testDataFactory.getRandomImageFile();
 
-            String json = mockMvc.perform(MockMvcRequestBuilders.multipart(IMAGE_BASE + "/{id}", saved.getId())
-                            .file(newFile)
-                            .with(req -> {
-                                req.setMethod("PUT");
-                                return req;
-                            }))
-                    .andExpect(status().isOk())
-                    .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+            ResponseEntity<Image> updateResp = imageClient.put()
+                    .uri("/{id}", saved.getId())
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(buildMultipart(newFile))
+                    .retrieve()
+                    .toEntity(Image.class);
 
-            Image updated = objectMapper.readValue(json, Image.class);
-            Assertions.assertThat(updated.getFileName()).isEqualTo(newFile.getOriginalFilename());
+            Image updated = updateResp.getBody();
+            Assertions.assertThat(Objects.requireNonNull(updated).getFileName()).isEqualTo(newFile.getOriginalFilename());
         }
     }
 
     @Nested
     class DeleteImageTests {
         @Test
-        void whenDeleteImage_thenIdempotent() throws Exception {
+        void whenDeleteImage_thenIdempotent() {
             Image saved = uploadOne(testDataFactory.getRandomImageFile());
 
-            mockMvc.perform(
-                            MockMvcRequestBuilders.delete(IMAGE_BASE + "/{id}", saved.getId())
-                    )
-                    .andExpect(status().is2xxSuccessful());
+            ResponseEntity<Void> deleteResp = imageClient.delete()
+                    .uri("/{id}", saved.getId())
+                    .retrieve()
+                    .toBodilessEntity();
+            assertThat(deleteResp.getStatusCode().is2xxSuccessful()).isTrue();
 
-            assertDoesNotThrow(() -> {
-                try {
-                    mockMvc.perform(
-                                    MockMvcRequestBuilders.delete(IMAGE_BASE + "/{id}", saved.getId())
-                            )
-                            .andExpect(status().is2xxSuccessful());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            assertDoesNotThrow(() -> imageClient.delete()
+                    .uri("/{id}", saved.getId())
+                    .retrieve()
+                    .toBodilessEntity())
+                    .getStatusCode().is2xxSuccessful();
         }
     }
 
     @SneakyThrows
     private Image uploadOne(MockMultipartFile file) {
-        String responseJson = mockMvc.perform(
-                        MockMvcRequestBuilders.multipart(IMAGE_BASE + "/").file(file)
-                )
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8);
-        return objectMapper.readValue(responseJson, Image.class);
+        ResponseEntity<Image> resp = imageClient.post()
+                .uri("/")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(buildMultipart(file))
+                .retrieve()
+                .toEntity(Image.class);
+        return resp.getBody();
+    }
+
+    private MultiValueMap<String, HttpEntity<?>> buildMultipart(MockMultipartFile... files) {
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        for (MockMultipartFile file : files) {
+            builder.part("files", file.getResource())
+                    .filename(file.getOriginalFilename())
+                    .contentType(MediaType.parseMediaType(Objects.requireNonNullElse(file.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE)));
+        }
+        return builder.build();
     }
 }

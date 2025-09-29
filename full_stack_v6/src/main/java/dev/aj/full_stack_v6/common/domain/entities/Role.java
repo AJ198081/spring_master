@@ -1,7 +1,9 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.aj.full_stack_v6.common.domain.enums.UserRole;
+import dev.aj.full_stack_v6.common.domain.json.RoleDeserializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,6 +28,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Getter
+@JsonDeserialize(using = RoleDeserializer.class)
 public class Role implements GrantedAuthority {
 
     @Id
@@ -44,6 +47,7 @@ public class Role implements GrantedAuthority {
     private Set<User> users = new HashSet<>();
 
     @Override
+    @JsonIgnore
     public String getAuthority() {
         return this.role.toString();
     }

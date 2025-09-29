@@ -3,6 +3,7 @@ package dev.aj.full_stack_v6.product.services.impl;
 import dev.aj.full_stack_v6.category.CategoryService;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
+import dev.aj.full_stack_v6.common.domain.entities.User;
 import dev.aj.full_stack_v6.product.ProductService;
 import dev.aj.full_stack_v6.product.repositories.ProductRepository;
 import jakarta.persistence.EntityExistsException;
@@ -12,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +31,15 @@ class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public Product saveProduct(Product product) {
+        log.info("Received request to save product: {}", product.getName());
         assertProductNameUniqueness(product);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        product.setUser(user);
         product.setCategory(saveOrGetExistingCategory(product.getCategory()));
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        log.info("Product: {} saved successfully with Product Id: {}", savedProduct.getName(), savedProduct.getId());
+        return savedProduct;
     }
 
     @Override

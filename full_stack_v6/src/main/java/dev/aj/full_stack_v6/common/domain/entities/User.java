@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v6.common.domain.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -66,8 +67,9 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
+    @JsonIgnore
     @Builder.Default
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch =  FetchType.LAZY)
     private Set<Product> products = new HashSet<>();
 
     public void addRole(Role role) {
@@ -77,7 +79,7 @@ public class User implements UserDetails {
 
     @OneToMany(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             orphanRemoval = true
     )
     @JoinColumn(name = "address_id", referencedColumnName = "id")
@@ -88,6 +90,7 @@ public class User implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         return this.roles.stream()

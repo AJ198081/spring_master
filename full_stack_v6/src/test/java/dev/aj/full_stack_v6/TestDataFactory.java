@@ -46,7 +46,9 @@ public class TestDataFactory {
         for (int i = 0; i < size; i++) {
             bytes[i] = (byte) (i % 256);
         }
-        String fileName = (faker.file().fileName(null, null, "png", null)).replace("\\", "_");
+        String fileName = (faker.file()
+                .fileName(null, null, "png", null))
+                .replace("\\", "_");
         return new MockMultipartFile("files", fileName, MediaType.IMAGE_PNG_VALUE, bytes);
     }
 
