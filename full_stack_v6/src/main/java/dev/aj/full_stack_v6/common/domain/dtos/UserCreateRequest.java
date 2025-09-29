@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collection;
 import java.util.stream.Stream;
 
-public record UserCreateRequest(String username, String password, String role) implements UserDetails {
+public record UserCreateRequest(String username, String email, String password, String role) implements UserDetails {
 
     @Override
     @JsonIgnore
@@ -28,10 +27,5 @@ public record UserCreateRequest(String username, String password, String role) i
     public String getUsername() {
         return username;
     }
-
-    public UserCreateRequest encodePassword(PasswordEncoder passwordEncoder) {
-        return new UserCreateRequest(this.username, passwordEncoder.encode(this.password), this.role);
-    }
-
 }
 

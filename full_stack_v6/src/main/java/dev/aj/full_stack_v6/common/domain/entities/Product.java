@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,7 @@ public class Product {
     @SequenceGenerator(name = "product_gen", sequenceName = "prod_sequence")
     @Column(name = "id", nullable = false)
     @JdbcTypeCode(SqlTypes.BIGINT)
+    @JsonIgnore
     private Long id;
 
     @Column(nullable = false, unique = true, columnDefinition = "VARCHAR(255)")
@@ -64,4 +66,12 @@ public class Product {
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", referencedColumnName = "id",  nullable = false, updatable = false)
+    private User user;
+
+    public void addUser(User user) {
+        this.user = user;
+        user.getProducts().add(this);
+    }
 }

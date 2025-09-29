@@ -54,6 +54,11 @@
       "description": "The JDBC-based event publication registry support expects the following database schemas to be present in the database. If you would like Spring Modulith to create the schema for you, set the application property.",
       "sourceType": "org.springframework.modulith.events.jpa.JpaEventPublication",
       "defaultValue": false
+    },
+    {
+      "name": "app.email.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable email functionality."
     }
   ]
 }

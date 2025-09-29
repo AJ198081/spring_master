@@ -8,7 +8,8 @@ import org.springframework.modulith.Modulithic;
 @Modulithic(
         sharedModules = {
                 "security",
-                "common"
+                "common",
+                "email"
         },
         useFullyQualifiedModuleNames = false
 )

@@ -53,13 +53,16 @@ public class TestDataFactory {
     public Stream<UserCreateRequest> getStreamOfUserRequests() {
         return Stream.generate(() -> new UserCreateRequest(
                 faker.internet().username(),
+                faker.internet().emailAddress(),
                 faker.internet().password(),
                 roles.get(faker.random().nextInt(roles.size())))
         );
     }
 
     public UserCreateRequest userCreateRequest(String username) {
-        return new UserCreateRequest(username,
+        return new UserCreateRequest(
+                username,
+                faker.internet().emailAddress(),
                 faker.internet().password(),
                 roles.get(faker.random().nextInt(roles.size()))
         );

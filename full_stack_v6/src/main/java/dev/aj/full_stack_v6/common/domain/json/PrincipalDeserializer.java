@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 
 public class PrincipalDeserializer extends JsonDeserializer<Principal> {
+
     @Override
     public Principal deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 

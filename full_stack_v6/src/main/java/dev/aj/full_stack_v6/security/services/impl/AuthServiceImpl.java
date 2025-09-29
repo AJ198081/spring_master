@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
-import org.springframework.modulith.events.ApplicationModuleListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -57,7 +57,7 @@ class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @ApplicationModuleListener
+    @EventListener
     public void processLogoutEvent(@NonNull UserLogoutEvent userLogoutEvent) {
 
         log.info("Logging {} out", userLogoutEvent.principal().getName());

@@ -1,0 +1,94 @@
+# https://github.com/OAI/OpenAPI-Specification
+# https://openapi-generator.tech/
+# Typescript Implementations/Code Generator - https://orval.dev/
+
+openapi: 3.1.0
+info:
+  title: Auth
+  description: Specification for Authentication API
+  version: 1.0.0
+  contact:
+    name: full_stack_v6 people
+    url: www.sc.com.au
+    email: full_stack_v6_admin@fsv6.com.au
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/license/LICENSE-2.0.html
+servers:
+  - url: 'http://localhost:11000'
+    description: Dev
+  - url: 'http://localhost:11001'
+    description: QA
+  - url: 'http://localhost:11002'
+    description: UAT
+paths:
+  /api/v1/auths/login:
+    post:
+      summary: User login
+      description: Authenticate a user with a username and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          headers:
+            Set-Cookie:
+              description: The server may set HttpOnly refresh token cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Invalid username or password
+        '500':
+          description: Server error
+  /api/v1/auths/logout:
+    post:
+      summary: User logout
+      description: Logout current user and clear auth cookies.
+      responses:
+        '202':
+          description: Logout request accepted
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: alice
+        password:
+          type: string
+          format: password
+          example: secret123
+    LoginResponse:
+      type: object
+      required:
+        - jwt
+        - username
+        - roles
+      properties:
+        jwt:
+          type: string
+          description: Access token (JWT)
+        username:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string

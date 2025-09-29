@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -65,6 +66,7 @@ class UserControllerTest {
 
     @Nested
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class saveUserTests {
 
         private String persistedUsername;
@@ -104,18 +106,18 @@ class UserControllerTest {
 
         @Test
         void whenDeletingOwnAccount_thenAccepted() {
+            HttpHeaders bearerTokenHeader = userAuthFactory.getBearerTokenHeader();
             String currentUsername = userAuthFactory.currentUsername();
-            if (currentUsername == null) {
-                userAuthFactory.getBearerTokenHeader();
-            }
 
             ResponseEntity<Void> deleteResponse = authenticatedRestClient.delete()
                     .uri("/%s".formatted(currentUsername))
-                    .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader()))
+                    .headers(headers -> headers.addAll(bearerTokenHeader))
                     .retrieve()
                     .toBodilessEntity();
-            userAuthFactory.deleteCurrentUser();
+
             assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+
+            userAuthFactory.deleteCurrentUser();
         }
 
         @RepeatedTest(value = 1)

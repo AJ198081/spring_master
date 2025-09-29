@@ -2,10 +2,11 @@ package dev.aj.full_stack_v6.security;
 
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.security.Principal;
 
-public interface UserService {
+public interface UserService extends UserDetailsService {
     void createUser(UserCreateRequest userCreateRequest);
 
     @PreAuthorize("isAuthenticated()")

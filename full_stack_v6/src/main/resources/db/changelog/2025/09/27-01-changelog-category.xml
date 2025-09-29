@@ -7,7 +7,7 @@
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
     <changeSet id="1758943033073-1" author="AJ">
 
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="category"/>
             </not>
@@ -34,7 +34,7 @@
 
     <changeSet id="1758943033073-2" author="AJ">
 
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <indexExists indexName="uc_category_name"/>
             </not>
@@ -44,7 +44,7 @@
     </changeSet>
 
     <changeSet id="1758943033073-3" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <sequenceExists sequenceName="category_sequence"/>
             </not>

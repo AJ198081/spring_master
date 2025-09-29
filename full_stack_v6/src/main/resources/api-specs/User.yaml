@@ -1,0 +1,34 @@
+# https://github.com/OAI/OpenAPI-Specification
+# https://openapi-generator.tech/
+# Typescript Implementations/Code Generator - https://orval.dev/
+
+openapi: 3.1.0
+info:
+  title: User
+  description: Specification for User API
+  version: 1.0.0
+  contact:
+    name: full_stack_v6 people
+    url: www.sc.com.au
+    email: full_stack_v6_admin@fsv6.com.au
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/license/LICENSE-2.0.html
+servers:
+  - url: 'http://localhost:11000'
+    description: Dev
+  - url: 'http://localhost:11001'
+    description: QA
+  - url: 'http://localhost:11002'
+    description: UAT
+paths:
+  /api/v1/users:
+    get:
+      responses:
+        '200':
+          description: List of users
+        404:
+          description: Not found
+
+
+  

@@ -3,6 +3,8 @@ package dev.aj.full_stack_v6.security.controllers;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
 import dev.aj.full_stack_v6.security.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +21,12 @@ class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginDto, jakarta.servlet.http.HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginDto, HttpServletResponse response) {
         return ResponseEntity.ok(authService.login(loginDto, response));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) {
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         authService.logout(request, response);
         return ResponseEntity.accepted().build();
     }

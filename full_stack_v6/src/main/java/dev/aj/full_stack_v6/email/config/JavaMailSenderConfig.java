@@ -1,6 +1,7 @@
 package dev.aj.full_stack_v6.email.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -15,7 +16,8 @@ class JavaMailSenderConfig {
     private final Environment environment;
 
     @Bean
-    @DependsOn("setEnvironment")
+    @DependsOn("dotEnv")
+    @ConditionalOnProperty(value = "app.email.enabled", havingValue = "true")
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setHost(environment.getProperty("SMTP_HOST", "production"));
@@ -23,5 +25,4 @@ class JavaMailSenderConfig {
         javaMailSender.setProtocol(environment.getProperty("SMTP_PROTOCOL", "smtp"));
         return javaMailSender;
     }
-
 }
