@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -61,5 +62,9 @@ class CookieUtils implements dev.aj.full_stack_v6.security.utils.CookieUtils {
                 }
             }
         }
+    }
+
+    public void getCookie(HttpServletRequest request){
+        Cookie refreshToken = WebUtils.getCookie(request, "refreshToken");
     }
 }

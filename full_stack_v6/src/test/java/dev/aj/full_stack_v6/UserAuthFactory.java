@@ -60,6 +60,20 @@ public class UserAuthFactory {
                 .build();
     }
 
+    public RestClient newAuthenticateAdminRestClient(String baseUrl) {
+        return RestClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeaders(headers -> headers.addAll(this.getAdminBearerTokenHeader()))
+                .build();
+    }
+
+    public RestClient newAuthenticatedNonAdminRestClient(String baseUrl) {
+        return RestClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeaders(headers -> headers.addAll(this.getNonAdminBearerTokenHeader()))
+                .build();
+    }
+
     public @NotNull UserCreateRequest getAUniqueUserCreateRequest() {
 
         UserCreateRequest newUser;
@@ -104,6 +118,27 @@ public class UserAuthFactory {
         return currentUserCreateRequest;
     }
 
+    public UserCreateRequest addAUniqueAdminUser() {
+        deleteCurrentUser();
+        currentUserCreateRequest = testDataFactory.getStreamOfUserRequests()
+                .filter(user -> user.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals(ROLE_ADMIN)))
+                .limit(1)
+                .findFirst()
+                .orElseThrow();
+
+        try {
+            ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                return addAUniqueAdminUser();
+            }
+        } catch (HttpClientErrorException.Conflict e) {
+            log.error("Admin user already existed: {}; trying again.", e.getMessage());
+            return addAUniqueAdminUser();
+        }
+
+        return currentUserCreateRequest;
+    }
+
     public HttpHeaders getBearerTokenHeader() {
 
         String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
@@ -112,6 +147,22 @@ public class UserAuthFactory {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.AUTHORIZATION, bearerToken);
 
+        return httpHeaders;
+    }
+
+    public HttpHeaders getAdminBearerTokenHeader() {
+        String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
+                .concat(loginAndReturnAdminJwt());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.AUTHORIZATION, bearerToken);
+        return httpHeaders;
+    }
+
+    public HttpHeaders getNonAdminBearerTokenHeader() {
+        String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
+                .concat(loginAndReturnNonAdminJwt());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.AUTHORIZATION, bearerToken);
         return httpHeaders;
     }
 
@@ -147,13 +198,7 @@ public class UserAuthFactory {
             currentUserCreateRequest = addANewUniqueUserWithAnyRole();
             LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
 
-            ResponseEntity<LoginResponse> response = authClient.post()
-                    .uri("/login")
-                    .body(loginRequest)
-                    .retrieve()
-                    .toEntity(LoginResponse.class);
-
-            currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
+            loginAndRefreshCurrentJwt(loginRequest);
         }
 
 
@@ -172,13 +217,7 @@ public class UserAuthFactory {
                 currentUserCreateRequest.getPassword()
         );
 
-        ResponseEntity<LoginResponse> response = authClient.post()
-                .uri("/login")
-                .body(loginRequest)
-                .retrieve()
-                .toEntity(LoginResponse.class);
-
-        currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
+        loginAndRefreshCurrentJwt(loginRequest);
     }
 
 
@@ -204,7 +243,7 @@ public class UserAuthFactory {
         }
     }
 
-    public String loginAndReturnAdminUsername() {
+    public String loginAndReturnAdminJwt() {
         deleteCurrentUser();
         currentUserCreateRequest = testDataFactory.getStreamOfUserRequests()
                 .filter(userRequest -> userRequest.getAuthorities()
@@ -217,13 +256,24 @@ public class UserAuthFactory {
         try {
             ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                return loginAndReturnAdminUsername();
+               return loginAndReturnAdminJwt();
             }
         } catch (HttpClientErrorException.Conflict e) {
             log.warn("Admin user already existed: {}", currentUserCreateRequest.username());
+            return loginAndReturnAdminJwt();
         }
 
         LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
+        loginAndRefreshCurrentJwt(loginRequest);
+        return currentJwt;
+    }
+
+    public RestClient getAuthClient() {
+        Objects.requireNonNull(authClient, "Auth client is null");
+        return authClient;
+    }
+
+    private void loginAndRefreshCurrentJwt(LoginRequest loginRequest) {
         ResponseEntity<LoginResponse> response = authClient.post()
                 .uri("/login")
                 .body(loginRequest)
@@ -231,11 +281,30 @@ public class UserAuthFactory {
                 .toEntity(LoginResponse.class);
 
         currentJwt = Objects.requireNonNull(response.getBody(), "Login attempt unsuccessful").jwt();
-        return currentUserCreateRequest.username();
     }
 
-    public RestClient getAuthClient() {
-        Objects.requireNonNull(authClient, "Auth client is null");
-        return authClient;
+    public String loginAndReturnNonAdminJwt() {
+        deleteCurrentUser();
+        currentUserCreateRequest = testDataFactory.getStreamOfUserRequests()
+                .filter(userRequest -> userRequest.getAuthorities()
+                        .stream()
+                        .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(ROLE_ADMIN)))
+                .limit(1)
+                .findFirst()
+                .orElseThrow();
+
+         try {
+            ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+               return loginAndReturnNonAdminJwt();
+            }
+        } catch (HttpClientErrorException.Conflict e) {
+            log.warn("Non-Admin user already existed: {}", currentUserCreateRequest.username());
+            return loginAndReturnNonAdminJwt();
+        }
+
+        LoginRequest loginRequest = new LoginRequest(currentUserCreateRequest.username(), currentUserCreateRequest.getPassword());
+        loginAndRefreshCurrentJwt(loginRequest);
+        return currentJwt;
     }
 }

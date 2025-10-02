@@ -45,7 +45,7 @@
     <changeSet id="1758943201524-2" author="AJ">
         <preConditions onFail="MARK_RAN">
             <not>
-                <uniqueConstraintExists tableName="uc_product_name"/>
+                <uniqueConstraintExists constraintName="uc_product_name" tableName="product"/>
             </not>
         </preConditions>
         <addUniqueConstraint columnNames="name" constraintName="uc_product_name" tableName="product"/>

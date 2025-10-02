@@ -50,7 +50,7 @@ class ProductServiceImpl implements ProductService {
     @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Entity ID %d not found".formatted(id)));
+                .orElseThrow(() -> new EntityNotFoundException("Product Id: %d not found".formatted(id)));
     }
 
     @Override

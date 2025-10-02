@@ -143,7 +143,7 @@ class UserControllerTest {
 
             UserCreateRequest otherUser = userAuthFactory.addANewUniqueUserWithAnyRole();
 
-            String _ = userAuthFactory.loginAndReturnAdminUsername();
+            String _ = userAuthFactory.loginAndReturnAdminJwt();
 
             ResponseEntity<Void> deleteUserResponse = authenticatedRestClient.delete()
                     .uri("/%s".formatted(otherUser.username()))

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -131,6 +132,17 @@ public class CommonExceptionHandlers {
                 .status(notAcceptable)
                 .body(notAcceptableProblemDetail);
     }
+
+    @ExceptionHandler(value = {AuthorizationDeniedException.class})
+    public ResponseEntity<ProblemDetail> handleAccessDeniedException(AuthorizationDeniedException ex) {
+        HttpStatus forbiddenStatus = HttpStatus.FORBIDDEN;
+        ProblemDetail forbiddenProblemDetail = ProblemDetail.forStatus(forbiddenStatus);
+        forbiddenProblemDetail.setProperty("message", ex.getMessage());
+        return ResponseEntity
+                .status(forbiddenStatus)
+                .body(forbiddenProblemDetail);
+    }
+
 
     // catch all, needed because I can't use spring's problem.details.enabled property
     @ExceptionHandler(value = {Exception.class})

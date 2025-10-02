@@ -5,9 +5,12 @@ import dev.aj.full_stack_v6.common.domain.entities.Category;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -68,6 +71,14 @@ public class TestDataFactory {
                 faker.internet().password(),
                 roles.get(faker.random().nextInt(roles.size()))
         );
+    }
+
+    public @NonNull ResponseEntity<Product> saveANewRandomProduct(Product newProduct, RestClient postAuthenticatedClient) {
+        return postAuthenticatedClient.post()
+                .uri("/")
+                .body(newProduct)
+                .retrieve()
+                .toEntity(Product.class);
     }
 
 }

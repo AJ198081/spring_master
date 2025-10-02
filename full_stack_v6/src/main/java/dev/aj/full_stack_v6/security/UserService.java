@@ -1,6 +1,7 @@
 package dev.aj.full_stack_v6.security;
 
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
+import dev.aj.full_stack_v6.common.domain.entities.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -23,4 +24,6 @@ public interface UserService extends UserDetailsService {
                         Principal principal);
 
     Boolean exists(String username);
+
+    User loadUser(String username);
 }
