@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v6.security;
+package dev.aj.full_stack_v6.security.services.impl;
 
 import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;

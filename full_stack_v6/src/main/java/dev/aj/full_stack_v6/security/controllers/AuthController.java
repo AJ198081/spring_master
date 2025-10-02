@@ -2,7 +2,7 @@ package dev.aj.full_stack_v6.security.controllers;
 
 import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
-import dev.aj.full_stack_v6.security.AuthService;
+import dev.aj.full_stack_v6.security.services.impl.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

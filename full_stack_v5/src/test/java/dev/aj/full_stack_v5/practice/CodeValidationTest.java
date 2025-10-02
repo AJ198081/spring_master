@@ -31,7 +31,7 @@ class CodeValidationTest {
     }
 
     @RepeatedTest(value = 1000, name = "{currentRepetition}/{totalRepetitions}")
-    void verifyTestCodeMethodValidatesGiveCode() throws InterruptedException {
+    void validateAndAddCodeToDatabase() throws InterruptedException {
         Thread.sleep(100);
         boolean isValid = codeValidationService.testCode(restClient);
         Assertions.assertThat(isValid).isTrue();

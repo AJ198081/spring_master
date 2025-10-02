@@ -3,7 +3,6 @@ package dev.aj.full_stack_v6.security.services.impl;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
 import dev.aj.full_stack_v6.common.domain.events.UserLogoutEvent;
-import dev.aj.full_stack_v6.security.AuthService;
 import dev.aj.full_stack_v6.security.utils.CookieUtils;
 import dev.aj.full_stack_v6.security.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
