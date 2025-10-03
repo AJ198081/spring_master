@@ -38,7 +38,7 @@ public class TestDataFactory {
                 .category(getStreamOfCategories().findFirst().orElseThrow())
                 .price(productPrice)
                 .description(faker.lorem().sentence())
-                .stock(faker.random().nextInt(10, 100))
+                .stock(faker.random().nextInt(2, 100))
                 .discountedPrice(productPrice.multiply(BigDecimal.valueOf(faker.random().nextDouble(0.5, 0.9))))
                 .build());
     }

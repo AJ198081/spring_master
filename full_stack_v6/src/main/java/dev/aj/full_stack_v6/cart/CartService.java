@@ -11,4 +11,6 @@ public interface CartService {
     Cart getCart(Principal principal);
 
     List<Cart> getAllCarts();
+
+    Cart putQuantityToCart(Long productId, Integer quantity, Principal principal);
 }

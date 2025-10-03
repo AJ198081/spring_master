@@ -16,7 +16,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
@@ -33,12 +32,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 class CartControllerTest {
 
-
     @LocalServerPort
     private Integer port;
-
-    @Autowired
-    private TestConfig testConfig;
 
     @Autowired
     private TestDataFactory testDataFactory;
@@ -55,8 +50,6 @@ class CartControllerTest {
     private RestClient cartClient;
 
     private RestClient productAuthenticatedClient;
-
-    private HttpHeaders authTokenHeader;
 
     @BeforeAll
     void init() {
@@ -89,8 +82,10 @@ class CartControllerTest {
         @Order(1)
         void whenAuthenticatedUser_AddsProductToCart_Successful() {
 
-            Assertions.assertThat(newProduct);
-            Assertions.assertThat(newProduct.getStock()).isGreaterThan(0);
+            Assertions.assertThat(newProduct)
+                    .isNotNull()
+                    .satisfies(p -> Assertions.assertThat(p.getStock()).isGreaterThan(1));
+
             int quantityToOrder = newProduct.getStock() / 2;
 
             ResponseEntity<Void> addToCartResponse = addProductToCart(newProduct, quantityToOrder);
@@ -104,9 +99,24 @@ class CartControllerTest {
 
         @Test
         @Order(2)
+        void whenAuthenticatedUser_AddsProductWithZeroOrNegativeQuantity_ThenThrowsBadRequest() {
+            Assertions.assertThat(newProduct)
+                    .isNotNull();
+
+            Assertions.assertThatThrownBy(() -> addProductToCart(newProduct, 0))
+                    .isInstanceOf(HttpClientErrorException.BadRequest.class);
+
+            Assertions.assertThatThrownBy(() -> addProductToCart(newProduct, -1))
+                    .isInstanceOf(HttpClientErrorException.BadRequest.class);
+        }
+
+        @Test
+        @Order(3)
         void whenAuthenticatedUser_AddsProducts_SuccessfullyAddsToExistingCart() {
 
-            Assertions.assertThat(newProduct);
+            Assertions.assertThat(newProduct)
+                    .isNotNull()
+                    .satisfies(p -> Assertions.assertThat(p.getStock()).isGreaterThan(0));
 
             ResponseEntity<Void> addToCartResponse = addProductToCart(newProduct, newProduct.getStock());
 
@@ -125,7 +135,7 @@ class CartControllerTest {
         }
 
         @Test
-        @Order(3)
+        @Order(4)
         void whenAuthenticatedUser_AddsProductWithInsufficientQuantity_ThenThrowsConflict() {
             Assertions.assertThat(newProduct);
             Assertions.assertThat(newProduct.getStock()).isEqualTo(0);
@@ -133,6 +143,51 @@ class CartControllerTest {
             Assertions.assertThatThrownBy(() -> addProductToCart(newProduct, 1))
                     .isInstanceOf(HttpClientErrorException.Conflict.class);
         }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class PutCartTests {
+
+        private Product newProduct;
+
+        @BeforeAll
+        void beforeEach() {
+            if (newProduct == null && productAuthenticatedClient != null) {
+                newProduct = addANewProduct();
+            }
+        }
+
+        @Test
+        @Order(1)
+        void whenAuthenticatedUser_PatchesCart_Successful() {
+            Assertions.assertThat(newProduct)
+                    .isNotNull()
+                    .satisfies(p -> Assertions.assertThat(p.getStock()).isGreaterThan(2));
+
+            int quantity = newProduct.getStock() / 2;
+
+            ResponseEntity<Cart> putProductResponse = putProductToCart(newProduct.getId(), quantity);
+
+            Assertions.assertThat(putProductResponse)
+                    .isNotNull()
+                    .satisfies(response -> {
+                        response.getStatusCode().is2xxSuccessful();
+                        org.junit.jupiter.api.Assertions.assertNotNull(response.getBody());
+                        Assertions.assertThat(response.getBody())
+                                .isNotNull();
+                        Assertions.assertThat(response.getBody().getCartItems())
+                                .isNotEmpty()
+                                .hasSizeGreaterThanOrEqualTo(1)
+                                .filteredOn(cartItem -> cartItem.getProduct().getId().equals(newProduct.getId()))
+                                .allSatisfy(cartItem -> {
+                                    Assertions.assertThat(cartItem.getQuantity()).isEqualTo(quantity);
+                                    Assertions.assertThat(cartItem.getProduct().getId()).isEqualTo(newProduct.getId());
+                                });
+                    });
+        }
+
     }
 
     @Nested
@@ -161,7 +216,6 @@ class CartControllerTest {
             String _ = userAuthFactory.loginAndReturnAdminJwt();
             instantiateClients();
             addANewProduct();
-
 
             ResponseEntity<List<Cart>> getAllCartsResponse = cartClient.get()
                     .uri("/all")
@@ -230,5 +284,16 @@ class CartControllerTest {
                 )
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    protected @NotNull ResponseEntity<Cart> putProductToCart(Long productId, int updatedQuantity) {
+        return cartClient.put()
+                .uri("/", uriBuilder -> {
+                    uriBuilder.queryParam("productId", productId)
+                            .queryParam("quantity", updatedQuantity);
+                    return uriBuilder.build();
+                })
+                .retrieve()
+                .toEntity(Cart.class);
     }
 }

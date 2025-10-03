@@ -3,6 +3,7 @@ package dev.aj.full_stack_v6.cart.services;
 import dev.aj.full_stack_v6.cart.CartService;
 import dev.aj.full_stack_v6.cart.repositories.CartRepository;
 import dev.aj.full_stack_v6.common.domain.entities.Cart;
+import dev.aj.full_stack_v6.common.domain.entities.CartItem;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.common.domain.entities.User;
 import dev.aj.full_stack_v6.product.ProductService;
@@ -11,10 +12,12 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +32,24 @@ class CartServiceImpl implements CartService {
     public void addProductToCart(Long productId, Integer quantity, Principal principal) {
 
         Cart cart = getUserCart(principal);
+        Product product = getProductOrThrow(productId);
 
+        canAddQuantity(product, quantity);
+
+        cart.addCartItem(product, quantity);
+
+        cart.updateTotalCartPrice();
+
+        cartRepository.save(cart);
+    }
+
+    private static void canAddQuantity(Product product, Integer quantityToBeAdded) {
+        if (product.getStock() < quantityToBeAdded) {
+            throw new IllegalArgumentException("Insufficient stock for product: %s, only %d left".formatted(product.getName(), product.getStock()));
+        }
+    }
+
+    private Product getProductOrThrow(Long productId) {
         Product product;
 
         try {
@@ -37,16 +57,7 @@ class CartServiceImpl implements CartService {
         } catch (EntityNotFoundException e) {
             throw new EntityNotFoundException("Product id: %d is no longer available for sale".formatted(productId));
         }
-
-        if (product.getStock() < quantity) {
-            throw new IllegalArgumentException("Insufficient stock for product Id: %d, only %d left".formatted(productId, product.getStock()));
-        }
-
-        cart.addCartItem(product, quantity);
-
-        cart.updateTotalCartPrice();
-
-        cartRepository.save(cart);
+        return product;
     }
 
     @Override
@@ -60,6 +71,31 @@ class CartServiceImpl implements CartService {
         List<Cart> allCarts = cartRepository.findAll();
         log.info("Retrieved {} carts", allCarts.size());
         return allCarts;
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'CUSTOMER')")
+    public Cart putQuantityToCart(Long productId, Integer quantity, Principal principal) {
+        Cart cart = getUserCart(principal);
+        Product product = getProductOrThrow(productId);
+
+        Integer quantityAlreadyInCart = cart.getCartItems()
+                .stream()
+                .filter(cartItem -> cartItem.getProduct().getId().equals(product.getId()))
+                .map(CartItem::getQuantity)
+                .findFirst()
+                .orElse(0);
+
+        if (Objects.equals(quantity, quantityAlreadyInCart)) {
+            return cart;
+        }
+
+        canAddQuantity(product, Math.abs(quantity - quantityAlreadyInCart));
+
+        cart.addCartItem(product, quantity);
+        cart.updateTotalCartPrice();
+
+        return cartRepository.save(cart);
     }
 
     private Cart getUserCart(Principal principal) {
