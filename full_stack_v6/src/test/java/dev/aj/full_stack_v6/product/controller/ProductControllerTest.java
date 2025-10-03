@@ -64,9 +64,11 @@ class ProductControllerTest {
 
     private RestClient restClient;
 
-    private Set<String> alreadyCommittedProductNames = new HashSet<>();
+    private final Set<String> alreadyCommittedProductNames = new HashSet<>();
 
     private HttpHeaders authTokenHeader;
+
+    private static final String PRODUCT_TEST = "-product-test";
 
     @BeforeAll
     void init() {
@@ -76,7 +78,6 @@ class ProductControllerTest {
     @BeforeEach
     void setUp() {
         restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, environment.getProperty("PRODUCT_API_PATH")));
-        productRepository.deleteAll();
 
         if (authTokenHeader == null) {
             authTokenHeader = userAuthFactory.getBearerTokenHeader();
@@ -93,6 +94,10 @@ class ProductControllerTest {
     @AfterAll
     void destroy() {
         userAuthFactory.resetClients();
+        productRepository.findAll()
+                .stream()
+                .filter(product -> product.getName().endsWith(PRODUCT_TEST))
+                .forEach(productRepository::delete);
     }
 
     @Nested
@@ -100,7 +105,7 @@ class ProductControllerTest {
 
         @Test
         void whenValidProduct_thenCreatesProduct() {
-            Product newProduct = createSampleProduct();
+            Product newProduct = createUniqueProduct();
             ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(newProduct);
 
             assertThat(createdProductResponse)
@@ -127,7 +132,7 @@ class ProductControllerTest {
 
         @Test
         void whenDuplicateName_thenReturnsConflict() {
-            Product newProduct = createSampleProduct();
+            Product newProduct = createUniqueProduct();
             saveANewRandomProduct(newProduct);
 
             Assertions.assertThatThrownBy(() -> saveANewRandomProduct(newProduct))
@@ -141,7 +146,7 @@ class ProductControllerTest {
         @Test
         void getAllProducts_thenReturnsProducts() {
 
-            saveANewRandomProduct(createSampleProduct());
+            saveANewRandomProduct(createUniqueProduct());
 
             ResponseEntity<List<Product>> allProductsResponse = getAllProducts();
 
@@ -159,7 +164,7 @@ class ProductControllerTest {
 
         @Test
         void whenProductByIdExists_thenReturnsProduct() {
-            Product newProduct = createSampleProduct();
+            Product newProduct = createUniqueProduct();
             ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(newProduct);
             Long productId = Objects.requireNonNull(createdProductResponse.getBody()).getId();
 
@@ -186,7 +191,7 @@ class ProductControllerTest {
             List<@NonNull Product> savedProducts = new ArrayList<>();
 
             for (int i = 0; i < 100; i++) {
-                ResponseEntity<Product> productResponseEntity = saveANewRandomProduct(createSampleProduct());
+                ResponseEntity<Product> productResponseEntity = saveANewRandomProduct(createUniqueProduct());
                 if (productResponseEntity.getStatusCode().is2xxSuccessful()) {
                     savedProducts.add(Objects.requireNonNull(productResponseEntity.getBody()));
                 }
@@ -235,7 +240,7 @@ class ProductControllerTest {
         @Order(1)
         void deleteProductById_Successful() {
 
-            ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(createSampleProduct());
+            ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(createUniqueProduct());
             productId = Objects.requireNonNull(createdProductResponse.getBody()).getId();
 
             ResponseEntity<Void> productDeletionResponse = deleteProductById(productId);
@@ -268,7 +273,7 @@ class ProductControllerTest {
         @BeforeEach
         void beforeEach() {
             if (newProduct == null) {
-                newProduct = Objects.requireNonNull(saveANewRandomProduct(createSampleProduct())
+                newProduct = Objects.requireNonNull(saveANewRandomProduct(createUniqueProduct())
                         .getBody());
             }
         }
@@ -311,7 +316,7 @@ class ProductControllerTest {
 
         @Test
         void whenValidUpdate_thenAccepted() {
-            Product newProduct = createSampleProduct();
+            Product newProduct = createUniqueProduct();
             ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(newProduct);
 
             Long productId = Objects.requireNonNull(createdProductResponse.getBody()).getId();
@@ -333,7 +338,7 @@ class ProductControllerTest {
 
         @Test
         void whenDuplicateProductNameUpdate_thenReturnsConflict() {
-            Product newProduct = createSampleProduct();
+            Product newProduct = createUniqueProduct();
             ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(newProduct);
 
             Long productId = Objects.requireNonNull(createdProductResponse.getBody()).getId();
@@ -351,19 +356,25 @@ class ProductControllerTest {
         }
     }
 
-    private @NonNull Product createSampleProduct() {
+    private @NonNull Product createUniqueProduct() {
+
         if (CollectionUtils.isEmpty(alreadyCommittedProductNames)) {
-            ResponseEntity<List<Product>> allProductsResponse = this.getAllProducts();
-            if (allProductsResponse.getStatusCode().is2xxSuccessful()) {
-                alreadyCommittedProductNames = Objects.requireNonNull(allProductsResponse.getBody())
-                        .stream()
-                        .map(Product::getName)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet());
+            if (alreadyCommittedProductNames.isEmpty()) {
+                ResponseEntity<List<Product>> allProductsResponse = this.getAllProducts();
+                if (allProductsResponse.getStatusCode().is2xxSuccessful()) {
+                    alreadyCommittedProductNames.addAll(
+                            Objects.requireNonNull(allProductsResponse.getBody())
+                                    .stream()
+                                    .map(Product::getName)
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toSet())
+                    );
+                }
             }
         }
 
         return testDataFactory.getStreamOfProducts()
+                .peek(product -> product.setName(product.getName().concat(String.valueOf(Math.random())).concat(PRODUCT_TEST)))
                 .filter(product -> !alreadyCommittedProductNames.contains(product.getName()))
                 .limit(1)
                 .peek(product -> alreadyCommittedProductNames.add(product.getName()))

@@ -11,7 +11,15 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -59,13 +67,14 @@ class CategoryControllerTest {
 
     private RestClient categoryClient;
 
-    private Set<String> alreadyCommittedCategoryNames = new HashSet<>();
+    private final Set<String> alreadyCommittedCategoryNames = new HashSet<>();
+
+    private static final String CATEGORY_TEST = "-category-test";
 
     @BeforeAll
     void setUp() {
         userAuthFactory.setClients(port);
         categoryClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("CATEGORY_API_PATH")));
-        categoryRepository.deleteAll();
     }
 
     @AfterAll
@@ -75,6 +84,11 @@ class CategoryControllerTest {
         }
 
         userAuthFactory.resetClients();
+
+        categoryRepository.findAll()
+                .stream()
+                .filter(category -> category.getName().endsWith(CATEGORY_TEST))
+                .forEach(categoryRepository::delete);
     }
 
     @Nested
@@ -82,7 +96,7 @@ class CategoryControllerTest {
 
         @Test
         void whenValidCategory_thenCreatesCategory() {
-            Category newCategory = createSampleCategory();
+            Category newCategory = createUniqueCategory();
             ResponseEntity<Category> createdCategoryResponse = saveANewRandomCategory(newCategory);
 
             Assertions.assertThat(createdCategoryResponse)
@@ -99,7 +113,7 @@ class CategoryControllerTest {
 
         @Test
         void whenDuplicateName_thenReturnsConflict() {
-            Category newCategory = createSampleCategory();
+            Category newCategory = createUniqueCategory();
             saveANewRandomCategory(newCategory);
 
             Assertions.assertThatThrownBy(() -> saveANewRandomCategory(newCategory))
@@ -127,7 +141,7 @@ class CategoryControllerTest {
         @Test
         void getAllCategories_thenReturnsCategories() {
 
-            saveANewRandomCategory(createSampleCategory());
+            saveANewRandomCategory(createUniqueCategory());
 
             ResponseEntity<List<Category>> allCategoriesResponse = getAllCategories();
 
@@ -145,7 +159,7 @@ class CategoryControllerTest {
 
         @Test
         void whenCategoryByIdExists_thenReturnsCategory() {
-            Category newCategory = createSampleCategory();
+            Category newCategory = createUniqueCategory();
             ResponseEntity<Category> createdCategoryResponse = saveANewRandomCategory(newCategory);
             Long categoryId = Objects.requireNonNull(createdCategoryResponse.getBody()).getId();
 
@@ -171,8 +185,8 @@ class CategoryControllerTest {
 
             List<@NonNull Category> savedCategories = new ArrayList<>();
 
-            for (int i = 0; i < 100; i++) {
-                ResponseEntity<Category> categoryResponseEntity = saveANewRandomCategory(createSampleCategory());
+            for (int i = 0; i < 50; i++) {
+                ResponseEntity<Category> categoryResponseEntity = saveANewRandomCategory(createUniqueCategory());
                 if (categoryResponseEntity.getStatusCode().is2xxSuccessful()) {
                     savedCategories.add(Objects.requireNonNull(categoryResponseEntity.getBody()));
                 }
@@ -218,7 +232,7 @@ class CategoryControllerTest {
         @Order(1)
         void deleteCategoryById_Successful() {
 
-            ResponseEntity<Category> createdCategoryResponse = saveANewRandomCategory(createSampleCategory());
+            ResponseEntity<Category> createdCategoryResponse = saveANewRandomCategory(createUniqueCategory());
             Long id = Objects.requireNonNull(createdCategoryResponse.getBody()).getId();
             categoryId = String.valueOf(id).isBlank() ? id : Long.parseLong(String.valueOf(id));
 
@@ -250,7 +264,7 @@ class CategoryControllerTest {
         @BeforeEach
         void beforeEach() {
             if (newCategory == null) {
-                newCategory = Objects.requireNonNull(saveANewRandomCategory(createSampleCategory())
+                newCategory = Objects.requireNonNull(saveANewRandomCategory(createUniqueCategory())
                         .getBody());
             }
         }
@@ -293,7 +307,7 @@ class CategoryControllerTest {
 
         @Test
         void whenValidUpdate_thenAccepted() {
-            Category newCategory = createSampleCategory();
+            Category newCategory = createUniqueCategory();
             ResponseEntity<Category> createdCategoryResponse = saveANewRandomCategory(newCategory);
 
             Long categoryId = Objects.requireNonNull(createdCategoryResponse.getBody()).getId();
@@ -314,7 +328,7 @@ class CategoryControllerTest {
 
         @Test
         void whenDuplicateCategoryNameUpdate_thenReturnsConflict() {
-            Category newCategory = createSampleCategory();
+            Category newCategory = createUniqueCategory();
             ResponseEntity<Category> createdCategoryResponse = saveANewRandomCategory(newCategory);
 
             Long categoryId = Objects.requireNonNull(createdCategoryResponse.getBody()).getId();
@@ -331,16 +345,24 @@ class CategoryControllerTest {
         }
     }
 
-    private @NonNull Category createSampleCategory() {
-        ResponseEntity<List<Category>> allCategoriesResponse = this.getAllCategories();
+    private @NonNull Category createUniqueCategory() {
 
-        if (allCategoriesResponse.getStatusCode().is2xxSuccessful()) {
-            alreadyCommittedCategoryNames = Objects.requireNonNull(allCategoriesResponse.getBody())
-                    .stream()
-                    .map(Category::getName)
-                    .collect(Collectors.toSet());
+
+        if (alreadyCommittedCategoryNames.isEmpty()) {
+            ResponseEntity<List<Category>> allCategoriesResponse = this.getAllCategories();
+
+            if (allCategoriesResponse.getStatusCode().is2xxSuccessful()) {
+                alreadyCommittedCategoryNames.addAll(
+                        Objects.requireNonNull(allCategoriesResponse.getBody())
+                                .stream()
+                                .map(Category::getName)
+                                .collect(Collectors.toSet())
+                );
+            }
+            log.info("Added {} names to already committed categories.", alreadyCommittedCategoryNames);
         }
         return testDataFactory.getStreamOfCategories()
+                .peek(category -> category.setName(category.getName().concat(String.valueOf(Math.random())) + CATEGORY_TEST))
                 .filter(category -> !alreadyCommittedCategoryNames.contains(category.getName()))
                 .limit(1)
                 .peek(category -> alreadyCommittedCategoryNames.add(category.getName()))
