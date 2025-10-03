@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @NoArgsConstructor
@@ -71,5 +72,18 @@ public class Cart {
         this.totalPrice = cartItems.stream()
                 .map(CartItem::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void removeCartItem(Long productId) {
+        Optional<CartItem> cartItemOptional = cartItems.stream()
+                .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
+                .findFirst();
+
+        if (cartItemOptional.isPresent()) {
+            CartItem cartItemToBeRemoved = cartItemOptional.get();
+            cartItemToBeRemoved.removeProduct();
+            this.getCartItems().remove(cartItemToBeRemoved);
+            updateTotalCartPrice();
+        }
     }
 }

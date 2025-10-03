@@ -73,10 +73,6 @@ class ProductControllerTest {
     @BeforeAll
     void init() {
         userAuthFactory.setClients(port);
-    }
-
-    @BeforeEach
-    void setUp() {
         restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, environment.getProperty("PRODUCT_API_PATH")));
 
         if (authTokenHeader == null) {
@@ -84,20 +80,18 @@ class ProductControllerTest {
         }
     }
 
-    @AfterEach
-    void tearDown() {
-        if (restClient != null) {
-            restClient = null;
-        }
-    }
-
     @AfterAll
     void destroy() {
         userAuthFactory.resetClients();
+
+        if (restClient != null) {
+            restClient = null;
+        }
         productRepository.findAll()
                 .stream()
                 .filter(product -> product.getName().endsWith(PRODUCT_TEST))
                 .forEach(productRepository::delete);
+
     }
 
     @Nested
@@ -312,22 +306,26 @@ class ProductControllerTest {
     }
 
     @Nested
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class PutProductTests {
+
+        Product randomProduct;
+
+        @BeforeAll
+        void beforeEach() {
+            randomProduct = createUniqueProduct();
+        }
 
         @Test
         void whenValidUpdate_thenAccepted() {
-            Product newProduct = createUniqueProduct();
-            ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(newProduct);
+
+            ResponseEntity<Product> createdProductResponse = saveANewRandomProduct(randomProduct);
 
             Long productId = Objects.requireNonNull(createdProductResponse.getBody()).getId();
-            newProduct.setName(newProduct.getName() + " Put");
+            randomProduct.setName(randomProduct.getName() + " Put");
 
-            ResponseEntity<Void> putProductResponse = restClient.put()
-                    .uri("/{id}", productId)
-                    .headers(addBearerTokenHeaders())
-                    .body(newProduct)
-                    .retrieve()
-                    .toBodilessEntity();
+            ResponseEntity<Void> putProductResponse = putProductById(productId, randomProduct);
 
             assertThat(putProductResponse)
                     .isNotNull()
@@ -416,6 +414,15 @@ class ProductControllerTest {
         return restClient.delete()
                 .uri("/{id}", productId)
                 .headers(addBearerTokenHeaders())
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    private @NotNull ResponseEntity<Void> putProductById(Long productId, Product productToBeUpdated) {
+        return restClient.put()
+                .uri("/{id}", productId)
+                .headers(addBearerTokenHeaders())
+                .body(productToBeUpdated)
                 .retrieve()
                 .toBodilessEntity();
     }

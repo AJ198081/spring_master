@@ -13,5 +13,4 @@ public interface ProductService {
     void putProduct(Long id, Product product);
     void patchProduct(Long id, Product product);
     void deleteProductById(Long id);
-
 }

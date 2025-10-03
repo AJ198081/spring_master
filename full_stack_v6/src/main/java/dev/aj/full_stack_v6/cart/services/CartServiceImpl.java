@@ -6,15 +6,18 @@ import dev.aj.full_stack_v6.common.domain.entities.Cart;
 import dev.aj.full_stack_v6.common.domain.entities.CartItem;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.common.domain.entities.User;
+import dev.aj.full_stack_v6.common.domain.events.ProductPriceUpdatedEvent;
 import dev.aj.full_stack_v6.product.ProductService;
 import dev.aj.full_stack_v6.security.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +25,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-class CartServiceImpl implements CartService {
+public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
     private final UserService userService;
@@ -96,6 +99,38 @@ class CartServiceImpl implements CartService {
         cart.updateTotalCartPrice();
 
         return cartRepository.save(cart);
+    }
+
+    @Override
+    public void deleteProduct(Long productId, Principal principal) {
+        Cart userCart = getUserCart(principal);
+        userCart.removeCartItem(productId);
+        cartRepository.save(userCart);
+    }
+
+    @Override
+    @EventListener
+    public void updateCartsContainingProduct(ProductPriceUpdatedEvent productUpdatedEvent) {
+        cartRepository.findAll()
+                .stream()
+                .filter(cart -> containsProductId(cart, productUpdatedEvent.id()))
+                .map(this::refreshCartPrices)
+                .forEach(cartRepository::save);
+    }
+
+    private boolean containsProductId(Cart cart, Long productId) {
+        return cart.getCartItems()
+                .stream()
+                .anyMatch(item -> item.getProduct().getId().equals(productId));
+    }
+
+    private Cart refreshCartPrices(Cart cart) {
+        BigDecimal currentTotalCartPrice = cart.getTotalPrice();
+        cart.getCartItems()
+                .forEach(CartItem::updatePrice);
+        cart.updateTotalCartPrice();
+        log.info("Refreshed cart prices from {} to {} for cart id: {}", currentTotalCartPrice, cart.getTotalPrice(), cart.getId());
+        return cart;
     }
 
     private Cart getUserCart(Principal principal) {

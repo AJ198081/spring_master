@@ -81,4 +81,12 @@ public class TestDataFactory {
                 .toEntity(Product.class);
     }
 
+    public @NonNull ResponseEntity<Void> putAnExistingProduct(Long productId, Product updatedProduct, RestClient postAuthenticatedClient) {
+        return postAuthenticatedClient.put()
+                .uri("/{id}", productId)
+                .body(updatedProduct)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
 }

@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -20,7 +23,10 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @EntityListeners(value = {AuditingEntityListener.class})
+@Audited
+@AuditTable(value = "cart_item_history")
 public class CartItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cart_item_generator")
     @SequenceGenerator(name = "cart_item_generator", sequenceName = "cart_item_sequence")
@@ -31,10 +37,12 @@ public class CartItem {
     @ManyToOne
     @JoinColumn(name = "cart_id", referencedColumnName = "id", nullable = false)
     @JsonIgnore
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Cart cart;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Product product;
 
     private Integer quantity;
@@ -47,6 +55,7 @@ public class CartItem {
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
 
+    @SuppressWarnings("unused")
     public BigDecimal getDiscountedPrice() {
         return product.getPrice().multiply(new BigDecimal(quantity));
     }
@@ -59,6 +68,10 @@ public class CartItem {
 
     public void removeProduct() {
         product.getCartItems().remove(this);
+        product = null;
+        quantity = null;
+        price = null;
+        this.cart = null;
     }
 
     public void updatePrice() {

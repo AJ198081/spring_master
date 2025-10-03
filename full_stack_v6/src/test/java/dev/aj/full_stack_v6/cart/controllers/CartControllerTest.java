@@ -21,12 +21,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
-@TestPropertySource(locations = {"/application-test.properties"})
+@TestPropertySource(locations = {"/application-log.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @Slf4j
@@ -199,10 +200,7 @@ class CartControllerTest {
         @Test
         @Order(1)
         void whenAuthenticatedUser_GetsCart_Successful() {
-            ResponseEntity<Void> getCartResponse = cartClient.get()
-                    .uri("/")
-                    .retrieve()
-                    .toBodilessEntity();
+            ResponseEntity<Cart> getCartResponse = getUserCart();
 
             Assertions.assertThat(getCartResponse)
                     .isNotNull()
@@ -250,6 +248,76 @@ class CartControllerTest {
         }
     }
 
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @Order(3)
+    class DeleteCartTests {
+
+        @Test
+        @Order(1)
+        void whenAuthenticatedUser_DeletesCart_Successful() {
+            Product newlyAddedProduct = addANewProduct();
+
+            addProductToCart(newlyAddedProduct, newlyAddedProduct.getStock());
+            addProductToCart(addANewProduct(), 1);
+
+            ResponseEntity<Void> deleteCartResponse = cartClient.delete()
+                    .uri("/product", uriBuilder -> uriBuilder
+                            .queryParam("productId", newlyAddedProduct.getId())
+                            .build())
+                    .retrieve()
+                    .toBodilessEntity();
+
+            Assertions.assertThat(deleteCartResponse)
+                    .isNotNull()
+                    .satisfies(response -> response.getStatusCode().is2xxSuccessful());
+        }
+    }
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @Order(5)
+    class UpdateCartInResponseToProductPriceUpdate {
+
+        Product newProduct;
+        @BeforeAll
+        void beforeEach() {
+           newProduct = addANewProduct();
+        }
+        @Test
+        @Order(1)
+        void whenAuthenticatedUser_DeletesAllCarts_Successful() {
+            
+            addProductToCart(newProduct, 1);
+            
+            BigDecimal updatedPrice = newProduct.getPrice().subtract(BigDecimal.ONE);
+            newProduct.setPrice(updatedPrice);
+            ResponseEntity<Void> productResponseEntity = testDataFactory.putAnExistingProduct(newProduct.getId(), newProduct, productAuthenticatedClient);
+
+            Assertions.assertThat(productResponseEntity)
+                    .isNotNull()
+                    .satisfies(productResponse -> productResponse.getStatusCode().is2xxSuccessful());
+
+            ResponseEntity<Cart> userCartResponse = getUserCart();
+
+            Assertions.assertThat(userCartResponse)
+                    .isNotNull()
+                    .satisfies(cartResponse -> {
+                        Assertions.assertThat(cartResponse.getStatusCode().is2xxSuccessful());
+                        Assertions.assertThat(cartResponse.getBody())
+                                .isNotNull()
+                                .extracting(Cart::getCartItems)
+                                .isInstanceOf(List.class)
+                                .satisfies(cartItems -> Assertions.assertThat(cartItems)
+                                        .filteredOn(item -> item.getProduct().getId().equals(newProduct.getId()))
+                                        .hasSize(1)
+                                        .first()
+                                        .satisfies(item -> Assertions.assertThat(item.getProduct().getPrice()).isEqualTo(updatedPrice)));
+                    });
+
+        }
+    }
     protected Product addANewProduct() {
         AtomicReference<Product> created = new AtomicReference<>();
         testDataFactory.getStreamOfProducts()
@@ -293,6 +361,13 @@ class CartControllerTest {
                             .queryParam("quantity", updatedQuantity);
                     return uriBuilder.build();
                 })
+                .retrieve()
+                .toEntity(Cart.class);
+    }
+
+    protected @NotNull ResponseEntity<Cart> getUserCart() {
+        return cartClient.get()
+                .uri("/")
                 .retrieve()
                 .toEntity(Cart.class);
     }

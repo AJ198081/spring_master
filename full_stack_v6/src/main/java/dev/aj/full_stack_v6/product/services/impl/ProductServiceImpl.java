@@ -4,12 +4,15 @@ import dev.aj.full_stack_v6.category.CategoryService;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.common.domain.entities.User;
+import dev.aj.full_stack_v6.common.domain.events.ProductPriceUpdatedEvent;
 import dev.aj.full_stack_v6.product.ProductService;
 import dev.aj.full_stack_v6.product.repositories.ProductRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -27,6 +30,7 @@ class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -63,16 +67,20 @@ class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void putProduct(Long id, Product product) {
-        assertProductNameUniqueness(product);
+    public void putProduct(@NonNull Long id, @NonNull Product productToBeUpdated) {
+        if (productRepository.findById(id)
+                .filter(existingProduct -> !existingProduct.getName().equals(productToBeUpdated.getName()))
+                .isPresent()) {
+            assertProductNameUniqueness(productToBeUpdated);
+        }
 
         productRepository.findById(id)
                 .ifPresentOrElse(existing -> {
-                            existing.setCategory(saveOrGetExistingCategory(product.getCategory()));
-                            updateProductIdempotent(product, existing);
+                            existing.setCategory(saveOrGetExistingCategory(productToBeUpdated.getCategory()));
+                            updateProductIdempotent(productToBeUpdated, existing);
                         },
                         () -> {
-                            throw new EntityNotFoundException("Entity ID %d not found, hence no put operation occurred".formatted(product.getId()));
+                            throw new EntityNotFoundException("Entity ID %d not found, hence no put operation occurred".formatted(productToBeUpdated.getId()));
                         });
     }
 
@@ -101,10 +109,17 @@ class ProductServiceImpl implements ProductService {
     private void updateProductIdempotent(Product modifiedProduct, Product existing) {
         if (!existing.getName().equals(modifiedProduct.getName())) {
             existing.setName(modifiedProduct.getName());
-            productRepository.save(existing);
         } else {
             log.info("No changes were made, as the existing entity has the same characteristics as the modified product");
         }
+
+        if(!existing.getPrice().equals(modifiedProduct.getPrice())) {
+            existing.setPrice(modifiedProduct.getPrice());
+            eventPublisher.publishEvent(new ProductPriceUpdatedEvent(existing.getId()));
+        } else {
+            log.info("No changes were made, no change to the price of the modified Product");
+        }
+        productRepository.save(existing);
     }
 
     private void assertProductNameUniqueness(Product product) {

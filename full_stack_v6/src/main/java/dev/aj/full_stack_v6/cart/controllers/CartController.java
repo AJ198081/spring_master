@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -32,7 +33,7 @@ class CartController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<Cart> getCart(Principal principal) {
+    public ResponseEntity<Cart> getUserCart(Principal principal) {
         return ResponseEntity.ok(cartService.getCart(principal));
     }
 
@@ -46,6 +47,12 @@ class CartController {
                                           @RequestParam @Positive Integer quantity,
                                           Principal principal) {
         return ResponseEntity.ok(cartService.putQuantityToCart(productId, quantity, principal));
+    }
+
+    @DeleteMapping("/product")
+    public ResponseEntity<HttpStatus> deleteCart(@RequestParam Long productId, Principal principal) {
+        cartService.deleteProduct(productId, principal);
+        return ResponseEntity.noContent().build();
     }
 
 
