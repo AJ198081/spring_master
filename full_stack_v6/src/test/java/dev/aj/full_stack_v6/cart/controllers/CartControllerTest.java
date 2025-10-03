@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 class CartControllerTest {
 
-    private static final String CART_CONTROLLER_BASE_PATH = "/api/v1/carts";
 
     @LocalServerPort
     private Integer port;
@@ -211,7 +210,7 @@ class CartControllerTest {
         cartClient = userAuthFactory.authenticatedRestClient(
                 "http://localhost:%d%s".formatted(
                         port,
-                        CART_CONTROLLER_BASE_PATH)
+                        environment.getProperty("CART_API_PATH"))
         );
 
         productAuthenticatedClient = userAuthFactory.authenticatedRestClient(

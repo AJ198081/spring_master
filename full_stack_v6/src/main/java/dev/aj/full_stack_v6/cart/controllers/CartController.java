@@ -15,7 +15,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/carts")
+@RequestMapping("${CART_API_PATH}")
 @RequiredArgsConstructor
 class CartController {
 

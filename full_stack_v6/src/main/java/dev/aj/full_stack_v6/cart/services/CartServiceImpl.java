@@ -1,6 +1,5 @@
 package dev.aj.full_stack_v6.cart.services;
 
-import dev.aj.full_stack_v6.cart.CartItemService;
 import dev.aj.full_stack_v6.cart.CartService;
 import dev.aj.full_stack_v6.cart.repositories.CartRepository;
 import dev.aj.full_stack_v6.common.domain.entities.Cart;
@@ -20,7 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CartServiceImpl implements CartService {
+class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
     private final UserService userService;
