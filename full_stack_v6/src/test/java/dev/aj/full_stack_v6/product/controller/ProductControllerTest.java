@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +44,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @Slf4j
 class ProductControllerTest {
 
-    private static final String PRODUCT_CONTROLLER_BASE_PATH = "/api/v1/products";
-
     @LocalServerPort
     private Integer port;
 
@@ -60,6 +59,9 @@ class ProductControllerTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private Environment environment;
+
     private RestClient restClient;
 
     private Set<String> alreadyCommittedProductNames = new HashSet<>();
@@ -73,7 +75,7 @@ class ProductControllerTest {
 
     @BeforeEach
     void setUp() {
-        restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, PRODUCT_CONTROLLER_BASE_PATH));
+        restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, environment.getProperty("PRODUCT_API_PATH")));
         productRepository.deleteAll();
 
         if (authTokenHeader == null) {

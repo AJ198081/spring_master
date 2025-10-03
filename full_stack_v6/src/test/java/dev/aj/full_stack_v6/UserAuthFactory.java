@@ -25,8 +25,6 @@ public class UserAuthFactory {
 
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String ROLE_USER = "ROLE_USER";
-    public static final String AUTH_API_BASE_PATH = "/api/v1/auths";
-    public static final String USERS_API_BASE_PATH = "/api/v1/users";
 
     private final TestConfig testConfig;
     private final TestDataFactory testDataFactory;
@@ -40,11 +38,11 @@ public class UserAuthFactory {
 
     public void setClients(Integer port) {
         if (authClient == null) {
-            authClient = testConfig.restClient("http://localhost:%d%s".formatted(port, AUTH_API_BASE_PATH));
+            authClient = testConfig.restClient("http://localhost:%d%s".formatted(port, environment.getProperty("AUTH_API_PATH")));
         }
 
         if (userClient == null) {
-            userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, USERS_API_BASE_PATH));
+            userClient = testConfig.restClient("http://localhost:%d%s".formatted(port, environment.getProperty("USER_API_PATH")));
         }
     }
 

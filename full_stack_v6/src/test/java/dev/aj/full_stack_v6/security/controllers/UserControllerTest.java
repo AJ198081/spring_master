@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +38,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Slf4j
 class UserControllerTest {
 
-    public static final String USER_CONTROLLER_BASE_PATH = "/api/v1/users";
-
     @LocalServerPort
     private Integer port;
 
@@ -48,12 +47,15 @@ class UserControllerTest {
     @Autowired
     private UserAuthFactory userAuthFactory;
 
+    @Autowired
+    private Environment environment;
+
     private RestClient authenticatedRestClient;
 
     @BeforeAll
     void setUp() {
         userAuthFactory.setClients(port);
-        authenticatedRestClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, USER_CONTROLLER_BASE_PATH));
+        authenticatedRestClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("USER_API_PATH")));
     }
 
     @AfterAll

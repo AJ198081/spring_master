@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,9 +44,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @Slf4j
 class ImageControllerTest {
 
-    private static final String IMAGE_BASE = "/api/v1/images";
-    private static final String PRODUCT_BASE = "/api/v1/products";
-
     @LocalServerPort
     private Integer port;
 
@@ -54,6 +52,9 @@ class ImageControllerTest {
 
     @Autowired
     private UserAuthFactory userAuthFactory;
+
+    @Autowired
+    private Environment environment;
 
     private RestClient imageClient;
     private RestClient productClient;
@@ -66,8 +67,8 @@ class ImageControllerTest {
         if (authTokenHeader == null) {
             authTokenHeader = userAuthFactory.getBearerTokenHeader();
         }
-        imageClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, IMAGE_BASE));
-        productClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, PRODUCT_BASE));
+        imageClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("IMAGE_API_PATH")));
+        productClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("PRODUCT_API_PATH")));
     }
 
     @AfterAll
@@ -91,7 +92,7 @@ class ImageControllerTest {
                         Assertions.assertThat(img.getId()).isNotNull();
                         Assertions.assertThat(img.getFileName()).isEqualTo(randomImageFile.getOriginalFilename());
                         Assertions.assertThat(img.getContentType()).isEqualTo(randomImageFile.getContentType());
-                        Assertions.assertThat(img.getDownloadUrl()).contains("/api/v1/images/".concat(img.getId().toString()));
+                        Assertions.assertThat(img.getDownloadUrl()).contains(environment.getRequiredProperty("IMAGE_API_PATH").concat("/").concat(img.getId().toString()));
                     });
         }
 
@@ -143,7 +144,7 @@ class ImageControllerTest {
                     .isNotNull();
             Assertions.assertThat(Objects.requireNonNull(fetched).getImages()).hasSizeGreaterThanOrEqualTo(3);
             Assertions.assertThat(fetched.getImages())
-                    .allMatch(image -> image.getDownloadUrl().contains("/api/v1/images/".concat(image.getId().toString())));
+                    .allMatch(image -> image.getDownloadUrl().contains(environment.getRequiredProperty("IMAGE_API_PATH").concat("/").concat(image.getId().toString())));
         }
     }
 

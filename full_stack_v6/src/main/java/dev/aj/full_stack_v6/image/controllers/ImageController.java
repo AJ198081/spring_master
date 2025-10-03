@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/v1/images")
+@RequestMapping("${IMAGE_API_PATH}")
 @RequiredArgsConstructor
 class ImageController {
 

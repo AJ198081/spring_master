@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
@@ -41,8 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Slf4j
 class CategoryControllerTest {
 
-    private static final String CATEGORY_CONTROLLER_BASE_PATH = "/api/v1/categories";
-
     @LocalServerPort
     private Integer port;
 
@@ -55,6 +54,9 @@ class CategoryControllerTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private Environment environment;
+
     private RestClient categoryClient;
 
     private Set<String> alreadyCommittedCategoryNames = new HashSet<>();
@@ -62,7 +64,7 @@ class CategoryControllerTest {
     @BeforeAll
     void setUp() {
         userAuthFactory.setClients(port);
-        categoryClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, CATEGORY_CONTROLLER_BASE_PATH));
+        categoryClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("CATEGORY_API_PATH")));
         categoryRepository.deleteAll();
     }
 
