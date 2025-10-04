@@ -5,6 +5,7 @@ import dev.aj.full_stack_v6.TestDataFactory;
 import dev.aj.full_stack_v6.UserAuthFactory;
 import dev.aj.full_stack_v6.common.domain.dtos.PageResponse;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
+import dev.aj.full_stack_v6.common.domain.entities.Seller;
 import dev.aj.full_stack_v6.product.repositories.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -12,7 +13,15 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -62,7 +71,7 @@ class ProductControllerTest {
     @Autowired
     private Environment environment;
 
-    private RestClient restClient;
+    private RestClient productClient;
 
     private final Set<String> alreadyCommittedProductNames = new HashSet<>();
 
@@ -73,20 +82,23 @@ class ProductControllerTest {
     @BeforeAll
     void init() {
         userAuthFactory.setClients(port);
-        restClient = testConfig.restClient("http://localhost:%d%s".formatted(port, environment.getProperty("PRODUCT_API_PATH")));
+        productClient = testConfig.restClient("http://localhost:%d%s".formatted(port, environment.getProperty("PRODUCT_API_PATH")));
 
         if (authTokenHeader == null) {
             authTokenHeader = userAuthFactory.getBearerTokenHeader();
         }
+
+        createSellerProfile();
     }
 
     @AfterAll
     void destroy() {
         userAuthFactory.resetClients();
 
-        if (restClient != null) {
-            restClient = null;
+        if (productClient != null) {
+            productClient = null;
         }
+
         productRepository.findAll()
                 .stream()
                 .filter(product -> product.getName().endsWith(PRODUCT_TEST))
@@ -95,6 +107,7 @@ class ProductControllerTest {
     }
 
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class PostProductTests {
 
         @Test
@@ -193,7 +206,7 @@ class ProductControllerTest {
 
             String searchPrefix = savedProducts.getFirst().getName().substring(0, 1);
 
-            ResponseEntity<PageResponse<Product>> pageResponse = restClient.get()
+            ResponseEntity<PageResponse<Product>> pageResponse = productClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/page")
                             .queryParam("name", searchPrefix)
@@ -221,6 +234,7 @@ class ProductControllerTest {
                     });
 
         }
+
     }
 
     @Nested
@@ -257,6 +271,7 @@ class ProductControllerTest {
             assertDoesNotThrow(() -> deleteProductById(Long.MAX_VALUE))
                     .getStatusCode().is2xxSuccessful();
         }
+
     }
 
     @Nested
@@ -277,7 +292,7 @@ class ProductControllerTest {
             Product patchedProduct = new Product();
             patchedProduct.setName(newProduct.getName() + " Patched");
 
-            ResponseEntity<Void> productPatchResponse = restClient.patch()
+            ResponseEntity<Void> productPatchResponse = productClient.patch()
                     .uri("/{id}", newProduct.getId())
                     .headers(addBearerTokenHeaders())
                     .body(patchedProduct)
@@ -295,7 +310,7 @@ class ProductControllerTest {
             Product patchedProduct = new Product();
             patchedProduct.setName(newProduct.getName() + " Patched");
 
-            assertDoesNotThrow(() -> restClient.patch()
+            assertDoesNotThrow(() -> productClient.patch()
                     .uri("/{id}", newProduct.getId())
                     .headers(addBearerTokenHeaders())
                     .body(patchedProduct)
@@ -303,6 +318,7 @@ class ProductControllerTest {
                     .toBodilessEntity())
                     .getStatusCode().is2xxSuccessful();
         }
+
     }
 
     @Nested
@@ -342,7 +358,7 @@ class ProductControllerTest {
             Long productId = Objects.requireNonNull(createdProductResponse.getBody()).getId();
             newProduct.setName(newProduct.getName() + " Put");
 
-            ResponseEntity<Void> productUpdateResponse = assertDoesNotThrow(() -> restClient.put()
+            ResponseEntity<Void> productUpdateResponse = assertDoesNotThrow(() -> productClient.put()
                     .uri("/{id}", productId)
                     .headers(addBearerTokenHeaders())
                     .body(newProduct)
@@ -352,6 +368,7 @@ class ProductControllerTest {
             productUpdateResponse
                     .getStatusCode().is2xxSuccessful();
         }
+
     }
 
     private @NonNull Product createUniqueProduct() {
@@ -381,7 +398,7 @@ class ProductControllerTest {
     }
 
     private @NonNull ResponseEntity<Product> saveANewRandomProduct(Product newProduct) {
-        return restClient.post()
+        return productClient.post()
                 .uri("/")
                 .headers(addBearerTokenHeaders())
                 .body(newProduct)
@@ -390,7 +407,7 @@ class ProductControllerTest {
     }
 
     private @NotNull ResponseEntity<List<Product>> getAllProducts() {
-        return restClient.get()
+        return productClient.get()
                 .uri("/all")
                 .headers(addBearerTokenHeaders())
                 .retrieve()
@@ -403,7 +420,7 @@ class ProductControllerTest {
     }
 
     private @NotNull ResponseEntity<Product> getProductById(Long productId) {
-        return restClient.get()
+        return productClient.get()
                 .uri("/{id}", productId)
                 .headers(addBearerTokenHeaders())
                 .retrieve()
@@ -411,7 +428,7 @@ class ProductControllerTest {
     }
 
     private @NotNull ResponseEntity<Void> deleteProductById(Long productId) {
-        return restClient.delete()
+        return productClient.delete()
                 .uri("/{id}", productId)
                 .headers(addBearerTokenHeaders())
                 .retrieve()
@@ -419,11 +436,20 @@ class ProductControllerTest {
     }
 
     private @NotNull ResponseEntity<Void> putProductById(Long productId, Product productToBeUpdated) {
-        return restClient.put()
+        return productClient.put()
                 .uri("/{id}", productId)
                 .headers(addBearerTokenHeaders())
                 .body(productToBeUpdated)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    private void createSellerProfile() {
+        ResponseEntity<Seller> sellerResponse = testDataFactory.saveSellerProfile(
+                userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("SELLER_API_PATH")))
+        );
+
+        Seller seller = Objects.requireNonNull(sellerResponse.getBody(), "Seller response body is null");
+        log.info("Seller {} created for id: {}", seller.getFirstName(), seller.getId());
     }
 }

@@ -9,7 +9,16 @@ import dev.aj.full_stack_v6.product.repositories.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -33,6 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 class CartControllerTest {
 
+    public static final String BASE_URL_FORMAT = "http://localhost:%d%s";
     @LocalServerPort
     private Integer port;
 
@@ -48,20 +58,25 @@ class CartControllerTest {
     @Autowired
     private Environment environment;
 
-    private RestClient cartClient;
+    private RestClient authenticatedCartClient;
 
-    private RestClient productAuthenticatedClient;
+    private RestClient authenticatedProductClient;
+
+    private RestClient authenticatedSellerClient;
+
+    private RestClient authenticatedCustomerClient;
 
     @BeforeAll
     void init() {
         userAuthFactory.setClients(port);
-        instantiateClients();
+        instantiateAuthenticatedClients();
+        saveCustomerAndSellerProfilesForLoggedInUser();
     }
 
     @AfterAll
     void destroy() {
         userAuthFactory.resetClients();
-        cartClient = null;
+        resetClientsForThis();
     }
 
     @Nested
@@ -74,7 +89,7 @@ class CartControllerTest {
 
         @BeforeAll
         void beforeEach() {
-            if (newProduct == null && productAuthenticatedClient != null) {
+            if (newProduct == null && authenticatedProductClient != null) {
                 newProduct = addANewProduct();
             }
         }
@@ -144,18 +159,18 @@ class CartControllerTest {
             Assertions.assertThatThrownBy(() -> addProductToCart(newProduct, 1))
                     .isInstanceOf(HttpClientErrorException.Conflict.class);
         }
-    }
 
+
+    }
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     class PutCartTests {
-
         private Product newProduct;
 
         @BeforeAll
         void beforeEach() {
-            if (newProduct == null && productAuthenticatedClient != null) {
+            if (newProduct == null && authenticatedProductClient != null) {
                 newProduct = addANewProduct();
             }
         }
@@ -189,14 +204,14 @@ class CartControllerTest {
                     });
         }
 
-    }
 
+
+    }
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(2)
     class GetCartTests {
-
         @Test
         @Order(1)
         void whenAuthenticatedUser_GetsCart_Successful() {
@@ -212,10 +227,11 @@ class CartControllerTest {
         void whenAuthenticatedAdminUser_GetsAllCarts_Successful() {
 
             String _ = userAuthFactory.loginAndReturnAdminJwt();
-            instantiateClients();
+            instantiateAuthenticatedClients();
+            saveCustomerAndSellerProfilesForLoggedInUser();
             addANewProduct();
 
-            ResponseEntity<List<Cart>> getAllCartsResponse = cartClient.get()
+            ResponseEntity<List<Cart>> getAllCartsResponse = authenticatedCartClient.get()
                     .uri("/all")
                     .retrieve()
                     .toEntity(new ParameterizedTypeReference<>() {
@@ -236,24 +252,25 @@ class CartControllerTest {
         void whenAuthenticatedNonAdminUser_GetsAllCarts_ThenThrows() {
 
             String _ = userAuthFactory.loginAndReturnNonAdminJwt();
-            instantiateClients();
+            instantiateAuthenticatedClients();
+            saveCustomerAndSellerProfilesForLoggedInUser();
             addANewProduct();
 
-            Assertions.assertThatThrownBy(() -> cartClient.get()
+            Assertions.assertThatThrownBy(() -> authenticatedCartClient.get()
                             .uri("/all")
                             .retrieve()
                             .toEntity(new ParameterizedTypeReference<>() {
                             }))
                     .isInstanceOf(HttpClientErrorException.Forbidden.class);
         }
-    }
 
+
+    }
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(3)
     class DeleteCartTests {
-
         @Test
         @Order(1)
         void whenAuthenticatedUser_DeletesCart_Successful() {
@@ -262,7 +279,7 @@ class CartControllerTest {
             addProductToCart(newlyAddedProduct, newlyAddedProduct.getStock());
             addProductToCart(addANewProduct(), 1);
 
-            ResponseEntity<Void> deleteCartResponse = cartClient.delete()
+            ResponseEntity<Void> deleteCartResponse = authenticatedCartClient.delete()
                     .uri("/product", uriBuilder -> uriBuilder
                             .queryParam("productId", newlyAddedProduct.getId())
                             .build())
@@ -273,27 +290,30 @@ class CartControllerTest {
                     .isNotNull()
                     .satisfies(response -> response.getStatusCode().is2xxSuccessful());
         }
+
+
     }
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Order(5)
     class UpdateCartInResponseToProductPriceUpdate {
-
         Product newProduct;
+
         @BeforeAll
         void beforeEach() {
-           newProduct = addANewProduct();
+            newProduct = addANewProduct();
         }
+
         @Test
         @Order(1)
         void whenAuthenticatedUser_DeletesAllCarts_Successful() {
-            
+
             addProductToCart(newProduct, 1);
-            
+
             BigDecimal updatedPrice = newProduct.getPrice().subtract(BigDecimal.ONE);
             newProduct.setPrice(updatedPrice);
-            ResponseEntity<Void> productResponseEntity = testDataFactory.putAnExistingProduct(newProduct.getId(), newProduct, productAuthenticatedClient);
+            ResponseEntity<Void> productResponseEntity = testDataFactory.putAnExistingProduct(newProduct.getId(), newProduct, authenticatedProductClient);
 
             Assertions.assertThat(productResponseEntity)
                     .isNotNull()
@@ -317,33 +337,48 @@ class CartControllerTest {
                     });
 
         }
+
+
     }
     protected Product addANewProduct() {
         AtomicReference<Product> created = new AtomicReference<>();
         testDataFactory.getStreamOfProducts()
                 .findFirst()
                 .ifPresent(product -> created.set(testDataFactory
-                        .saveANewRandomProduct(product, productAuthenticatedClient)
+                        .saveANewRandomProduct(product, authenticatedProductClient)
                         .getBody()));
         return created.get();
     }
+    protected void instantiateAuthenticatedClients() {
+        resetClientsForThis();
 
-    protected void instantiateClients() {
-        cartClient = userAuthFactory.authenticatedRestClient(
-                "http://localhost:%d%s".formatted(
+        authenticatedCartClient = userAuthFactory.authenticatedRestClient(
+                BASE_URL_FORMAT.formatted(
                         port,
                         environment.getProperty("CART_API_PATH"))
         );
 
-        productAuthenticatedClient = userAuthFactory.authenticatedRestClient(
-                "http://localhost:%d%s".formatted(
+        authenticatedProductClient = userAuthFactory.authenticatedRestClient(
+                BASE_URL_FORMAT.formatted(
                         port,
                         environment.getProperty("PRODUCT_API_PATH"))
+        );
+
+        authenticatedCustomerClient = userAuthFactory.authenticatedRestClient(
+                BASE_URL_FORMAT.formatted(
+                        port,
+                        environment.getProperty("CUSTOMER_API_PATH"))
+        );
+
+        authenticatedSellerClient = userAuthFactory.authenticatedRestClient(
+                BASE_URL_FORMAT.formatted(
+                        port,
+                        environment.getProperty("SELLER_API_PATH"))
         );
     }
 
     protected @NotNull ResponseEntity<Void> addProductToCart(Product product, int quantityToOrder) {
-        return cartClient.post()
+        return authenticatedCartClient.post()
                 .uri("/", uriBuilder -> {
                             uriBuilder.queryParam("productId", product.getId())
                                     .queryParam("quantity", quantityToOrder);
@@ -355,7 +390,7 @@ class CartControllerTest {
     }
 
     protected @NotNull ResponseEntity<Cart> putProductToCart(Long productId, int updatedQuantity) {
-        return cartClient.put()
+        return authenticatedCartClient.put()
                 .uri("/", uriBuilder -> {
                     uriBuilder.queryParam("productId", productId)
                             .queryParam("quantity", updatedQuantity);
@@ -366,9 +401,21 @@ class CartControllerTest {
     }
 
     protected @NotNull ResponseEntity<Cart> getUserCart() {
-        return cartClient.get()
+        return authenticatedCartClient.get()
                 .uri("/")
                 .retrieve()
                 .toEntity(Cart.class);
+    }
+
+    private void resetClientsForThis() {
+        authenticatedCartClient = null;
+        authenticatedProductClient = null;
+        authenticatedSellerClient = null;
+        authenticatedCustomerClient = null;
+    }
+
+    private void saveCustomerAndSellerProfilesForLoggedInUser() {
+        testDataFactory.saveSellerProfile(authenticatedSellerClient);
+        testDataFactory.saveCustomerProfile(authenticatedCustomerClient);
     }
 }

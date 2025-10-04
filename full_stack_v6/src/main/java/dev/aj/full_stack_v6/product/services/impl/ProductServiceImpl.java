@@ -1,8 +1,10 @@
 package dev.aj.full_stack_v6.product.services.impl;
 
 import dev.aj.full_stack_v6.category.CategoryService;
+import dev.aj.full_stack_v6.clients.SellerService;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
+import dev.aj.full_stack_v6.common.domain.entities.Seller;
 import dev.aj.full_stack_v6.common.domain.entities.User;
 import dev.aj.full_stack_v6.common.domain.events.ProductPriceUpdatedEvent;
 import dev.aj.full_stack_v6.product.ProductService;
@@ -31,15 +33,20 @@ class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final ApplicationEventPublisher eventPublisher;
+    private final SellerService sellerService;
 
     @Override
     @Transactional
     public Product saveProduct(Product product) {
-        log.info("Received request to save product: {}", product.getName());
+        log.info("Received request to save the product: {}", product.getName());
         assertProductNameUniqueness(product);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        product.setUser(user);
+
+        Seller userSeller = sellerService.getSellerByUsername(user.getUsername())
+                .orElseThrow(() -> new IllegalStateException("No Seller Profile found for the authenticated user"));
+        product.setSeller(userSeller);
+
         product.setCategory(saveOrGetExistingCategory(product.getCategory()));
         Product savedProduct = productRepository.save(product);
         log.info("Product: {} saved successfully with Product Id: {}", savedProduct.getName(), savedProduct.getId());

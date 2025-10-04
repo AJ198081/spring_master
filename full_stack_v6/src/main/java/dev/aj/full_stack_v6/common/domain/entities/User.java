@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
@@ -77,11 +76,6 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
-
-    @JsonIgnore
-    @Builder.Default
-    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<Product> products = new HashSet<>();
 
     public void addRole(Role role) {
         this.roles.add(role);

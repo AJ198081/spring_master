@@ -9,8 +9,8 @@ import java.util.Optional;
 @org.springframework.stereotype.Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-    @Query("select c from Cart c where c.user.id = ?1")
-    Optional<Cart> findByUserId(Long id);
+    @Query("select c from Cart c where c.customer.id = ?1")
+    Optional<Cart> findByCustomerId(Long id);
 
 
 }

@@ -1,12 +1,14 @@
-package dev.aj.full_stack_v6.customer.controllers;
+package dev.aj.full_stack_v6.clients.controllers;
 
 import dev.aj.full_stack_v6.TestConfig;
 import dev.aj.full_stack_v6.TestDataFactory;
 import dev.aj.full_stack_v6.UserAuthFactory;
+import dev.aj.full_stack_v6.common.domain.entities.Seller;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +16,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestClient;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
@@ -24,8 +29,7 @@ import org.springframework.web.client.RestClient;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @Slf4j
-class CustomerControllerTest {
-
+class SellerControllerTest {
     @LocalServerPort
     private Integer port;
 
@@ -38,18 +42,39 @@ class CustomerControllerTest {
     @Autowired
     private Environment environment;
 
-    private RestClient customerAuthenticatedClient;
+    private RestClient sellerClient;
 
-        @BeforeAll
+    @BeforeAll
     void init() {
         userAuthFactory.setClients(port);
-        customerAuthenticatedClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("CUSTOMER_API_PATH")));
+        sellerClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("SELLER_API_PATH")));
     }
 
     @AfterAll
     void destroy() {
         userAuthFactory.resetClients();
-        customerAuthenticatedClient = null;
+        sellerClient = null;
     }
 
+    @Test
+    void whenCreateSellerWithAddresses_thenReturnsSeller() {
+
+        ResponseEntity<Seller> sellerResponseEntity = testDataFactory.saveSellerProfile(sellerClient);
+
+        assertThat(sellerResponseEntity)
+                .isNotNull()
+                .satisfies(response -> {
+                    assertThat(response.getStatusCode())
+                            .isEqualTo(HttpStatus.OK);
+
+                    assertThat(response.getBody())
+                            .isNotNull();
+
+                    assertThat(response.getBody().getId())
+                            .isNotNull();
+
+                    assertThat(response.getBody().getAddresses())
+                            .hasSizeGreaterThanOrEqualTo(1);
+                });
+    }
 }

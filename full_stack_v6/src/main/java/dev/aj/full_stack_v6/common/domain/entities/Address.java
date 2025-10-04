@@ -7,15 +7,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 @Table(name = "address")
+@EntityListeners(AuditingEntityListener.class)
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +29,7 @@ public class Address {
     @JdbcTypeCode(SqlTypes.BIGINT)
     private Long id;
 
-    @NotBlank
-    @Column(columnDefinition = "address_type VARCHAR(20)")
+    @Column(columnDefinition = "VARCHAR(20)")
     @Enumerated(EnumType.STRING)
     private AddressType addressType;
 
@@ -42,14 +47,23 @@ public class Address {
 
     @NotBlank
     @Size(min = 2, message = "Country name must be at least 2-characters")
-    private String country;
+    @Builder.Default
+    private String country = "Australia";
 
     @NotBlank
     @Size(min = 4, message = "PIN must be at least 4-characters")
     private String pinCode;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    @JoinColumn(name = "person_id")
     @JsonIgnore
-    private Customer customer;
+    private Person person;
+
+    @Version
+    @JdbcTypeCode(SqlTypes.INTEGER)
+    private Integer version;
+
+    @Embedded
+    @Builder.Default
+    private AuditMetaData auditMetaData = new AuditMetaData();
 }

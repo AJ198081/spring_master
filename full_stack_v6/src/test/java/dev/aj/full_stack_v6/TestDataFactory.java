@@ -5,6 +5,7 @@ import dev.aj.full_stack_v6.common.domain.entities.Address;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
 import dev.aj.full_stack_v6.common.domain.entities.Customer;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
+import dev.aj.full_stack_v6.common.domain.entities.Seller;
 import dev.aj.full_stack_v6.common.domain.enums.AddressType;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
@@ -109,7 +110,42 @@ public class TestDataFactory {
                 .city(faker.address().city())
                 .state(faker.address().state())
                 .pinCode(faker.address().zipCode())
+                .country(faker.address().country())
                 .build());
     }
 
+    public Stream<Seller> generateStreamOfSellerRequests() {
+
+        List<Address> primaryAddress = generateStreamOfAddressRequests()
+                .limit(1)
+                .peek(address -> address.setAddressType(AddressType.POSTAL))
+                .findFirst()
+                .stream()
+                .toList();
+
+        return Stream.generate(() -> Seller.builder()
+                .firstName(faker.name().firstName())
+                .lastName(faker.name().lastName())
+                .phone(faker.phoneNumber().phoneNumber())
+                .addresses(primaryAddress)
+                .build());
+    }
+
+    public @NonNull ResponseEntity<Seller> saveSellerProfile(RestClient authenticatedSellerClient) {
+
+        return authenticatedSellerClient.post()
+                .uri("/")
+                .body(generateStreamOfSellerRequests().limit(1).findFirst().orElseThrow())
+                .retrieve()
+                .toEntity(Seller.class);
+    }
+
+    public void saveCustomerProfile(RestClient authenticatedCustomerClient) {
+
+        authenticatedCustomerClient.post()
+                .uri("/")
+                .body(generateStreamOfCustomerRequests().limit(1).findFirst().orElseThrow())
+                .retrieve()
+                .toEntity(Customer.class);
+    }
 }

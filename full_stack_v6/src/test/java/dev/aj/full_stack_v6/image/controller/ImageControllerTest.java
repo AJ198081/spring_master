@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @Slf4j
 class ImageControllerTest {
 
+    public static final String BASE_URL_FORMAT = "http://localhost:%d%s";
     @LocalServerPort
     private Integer port;
 
@@ -67,8 +68,10 @@ class ImageControllerTest {
         if (authTokenHeader == null) {
             authTokenHeader = userAuthFactory.getBearerTokenHeader();
         }
-        imageClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("IMAGE_API_PATH")));
-        productClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("PRODUCT_API_PATH")));
+        imageClient = userAuthFactory.authenticatedRestClient(BASE_URL_FORMAT.formatted(port, environment.getProperty("IMAGE_API_PATH")));
+        productClient = userAuthFactory.authenticatedRestClient(BASE_URL_FORMAT.formatted(port, environment.getProperty("PRODUCT_API_PATH")));
+
+        testDataFactory.saveSellerProfile(userAuthFactory.authenticatedRestClient(BASE_URL_FORMAT.formatted(port, environment.getProperty("SELLER_API_PATH"))));
     }
 
     @AfterAll

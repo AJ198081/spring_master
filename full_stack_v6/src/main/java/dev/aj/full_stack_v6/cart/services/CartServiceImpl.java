@@ -4,11 +4,11 @@ import dev.aj.full_stack_v6.cart.CartService;
 import dev.aj.full_stack_v6.cart.repositories.CartRepository;
 import dev.aj.full_stack_v6.common.domain.entities.Cart;
 import dev.aj.full_stack_v6.common.domain.entities.CartItem;
+import dev.aj.full_stack_v6.common.domain.entities.Customer;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
-import dev.aj.full_stack_v6.common.domain.entities.User;
 import dev.aj.full_stack_v6.common.domain.events.ProductPriceUpdatedEvent;
+import dev.aj.full_stack_v6.clients.CustomerService;
 import dev.aj.full_stack_v6.product.ProductService;
-import dev.aj.full_stack_v6.security.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,8 @@ import java.util.Objects;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
-    private final UserService userService;
     private final ProductService productService;
+    private final CustomerService customerService;
 
     @Override
     public void addProductToCart(Long productId, Integer quantity, Principal principal) {
@@ -134,11 +134,10 @@ public class CartServiceImpl implements CartService {
     }
 
     private Cart getUserCart(Principal principal) {
-        User user = userService.loadUser(principal.getName());
-
-        return cartRepository.findByUserId(user.getId())
+        Customer customer = customerService.getCustomerByUserName(principal.getName());
+        return cartRepository.findByCustomerId(customer.getId())
                 .orElseGet(() -> Cart.builder()
-                        .user(user)
+                        .customer(customer)
                         .build());
     }
 }

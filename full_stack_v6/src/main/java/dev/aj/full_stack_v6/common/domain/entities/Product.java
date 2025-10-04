@@ -41,7 +41,8 @@ public class Product {
 
     @Column(nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private BigDecimal price;
+    @Builder.Default
+    private BigDecimal price = BigDecimal.ZERO;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal discountedPrice;
@@ -63,7 +64,8 @@ public class Product {
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "seller_id", referencedColumnName = "id",  nullable = false, updatable = false)
-    private User user;
+    @JsonIgnore
+    private Seller seller;
 
     @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
