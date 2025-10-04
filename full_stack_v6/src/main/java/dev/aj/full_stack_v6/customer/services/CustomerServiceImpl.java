@@ -12,5 +12,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
+    private final AddressService addressService;
+
 
 }

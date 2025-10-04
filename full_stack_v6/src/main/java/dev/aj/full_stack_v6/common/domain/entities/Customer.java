@@ -1,13 +1,23 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.NaturalId;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -30,10 +40,6 @@ public class Customer {
 
     private String firstName;
     private String lastName;
-
-    @NaturalId
-    @Column(unique = true, nullable = false, columnDefinition = "varchar(100)")
-    private String email;
 
     @Column(columnDefinition = "varchar(30)")
     private String phone;

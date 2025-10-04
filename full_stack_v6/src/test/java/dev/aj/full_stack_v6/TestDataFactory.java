@@ -1,8 +1,11 @@
 package dev.aj.full_stack_v6;
 
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
+import dev.aj.full_stack_v6.common.domain.entities.Address;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
+import dev.aj.full_stack_v6.common.domain.entities.Customer;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
+import dev.aj.full_stack_v6.common.domain.enums.AddressType;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.jspecify.annotations.NonNull;
@@ -87,6 +90,26 @@ public class TestDataFactory {
                 .body(updatedProduct)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    public Stream<Customer> generateStreamOfCustomerRequests() {
+
+        return Stream.generate(() -> Customer.builder()
+                .firstName(faker.name().firstName())
+                .lastName(faker.name().lastName())
+                .phone(faker.phoneNumber().phoneNumber())
+                .build());
+    }
+
+    public Stream<Address> generateStreamOfAddressRequests() {
+
+        return Stream.generate(() -> Address.builder()
+                .addressType(AddressType.values()[faker.random().nextInt(AddressType.values().length)])
+                .street(faker.address().streetAddress())
+                .city(faker.address().city())
+                .state(faker.address().state())
+                .pinCode(faker.address().zipCode())
+                .build());
     }
 
 }
