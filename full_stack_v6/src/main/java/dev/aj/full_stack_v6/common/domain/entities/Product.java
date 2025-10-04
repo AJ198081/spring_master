@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,8 +40,10 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal price;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal discountedPrice;
 
     private Integer stock;
@@ -74,8 +77,4 @@ public class Product {
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
 
-    public void addUser(User user) {
-        this.user = user;
-        user.getProducts().add(this);
-    }
 }

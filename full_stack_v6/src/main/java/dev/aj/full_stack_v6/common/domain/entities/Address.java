@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v6.common.domain.enums.AddressType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -48,6 +49,7 @@ public class Address {
     private String pinCode;
 
     @ManyToOne
-    private User user;
-
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    @JsonIgnore
+    private Customer customer;
 }
