@@ -5,7 +5,6 @@ import dev.aj.full_stack_v6.common.domain.entities.Address;
 import dev.aj.full_stack_v6.common.domain.entities.Seller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,15 +43,13 @@ public class SellerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<HttpStatus> putSeller(@PathVariable("id") Long id, @RequestBody Seller Seller, Principal principal) {
-        sellerService.putSeller(id, Seller, principal);
-        return ResponseEntity.accepted().build();
+    public ResponseEntity<Seller> putSeller(@PathVariable("id") Long id, @RequestBody Seller Seller, Principal principal) {
+        return ResponseEntity.ok(sellerService.putSeller(id, Seller, principal));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<HttpStatus> patchSeller(@PathVariable("id") Long id, @RequestBody Seller Seller, Principal principal) {
-        sellerService.patchSeller(id, Seller, principal);
-        return ResponseEntity.accepted().build();
+    public ResponseEntity<Seller> patchSeller(@PathVariable("id") Long id, @RequestBody Seller Seller, Principal principal) {
+        return ResponseEntity.ok(sellerService.patchSeller(id, Seller, principal));
     }
 
     @PostMapping("/{id}/addresses")

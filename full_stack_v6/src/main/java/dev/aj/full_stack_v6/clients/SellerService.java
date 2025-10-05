@@ -17,9 +17,9 @@ public interface SellerService {
 
      Seller getSellerById(Long id, Principal principal);
 
-     void putSeller(Long id, Seller seller, Principal principal);
+     Seller putSeller(Long id, Seller seller, Principal principal);
 
-     void patchSeller(Long id, Seller seller, Principal principal);
+     Seller patchSeller(Long id, Seller seller, Principal principal);
 
      Seller addAddresses(Long id, List<Address> addresses, Principal principal);
 

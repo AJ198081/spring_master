@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,4 +25,15 @@ public class Seller extends Person {
     @Builder.Default
     @OneToMany(mappedBy = "seller", orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Product> products = new HashSet<>();
+
+    public Seller deepClone(){
+        return Seller.builder()
+                .id(this.getId())
+                .firstName(this.getFirstName())
+                .lastName(this.getLastName())
+                .phone(this.getPhone())
+                .addresses(new ArrayList<>(this.getAddresses()))
+                .user(this.getUser())
+                .build();
+    }
 }
