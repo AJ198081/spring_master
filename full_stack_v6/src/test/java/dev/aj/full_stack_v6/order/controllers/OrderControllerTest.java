@@ -69,7 +69,7 @@ class OrderControllerTest {
         userAuthFactory.setClients(port);
         userAuthFactory.loginAndReturnNonAdminJwt();
         this.instantiateAuthenticatedClientsForThisUser();
-        testDataFactory.saveCustomerProfile(authenticatedCustomerClient);
+        testDataFactory.saveCustomerWithShippingAndResidentialAddress(authenticatedCustomerClient);
         testDataFactory.saveSellerProfile(authenticatedSellerClient);
     }
 

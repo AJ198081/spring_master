@@ -471,7 +471,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-33" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_CARTITEM_ON_PRODUCT"/>
             </not>
@@ -482,7 +482,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-34" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_CART_ITEM_HISTORY_ON_REV"/>
             </not>
@@ -493,7 +493,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-35" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_CART_ON_CUSTOMER"/>
             </not>
@@ -503,7 +503,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-36" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_CUSTOMER_ON_CART"/>
             </not>
@@ -513,7 +513,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-37" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_CUSTOMER_ON_USER"/>
             </not>
@@ -523,7 +523,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-38" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_IMAGE_ON_PRODUCT"/>
             </not>
@@ -533,7 +533,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-39" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_PRODUCT_ON_CATEGORY"/>
             </not>
@@ -544,7 +544,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-40" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_PRODUCT_ON_SELLER"/>
             </not>
@@ -555,7 +555,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-41" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="FK_SELLER_ON_USER"/>
             </not>
@@ -565,7 +565,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-42" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="fk_user_role_on_role"/>
             </not>
@@ -576,7 +576,7 @@
     </changeSet>
 
     <changeSet id="1759600649199-43" author="AJ">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="fk_user_role_on_user"/>
             </not>

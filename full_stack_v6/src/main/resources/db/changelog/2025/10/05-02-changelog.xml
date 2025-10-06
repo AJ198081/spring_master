@@ -7,19 +7,22 @@
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
     <changeSet id="1759610826203-1" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="address" columnName="created_by"/>
+                <columnExists tableName="address" columnName="created_date"/>
+                <columnExists tableName="address" columnName="last_modified_by"/>
+                <columnExists tableName="address" columnName="last_modified_date"/>
+                <columnExists tableName="address" columnName="version"/>
+            </not>
+        </preConditions>
+
         <addColumn tableName="address">
-            <column name="created_by" type="VARCHAR(255)"/>
-            <column name="created_date" type="timestamp"/>
+            <column name="created_by" type="VARCHAR(255) notnull"/>
+            <column name="created_date" type="timestamptz notnull"/>
             <column name="last_modified_by" type="VARCHAR(255)"/>
-            <column name="last_modified_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamptz"/>
             <column name="version" type="INT"/>
         </addColumn>
     </changeSet>
-    <changeSet id="1759610826203-2" author="AJ">
-        <addNotNullConstraint columnName="created_by" tableName="address"/>
-    </changeSet>
-    <changeSet id="1759610826203-4" author="AJ">
-        <addNotNullConstraint columnName="created_date" tableName="address"/>
-    </changeSet>
-
 </databaseChangeLog>

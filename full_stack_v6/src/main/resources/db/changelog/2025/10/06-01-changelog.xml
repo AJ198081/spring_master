@@ -7,18 +7,38 @@
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
     <changeSet id="1759711627183-1" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="order_item_seq"/>
+            </not>
+        </preConditions>
         <createSequence incrementBy="50" sequenceName="order_item_seq" startValue="1"/>
     </changeSet>
 
     <changeSet id="1759711627183-2" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="order_sequence"/>
+            </not>
+        </preConditions>
         <createSequence incrementBy="50" sequenceName="order_sequence" startValue="1"/>
     </changeSet>
 
     <changeSet id="1759711627183-3" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="payment_seq"/>
+            </not>
+        </preConditions>
         <createSequence incrementBy="50" sequenceName="payment_seq" startValue="1"/>
     </changeSet>
 
     <changeSet id="1759711627183-4" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="event_publication_archive" columnName="completion_date"/>
+            </not>
+        </preConditions>
         <createTable tableName="event_publication_archive">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_event_publication_archive"/>
@@ -28,6 +48,11 @@
     </changeSet>
 
     <changeSet id="1759711627183-5" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="order_item"/>
+            </not>
+        </preConditions>
         <createTable tableName="order_item">
             <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_orderitem"/>
@@ -49,6 +74,11 @@
     </changeSet>
 
     <changeSet id="1759711627183-6" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="orders"/>
+            </not>
+        </preConditions>
         <createTable tableName="orders">
             <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_orders"/>
@@ -76,6 +106,11 @@
     </changeSet>
 
     <changeSet id="1759711627183-7" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="payment" />
+            </not>
+        </preConditions>
         <createTable tableName="payment">
             <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_payment"/>
@@ -110,38 +145,73 @@
     </changeSet>
 
     <changeSet id="1759711627183-8" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <uniqueConstraintExists constraintName="uc_orderitem_product" tableName="order_item"/>
+            </not>
+        </preConditions>
         <addUniqueConstraint columnNames="product_id" constraintName="uc_orderitem_product" tableName="order_item"/>
     </changeSet>
 
     <changeSet id="1759711627183-9" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <uniqueConstraintExists constraintName="uc_orders_payment" tableName="orders"/>
+            </not>
+        </preConditions>
         <addUniqueConstraint columnNames="payment_id" constraintName="uc_orders_payment" tableName="orders"/>
     </changeSet>
 
     <changeSet id="1759711627183-10" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_ORDERITEM_ON_ORDER"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="order_item"
                                  constraintName="FK_ORDERITEM_ON_ORDER" referencedColumnNames="id"
                                  referencedTableName="orders"/>
     </changeSet>
 
     <changeSet id="1759711627183-11" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_ORDERITEM_ON_PRODUCT"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="order_item"
                                  constraintName="FK_ORDERITEM_ON_PRODUCT" referencedColumnNames="id"
                                  referencedTableName="product"/>
     </changeSet>
 
     <changeSet id="1759711627183-12" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_ORDERS_ON_CUSTOMER"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="orders"
                                  constraintName="FK_ORDERS_ON_CUSTOMER" referencedColumnNames="id"
                                  referencedTableName="customer"/>
     </changeSet>
 
     <changeSet id="1759711627183-13" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_ORDERS_ON_PAYMENT"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="payment_id" baseTableName="orders"
                                  constraintName="FK_ORDERS_ON_PAYMENT" referencedColumnNames="id"
                                  referencedTableName="payment"/>
     </changeSet>
 
     <changeSet id="1759711627183-14" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_PAYMENT_ON_CUSTOMER"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="payment"
                                  constraintName="FK_PAYMENT_ON_CUSTOMER" referencedColumnNames="id"
                                  referencedTableName="customer"/>

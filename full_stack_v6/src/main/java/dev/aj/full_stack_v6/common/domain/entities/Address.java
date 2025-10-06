@@ -2,7 +2,19 @@ package dev.aj.full_stack_v6.common.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.aj.full_stack_v6.common.domain.enums.AddressType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -66,4 +78,15 @@ public class Address {
     @Embedded
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "street='" + street + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", pinCode='" + pinCode + '\'' +
+                ", country='" + country + '\'' +
+                '}';
+    }
 }

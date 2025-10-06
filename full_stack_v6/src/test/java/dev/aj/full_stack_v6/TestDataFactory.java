@@ -106,6 +106,23 @@ public class TestDataFactory {
                 .build());
     }
 
+    public Stream<Customer> generateStreamOfCustomerRequestsWithShippingAddress() {
+
+        List<Address> addresses = generateStreamOfAddressRequests()
+                .limit(2)
+                .toList();
+
+        addresses.getFirst().setAddressType(AddressType.SHIPPING);
+        addresses.getLast().setAddressType(AddressType.RESIDENTIAL);
+
+        return Stream.generate(() -> Customer.builder()
+                .firstName(faker.name().firstName())
+                .lastName(faker.name().lastName())
+                .phone(faker.phoneNumber().phoneNumber())
+                .addresses(addresses)
+                .build());
+    }
+
     public Stream<Address> generateStreamOfAddressRequests() {
 
         return Stream.generate(() -> Address.builder()
@@ -163,6 +180,14 @@ public class TestDataFactory {
                 .toEntity(Customer.class);
     }
 
+    public void saveCustomerWithShippingAndResidentialAddress(RestClient authenticatedCustomerClient) {
+        authenticatedCustomerClient.post()
+                .uri("/")
+                .body(generateStreamOfCustomerRequestsWithShippingAddress().findFirst().orElseThrow())
+                .retrieve()
+                .toBodilessEntity();
+    }
+
     public void addProductToUserCart(Long productId, int quantityToOrder, RestClient authenticatedCartClient) {
         authenticatedCartClient.post()
                 .uri("/", uriBuilder -> {
@@ -195,5 +220,4 @@ public class TestDataFactory {
                         .get(HttpHeaders.LOCATION))
                 .getFirst();
     }
-
 }
