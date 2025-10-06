@@ -7,4 +7,5 @@
     <include file="db/changelog/2025/10/05-00-events-publication-schema-creation.xml"/>
     <include file="db/changelog/2025/10/05-01-changelog.xml"/>
     <include file="db/changelog/2025/10/05-02-changelog.xml"/>
+    <include file="db/changelog/2025/10/06-01-changelog.xml"/>
 </databaseChangeLog>

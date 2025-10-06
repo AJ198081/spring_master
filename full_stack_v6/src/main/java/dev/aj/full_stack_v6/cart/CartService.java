@@ -21,4 +21,5 @@ public interface CartService {
     @SuppressWarnings({"unused"})
     @EventListener
     void updateCartsContainingProduct(ProductPriceUpdatedEvent productUpdatedEvent);
+
 }

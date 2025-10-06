@@ -79,4 +79,8 @@ public class Product {
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
 
+    @OneToOne(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.MERGE)
+    @JsonIgnore
+    private OrderItem orderItem;
+
 }

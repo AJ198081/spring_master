@@ -4,6 +4,7 @@ import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import dev.aj.full_stack_v6.common.domain.entities.Address;
 import dev.aj.full_stack_v6.common.domain.entities.Category;
 import dev.aj.full_stack_v6.common.domain.entities.Customer;
+import dev.aj.full_stack_v6.common.domain.entities.PaymentDetails;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.common.domain.entities.Seller;
 import dev.aj.full_stack_v6.common.domain.enums.AddressType;
@@ -128,6 +129,16 @@ public class TestDataFactory {
                 .lastName(faker.name().lastName())
                 .phone(faker.phoneNumber().phoneNumber())
                 .addresses(primaryAddress)
+                .build());
+    }
+
+    public Stream<PaymentDetails> generateStreamOfPaymentDetailsRequests() {
+        return Stream.generate(() -> PaymentDetails.builder()
+                .cardHolderName(faker.name().fullName())
+                .cardType(faker.business().creditCardType())
+                .cardNumber(faker.business().creditCardNumber())
+                .expiryDate(faker.business().creditCardExpiry())
+                .cvv(faker.business().securityCode())
                 .build());
     }
 

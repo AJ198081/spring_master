@@ -1,0 +1,50 @@
+package dev.aj.full_stack_v6.payment.services.impl;
+
+import dev.aj.full_stack_v6.clients.CustomerService;
+import dev.aj.full_stack_v6.common.domain.entities.Payment;
+import dev.aj.full_stack_v6.common.domain.entities.PaymentDetails;
+import dev.aj.full_stack_v6.common.domain.enums.PaymentStatus;
+import dev.aj.full_stack_v6.common.domain.enums.PaymentType;
+import dev.aj.full_stack_v6.payment.PaymentService;
+import dev.aj.full_stack_v6.payment.repositories.PaymentRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.stereotype.Service;
+
+import java.security.Principal;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class PaymentServiceImpl implements PaymentService {
+
+    private final PaymentRepository paymentRepository;
+    private final CustomerService customerService;
+
+    @Override
+    public String processCardPayment(PaymentDetails paymentDetails, Principal principal) {
+
+        Payment payment = Payment.builder()
+                .paymentType(PaymentType.CREDIT_CARD)
+                .paymentDetails(paymentDetails)
+                .paymentStatus(PaymentStatus.PENDING)
+                .build();
+
+        payment.assignCustomer(customerService.getCustomerByUserName(principal.getName()));
+
+        return paymentRepository.save(payment).getPaymentIdentifier().toString();
+    }
+
+    @Override
+    @PostAuthorize("hasRole('ADMIN') or returnObject.customer.user.username == authentication.name")
+    public Payment getPaymentByPaymentId(UUID paymentId, Principal principal) {
+
+        log.info("{} is requesting to retrieve the payment with id {}", principal.getName(), paymentId);
+
+        return paymentRepository.findPaymentByPaymentIdentifier(paymentId)
+                .orElseThrow(() -> new EntityNotFoundException("Payment id: %s not found".formatted(paymentId)));
+    }
+}

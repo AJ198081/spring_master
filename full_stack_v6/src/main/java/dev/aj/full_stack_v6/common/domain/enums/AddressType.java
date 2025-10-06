@@ -4,5 +4,6 @@ public enum AddressType {
     BILLING,
     RESIDENTIAL,
     POSTAL,
-    OFFICE
+    OFFICE,
+    SHIPPING
 }
