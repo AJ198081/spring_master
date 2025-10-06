@@ -1,12 +1,10 @@
 package dev.aj.full_stack_v6;
 
-
 import dev.aj.full_stack_v6.common.domain.dtos.LoginRequest;
 import dev.aj.full_stack_v6.common.domain.dtos.LoginResponse;
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -58,6 +56,7 @@ public class UserAuthFactory {
                 .build();
     }
 
+    @SuppressWarnings("unused")
     public RestClient newAuthenticateAdminRestClient(String baseUrl) {
         return RestClient.builder()
                 .baseUrl(baseUrl)
@@ -65,6 +64,7 @@ public class UserAuthFactory {
                 .build();
     }
 
+    @SuppressWarnings("unused")
     public RestClient newAuthenticatedNonAdminRestClient(String baseUrl) {
         return RestClient.builder()
                 .baseUrl(baseUrl)
@@ -72,7 +72,7 @@ public class UserAuthFactory {
                 .build();
     }
 
-    public @NotNull UserCreateRequest getAUniqueUserCreateRequest() {
+    public @NonNull UserCreateRequest getAUniqueUserCreateRequest() {
 
         UserCreateRequest newUser;
 
@@ -116,6 +116,7 @@ public class UserAuthFactory {
         return currentUserCreateRequest;
     }
 
+    @SuppressWarnings("unused")
     public UserCreateRequest addAUniqueAdminUser() {
         deleteCurrentUser();
         currentUserCreateRequest = testDataFactory.getStreamOfUserRequests()
@@ -179,8 +180,7 @@ public class UserAuthFactory {
         return currentUserCreateRequest.username();
     }
 
-
-    private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
+    private @NonNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
 
         return userClient.post()
                 .uri("/")
@@ -218,7 +218,6 @@ public class UserAuthFactory {
         loginAndRefreshCurrentJwt(loginRequest);
     }
 
-
     private void addANewUniqueUser(String role) {
         deleteCurrentUser();
 
@@ -254,7 +253,7 @@ public class UserAuthFactory {
         try {
             ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
             if (!response.getStatusCode().is2xxSuccessful()) {
-               return loginAndReturnAdminJwt();
+                return loginAndReturnAdminJwt();
             }
         } catch (HttpClientErrorException.Conflict e) {
             log.warn("Admin user already existed: {}", currentUserCreateRequest.username());
@@ -291,10 +290,10 @@ public class UserAuthFactory {
                 .findFirst()
                 .orElseThrow();
 
-         try {
+        try {
             ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
             if (!response.getStatusCode().is2xxSuccessful()) {
-               return loginAndReturnNonAdminJwt();
+                return loginAndReturnNonAdminJwt();
             }
         } catch (HttpClientErrorException.Conflict e) {
             log.warn("Non-Admin user already existed: {}", currentUserCreateRequest.username());

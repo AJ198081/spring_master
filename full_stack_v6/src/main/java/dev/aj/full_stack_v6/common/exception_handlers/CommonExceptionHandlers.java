@@ -143,6 +143,17 @@ public class CommonExceptionHandlers {
                 .body(forbiddenProblemDetail);
     }
 
+    @ExceptionHandler(value = {IllegalStateException.class})
+    public ResponseEntity<ProblemDetail> handleIllegalStateException(IllegalStateException ex) {
+
+        HttpStatus conflict = HttpStatus.CONFLICT;
+        ProblemDetail illegalStateProblem = ProblemDetail.forStatus(conflict);
+        illegalStateProblem.setProperty("message", ex.getMessage());
+
+        return ResponseEntity
+                .status(conflict)
+                .body(illegalStateProblem);
+    }
 
     // catch all, needed because I can't use spring's problem.details.enabled property
     @ExceptionHandler(value = {Exception.class})

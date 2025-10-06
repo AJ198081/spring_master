@@ -42,9 +42,14 @@ public class OrderServiceImpl implements OrderService {
 
         Payment paymentForThisOrder = paymentService.getPaymentByPaymentId(paymentIdentifier, principal);
 
-        if (paymentForThisOrder.getOrder() != null || !paymentForThisOrder.getCustomer().equals(currentCustomer)) {
-            throw new IllegalStateException("Payment for this order does not exist or is not for this customer");
+        if (paymentForThisOrder.getOrder() != null) {
+            throw new IllegalStateException("%s have already been used for order id: %s".formatted(paymentForThisOrder, paymentForThisOrder.getOrder().getOrderId()));
         }
+
+        if (!paymentForThisOrder.getCustomer().equals(currentCustomer)) {
+            throw new IllegalStateException("%s do not belong to this customer".formatted(paymentIdentifier));
+        }
+
 
         Order newOrder = Order.builder()
                 .build();

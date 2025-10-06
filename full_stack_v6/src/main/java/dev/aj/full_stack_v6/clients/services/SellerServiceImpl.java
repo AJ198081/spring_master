@@ -24,8 +24,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class SellerServiceImpl implements SellerService {
-    private final SellerRepository sellerRepository;
 
+    private final SellerRepository sellerRepository;
 
     @Override
     public Seller createSeller(Seller seller, Principal principal) {

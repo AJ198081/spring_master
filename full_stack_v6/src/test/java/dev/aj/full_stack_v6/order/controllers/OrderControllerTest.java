@@ -11,6 +11,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
@@ -65,12 +67,11 @@ class OrderControllerTest {
 
     @BeforeAll
     void init() {
-        this.resetClientsForThisUser();
         userAuthFactory.setClients(port);
         userAuthFactory.loginAndReturnNonAdminJwt();
         this.instantiateAuthenticatedClientsForThisUser();
-        testDataFactory.saveCustomerWithShippingAndResidentialAddress(authenticatedCustomerClient);
         testDataFactory.saveSellerProfile(authenticatedSellerClient);
+        testDataFactory.saveCustomerWithShippingAndResidentialAddress(authenticatedCustomerClient);
     }
 
     @AfterAll
@@ -82,33 +83,46 @@ class OrderControllerTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    @TestMethodOrder(org.junit.jupiter.api.MethodOrderer.OrderAnnotation.class)
+    @TestMethodOrder(OrderAnnotation.class)
     class PostOrderTests {
+
+        private Product savedProduct;
+        private String paymentUUID;
 
         @Test
         @org.junit.jupiter.api.Order(1)
         void whenValidOrder_WithValidPayment_thenCreatesOrder() {
 
-            ResponseEntity<Void> paymentSubmissionResponse = testDataFactory.submitPaymentRequest(testDataFactory.generateARandomPaymentRequest(), authenticatedPaymentClient);
+            ResponseEntity<Void> paymentSubmissionResponse = testDataFactory.submitPaymentRequest(
+                    testDataFactory.generateARandomPaymentRequest(),
+                    authenticatedPaymentClient
+            );
 
-            String paymentUUID = testDataFactory.getLocationHeader(paymentSubmissionResponse)
+            paymentUUID = testDataFactory.getLocationHeader(paymentSubmissionResponse)
                     .replace("/", "");
 
             Product newProduct = testDataFactory.getStreamOfProducts()
                     .findFirst()
                     .orElseThrow();
 
-            Product savedProduct = testDataFactory.saveANewProduct(newProduct, authenticatedProductClient)
+            savedProduct = testDataFactory.saveANewProduct(newProduct, authenticatedProductClient)
                     .getBody();
 
             Assertions.assertThat(savedProduct).isNotNull();
 
-            testDataFactory.addProductToUserCart(savedProduct.getId(), savedProduct.getStock(), authenticatedCartClient);
+            int quantityToOrder = savedProduct.getStock() - 1;
+
+            testDataFactory.addProductToUserCart(
+                    savedProduct.getId(),
+                    quantityToOrder,
+                    authenticatedCartClient
+            );
 
             ResponseEntity<Void> orderIdentifier = authenticatedOrderClient.post()
                     .uri("/", uriBuilder -> uriBuilder
                             .queryParam("paymentIdentifier", paymentUUID)
-                            .build())
+                            .build()
+                    )
                     .retrieve()
                     .toBodilessEntity();
 
@@ -148,7 +162,7 @@ class OrderControllerTest {
                                             Assertions.assertThat(order)
                                                     .extracting(Order::getTotalPrice)
                                                     .isEqualTo(newProduct.getPrice()
-                                                            .multiply(BigDecimal.valueOf(newProduct.getStock()))
+                                                            .multiply(BigDecimal.valueOf(quantityToOrder))
                                                             .add(order.getShippingPrice()));
                                         }
                                 );
@@ -159,6 +173,22 @@ class OrderControllerTest {
         @org.junit.jupiter.api.Order(2)
         void whenValidOrder_WithInvalidPayment_thenThrows() {
 
+            testDataFactory.addProductToUserCart(
+                    savedProduct.getId(),
+                    1,
+                    authenticatedCartClient
+            );
+
+            Assertions.assertThatThrownBy(
+                            () -> authenticatedOrderClient.post()
+                                    .uri("/", uriBuilder -> uriBuilder
+                                            .queryParam("paymentIdentifier", paymentUUID)
+                                            .build()
+                                    )
+                                    .retrieve()
+                                    .toBodilessEntity()
+                    )
+                    .isInstanceOf(HttpClientErrorException.Conflict.class);
 
         }
     }
