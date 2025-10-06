@@ -9,8 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,9 +37,10 @@ public class OrderItem {
     @JdbcTypeCode(SqlTypes.BIGINT)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
+
     private Integer quantity;
 
     private BigDecimal orderItemTotalPrice;
@@ -49,6 +50,8 @@ public class OrderItem {
     @JsonIgnore
     private Order order;
 
+    @Version
+    @JdbcTypeCode(SqlTypes.INTEGER)
     private Integer version;
 
     @Builder.Default
@@ -57,5 +60,10 @@ public class OrderItem {
     @SuppressWarnings("unused")
     public void updatePrice() {
         this.orderItemTotalPrice = product.getPrice().multiply(new BigDecimal(quantity));
+    }
+
+    public void assignProduct(Product product) {
+        this.product = product;
+        product.getOrderItems().add(this);
     }
 }

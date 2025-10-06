@@ -28,8 +28,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import java.util.Objects;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -81,7 +79,10 @@ class PaymentControllerTest {
         @Test
         void processCardPayment() {
 
-            ResponseEntity<Void> paymentResponse = submitPaymentRequest(generateARandomPaymentRequest());
+            ResponseEntity<Void> paymentResponse = testDataFactory.submitPaymentRequest(
+                    testDataFactory.generateARandomPaymentRequest(),
+                    authenticatedPaymentClient
+            );
 
             Assertions.assertThat(paymentResponse)
                     .isNotNull()
@@ -114,8 +115,8 @@ class PaymentControllerTest {
         @Order(1)
         void nonAdmin_getOwnPaymentById_Successful() {
 
-            PaymentDetails paymentRequest = generateARandomPaymentRequest();
-            paymentUri = getPaymentUri(submitPaymentRequest(paymentRequest));
+            PaymentDetails paymentRequest = testDataFactory.generateARandomPaymentRequest();
+            paymentUri = testDataFactory.getLocationHeader(testDataFactory.submitPaymentRequest(paymentRequest, authenticatedPaymentClient));
 
             ResponseEntity<Payment> paymentResponse = getPaymentRequestByURI(paymentUri);
 
@@ -140,8 +141,8 @@ class PaymentControllerTest {
             instantiateAuthenticatedClientsForThisUser();
             testDataFactory.saveCustomerProfile(authenticatedCustomerClient);
 
-            PaymentDetails paymentRequest = generateARandomPaymentRequest();
-            newPaymentUri = getPaymentUri(submitPaymentRequest(paymentRequest));
+            PaymentDetails paymentRequest = testDataFactory.generateARandomPaymentRequest();
+            newPaymentUri = testDataFactory.getLocationHeader(testDataFactory.submitPaymentRequest(paymentRequest, authenticatedPaymentClient));
 
             assertDoesNotThrow(() -> getPaymentRequestByURI(newPaymentUri));
 
@@ -162,23 +163,9 @@ class PaymentControllerTest {
 
     protected void instantiateAuthenticatedClientsForThisUser() {
         authenticatedPaymentClient = null;
+        authenticatedCustomerClient = null;
         authenticatedPaymentClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("PAYMENT_API_PATH")));
         authenticatedCustomerClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("CUSTOMER_API_PATH")));
-    }
-
-    private @NotNull ResponseEntity<Void> submitPaymentRequest(PaymentDetails paymentRequest) {
-        return authenticatedPaymentClient.post()
-                .uri("/card")
-                .body(paymentRequest)
-                .retrieve()
-                .toBodilessEntity();
-    }
-
-    private String getPaymentUri(ResponseEntity<Void> paymentResponse) {
-        return Objects.requireNonNull(paymentResponse
-                        .getHeaders()
-                        .get(HttpHeaders.LOCATION))
-                .getFirst();
     }
 
     private @NotNull ResponseEntity<Payment> getPaymentRequestByURI(String paymentUri) {
@@ -186,11 +173,5 @@ class PaymentControllerTest {
                 .uri(paymentUri)
                 .retrieve()
                 .toEntity(Payment.class);
-    }
-
-    private @NotNull PaymentDetails generateARandomPaymentRequest() {
-        return testDataFactory.generateStreamOfPaymentDetailsRequests()
-                .findFirst()
-                .orElseThrow();
     }
 }

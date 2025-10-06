@@ -66,6 +66,10 @@ class CustomerControllerTest {
 
     @Test
     void whenCreateCustomerWithAddresses_thenReturnsCustomer() {
+
+        userAuthFactory.deleteCurrentUser();
+        instantiateAuthenticatedClientsForThisUser();
+
         Customer newCustomer = testDataFactory.generateStreamOfCustomerRequests().findFirst().orElseThrow();
         List<Address> newAddresses = testDataFactory.generateStreamOfAddressRequests().limit(1)
                 .toList();

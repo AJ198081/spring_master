@@ -104,7 +104,7 @@ class CartControllerTest {
 
             int quantityToOrder = newProduct.getStock() / 2;
 
-            ResponseEntity<Void> addToCartResponse = addProductToCart(newProduct, quantityToOrder);
+            ResponseEntity<Void> addToCartResponse = addProductToCart(newProduct.getId(), quantityToOrder);
 
             Assertions.assertThat(addToCartResponse)
                     .isNotNull()
@@ -119,10 +119,10 @@ class CartControllerTest {
             Assertions.assertThat(newProduct)
                     .isNotNull();
 
-            Assertions.assertThatThrownBy(() -> addProductToCart(newProduct, 0))
+            Assertions.assertThatThrownBy(() -> addProductToCart(newProduct.getId(), 0))
                     .isInstanceOf(HttpClientErrorException.BadRequest.class);
 
-            Assertions.assertThatThrownBy(() -> addProductToCart(newProduct, -1))
+            Assertions.assertThatThrownBy(() -> addProductToCart(newProduct.getId(), -1))
                     .isInstanceOf(HttpClientErrorException.BadRequest.class);
         }
 
@@ -134,7 +134,7 @@ class CartControllerTest {
                     .isNotNull()
                     .satisfies(p -> Assertions.assertThat(p.getStock()).isGreaterThan(0));
 
-            ResponseEntity<Void> addToCartResponse = addProductToCart(newProduct, newProduct.getStock());
+            ResponseEntity<Void> addToCartResponse = addProductToCart(newProduct.getId(), newProduct.getStock());
 
             Assertions.assertThat(addToCartResponse)
                     .isNotNull()
@@ -156,7 +156,7 @@ class CartControllerTest {
             Assertions.assertThat(newProduct);
             Assertions.assertThat(newProduct.getStock()).isEqualTo(0);
 
-            Assertions.assertThatThrownBy(() -> addProductToCart(newProduct, 1))
+            Assertions.assertThatThrownBy(() -> addProductToCart(newProduct.getId(), 1))
                     .isInstanceOf(HttpClientErrorException.Conflict.class);
         }
 
@@ -276,8 +276,8 @@ class CartControllerTest {
         void whenAuthenticatedUser_DeletesCart_Successful() {
             Product newlyAddedProduct = addANewProduct();
 
-            addProductToCart(newlyAddedProduct, newlyAddedProduct.getStock());
-            addProductToCart(addANewProduct(), 1);
+            addProductToCart(newlyAddedProduct.getId(), newlyAddedProduct.getStock());
+            addProductToCart(addANewProduct().getId(), 1);
 
             ResponseEntity<Void> deleteCartResponse = authenticatedCartClient.delete()
                     .uri("/product", uriBuilder -> uriBuilder
@@ -309,7 +309,7 @@ class CartControllerTest {
         @Order(1)
         void whenAuthenticatedUser_DeletesAllCarts_Successful() {
 
-            addProductToCart(newProduct, 1);
+            addProductToCart(newProduct.getId(), 1);
 
             BigDecimal updatedPrice = newProduct.getPrice().subtract(BigDecimal.ONE);
             newProduct.setPrice(updatedPrice);
@@ -345,7 +345,7 @@ class CartControllerTest {
         testDataFactory.getStreamOfProducts()
                 .findFirst()
                 .ifPresent(product -> created.set(testDataFactory
-                        .saveANewRandomProduct(product, authenticatedProductClient)
+                        .saveANewProduct(product, authenticatedProductClient)
                         .getBody()));
         return created.get();
     }
@@ -377,10 +377,10 @@ class CartControllerTest {
         );
     }
 
-    protected @NotNull ResponseEntity<Void> addProductToCart(Product product, int quantityToOrder) {
+    protected @NotNull ResponseEntity<Void> addProductToCart(Long productId, int quantityToOrder) {
         return authenticatedCartClient.post()
                 .uri("/", uriBuilder -> {
-                            uriBuilder.queryParam("productId", product.getId())
+                            uriBuilder.queryParam("productId", productId)
                                     .queryParam("quantity", quantityToOrder);
                             return uriBuilder.build();
                         }

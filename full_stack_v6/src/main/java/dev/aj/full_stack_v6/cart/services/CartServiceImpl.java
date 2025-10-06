@@ -118,6 +118,12 @@ public class CartServiceImpl implements CartService {
                 .forEach(cartRepository::save);
     }
 
+    @Override
+    public void clearCart(Cart cart) {
+        cart.emptyCart();
+        cartRepository.save(cart);
+    }
+
     private boolean containsProductId(Cart cart, Long productId) {
         return cart.getCartItems()
                 .stream()

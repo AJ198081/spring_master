@@ -94,9 +94,14 @@ public class Cart {
 
         if (cartItemOptional.isPresent()) {
             CartItem cartItemToBeRemoved = cartItemOptional.get();
-            cartItemToBeRemoved.removeProduct();
+            cartItemToBeRemoved.removeCartItem();
             this.getCartItems().remove(cartItemToBeRemoved);
             updateTotalCartPrice();
         }
+    }
+
+    public void emptyCart() {
+        this.cartItems.forEach(CartItem::removeCartItem);
+        this.cartItems.clear();
     }
 }

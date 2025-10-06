@@ -22,4 +22,5 @@ public interface CartService {
     @EventListener
     void updateCartsContainingProduct(ProductPriceUpdatedEvent productUpdatedEvent);
 
+    void clearCart(Cart cart);
 }

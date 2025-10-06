@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6.common.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -35,6 +36,7 @@ public class Customer extends Person {
 
     @OneToMany(mappedBy = "customer")
     @Builder.Default
+    @JsonIgnore
     private List<Payment> payments = new ArrayList<>();
 
     public void addPayment(Payment newPayment) {

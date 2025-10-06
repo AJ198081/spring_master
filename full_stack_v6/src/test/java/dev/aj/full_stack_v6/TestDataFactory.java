@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @TestConfiguration(proxyBeanMethods = false)
@@ -44,8 +46,9 @@ public class TestDataFactory {
                 .price(productPrice)
                 .description(faker.lorem().sentence())
                 .stock(faker.random().nextInt(2, 100))
-                .discountedPrice(productPrice.multiply(BigDecimal.valueOf(faker.random().nextDouble(0.5, 0.9))))
-                .build());
+                .discountedPrice(productPrice.multiply(BigDecimal.ONE))
+                .build()
+        );
     }
 
     public MockMultipartFile getRandomImageFile() {
@@ -78,8 +81,8 @@ public class TestDataFactory {
         );
     }
 
-    public @NonNull ResponseEntity<Product> saveANewRandomProduct(Product newProduct, RestClient postAuthenticatedClient) {
-        return postAuthenticatedClient.post()
+    public @NonNull ResponseEntity<Product> saveANewProduct(Product newProduct, RestClient authenticatedProductClient) {
+        return authenticatedProductClient.post()
                 .uri("/")
                 .body(newProduct)
                 .retrieve()
@@ -159,4 +162,38 @@ public class TestDataFactory {
                 .retrieve()
                 .toEntity(Customer.class);
     }
+
+    public void addProductToUserCart(Long productId, int quantityToOrder, RestClient authenticatedCartClient) {
+        authenticatedCartClient.post()
+                .uri("/", uriBuilder -> {
+                    uriBuilder.queryParam("productId", productId)
+                            .queryParam("quantity", quantityToOrder);
+                    return uriBuilder.build();
+                })
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+
+    public @NonNull PaymentDetails generateARandomPaymentRequest() {
+        return this.generateStreamOfPaymentDetailsRequests()
+                .findFirst()
+                .orElseThrow();
+    }
+
+    public @NonNull ResponseEntity<Void> submitPaymentRequest(PaymentDetails paymentRequest, RestClient authenticatedPaymentClient) {
+        return authenticatedPaymentClient.post()
+                .uri("/card")
+                .body(paymentRequest)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public @NonNull String getLocationHeader(ResponseEntity<Void> paymentResponse) {
+        return Objects.requireNonNull(paymentResponse
+                        .getHeaders()
+                        .get(HttpHeaders.LOCATION))
+                .getFirst();
+    }
+
 }

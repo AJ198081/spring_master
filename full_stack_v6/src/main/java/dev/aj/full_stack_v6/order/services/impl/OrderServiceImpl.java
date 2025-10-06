@@ -8,13 +8,17 @@ import dev.aj.full_stack_v6.common.domain.entities.OrderItem;
 import dev.aj.full_stack_v6.common.domain.entities.Payment;
 import dev.aj.full_stack_v6.order.OrderService;
 import dev.aj.full_stack_v6.order.repositories.OrderRepository;
+import dev.aj.full_stack_v6.payment.PaymentService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,34 +26,56 @@ import java.security.Principal;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CartService cartService;
+    private final PaymentService paymentService;
 
     @Override
     @Transactional
-    public String placeOrder(Principal principal) {
+    public String placeOrder(UUID paymentIdentifier, Principal principal) {
 
         Cart customerCart = cartService.getCart(principal);
 
+        Payment paymentForThisOrder = paymentService.getPaymentByPaymentId(paymentIdentifier, principal);
+
+        if (paymentForThisOrder.getOrder() != null || !paymentForThisOrder.getCustomer().equals(customerCart.getCustomer())) {
+            throw new IllegalStateException("Payment for this order does not exist or is not for this customer");
+        }
+
         Order newOrder = Order.builder()
-                .customer(customerCart.getCustomer())
-                .payment(Payment.builder()
-                        .build())
-                .orderItems(customerCart.getCartItems()
-                        .stream()
-                        .map(this::prepareOrderItemFromCartItem)
-                        .toList())
                 .build();
 
-        return orderRepository.save(newOrder).getOrderId().toString();
+        newOrder.assignPayment(paymentForThisOrder, customerCart.getTotalPrice());
+        newOrder.setOrderItems(customerCart.getCartItems()
+                        .stream()
+                        .map(this::prepareOrderItemFromCartItem)
+                        .toList());
+        newOrder.assignOrderToCustomer(customerCart.getCustomer());
+
+        String orderId = orderRepository.save(newOrder).getOrderId().toString();
+
+        cartService.clearCart(customerCart);
+
+        return orderId;
+    }
+
+    @Override
+    @PostAuthorize("hasRole('ADMIN') or returnObject.customer.user.username == authentication.name")
+    public Order getOrderById(UUID orderId, Principal principal) {
+
+        return orderRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order ID %s does not exist".formatted(orderId)));
     }
 
     private OrderItem prepareOrderItemFromCartItem(CartItem cartItem) {
 
-        return OrderItem.builder()
-                .product(cartItem.getProduct())
+        OrderItem orderItem = OrderItem.builder()
                 .quantity(cartItem.getQuantity())
                 .orderItemTotalPrice(cartItem.getPrice()
                         .multiply(BigDecimal.valueOf(cartItem.getQuantity())))
                 .build();
+
+        orderItem.assignProduct(cartItem.getProduct());
+
+        return orderItem;
     }
 
 

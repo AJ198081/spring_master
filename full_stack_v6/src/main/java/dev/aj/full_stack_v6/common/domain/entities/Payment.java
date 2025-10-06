@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -56,18 +58,23 @@ public class Payment {
     @Embedded
     private PaymentDetails paymentDetails;
 
+    private BigDecimal amount;
+
     private String paymentGatewayName;
     private String paymentGatewayStatus;
     private String paymentGatewayMessage;
     private String paymentGatewayErrorDescription;
 
     @OneToOne(mappedBy = "payment", optional = false)
+    @JsonIgnore
     private Order order;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    @JsonIgnore
     private Customer customer;
 
+    @Version
     private Integer version;
 
     @Builder.Default

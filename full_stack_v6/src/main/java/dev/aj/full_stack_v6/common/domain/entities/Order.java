@@ -89,4 +89,19 @@ public class Order {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .add(shippingPrice);
     }
+
+    public void assignPayment(Payment payment, BigDecimal orderPrice) {
+        BigDecimal totalPrice = orderPrice.add(this.shippingPrice);
+
+        payment.setAmount(totalPrice);
+        payment.setOrder(this);
+
+        this.payment = payment;
+        this.totalPrice = totalPrice;
+    }
+
+    public void assignOrderToCustomer(Customer customer) {
+        this.customer = customer;
+        customer.getOrders().add(this);
+    }
 }
