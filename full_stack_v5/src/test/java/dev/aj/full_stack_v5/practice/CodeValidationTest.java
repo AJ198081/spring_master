@@ -13,7 +13,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestClient;
 
 @SpringBootTest
-@TestPropertySource(locations = {"/junit-platform.properties"})
+@TestPropertySource(locations = {
+        "/junit-platform.properties",
+        "classpath:application-test.properties"
+})
 @Execution(ExecutionMode.CONCURRENT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CodeValidationTest {

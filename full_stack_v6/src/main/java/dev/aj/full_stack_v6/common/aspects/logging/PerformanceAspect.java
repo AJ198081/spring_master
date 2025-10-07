@@ -86,6 +86,4 @@ public class PerformanceAspect {
             log.info("Method [{}] :- {}.", methodName, summaryStatistics);
         }
     }
-
-
 }

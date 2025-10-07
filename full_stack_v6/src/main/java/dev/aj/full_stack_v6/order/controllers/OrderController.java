@@ -24,7 +24,6 @@ public class OrderController {
 
     private final OrderService orderService;
 
-
     @PostMapping("/")
     @MeasurePerformance
     public ResponseEntity<HttpStatus> createOrder(@RequestParam("paymentIdentifier") UUID paymentIdentifier, Principal principal) {
@@ -37,6 +36,4 @@ public class OrderController {
     public ResponseEntity<Order> getOrderById(@PathVariable("orderId") UUID orderId, Principal principal) {
         return ResponseEntity.ok(orderService.getOrderById(orderId, principal));
     }
-
-
 }

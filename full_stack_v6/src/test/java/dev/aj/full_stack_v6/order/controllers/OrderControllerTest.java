@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -37,7 +39,9 @@ import static org.springframework.http.HttpStatus.OK;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
-@TestPropertySource(locations = {"/application-performance.properties"})
+@TestPropertySource(locations = {
+        "/application-performance.properties",
+})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @Slf4j
@@ -86,10 +90,9 @@ class OrderControllerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(OrderAnnotation.class)
+    @Execution(ExecutionMode.CONCURRENT)
     class PostOrderTests {
 
-        private Product savedProduct;
-        private String paymentUUID;
 
         @RepeatedTest(value = 20, name = "{displayName} {currentRepetition}/{totalRepetitions}")
         @org.junit.jupiter.api.Order(1)
@@ -101,14 +104,14 @@ class OrderControllerTest {
                     authenticatedPaymentClient
             );
 
-            paymentUUID = testDataFactory.getLocationHeader(paymentSubmissionResponse)
+            String paymentUUID = testDataFactory.getLocationHeader(paymentSubmissionResponse)
                     .replace("/", "");
 
             Product newProduct = testDataFactory.getStreamOfProducts()
                     .findFirst()
                     .orElseThrow();
 
-            savedProduct = testDataFactory.saveANewProduct(newProduct, authenticatedProductClient)
+            Product savedProduct = testDataFactory.saveANewProduct(newProduct, authenticatedProductClient)
                     .getBody();
 
             Assertions.assertThat(savedProduct).isNotNull();
@@ -176,11 +179,36 @@ class OrderControllerTest {
         @org.junit.jupiter.api.Order(2)
         void whenValidOrder_WithInvalidPayment_thenThrows() {
 
+            Product savedProduct = testDataFactory.saveANewProduct(
+                            testDataFactory.getStreamOfProducts()
+                                    .findFirst()
+                                    .orElseThrow(),
+                            authenticatedProductClient)
+                    .getBody();
+
+            org.junit.jupiter.api.Assertions.assertNotNull(savedProduct);
+
             testDataFactory.addProductToUserCart(
                     savedProduct.getId(),
                     1,
                     authenticatedCartClient
             );
+
+            ResponseEntity<Void> paymentSubmissionResponse = testDataFactory.submitPaymentRequest(
+                    testDataFactory.generateARandomPaymentRequest(),
+                    authenticatedPaymentClient
+            );
+
+            String paymentUUID = testDataFactory.getLocationHeader(paymentSubmissionResponse)
+                    .replace("/", "");
+
+            org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> authenticatedOrderClient.post()
+                    .uri("/", uriBuilder -> uriBuilder
+                            .queryParam("paymentIdentifier", paymentUUID)
+                            .build()
+                    )
+                    .retrieve()
+                    .toBodilessEntity());
 
             Assertions.assertThatThrownBy(
                             () -> authenticatedOrderClient.post()

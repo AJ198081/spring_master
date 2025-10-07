@@ -9,9 +9,12 @@ import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.common.domain.entities.Seller;
 import dev.aj.full_stack_v6.common.domain.enums.AddressType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +22,14 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 @TestConfiguration(proxyBeanMethods = false)
 @RequiredArgsConstructor
+@Slf4j
 public class TestDataFactory {
 
     private final Faker faker;
@@ -36,12 +41,14 @@ public class TestDataFactory {
                 .build());
     }
 
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Stream<Product> getStreamOfProducts() {
 
         BigDecimal productPrice = BigDecimal.valueOf(faker.random().nextDouble(50, 500));
 
         return Stream.generate(() -> Product.builder()
-                .name(faker.commerce().productName())
+                .name(faker.commerce().productName()
+                        .concat(Instant.now().toEpochMilli() + "-product"))
                 .category(getStreamOfCategories().findFirst().orElseThrow())
                 .price(productPrice)
                 .description(faker.lorem().sentence())
@@ -81,6 +88,7 @@ public class TestDataFactory {
         );
     }
 
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public @NonNull ResponseEntity<Product> saveANewProduct(Product newProduct, RestClient authenticatedProductClient) {
         return authenticatedProductClient.post()
                 .uri("/")
@@ -188,6 +196,7 @@ public class TestDataFactory {
                 .toBodilessEntity();
     }
 
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public void addProductToUserCart(Long productId, int quantityToOrder, RestClient authenticatedCartClient) {
         authenticatedCartClient.post()
                 .uri("/", uriBuilder -> {
@@ -206,6 +215,7 @@ public class TestDataFactory {
                 .orElseThrow();
     }
 
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public @NonNull ResponseEntity<Void> submitPaymentRequest(PaymentDetails paymentRequest, RestClient authenticatedPaymentClient) {
         return authenticatedPaymentClient.post()
                 .uri("/card")
