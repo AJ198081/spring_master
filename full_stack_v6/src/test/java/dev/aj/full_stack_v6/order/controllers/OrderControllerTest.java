@@ -11,8 +11,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.ClassOrderer;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestInstance;
@@ -35,7 +37,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
-@TestPropertySource(locations = {"/application-log.properties"})
+@TestPropertySource(locations = {"/application-performance.properties"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @Slf4j
@@ -89,8 +91,9 @@ class OrderControllerTest {
         private Product savedProduct;
         private String paymentUUID;
 
-        @Test
+        @RepeatedTest(value = 20, name = "{displayName} {currentRepetition}/{totalRepetitions}")
         @org.junit.jupiter.api.Order(1)
+        @DisplayName("Test create order")
         void whenValidOrder_WithValidPayment_thenCreatesOrder() {
 
             ResponseEntity<Void> paymentSubmissionResponse = testDataFactory.submitPaymentRequest(
