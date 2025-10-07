@@ -41,7 +41,13 @@ class JwtUtils implements dev.aj.full_stack_v6.security.utils.JwtUtils {
         if (bearerToken != null) {
             String authTokenPrefix = environment.getProperty("authorization.token.header.value.prefix", "Bearer ");
             if (bearerToken.startsWith(authTokenPrefix)) {
-                return bearerToken.substring(authTokenPrefix.length());
+                int authTokenPrefixLength = authTokenPrefix.length();
+
+                int prefixLength = authTokenPrefix.endsWith(" ")
+                        ? authTokenPrefixLength
+                        : authTokenPrefixLength + 1;
+
+                return bearerToken.substring(prefixLength);
             }
         }
         return null;
