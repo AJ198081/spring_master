@@ -18,11 +18,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public interface UserMapper {
 
     @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "products", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "addresses", ignore = true)
     User userCreateRequestToUser(UserCreateRequest userCreateRequest);
 
+    @SuppressWarnings("unused")
     @Mapping(target = "role", source = "user", qualifiedByName = "userRoleToString")
     UserCreateRequest userToUserCreateRequest(User user);
 

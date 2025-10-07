@@ -25,6 +25,8 @@ public class SecurityFilterChainConfig {
 
         return http.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
+                                .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
                                 .requestMatchers("/api/v1/auths/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/v1/users/").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/users/usernameTaken/*").permitAll()

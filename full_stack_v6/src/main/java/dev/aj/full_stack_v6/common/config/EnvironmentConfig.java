@@ -25,7 +25,7 @@ public class EnvironmentConfig {
 
 //      Load environment variables into System properties, thus making all environment variables accessible via System.getProperty(...) or environment.getProperty(...)
         return Dotenv.configure()
-                .directory("./")
+                .directory(directoryPath)
                 .filename(".env")
                 .systemProperties()
                 .load();
