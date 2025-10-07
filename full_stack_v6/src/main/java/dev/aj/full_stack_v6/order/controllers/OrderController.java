@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6.order.controllers;
 
+import dev.aj.full_stack_v6.common.aspects.logging.LogExecutionTiming;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.order.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class OrderController {
 
 
     @PostMapping("/")
+    @LogExecutionTiming
     public ResponseEntity<HttpStatus> createOrder(@RequestParam("paymentIdentifier") UUID paymentIdentifier, Principal principal) {
         return ResponseEntity
                 .created(URI.create("/".concat(orderService.placeOrder(paymentIdentifier, principal))))
