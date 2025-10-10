@@ -2,6 +2,7 @@ package dev.aj.full_stack_v6.security.controllers;
 
 import dev.aj.full_stack_v6.common.domain.dtos.UserCreateRequest;
 import dev.aj.full_stack_v6.security.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ class UserController {
     private final UserService userService;
 
     @PostMapping("/")
+    @Operation(tags = {"AuthN"})
     public ResponseEntity<HttpStatus> saveUser(@RequestBody UserCreateRequest userCreateRequest) {
         userService.createUser(userCreateRequest);
         return ResponseEntity.accepted().build();

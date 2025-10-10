@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v6.security;
+package dev.aj.full_stack_v6.common.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

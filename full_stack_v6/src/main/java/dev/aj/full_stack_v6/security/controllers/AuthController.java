@@ -22,12 +22,13 @@ class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    @Operation(summary = "Login", description = "Login to the application", tags = {"AuthN"})
+    @Operation(summary = "Login", description = "Login to the user and get JWT", tags = {"AuthN"})
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginDto, HttpServletResponse response) {
         return ResponseEntity.ok(authService.login(loginDto, response));
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "Logout", description = "Logout of the user from the application", tags = {"AuthN"})
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         authService.logout(request, response);
         return ResponseEntity.accepted().build();
