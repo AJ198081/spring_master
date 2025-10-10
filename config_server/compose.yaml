@@ -24,10 +24,10 @@ services:
       - '5672:5672'
       - '15672:15672'
     networks:
-      - full_stack_v5_network
+      - config_server_network
 
 networks:
-  full_stack_v5_network:
+  config_server_network:
     driver: bridge
-    name: full_stack_v5_network
-    external: true
+    name: config_server_network
+#    external: true

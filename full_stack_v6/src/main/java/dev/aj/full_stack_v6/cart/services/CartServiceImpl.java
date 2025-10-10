@@ -69,7 +69,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @PostAuthorize("hasRole('ADMIN')")
+    @PostAuthorize("hasAnyAuthority('ADMIN')")
     public List<Cart> getAllCarts() {
         List<Cart> allCarts = cartRepository.findAll();
         log.info("Retrieved {} carts", allCarts.size());

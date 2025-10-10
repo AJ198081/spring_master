@@ -140,7 +140,13 @@ public class UserAuthFactory {
 
     public HttpHeaders getBearerTokenHeader() {
 
-        String bearerToken = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ")
+        String tokenPrefixEnvValue = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ");
+
+        String authTokenPrefix = tokenPrefixEnvValue.endsWith(" ")
+                ? tokenPrefixEnvValue
+                : tokenPrefixEnvValue.concat(" ");
+
+        String bearerToken = authTokenPrefix
                 .concat(getExistingOrNewJWT());
 
         HttpHeaders httpHeaders = new HttpHeaders();

@@ -18,8 +18,8 @@
         </preConditions>
 
         <addColumn tableName="address">
-            <column name="created_by" type="VARCHAR(255) notnull"/>
-            <column name="created_date" type="timestamptz notnull"/>
+            <column name="created_by" type="VARCHAR(255) not null"/>
+            <column name="created_date" type="timestamptz not null"/>
             <column name="last_modified_by" type="VARCHAR(255)"/>
             <column name="last_modified_date" type="timestamptz"/>
             <column name="version" type="INT"/>

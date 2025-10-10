@@ -16,6 +16,7 @@ import org.springframework.modulith.Modulithic;
 public class FullStackV6Application {
 
     public static void main(String[] args) {
+
         SpringApplication.run(FullStackV6Application.class, args);
     }
 

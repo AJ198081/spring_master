@@ -45,6 +45,7 @@ public abstract class Person {
 
     private String firstName;
 
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(columnDefinition = "varchar(30)")

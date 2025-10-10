@@ -6,8 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import java.util.Arrays;
-
 @Configuration
 @RequiredArgsConstructor
 public class EnvironmentConfig {
@@ -17,11 +15,7 @@ public class EnvironmentConfig {
     @Bean(name = "dotEnv")
     public Dotenv setEnvironment() {
 
-        String[] activeProfiles = environment.getActiveProfiles();
-
-        boolean isTestProfileActive = Arrays.asList(activeProfiles).contains("test");
-
-        String directoryPath = isTestProfileActive ? "./" : "./full_stack_v6/";
+        String directoryPath = environment.getProperty("project.base.dir", "./");
 
 //      Load environment variables into System properties, thus making all environment variables accessible via System.getProperty(...) or environment.getProperty(...)
         return Dotenv.configure()

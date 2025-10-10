@@ -34,6 +34,7 @@ class JwtUtils implements dev.aj.full_stack_v6.security.utils.JwtUtils {
 
     @Override
     public @Nullable String getJwt(HttpServletRequest request) {
+
         String authorizationTokenHeaderName = environment.getProperty("authorization.token.header.name", "Authorization");
 
         String bearerToken = request.getHeader(authorizationTokenHeaderName);

@@ -12,6 +12,7 @@ import dev.aj.full_stack_v6.common.domain.events.dto.ShippingDetails;
 import dev.aj.full_stack_v6.order.OrderService;
 import dev.aj.full_stack_v6.order.repositories.OrderRepository;
 import dev.aj.full_stack_v6.payment.PaymentService;
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.UUID;
@@ -56,9 +59,9 @@ public class OrderServiceImpl implements OrderService {
 
         newOrder.assignPayment(paymentForThisOrder, customerCart.getTotalPrice());
         newOrder.setOrderItems(customerCart.getCartItems()
-                        .stream()
-                        .map(this::prepareOrderItemFromCartItem)
-                        .toList());
+                .stream()
+                .map(this::prepareOrderItemFromCartItem)
+                .toList());
         newOrder.assignOrderToCustomer(currentCustomer);
 
         String orderId = orderRepository.save(newOrder).getOrderId().toString();
@@ -82,6 +85,19 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @PostAuthorize("hasRole('ADMIN') or returnObject.customer.user.username == authentication.name")
     public Order getOrderById(UUID orderId, Principal principal) {
+
+        try {
+            Field orderIdField = Order.class.getDeclaredField("orderId");
+            Annotation[] orderIdMetaData = orderIdField.getAnnotations();
+            if (orderIdMetaData.length != 0) {
+                Column orderIdColumn = orderIdField.getAnnotation(Column.class);
+                if (orderIdColumn != null) {
+                    log.info("OrderID field in Database is: {}", orderIdColumn.name());
+                }
+            }
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
 
         return orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order ID %s does not exist".formatted(orderId)));

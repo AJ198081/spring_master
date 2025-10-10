@@ -249,7 +249,7 @@ class CartControllerTest {
 
         @Test
         @Order(3)
-        void whenAuthenticatedNonAdminUser_GetsAllCarts_ThenThrows() {
+        void whenAuthenticatedNonAdminUser_GetsAllCarts_ThenThrowsForbidden() {
 
             String _ = userAuthFactory.loginAndReturnNonAdminJwt();
             instantiateAuthenticatedClients();
