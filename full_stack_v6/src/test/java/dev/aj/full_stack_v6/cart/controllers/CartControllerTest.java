@@ -179,6 +179,7 @@ class CartControllerTest {
         @Order(1)
         void whenAuthenticatedUser_PatchesCart_Successful() {
             Assertions.assertThat(newProduct)
+                    .as("New Product stock level")
                     .isNotNull()
                     .satisfies(p -> Assertions.assertThat(p.getStock()).isGreaterThan(2));
 
