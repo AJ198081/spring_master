@@ -50,18 +50,18 @@ class UserControllerTest {
     @Autowired
     private Environment environment;
 
-    private RestClient authenticatedRestClient;
+    private RestClient authenticatedUserClient;
 
     @BeforeAll
     void setUp() {
         userAuthFactory.setClients(port);
-        authenticatedRestClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("USER_API_PATH")));
+        authenticatedUserClient = userAuthFactory.authenticatedRestClient("http://localhost:%d%s".formatted(port, environment.getProperty("USER_API_PATH")));
     }
 
     @AfterAll
     void afterAll() {
-        if (authenticatedRestClient != null) {
-            authenticatedRestClient = null;
+        if (authenticatedUserClient != null) {
+            authenticatedUserClient = null;
         }
         userAuthFactory.resetClients();
     }
@@ -93,7 +93,7 @@ class UserControllerTest {
             UserCreateRequest userCreateRequestWithExistingUsername = testDataFactory.userCreateRequest(persistedUsername);
 
             Assertions.assertThatThrownBy(
-                            () -> authenticatedRestClient.post()
+                            () -> authenticatedUserClient.post()
                                     .uri("/")
                                     .body(userCreateRequestWithExistingUsername)
                                     .retrieve()
@@ -111,7 +111,7 @@ class UserControllerTest {
             HttpHeaders bearerTokenHeader = userAuthFactory.getBearerTokenHeader();
             String currentUsername = userAuthFactory.currentUsername();
 
-            ResponseEntity<Void> deleteResponse = authenticatedRestClient.delete()
+            ResponseEntity<Void> deleteResponse = authenticatedUserClient.delete()
                     .uri("/%s".formatted(currentUsername))
                     .headers(headers -> headers.addAll(bearerTokenHeader))
                     .retrieve()
@@ -132,7 +132,7 @@ class UserControllerTest {
                     otherUser.username()
             );
 
-            assertThatThrownBy(() -> authenticatedRestClient.delete()
+            assertThatThrownBy(() -> authenticatedUserClient.delete()
                     .uri("/%s".formatted(otherUser.username()))
                     .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader()))
                     .retrieve()
@@ -147,7 +147,7 @@ class UserControllerTest {
 
             String _ = userAuthFactory.loginAndReturnAdminJwt();
 
-            ResponseEntity<Void> deleteUserResponse = authenticatedRestClient.delete()
+            ResponseEntity<Void> deleteUserResponse = authenticatedUserClient.delete()
                     .uri("/%s".formatted(otherUser.username()))
                     .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader()))
                     .retrieve()
@@ -167,7 +167,7 @@ class UserControllerTest {
 
             UserCreateRequest updateUserRequest = testDataFactory.userCreateRequest(currentUsername);
 
-            ResponseEntity<Void> updateUserResponse = authenticatedRestClient.put()
+            ResponseEntity<Void> updateUserResponse = authenticatedUserClient.put()
                     .uri("/")
                     .headers(headers -> headers.addAll(userAuthFactory.getBearerTokenHeader()))
                     .body(updateUserRequest)
@@ -187,7 +187,7 @@ class UserControllerTest {
             String currentUsername = userAuthFactory.currentUsername();
             assertThat(currentUsername).isNotBlank();
 
-            ResponseEntity<Void> changePasswordResult = authenticatedRestClient.patch()
+            ResponseEntity<Void> changePasswordResult = authenticatedUserClient.patch()
                     .uri("/%s/password?password=%s".formatted(currentUsername, "newPassword123!"))
                     .retrieve()
                     .toBodilessEntity();
@@ -200,7 +200,7 @@ class UserControllerTest {
 
     private @NotNull ResponseEntity<Void> postANewUser(UserCreateRequest userCreateRequest) {
 
-        return authenticatedRestClient.post()
+        return authenticatedUserClient.post()
                 .uri("/")
                 .body(userCreateRequest)
                 .retrieve()
