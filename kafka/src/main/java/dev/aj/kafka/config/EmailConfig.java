@@ -28,9 +28,10 @@ public class EmailConfig {
     @Bean
     public Dotenv setEnvironment() {
 
+        String projectDirectory = environment.getProperty("project.basedir", "./");
 //      Load environment variables into System properties, thus making all environment variables accessible via System.getProperty(...) or environment.getProperty(...)
         return Dotenv.configure()
-                .directory("./")
+                .directory(projectDirectory)
                 .filename(".env")
                 .systemProperties()
                 .load();

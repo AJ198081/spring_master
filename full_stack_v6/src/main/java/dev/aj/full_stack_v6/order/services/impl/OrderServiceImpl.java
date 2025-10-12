@@ -7,6 +7,8 @@ import dev.aj.full_stack_v6.common.domain.entities.Customer;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.common.domain.entities.OrderItem;
 import dev.aj.full_stack_v6.common.domain.entities.Payment;
+import dev.aj.full_stack_v6.common.domain.enums.OrderStatus;
+import dev.aj.full_stack_v6.common.domain.enums.PaymentStatus;
 import dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent;
 import dev.aj.full_stack_v6.common.domain.events.dto.ShippingDetails;
 import dev.aj.full_stack_v6.order.OrderService;
@@ -17,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.modulith.moments.DayHasPassed;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
 
 
         Order newOrder = Order.builder()
+                .orderStatus(OrderStatus.NEW)
                 .build();
 
         newOrder.assignPayment(paymentForThisOrder, customerCart.getTotalPrice());
@@ -64,7 +68,9 @@ public class OrderServiceImpl implements OrderService {
                 .toList());
         newOrder.assignOrderToCustomer(currentCustomer);
 
-        String orderId = orderRepository.save(newOrder).getOrderId().toString();
+        String orderId = orderRepository.save(newOrder)
+                .getOrderId()
+                .toString();
 
         eventPublisher.publishEvent(
                 new OrderPlacedEvent(
@@ -101,6 +107,18 @@ public class OrderServiceImpl implements OrderService {
 
         return orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order ID %s does not exist".formatted(orderId)));
+    }
+
+    @Override
+    public void on(DayHasPassed dayHasPassed) {
+
+        orderRepository.findOrdersByOrderStatus(OrderStatus.NEW)
+                .forEach(order -> {
+                    if (order.getPayment().getPaymentStatus().equals(PaymentStatus.COMPLETED)) {
+                        order.setOrderStatus(OrderStatus.COMPLETED);
+                        orderRepository.save(order);
+                    }
+                });
     }
 
     private OrderItem prepareOrderItemFromCartItem(CartItem cartItem) {

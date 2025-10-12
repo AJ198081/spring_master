@@ -10,18 +10,20 @@ services:
     env_file:
       - .env
     environment:
-      - KAFKA_CFG_NODE_ID=1
+#  /opt/kafka/config/server.properties
+#  /opt/bitnami/kafka/bin/kafka-storage.sh random-uuid - to generate a random UUID
       - KAFKA_KRAFT_CLUSTER_ID=LOREMIPSUMDOLORSITAMET
+      - KAFKA_CFG_NODE_ID=1
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_LISTENERS=INTERNAL://:9091,CONTROLLER://:9093,EXTERNAL://:9092
 #      If Kafka Broker and Clients are running on different hosts
 #      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka-1:9091,EXTERNAL://${HOST_NAME:-localhost}:9092
       - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka-1:9091,EXTERNAL://localhost:9092
-      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes
     volumes:
       - ./kafka_data/kafka-1:/bitnami/kafka
 
@@ -36,16 +38,17 @@ services:
     env_file:
       - .env
     environment:
-      - KAFKA_CFG_NODE_ID=2
+#  /opt/kafka/config/server.properties
       - KAFKA_KRAFT_CLUSTER_ID=LOREMIPSUMDOLORSITAMET
+      - KAFKA_CFG_NODE_ID=2
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9091,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka-2:9091,EXTERNAL://localhost:9094
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9091,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka-2:9091,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes
     volumes:
       - ./kafka_data/kafka-2:/bitnami/kafka
 
@@ -60,16 +63,17 @@ services:
     env_file:
       - .env
     environment:
-      - KAFKA_CFG_NODE_ID=3
+  #  /opt/kafka/config/server.properties
       - KAFKA_KRAFT_CLUSTER_ID=LOREMIPSUMDOLORSITAMET
+      - KAFKA_CFG_NODE_ID=3
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
-      - KAFKA_CFG_LISTENERS=INTERNAL://:9091,CONTROLLER://:9093,EXTERNAL://:9095
-      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka-3:9091,EXTERNAL://localhost:9095
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9091,CONTROLLER://:9093,EXTERNAL://:9095
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka-3:9091,EXTERNAL://localhost:9095
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes
     volumes:
       - ./kafka_data/kafka-3:/bitnami/kafka
 
@@ -87,11 +91,11 @@ services:
 
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: mailhog_container
+    container_name: mailhog_kafka_container
     restart: unless-stopped
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - "1026:1025"
+      - "8026:8025"
 
 volumes:
   postgres_data:

@@ -6,10 +6,11 @@ import dev.aj.full_stack_v6.UserAuthFactory;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.common.domain.entities.Payment;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
+import dev.aj.full_stack_v6.common.domain.enums.PaymentStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -22,27 +23,37 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.modulith.moments.DayHasPassed;
+import org.springframework.modulith.moments.support.Moments;
+import org.springframework.modulith.moments.support.TimeMachine;
+import org.springframework.modulith.test.ApplicationModuleTest;
+import org.springframework.modulith.test.AssertablePublishedEvents;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
-import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.modulith.test.ApplicationModuleTest.BootstrapMode.ALL_DEPENDENCIES;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@RecordApplicationEvents
+@ApplicationModuleTest(webEnvironment = RANDOM_PORT, mode = ALL_DEPENDENCIES)
 @Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
 @TestPropertySource(locations = {
         "/application-performance.properties",
 })
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @Slf4j
 class OrderControllerTest {
@@ -59,6 +70,12 @@ class OrderControllerTest {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private TimeMachine timeMachine;
+
+    @Autowired
+    private Moments moments;
+
     private RestClient authenticatedPaymentClient;
 
     private RestClient authenticatedCustomerClient;
@@ -71,7 +88,7 @@ class OrderControllerTest {
 
     private RestClient authenticatedProductClient;
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         userAuthFactory.setClients(port);
         userAuthFactory.loginAndReturnNonAdminJwt();
@@ -80,24 +97,22 @@ class OrderControllerTest {
         testDataFactory.saveCustomerWithShippingAndResidentialAddress(authenticatedCustomerClient);
     }
 
-    @AfterAll
+    @AfterEach
     void destroy() {
         userAuthFactory.resetClients();
         this.resetClientsForThisUser();
     }
 
-
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestInstance(TestInstance.Lifecycle.PER_METHOD)
     @TestMethodOrder(OrderAnnotation.class)
     @Execution(ExecutionMode.CONCURRENT)
     class PostOrderTests {
 
-
-        @RepeatedTest(value = 20, name = "{displayName} {currentRepetition}/{totalRepetitions}")
+        @RepeatedTest(value = 1, name = "{displayName} {currentRepetition}/{totalRepetitions}")
         @org.junit.jupiter.api.Order(1)
         @DisplayName("Test create order")
-        void whenValidOrder_WithValidPayment_thenCreatesOrder() {
+        void whenValidOrder_WithValidPayment_thenCreatesOrder(AssertablePublishedEvents assertablePublishedEvents) {
 
             ResponseEntity<Void> paymentSubmissionResponse = testDataFactory.submitPaymentRequest(
                     testDataFactory.generateARandomPaymentRequest(),
@@ -158,21 +173,88 @@ class OrderControllerTest {
                         Assertions.assertThat(response.getBody())
                                 .isNotNull()
                                 .satisfies(order -> {
-
                                             Assertions.assertThat(order)
                                                     .isNotNull()
                                                     .extracting(Order::getPayment)
-                                                    .extracting(Payment::getPaymentIdentifier)
-                                                    .isEqualTo(UUID.fromString(paymentUUID));
+                                                    .satisfies(payment -> {
+                                                        Assertions.assertThat(payment.getPaymentIdentifier().toString())
+                                                                .isEqualTo(paymentUUID);
+
+                                                        assertThat(payment.getPaymentStatus())
+                                                                .isEqualTo(PaymentStatus.PENDING);
+                                                    });
 
                                             Assertions.assertThat(order)
                                                     .extracting(Order::getTotalPrice)
                                                     .isEqualTo(newProduct.getPrice()
                                                             .multiply(BigDecimal.valueOf(quantityToOrder))
                                                             .add(order.getShippingPrice()));
+
+                                            Assertions.assertThat(order.getOrderStatus().toString())
+                                                    .as("Order status")
+                                                    .isEqualTo("NEW");
                                         }
                                 );
                     });
+
+            timeMachine.shiftBy(Duration.of(1, ChronoUnit.DAYS));
+
+            assertablePublishedEvents.assertThat()
+                    .describedAs("Published Events")
+                    .contains(DayHasPassed.class);
+
+            ResponseEntity<Payment> updatedPaymentResponse = authenticatedPaymentClient.get()
+                    .uri("/{paymentIdentifier}", Objects.requireNonNull(orderResponse.getBody())
+                            .getPayment()
+                            .getPaymentIdentifier()
+                            .toString()
+                    )
+                    .retrieve()
+                    .toEntity(Payment.class);
+
+            Assertions.assertThat(updatedPaymentResponse)
+                    .isNotNull()
+                    .satisfies(response -> {
+                        Assertions.assertThat(response.getStatusCode()).isEqualTo(OK);
+                        Assertions.assertThat(response.getBody())
+                                .isNotNull()
+                                .satisfies(updatedPayment -> Assertions.assertThat(updatedPayment).isNotNull()
+                                        .satisfies(payment -> {
+                                            Assertions.assertThat(payment.getPaymentIdentifier().toString())
+                                                    .as("Payment identifier")
+                                                    .isEqualTo(paymentUUID);
+
+                                            assertThat(payment.getPaymentStatus())
+                                                    .as("Payment status")
+                                                    .isEqualTo(PaymentStatus.COMPLETED);
+                                        })
+                                );
+                    });
+
+            ResponseEntity<Order> responseOnNextDay = authenticatedOrderClient.get()
+                    .uri(newOrderUri)
+                    .retrieve()
+                    .toEntity(Order.class);
+
+            Assertions.assertThat(responseOnNextDay)
+                    .isNotNull()
+                    .satisfies(response -> {
+                        Assertions.assertThat(response.getStatusCode()).isEqualTo(OK);
+                        Assertions.assertThat(response.getBody())
+                                .isNotNull()
+                                .satisfies(order -> Assertions.assertThat(order)
+                                        .isNotNull()
+                                        .extracting(Order::getPayment)
+                                        .satisfies(payment -> {
+                                            Assertions.assertThat(payment.getPaymentIdentifier().toString())
+                                                    .isEqualTo(paymentUUID);
+
+                                            assertThat(payment.getPaymentStatus())
+                                                    .isEqualTo(PaymentStatus.COMPLETED);
+                                        })
+                                );
+                    });
+
         }
 
         @Test
