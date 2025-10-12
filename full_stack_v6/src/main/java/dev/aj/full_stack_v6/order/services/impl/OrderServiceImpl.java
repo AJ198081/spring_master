@@ -8,8 +8,8 @@ import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.common.domain.entities.OrderItem;
 import dev.aj.full_stack_v6.common.domain.entities.Payment;
 import dev.aj.full_stack_v6.common.domain.enums.OrderStatus;
-import dev.aj.full_stack_v6.common.domain.enums.PaymentStatus;
 import dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent;
+import dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent;
 import dev.aj.full_stack_v6.common.domain.events.dto.ShippingDetails;
 import dev.aj.full_stack_v6.order.OrderService;
 import dev.aj.full_stack_v6.order.repositories.OrderRepository;
@@ -19,7 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.modulith.moments.DayHasPassed;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,15 +109,18 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order ID %s does not exist".formatted(orderId)));
     }
 
+    @EventListener
     @Override
-    public void on(DayHasPassed dayHasPassed) {
+    public void on(PaymentSuccessfulEvent paymentSuccessfulEvent) {
+        orderRepository.findByOrderId(paymentSuccessfulEvent.orderId())
+                .ifPresent(order -> {
 
-        orderRepository.findOrdersByOrderStatus(OrderStatus.NEW)
-                .forEach(order -> {
-                    if (order.getPayment().getPaymentStatus().equals(PaymentStatus.COMPLETED)) {
-                        order.setOrderStatus(OrderStatus.COMPLETED);
-                        orderRepository.save(order);
+                    if (!order.getPayment().getPaymentIdentifier().equals(paymentSuccessfulEvent.paymentIdentifier())) {
+                        log.error("Payment identifier {} does not match for order id: {}", paymentSuccessfulEvent.paymentIdentifier(), order.getOrderId());
                     }
+
+                    order.setOrderStatus(OrderStatus.COMPLETED);
+                    orderRepository.save(order);
                 });
     }
 

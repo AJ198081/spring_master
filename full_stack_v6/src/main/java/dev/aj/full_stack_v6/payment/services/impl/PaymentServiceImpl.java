@@ -14,13 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.modulith.moments.DayHasPassed;
-import org.springframework.modulith.moments.support.Moments;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -34,7 +32,6 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final CustomerService customerService;
     private final ApplicationEventPublisher eventPublisher;
-    private final Moments moments;
 
     @Override
     public String processCardPayment(PaymentDetails paymentDetails, Principal principal) {
@@ -65,8 +62,10 @@ public class PaymentServiceImpl implements PaymentService {
     public void on(DayHasPassed dayHasPassed) {
 
         Predicate<Payment> isCreatedBeforeToday = payment -> {
-            ZonedDateTime createdDate = payment.getAuditMetaData().getCreatedDate();
-            return createdDate.toLocalDate().isBefore(LocalDate.from(moments.now()));
+            LocalDate paymentCreatedDate = payment.getAuditMetaData().getCreatedDate().toLocalDate();
+            LocalDate theDateThatHasPassed = dayHasPassed.getDate();
+
+            return paymentCreatedDate.isEqual(theDateThatHasPassed) || paymentCreatedDate.isBefore(theDateThatHasPassed);
         };
 
         List<Payment> paymentsByPaymentStatus = paymentRepository.findPaymentsByPaymentStatus(PaymentStatus.PENDING);

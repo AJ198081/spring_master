@@ -6,6 +6,7 @@ import dev.aj.full_stack_v6.UserAuthFactory;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.common.domain.entities.Payment;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
+import dev.aj.full_stack_v6.common.domain.enums.OrderStatus;
 import dev.aj.full_stack_v6.common.domain.enums.PaymentStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -28,7 +29,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.modulith.moments.DayHasPassed;
-import org.springframework.modulith.moments.support.Moments;
 import org.springframework.modulith.moments.support.TimeMachine;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.modulith.test.AssertablePublishedEvents;
@@ -72,9 +72,6 @@ class OrderControllerTest {
 
     @Autowired
     private TimeMachine timeMachine;
-
-    @Autowired
-    private Moments moments;
 
     private RestClient authenticatedPaymentClient;
 
@@ -231,30 +228,34 @@ class OrderControllerTest {
                                 );
                     });
 
-            ResponseEntity<Order> responseOnNextDay = authenticatedOrderClient.get()
+            ResponseEntity<Order> orderResponseOnNextDay = authenticatedOrderClient.get()
                     .uri(newOrderUri)
                     .retrieve()
                     .toEntity(Order.class);
 
-            Assertions.assertThat(responseOnNextDay)
+            Assertions.assertThat(orderResponseOnNextDay)
                     .isNotNull()
                     .satisfies(response -> {
                         Assertions.assertThat(response.getStatusCode()).isEqualTo(OK);
                         Assertions.assertThat(response.getBody())
                                 .isNotNull()
-                                .satisfies(order -> Assertions.assertThat(order)
+                                .satisfies(nextDayResponse -> Assertions.assertThat(nextDayResponse)
                                         .isNotNull()
+                                        .as("Order status")
+                                        .satisfies(order -> assertThat(order.getOrderStatus())
+                                                .as("Order status next day")
+                                                .isEqualTo(OrderStatus.COMPLETED))
                                         .extracting(Order::getPayment)
                                         .satisfies(payment -> {
                                             Assertions.assertThat(payment.getPaymentIdentifier().toString())
+                                                    .as("Payment identifier next day")
                                                     .isEqualTo(paymentUUID);
-
                                             assertThat(payment.getPaymentStatus())
+                                                    .as("Payment status next day")
                                                     .isEqualTo(PaymentStatus.COMPLETED);
                                         })
                                 );
                     });
-
         }
 
         @Test
