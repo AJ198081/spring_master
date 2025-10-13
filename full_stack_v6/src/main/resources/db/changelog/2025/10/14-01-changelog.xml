@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="role-enum-constraint" author="aj" context="postgresql">
+        <sql>
+            CREATE TYPE user_role_enum AS ENUM ('ROLE_ADMIN', 'ROLE_CUSTOMER', 'ROLE_MODERATOR', 'ROLE_SELLER', 'ROLE_USER');
+        </sql>
+        <sql>
+            ALTER TABLE role
+            ALTER
+            COLUMN role_name TYPE user_role_enum
+            USING role_name::user_role_enum;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

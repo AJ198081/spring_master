@@ -39,6 +39,7 @@ public class Role implements GrantedAuthority {
 
     @Column(length = 20, nullable = false, unique = true, name = "role_name")
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private UserRole role;
 
     @ManyToMany(mappedBy = "roles")

@@ -183,6 +183,7 @@ class OrderControllerTest {
 
                                             Assertions.assertThat(order)
                                                     .extracting(Order::getTotalPrice)
+                                                    .as("Total order price, including shipping")
                                                     .isEqualTo(newProduct.getPrice()
                                                             .multiply(BigDecimal.valueOf(quantityToOrder))
                                                             .add(order.getShippingPrice()));
@@ -204,8 +205,7 @@ class OrderControllerTest {
                     .uri("/{paymentIdentifier}", Objects.requireNonNull(orderResponse.getBody())
                             .getPayment()
                             .getPaymentIdentifier()
-                            .toString()
-                    )
+                            .toString())
                     .retrieve()
                     .toEntity(Payment.class);
 
