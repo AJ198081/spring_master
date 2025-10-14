@@ -1,4 +1,4 @@
-package dev.aj.kafka.email.exceptions;
+package dev.aj.full_stack_v6_kafka.common.exceptions;
 
 public class NotRetryableException extends RuntimeException {
 
@@ -11,4 +11,5 @@ public class NotRetryableException extends RuntimeException {
     public NotRetryableException(String message) {
         super(message);
     }
+
 }

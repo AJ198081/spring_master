@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 class TestFullStackV6Application {
 
     public static void main(String[] args) {
+
         SpringApplication.from(FullStackV6Application::main)
                 .withAdditionalProfiles("test")
                 .run(args);

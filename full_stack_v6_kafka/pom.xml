@@ -17,11 +17,17 @@
     <properties>
         <java.version>25</java.version>
     </properties>
-    <dependencies>
 
+    <dependencies>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.aj</groupId>
+            <artifactId>full_stack_v6</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
          <dependency>
