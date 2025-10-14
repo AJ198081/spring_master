@@ -1,6 +1,5 @@
 package dev.aj.full_stack_v6_kafka;
 
-
 import org.springframework.boot.SpringApplication;
 
 public class TestFullStackV6KafkaApplication {

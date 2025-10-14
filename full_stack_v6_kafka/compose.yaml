@@ -59,7 +59,7 @@ services:
     networks:
       - kafka_network
     ports:
-      - "9095:9095"
+      - "9096:9096"
     env_file:
       - .env
     environment:
@@ -91,7 +91,7 @@ services:
 
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: mailhog_kafka_container
+    container_name: mailhog_fsv6_kafka_container
     restart: unless-stopped
     ports:
       - "1026:1025"
