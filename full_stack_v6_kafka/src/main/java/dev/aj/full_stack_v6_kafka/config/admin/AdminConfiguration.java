@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class AdminConfiguration {
 
     private final Environment environment;
+    private final ApplicationContext applicationContext;
 
     @Bean
     public KafkaAdmin kafkaAdmin(Map<String, Object> kafkaBootstrapProperties) {
@@ -44,11 +46,20 @@ public class AdminConfiguration {
             return null;
         }
 
-        return TopicBuilder.name(topicName)
+        NewTopic configuredTopic = TopicBuilder.name(topicName)
                 .partitions(3)
                 .replicas(3)
                 .configs(topicConfig)
                 .build();
+
+        log.info("Creating topic: {}", configuredTopic.name());
+
+        KafkaAdmin kafkaAdmin = applicationContext.getBean("kafkaAdmin", KafkaAdmin.class);
+        kafkaAdmin.createOrModifyTopics(configuredTopic);
+
+        log.info("Created topic: {}", configuredTopic.name());
+
+        return configuredTopic;
     }
 
     @Bean(name = "kafkaBootstrapProperties")

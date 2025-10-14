@@ -25,13 +25,13 @@ public class BootstrapTopics {
         Map<String, String> commonTopicConfigurations = Map.of("min.insync.replicas", "2");
 
         NewTopic ordersTopic = adminConfiguration.createTopic(ORDERS_TOPIC, commonTopicConfigurations);
-        if (ordersTopic != null) {
-            log.info("Created topic: {}", ordersTopic.name());
+        if (ordersTopic == null) {
+            log.info("Topic {} already exists.", ORDERS_TOPIC);
         }
 
         NewTopic paymentsTopic = adminConfiguration.createTopic(PAYMENTS_TOPIC, commonTopicConfigurations);
-        if (paymentsTopic != null) {
-            log.info("Created topic: {}", paymentsTopic.name());
+        if (paymentsTopic == null) {
+            log.info("Topic {} already exists.", PAYMENTS_TOPIC);
         }
     }
 
