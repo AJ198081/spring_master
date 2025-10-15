@@ -3,6 +3,7 @@ package dev.aj.full_stack_v6_kafka.config.consumers;
 import dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent;
 import dev.aj.full_stack_v6_kafka.common.exceptions.NotRetryableException;
 import dev.aj.full_stack_v6_kafka.common.exceptions.RetryableException;
+import dev.aj.full_stack_v6_kafka.config.admin.KafkaBootstrapProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -45,7 +46,7 @@ public class ConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, PaymentSuccessfulEvent> consumerFactory(Map<String, Object> kafkaBootstrapProperties) {
+    public ConsumerFactory<String, PaymentSuccessfulEvent> consumerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
 
         kafkaBootstrapProperties.put(org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 

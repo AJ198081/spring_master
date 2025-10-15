@@ -1,5 +1,6 @@
 package dev.aj.full_stack_v6_kafka.config.producers;
 
+import dev.aj.full_stack_v6_kafka.config.admin.KafkaBootstrapProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +11,6 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.time.Duration;
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ public class ProducerConfig {
 
     // Supply producers to send messages to the topics
     @Bean
-    public ProducerFactory<String, Object> producerFactory(Map<String, Object> kafkaBootstrapProperties) {
+    public ProducerFactory<String, Object> producerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
 
         kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
