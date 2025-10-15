@@ -1,30 +1,61 @@
-package dev.aj.full_stack_v6_kafka.config.producers;
+package dev.aj.full_stack_v6.common.kafka;
 
-import dev.aj.full_stack_v6_kafka.config.admin.KafkaBootstrapProperties;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-public class ProducerConfig {
+public class KafkaProducerConfig {
+
+    private final Environment environment;
 
     // Producer Configurations
-    @Bean(name = "customKafkaTemplate")
+    @Bean
+    @Primary
     public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 
+    // Expose KafkaOperations<Object, Object> for components that depend on the generic interface
+    @Bean
+    @Primary
+    @SuppressWarnings("unchecked")
+    public KafkaOperations<Object, Object> kafkaOperations(KafkaTemplate<String, Object> kafkaTemplate) {
+        if (kafkaTemplate == null) {
+            throw new IllegalStateException("KafkaTemplate must not be null");
+        }
+
+        return (KafkaOperations) kafkaTemplate;
+    }
+
     // Supply producers to send messages to the topics
     @Bean
-    public ProducerFactory<String, Object> producerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
+    public ProducerFactory<String, Object> producerFactory() {
+
+        Map<String, Object> kafkaBootstrapProperties =  new HashMap<>();
+
+        kafkaBootstrapProperties.put(
+                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+                environment.getProperty("spring.kafka.bootstrap-servers",
+                        List.class,
+                        List.of("localhost:9092", "localhost:9094", "localhost:9096")
+                )
+        );
 
         kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());

@@ -8,6 +8,7 @@ import dev.aj.full_stack_v6.common.domain.entities.Payment;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
 import dev.aj.full_stack_v6.common.domain.enums.OrderStatus;
 import dev.aj.full_stack_v6.common.domain.enums.PaymentStatus;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -41,6 +42,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -106,10 +108,13 @@ class OrderControllerTest {
     @Execution(ExecutionMode.CONCURRENT)
     class PostOrderTests {
 
-        @RepeatedTest(value = 1, name = "{displayName} {currentRepetition}/{totalRepetitions}")
+        @SneakyThrows
+        @RepeatedTest(value = 20, name = "{displayName} {currentRepetition}/{totalRepetitions}")
         @org.junit.jupiter.api.Order(1)
         @DisplayName("Test create order")
         void whenValidOrder_WithValidPayment_thenCreatesOrder(AssertablePublishedEvents assertablePublishedEvents) {
+
+            TimeUnit.of(ChronoUnit.SECONDS).sleep(5);
 
             ResponseEntity<Void> paymentSubmissionResponse = testDataFactory.submitPaymentRequest(
                     testDataFactory.generateARandomPaymentRequest(),

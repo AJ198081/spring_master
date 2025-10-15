@@ -1,9 +1,11 @@
 package dev.aj.full_stack_v6.common.domain.events;
 
 import dev.aj.full_stack_v6.common.domain.events.dto.ShippingDetails;
+import org.springframework.modulith.events.Externalized;
 
 import java.math.BigDecimal;
 
+@Externalized("orders::#{customerId}")
 public record OrderPlacedEvent(String orderId,
                                Long customerId,
                                String firstName,
