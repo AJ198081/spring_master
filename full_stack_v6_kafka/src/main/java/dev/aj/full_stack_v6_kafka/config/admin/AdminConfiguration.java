@@ -14,7 +14,6 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -36,12 +35,12 @@ public class AdminConfiguration {
 
     private boolean topicExists(String topicName) {
 
-        KafkaBootstrapProperties kafkaBootstrapProperties = applicationContext.getBean("kafkaBootstrapProperties", KafkaBootstrapProperties.class);
+        KafkaBootstrapProperties kafkaBootstrapProperties = applicationContext.getBean(KafkaBootstrapProperties.class);
 
-        Map<String, Object> properties = new HashMap<>(kafkaBootstrapProperties);
-        properties.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "5000");
+        kafkaBootstrapProperties.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "5000");
 
-        try (AdminClient adminClient = AdminClient.create(properties)) {
+        try (AdminClient adminClient = AdminClient.create(kafkaBootstrapProperties)) {
+
             return adminClient.listTopics()
                     .names()
                     .get(10, TimeUnit.SECONDS)
@@ -65,7 +64,6 @@ public class AdminConfiguration {
         }
 
         NewTopic configuredTopic = TopicBuilder.name(topicName)
-                .partitions(3)
                 .replicas(3)
                 .configs(topicConfig)
                 .build();
@@ -83,8 +81,6 @@ public class AdminConfiguration {
     @Bean(name = "kafkaBootstrapProperties")
     public Map<String, Object> getKafkaProperties() {
 
-        Map<String, Object> bootstrapServerProperties = new HashMap<>();
-
         KafkaBootstrapProperties kafkaBootstrapProperties = new KafkaBootstrapProperties();
 
         kafkaBootstrapProperties.put(
@@ -95,7 +91,6 @@ public class AdminConfiguration {
                 )
         );
 
-        // Can't in-line as the downstream consumers need modifiable Map to add additional properties
         return kafkaBootstrapProperties;
     }
 }

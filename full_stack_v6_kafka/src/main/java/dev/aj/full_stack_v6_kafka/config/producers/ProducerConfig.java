@@ -12,6 +12,8 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.time.Duration;
 
+import static org.apache.kafka.clients.producer.ProducerConfig.*;
+
 @Configuration
 @RequiredArgsConstructor
 public class ProducerConfig {
@@ -22,30 +24,36 @@ public class ProducerConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    // Supply producers to send messages to the topics
+   /**
+    // * Works with the topic's 'min.insync.replicas' setting, which defines minimum replicas
+    // * required for successful write acknowledgment.
+    // * Applies when 'acks=all'.
+    // * Rejects write if fewer than min.insync.replicas are available; to prevent data loss.
+    */
     @Bean
     public ProducerFactory<String, Object> producerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
 
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
+        kafkaBootstrapProperties.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        kafkaBootstrapProperties.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
         kafkaBootstrapProperties.put(JsonSerializer.TYPE_MAPPINGS, "paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,OrderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
 
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG, "all");
 
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 2);
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.RETRIES_CONFIG, 5);
+        kafkaBootstrapProperties.put(ACKS_CONFIG, "all");
 
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.RETRY_BACKOFF_MS_CONFIG, Duration.ofSeconds(5).toMillis());
+        kafkaBootstrapProperties.put(ENABLE_IDEMPOTENCE_CONFIG, true);
+        kafkaBootstrapProperties.put(MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 2);
+
+        kafkaBootstrapProperties.put(RETRIES_CONFIG, 5);
+        kafkaBootstrapProperties.put(RETRY_BACKOFF_MS_CONFIG, Duration.ofSeconds(5).toMillis());
 
         // Normal JSON is only about a couple of hundred bytes
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.BATCH_SIZE_CONFIG, 2048);
+        kafkaBootstrapProperties.put(BATCH_SIZE_CONFIG, 2048);
         // In this case, in the worst case the producer might wait to fill up its buffer for 10 seconds
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.LINGER_MS_CONFIG, Duration.ofSeconds(10).toMillis());
+        kafkaBootstrapProperties.put(LINGER_MS_CONFIG, Duration.ofSeconds(10).toMillis());
         // Single request waiting for broker's response after sending a request
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, (int) Duration.ofSeconds(30).toMillis());
+        kafkaBootstrapProperties.put(REQUEST_TIMEOUT_MS_CONFIG, (int) Duration.ofSeconds(30).toMillis());
         // The maximum time a producer can keep trying to deliver a message includes time to linger, waiting for response and retrying requests
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.producer.ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, (int) Duration.ofMinutes(2).toMillis());
+        kafkaBootstrapProperties.put(DELIVERY_TIMEOUT_MS_CONFIG, (int) Duration.ofMinutes(2).toMillis());
 
         return new DefaultKafkaProducerFactory<>(kafkaBootstrapProperties);
     }

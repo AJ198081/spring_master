@@ -19,6 +19,8 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
 
+import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
+
 @Configuration
 @RequiredArgsConstructor
 public class ConsumerConfig {
@@ -46,26 +48,24 @@ public class ConsumerConfig {
     @Bean
     public ConsumerFactory<String, PaymentSuccessfulEvent> consumerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
 
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        kafkaBootstrapProperties.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        kafkaBootstrapProperties.put(VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        kafkaBootstrapProperties.put(GROUP_ID_CONFIG, "productCreatedDto-consumer-group");
+        kafkaBootstrapProperties.put(AUTO_OFFSET_RESET_CONFIG, "latest");
+        kafkaBootstrapProperties.put(PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
 
 //        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, objectDeserializer);
 //        objectDeserializer.addTrustedPackages("dev.aj.kafka");
+        kafkaBootstrapProperties.put(JsonDeserializer.TYPE_MAPPINGS, "paymentSuccessfulEvent=dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,OrderPlacedEvent=dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
+        kafkaBootstrapProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "dev.aj.full_stack_v6.common.domain.events,dev.aj.kafka.product.domain.entities");
 
         // Error handling deserializer - a wrapper around the actual deserializer
         // will handle any serialization exceptions
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         kafkaBootstrapProperties.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         kafkaBootstrapProperties.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
-        kafkaBootstrapProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "dev.aj.full_stack_v6.common.domain.events,dev.aj.kafka.product.domain.entities");
-        kafkaBootstrapProperties.put(JsonDeserializer.TYPE_MAPPINGS, "paymentSuccessfulEvent=dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,OrderPlacedEvent=dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
-
-
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG, "productCreatedDto-consumer-group");
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
 
         // The best way to optimize your Kafka cluster in general is to flash it up with minimum configuration,
         // Determine from the log what you really need
-        kafkaBootstrapProperties.put(org.apache.kafka.clients.consumer.ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
 
         return new DefaultKafkaConsumerFactory<>(kafkaBootstrapProperties);
     }

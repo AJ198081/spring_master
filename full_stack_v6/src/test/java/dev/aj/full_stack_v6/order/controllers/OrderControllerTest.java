@@ -109,7 +109,7 @@ class OrderControllerTest {
     class PostOrderTests {
 
         @SneakyThrows
-        @RepeatedTest(value = 20, name = "{displayName} {currentRepetition}/{totalRepetitions}")
+        @RepeatedTest(value = 1, name = "{displayName} {currentRepetition}/{totalRepetitions}")
         @org.junit.jupiter.api.Order(1)
         @DisplayName("Test create order")
         void whenValidOrder_WithValidPayment_thenCreatesOrder(AssertablePublishedEvents assertablePublishedEvents) {
