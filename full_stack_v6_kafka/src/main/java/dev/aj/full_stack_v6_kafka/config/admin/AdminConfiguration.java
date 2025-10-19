@@ -33,28 +33,20 @@ public class AdminConfiguration {
         return new KafkaAdmin(kafkaBootstrapProperties);
     }
 
-    private boolean topicExists(String topicName) {
+    @Bean(name = "kafkaBootstrapProperties")
+    public KafkaBootstrapProperties getKafkaProperties() {
 
-        KafkaBootstrapProperties kafkaBootstrapProperties = applicationContext.getBean(KafkaBootstrapProperties.class);
+        KafkaBootstrapProperties kafkaBootstrapProperties = new KafkaBootstrapProperties();
 
-        kafkaBootstrapProperties.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "5000");
+        kafkaBootstrapProperties.put(
+                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+                environment.getProperty("spring.kafka.bootstrap-servers",
+                        List.class,
+                        List.of("localhost:9092", "localhost:9094", "localhost:9096")
+                )
+        );
 
-        try (AdminClient adminClient = AdminClient.create(kafkaBootstrapProperties)) {
-
-            return adminClient.listTopics()
-                    .names()
-                    .get(10, TimeUnit.SECONDS)
-                    .contains(topicName);
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Error while checking topic existence: {}", e.getMessage());
-            throw new RetryableException(e);
-        } catch (TimeoutException e) {
-            log.error("Timeout while checking topic existence: {}", e.getMessage());
-            throw new NotRetryableException(e);
-        } catch (Exception e) {
-            log.error("Unexpected error while checking topic existence: {}", e.getMessage());
-            throw new NotRetryableException(e);
-        }
+        return kafkaBootstrapProperties;
     }
 
     public NewTopic createTopic(String topicName, Map<String, String> topicConfig) {
@@ -78,19 +70,27 @@ public class AdminConfiguration {
         return configuredTopic;
     }
 
-    @Bean(name = "kafkaBootstrapProperties")
-    public Map<String, Object> getKafkaProperties() {
+    private boolean topicExists(String topicName) {
 
-        KafkaBootstrapProperties kafkaBootstrapProperties = new KafkaBootstrapProperties();
+        KafkaBootstrapProperties kafkaBootstrapProperties = applicationContext.getBean(KafkaBootstrapProperties.class);
 
-        kafkaBootstrapProperties.put(
-                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
-                environment.getProperty("spring.kafka.bootstrap-servers",
-                        List.class,
-                        List.of("localhost:9092", "localhost:9094", "localhost:9096")
-                )
-        );
+        kafkaBootstrapProperties.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "5000");
 
-        return kafkaBootstrapProperties;
+        try (AdminClient adminClient = AdminClient.create(kafkaBootstrapProperties)) {
+
+            return adminClient.listTopics()
+                    .names()
+                    .get(10, TimeUnit.SECONDS)
+                    .contains(topicName);
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Error while checking topic existence: {}", e.getMessage());
+            throw new RetryableException(e);
+        } catch (TimeoutException e) {
+            log.error("Timeout while checking topic existence: {}", e.getMessage());
+            throw new NotRetryableException(e);
+        } catch (Exception e) {
+            log.error("Unexpected error while checking topic existence: {}", e.getMessage());
+            throw new NotRetryableException(e);
+        }
     }
 }

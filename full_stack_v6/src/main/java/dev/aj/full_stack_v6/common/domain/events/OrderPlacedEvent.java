@@ -5,7 +5,7 @@ import org.springframework.modulith.events.Externalized;
 
 import java.math.BigDecimal;
 
-@Externalized("orders::#{customerId}")
+@Externalized(target = "orders::#{customerId}")
 public record OrderPlacedEvent(String orderId,
                                Long customerId,
                                String firstName,

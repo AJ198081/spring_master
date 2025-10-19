@@ -58,6 +58,7 @@
         <jwt.secret.key>
             mySecretKey2389kldsjafdAddedAsAPlaceholder-Ideally_should_come_from_environment_variables_at_run_time
         </jwt.secret.key>
+        <kafka.topics.orders>orders</kafka.topics.orders>
     </properties>
 
     <dependencyManagement>

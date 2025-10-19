@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -18,9 +20,9 @@ import static org.apache.kafka.clients.producer.ProducerConfig.*;
 @RequiredArgsConstructor
 public class ProducerConfig {
 
-    // Producer Configurations
-    @Bean(name = "customKafkaTemplate")
-    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+    @Bean
+    @Primary
+    public KafkaOperations<Object, Object> kafkaTemplate(ProducerFactory<Object, Object> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 
@@ -31,12 +33,12 @@ public class ProducerConfig {
     // * Rejects write if fewer than min.insync.replicas are available; to prevent data loss.
     */
     @Bean
-    public ProducerFactory<String, Object> producerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
+    @Primary
+    public ProducerFactory<Object, Object> producerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
 
         kafkaBootstrapProperties.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         kafkaBootstrapProperties.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
-        kafkaBootstrapProperties.put(JsonSerializer.TYPE_MAPPINGS, "paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,OrderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
-
+        kafkaBootstrapProperties.put(JsonSerializer.TYPE_MAPPINGS, "paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,orderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
 
         kafkaBootstrapProperties.put(ACKS_CONFIG, "all");
 

@@ -66,7 +66,7 @@ public class KafkaProducerConfig {
 
         kafkaBootstrapProperties.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         kafkaBootstrapProperties.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
-        kafkaBootstrapProperties.put(JsonSerializer.TYPE_MAPPINGS, "paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,OrderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
+        kafkaBootstrapProperties.put(JsonSerializer.TYPE_MAPPINGS, "paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,orderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
 
 //     "all" means that the producer will wait for all the 'min-insync-replicas', which is set during topic creation.
         kafkaBootstrapProperties.put(ACKS_CONFIG, "all");

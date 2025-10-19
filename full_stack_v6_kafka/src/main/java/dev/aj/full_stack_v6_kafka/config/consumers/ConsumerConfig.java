@@ -29,7 +29,7 @@ public class ConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, PaymentSuccessfulEvent> kafkaListenerContainerFactory(ConsumerFactory<String, PaymentSuccessfulEvent> consumerFactory,
                                                                                                                  KafkaTemplate<String, Object> kafkaTemplate) {
-        // Mechanism to handle exceptions whilst consuming messages by the listener
+        // Mechanism to handle exceptions whilst consuming messages by the listener, generally due to deserialization exceptions
         DeadLetterPublishingRecoverer deadLetterPublishingRecoverer = new DeadLetterPublishingRecoverer(kafkaTemplate);
 
         DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(deadLetterPublishingRecoverer, new FixedBackOff(1000, 2));
@@ -50,13 +50,13 @@ public class ConsumerConfig {
 
         kafkaBootstrapProperties.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         kafkaBootstrapProperties.put(VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
-        kafkaBootstrapProperties.put(GROUP_ID_CONFIG, "productCreatedDto-consumer-group");
+        kafkaBootstrapProperties.put(GROUP_ID_CONFIG, "order-placed-consumer-group");
         kafkaBootstrapProperties.put(AUTO_OFFSET_RESET_CONFIG, "latest");
         kafkaBootstrapProperties.put(PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
 
 //        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, objectDeserializer);
 //        objectDeserializer.addTrustedPackages("dev.aj.kafka");
-        kafkaBootstrapProperties.put(JsonDeserializer.TYPE_MAPPINGS, "paymentSuccessfulEvent=dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,OrderPlacedEvent=dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
+        kafkaBootstrapProperties.put(JsonDeserializer.TYPE_MAPPINGS, "paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,orderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
         kafkaBootstrapProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "dev.aj.full_stack_v6.common.domain.events,dev.aj.kafka.product.domain.entities");
 
         // Error handling deserializer - a wrapper around the actual deserializer

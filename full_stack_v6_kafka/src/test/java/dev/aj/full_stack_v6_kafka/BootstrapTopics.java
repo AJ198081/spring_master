@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.core.env.Environment;
 
 import java.util.Map;
 
@@ -18,13 +19,14 @@ public class BootstrapTopics {
     public static final String PAYMENTS_TOPIC = "payments";
 
     private final AdminConfiguration adminConfiguration;
+    private final Environment environment;
 
     @PostConstruct
     public void createTopics() {
 
         Map<String, String> commonTopicConfigurations = Map.of("min.insync.replicas", "2");
 
-        NewTopic ordersTopic = adminConfiguration.createTopic(ORDERS_TOPIC, commonTopicConfigurations);
+        NewTopic ordersTopic = adminConfiguration.createTopic(environment.getProperty("kafka.topics.orders"), commonTopicConfigurations);
         if (ordersTopic == null) {
             log.info("Topic {} already exists.", ORDERS_TOPIC);
         }
