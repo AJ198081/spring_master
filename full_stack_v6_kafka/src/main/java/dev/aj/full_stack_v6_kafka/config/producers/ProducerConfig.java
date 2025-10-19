@@ -14,8 +14,21 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.time.Duration;
 
-import static org.apache.kafka.clients.producer.ProducerConfig.*;
+import static org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.BATCH_SIZE_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.LINGER_MS_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION;
+import static org.apache.kafka.clients.producer.ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.RETRIES_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.RETRY_BACKOFF_MS_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG;
 
+/**
+ * Producer is needed for publishing any message to Kafka, including to Dead Letter Queue (DLQ).
+ */
 @Configuration
 @RequiredArgsConstructor
 public class ProducerConfig {
@@ -26,12 +39,12 @@ public class ProducerConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-   /**
-    // * Works with the topic's 'min.insync.replicas' setting, which defines minimum replicas
-    // * required for successful write acknowledgment.
-    // * Applies when 'acks=all'.
-    // * Rejects write if fewer than min.insync.replicas are available; to prevent data loss.
-    */
+    /**
+     * Works with the topic's 'min.insync.replicas' setting, which defines minimum replicas
+     * required for successful write acknowledgment.
+     * Applies when 'acks=all'.
+     * Rejects write if fewer than min.insync.replicas are available; to prevent data loss.
+     */
     @Bean
     @Primary
     public ProducerFactory<Object, Object> producerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {

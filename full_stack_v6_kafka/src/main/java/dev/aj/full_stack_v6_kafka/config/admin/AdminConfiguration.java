@@ -37,7 +37,6 @@ public class AdminConfiguration {
     public KafkaBootstrapProperties getKafkaProperties() {
 
         KafkaBootstrapProperties kafkaBootstrapProperties = new KafkaBootstrapProperties();
-
         kafkaBootstrapProperties.put(
                 AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
                 environment.getProperty("spring.kafka.bootstrap-servers",
@@ -50,8 +49,8 @@ public class AdminConfiguration {
     }
 
     public NewTopic createTopic(String topicName, Map<String, String> topicConfig) {
-
         if (topicExists(topicName)) {
+            log.info("Topic {} already exists.", topicName);
             return null;
         }
 

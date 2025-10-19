@@ -18,8 +18,14 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
-import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG;
 
 @Configuration
 @RequiredArgsConstructor
@@ -32,11 +38,15 @@ public class ConsumerConfig {
         // Mechanism to handle exceptions whilst consuming messages by the listener, generally due to deserialization exceptions
         DeadLetterPublishingRecoverer deadLetterPublishingRecoverer = new DeadLetterPublishingRecoverer(kafkaTemplate);
 
-        DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(deadLetterPublishingRecoverer, new FixedBackOff(1000, 2));
         // Enable forwarding of any deserialization errors to the DLQ
-        defaultErrorHandler.setAckAfterHandle(true); // Disable committing of offset to retry the same record
-        defaultErrorHandler.addNotRetryableExceptions(NotRetryableException.class);
-        defaultErrorHandler.addRetryableExceptions(RetryableException.class);
+        DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(deadLetterPublishingRecoverer, new FixedBackOff(30000, 5));
+
+        // Enable or disable committing of offset to retry the same record
+        defaultErrorHandler.setAckAfterHandle(true);
+
+        defaultErrorHandler.addNotRetryableExceptions(NotRetryableException.class, HttpServerErrorException.class);
+        // Add any other exceptions that you want to retry, ideally if a connecting service isn't available, e.g., status is say 'unavailable'
+        defaultErrorHandler.addRetryableExceptions(RetryableException.class, ResourceAccessException.class);
 
         ConcurrentKafkaListenerContainerFactory<String, PaymentSuccessfulEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
@@ -45,27 +55,25 @@ public class ConsumerConfig {
         return factory;
     }
 
+    /**
+     * The best way to optimize your Kafka cluster is to flash it up with minimum configuration and then
+     * determine from the log what you really need
+     */
     @Bean
     public ConsumerFactory<String, PaymentSuccessfulEvent> consumerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
 
         kafkaBootstrapProperties.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         kafkaBootstrapProperties.put(VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        // Error handling deserializer - a wrapper around the actual deserializer
+        // will handle any serialization exceptions and ensure those are transferred to DLT
+        kafkaBootstrapProperties.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
+
         kafkaBootstrapProperties.put(GROUP_ID_CONFIG, "order-placed-consumer-group");
         kafkaBootstrapProperties.put(AUTO_OFFSET_RESET_CONFIG, "latest");
         kafkaBootstrapProperties.put(PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
 
-//        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, objectDeserializer);
-//        objectDeserializer.addTrustedPackages("dev.aj.kafka");
         kafkaBootstrapProperties.put(JsonDeserializer.TYPE_MAPPINGS, "paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,orderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
         kafkaBootstrapProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "dev.aj.full_stack_v6.common.domain.events,dev.aj.kafka.product.domain.entities");
-
-        // Error handling deserializer - a wrapper around the actual deserializer
-        // will handle any serialization exceptions
-        kafkaBootstrapProperties.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
-        kafkaBootstrapProperties.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
-
-        // The best way to optimize your Kafka cluster in general is to flash it up with minimum configuration,
-        // Determine from the log what you really need
 
         return new DefaultKafkaConsumerFactory<>(kafkaBootstrapProperties);
     }

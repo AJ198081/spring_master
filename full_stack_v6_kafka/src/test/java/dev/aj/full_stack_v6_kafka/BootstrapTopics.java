@@ -15,7 +15,6 @@ import java.util.Map;
 @Slf4j
 public class BootstrapTopics {
 
-    public static final String ORDERS_TOPIC = "orders";
     public static final String PAYMENTS_TOPIC = "payments";
 
     private final AdminConfiguration adminConfiguration;
@@ -23,18 +22,10 @@ public class BootstrapTopics {
 
     @PostConstruct
     public void createTopics() {
-
         Map<String, String> commonTopicConfigurations = Map.of("min.insync.replicas", "2");
 
         NewTopic ordersTopic = adminConfiguration.createTopic(environment.getProperty("kafka.topics.orders"), commonTopicConfigurations);
-        if (ordersTopic == null) {
-            log.info("Topic {} already exists.", ORDERS_TOPIC);
-        }
-
         NewTopic paymentsTopic = adminConfiguration.createTopic(PAYMENTS_TOPIC, commonTopicConfigurations);
-        if (paymentsTopic == null) {
-            log.info("Topic {} already exists.", PAYMENTS_TOPIC);
-        }
     }
 
 }
