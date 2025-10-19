@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v6.common.kafka.event_externalization;
+package dev.aj.full_stack_v6.common.kafka.config;
 
 import dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent;
 import org.springframework.context.annotation.Bean;
