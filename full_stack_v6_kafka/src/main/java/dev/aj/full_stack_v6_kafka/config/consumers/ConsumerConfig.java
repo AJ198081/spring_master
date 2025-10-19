@@ -31,7 +31,6 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZE
 @RequiredArgsConstructor
 public class ConsumerConfig {
 
-    // Supply consumers to listen to the topics
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, PaymentSuccessfulEvent> kafkaListenerContainerFactory(ConsumerFactory<String, PaymentSuccessfulEvent> consumerFactory,
                                                                                                                  KafkaTemplate<String, Object> kafkaTemplate) {
