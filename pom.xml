@@ -59,6 +59,8 @@
             mySecretKey2389kldsjafdAddedAsAPlaceholder-Ideally_should_come_from_environment_variables_at_run_time
         </jwt.secret.key>
         <kafka.topics.orders>orders</kafka.topics.orders>
+        <kafka.topics.withdrawals>withdrawals</kafka.topics.withdrawals>
+        <kafka.topics.deposits>deposits</kafka.topics.deposits>
     </properties>
 
     <dependencyManagement>

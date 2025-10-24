@@ -12,5 +12,20 @@
       "type": "java.lang.String",
       "description": "Name of the topic for OrderPlacedEvents.",
       "defaultValue": "orders"
+    },
+    {
+      "name": "kafka.topics.deposits",
+      "type": "java.lang.String",
+      "description": "Kafka topic for DepositEvents."
+    },
+    {
+      "name": "kafka.topics.withdrawals",
+      "type": "java.lang.String",
+      "description": "Kafka topic for WithdrawalEvents."
+    },
+    {
+      "name": "TRANSFER_API_PATH",
+      "type": "java.lang.String",
+      "description": "Money transfer API path."
     }
   ] }

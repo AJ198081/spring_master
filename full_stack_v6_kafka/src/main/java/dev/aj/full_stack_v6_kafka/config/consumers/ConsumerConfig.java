@@ -1,14 +1,15 @@
 package dev.aj.full_stack_v6_kafka.config.consumers;
 
-import dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent;
 import dev.aj.full_stack_v6_kafka.common.exceptions.NotRetryableException;
 import dev.aj.full_stack_v6_kafka.common.exceptions.RetryableException;
 import dev.aj.full_stack_v6_kafka.config.admin.KafkaBootstrapProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
+import org.apache.kafka.common.IsolationLevel;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -23,6 +24,7 @@ import org.springframework.web.client.ResourceAccessException;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.ISOLATION_LEVEL_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG;
@@ -32,8 +34,8 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZE
 public class ConsumerConfig {
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentSuccessfulEvent> kafkaListenerContainerFactory(ConsumerFactory<String, PaymentSuccessfulEvent> consumerFactory,
-                                                                                                                 KafkaTemplate<String, Object> kafkaTemplate) {
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(ConsumerFactory<String, Object> consumerFactory,
+                                                                                                 KafkaTemplate<String, java.lang.Object> kafkaTemplate) {
         // Mechanism to handle exceptions whilst consuming messages by the listener, generally due to deserialization exceptions
         DeadLetterPublishingRecoverer deadLetterPublishingRecoverer = new DeadLetterPublishingRecoverer(kafkaTemplate);
 
@@ -47,7 +49,7 @@ public class ConsumerConfig {
         // Add any other exceptions that you want to retry, ideally if a connecting service isn't available, e.g., status is say 'unavailable'
         defaultErrorHandler.addRetryableExceptions(RetryableException.class, ResourceAccessException.class);
 
-        ConcurrentKafkaListenerContainerFactory<String, PaymentSuccessfulEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.setAutoStartup(true);
         factory.setCommonErrorHandler(defaultErrorHandler);
@@ -59,7 +61,7 @@ public class ConsumerConfig {
      * determine from the log what you really need
      */
     @Bean
-    public ConsumerFactory<String, PaymentSuccessfulEvent> consumerFactory(KafkaBootstrapProperties kafkaBootstrapProperties) {
+    public ConsumerFactory<String, Object> consumerFactory(KafkaBootstrapProperties kafkaBootstrapProperties, Environment environment) {
 
         kafkaBootstrapProperties.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         kafkaBootstrapProperties.put(VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
@@ -67,12 +69,28 @@ public class ConsumerConfig {
         // will handle any serialization exceptions and ensure those are transferred to DLT
         kafkaBootstrapProperties.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
 
-        kafkaBootstrapProperties.put(GROUP_ID_CONFIG, "order-placed-consumer-group");
+        kafkaBootstrapProperties.put(GROUP_ID_CONFIG, "kafka_consumer_group");
         kafkaBootstrapProperties.put(AUTO_OFFSET_RESET_CONFIG, "latest");
         kafkaBootstrapProperties.put(PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
 
-        kafkaBootstrapProperties.put(JsonDeserializer.TYPE_MAPPINGS, "paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,orderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent");
-        kafkaBootstrapProperties.put(JsonDeserializer.TRUSTED_PACKAGES, "dev.aj.full_stack_v6.common.domain.events,dev.aj.kafka.product.domain.entities");
+        kafkaBootstrapProperties.put(JsonDeserializer.TYPE_MAPPINGS, """
+                paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,
+                orderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent,
+                withdrawalEvent:dev.aj.full_stack_v6_kafka.common.domain.events.WithdrawalEvent,
+                depositEvent:dev.aj.full_stack_v6_kafka.common.domain.events.DepositEvent
+                """);
+
+        kafkaBootstrapProperties.put(JsonDeserializer.TRUSTED_PACKAGES, """
+                dev.aj.full_stack_v6.common.domain.events,
+                dev.aj.full_stack_v6_kafka.common.domain.events
+                """);
+
+//        kafkaBootstrapProperties.put(ISOLATION_LEVEL_CONFIG, IsolationLevel.READ_COMMITTED.name());
+        kafkaBootstrapProperties.put(
+                ISOLATION_LEVEL_CONFIG,
+                environment.getProperty("spring.kafka.consumer.isolation-level", String.class, IsolationLevel.READ_COMMITTED.name())
+                        .toLowerCase()
+        );
 
         return new DefaultKafkaConsumerFactory<>(kafkaBootstrapProperties);
     }

@@ -27,7 +27,7 @@ public class EventSerializsationConfig {
                                 .forTarget("orders")
                                 .andKey(String.valueOf(router.customerId()))
                 )
-                .headers(_ -> Map.of("messageId", UUID.randomUUID()))
+                .headers(_ -> Map.of("messageId", UUID.randomUUID().toString()))
                 .build();
     }
 

@@ -22,10 +22,13 @@ public class BootstrapTopics {
 
     @PostConstruct
     public void createTopics() {
-        Map<String, String> commonTopicConfigurations = Map.of("min.insync.replicas", "2");
+        Map<String, String> commonTopicConfigurations = Map.of("min.insync.replicas", "3");
 
         NewTopic ordersTopic = adminConfiguration.createTopic(environment.getProperty("kafka.topics.orders"), commonTopicConfigurations);
         NewTopic paymentsTopic = adminConfiguration.createTopic(PAYMENTS_TOPIC, commonTopicConfigurations);
+
+        NewTopic depositsTopic = adminConfiguration.createTopic(environment.getProperty("kafka.topics.deposits"), commonTopicConfigurations);
+        NewTopic withdrawalsTopic = adminConfiguration.createTopic(environment.getProperty("kafka.topics.withdrawals"), commonTopicConfigurations);
     }
 
 }

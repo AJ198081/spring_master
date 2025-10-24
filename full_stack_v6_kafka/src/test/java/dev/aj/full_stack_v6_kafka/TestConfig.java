@@ -1,4 +1,4 @@
-package dev.aj.full_stack_v6;
+package dev.aj.full_stack_v6_kafka;
 
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -18,6 +18,7 @@ public class TestConfig {
 
     @Bean
     public Faker faker() {
+
         return new Faker(Locale.of("en", "IN"));
     }
 }

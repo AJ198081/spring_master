@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 class CartControllerTest {
 
     public static final String BASE_URL_FORMAT = "http://localhost:%d%s";
+
     @LocalServerPort
     private Integer port;
 

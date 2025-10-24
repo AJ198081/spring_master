@@ -1,0 +1,76 @@
+enum OrderStatus {
+  NEW
+  PENDING
+  SHIPPED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentType {
+  CASH
+  CARD
+  UPI
+  NET_BANKING
+}
+
+enum PaymentStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+type Product {
+  id: ID!
+  name: String!
+  description: String!
+  price: Float!
+  discountedPrice: Float
+  stock: Int
+}
+
+type OrderItem {
+  id: ID!
+  product: Product!
+  quantity: Int!
+  orderItemTotalPrice: Float
+}
+
+type Payment {
+  id: ID!
+  paymentIdentifier: ID!
+  paymentType: PaymentType!
+  paymentStatus: PaymentStatus!
+  amount: Float
+  paymentGatewayName: String
+  paymentGatewayStatus: String
+  paymentGatewayMessage: String
+  paymentGatewayErrorDescription: String
+  version: Int
+}
+
+type Order {
+  id: ID!
+  orderId: ID!
+  orderStatus: OrderStatus!
+  payment: Payment
+  orderItems: [OrderItem!]!
+  totalPrice: Float
+  shippingPrice: Float
+  version: Int
+}
+
+input OrderInput {
+  id: ID
+  orderId: ID
+  orderStatus: OrderStatus
+}
+
+# Root queries
+# Implementations should map to service methods that fetch orders and a single order by ID
+# The optional filter can be used to constrain results
+type Query {
+  orders(order: OrderInput): [Order]!
+  order(id: ID!): Order
+}
+
