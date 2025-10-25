@@ -70,7 +70,6 @@ class TransferServiceImplTest {
     private KafkaMessageListenerContainer<String, DepositEvent> depositEventListenerContainer;
     private BlockingQueue<ConsumerRecord<String, DepositEvent>> depositEventQueue;
 
-
     @BeforeAll
     void beforeAll() {
         DefaultKafkaConsumerFactory<String, Object> defaultKafkaConsumerFactory = new DefaultKafkaConsumerFactory<>(getKafkaMessageHeaders());
@@ -141,6 +140,9 @@ class TransferServiceImplTest {
                     assertThat(dEvent.receiverAccountId()).isEqualTo(transferRequest.getToAccountId());
                     assertThat(dEvent.amount()).isEqualTo(transferRequest.getAmount());
                 });
+
+        Mockito.verify(transferRequestRepository, Mockito.times(1))
+                .save(Mockito.any(TransferRequest.class));
     }
 
     private Map<String, Object> getKafkaMessageHeaders() {
