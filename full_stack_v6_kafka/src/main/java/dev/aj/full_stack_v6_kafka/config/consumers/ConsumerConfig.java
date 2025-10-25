@@ -58,13 +58,14 @@ public class ConsumerConfig {
 
     /**
      * The best way to optimize your Kafka cluster is to flash it up with minimum configuration and then
-     * determine from the log what you really need
+     * determine from the log what you really need to configure.
      */
     @Bean
     public ConsumerFactory<String, Object> consumerFactory(KafkaBootstrapProperties kafkaBootstrapProperties, Environment environment) {
 
         kafkaBootstrapProperties.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         kafkaBootstrapProperties.put(VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+
         // Error handling deserializer - a wrapper around the actual deserializer
         // will handle any serialization exceptions and ensure those are transferred to DLT
         kafkaBootstrapProperties.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);

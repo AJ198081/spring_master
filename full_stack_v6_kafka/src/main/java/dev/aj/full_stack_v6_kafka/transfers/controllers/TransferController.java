@@ -22,7 +22,11 @@ public class TransferController {
     private final TransferService transferService;
 
     @PostMapping("/")
-    public ResponseEntity<HttpStatus> transferFunds(@RequestBody TransferRequestDto transferRequestDto, @RequestParam(required = false) UUID messageId) throws TransferProcessingException {
+    public ResponseEntity<HttpStatus> transferFunds(
+            @RequestBody TransferRequestDto transferRequestDto,
+            @RequestParam(required = false) UUID messageId
+    ) throws TransferProcessingException {
+
         transferService.transferFunds(transferRequestDto, messageId);
         return ResponseEntity.accepted().build();
     }

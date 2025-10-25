@@ -43,22 +43,36 @@ public class TransferServiceImpl implements TransferService {
             noRollbackFor = ResourceAccessException.class
     )
     public void transferFunds(TransferRequestDto transferRequestDto, @Nullable UUID messageId) throws TransferProcessingException {
+
+        log.info("Producing transfer request: {}", transferRequestDto.toString());
+
+        if (messageId == null) {
+            log.info("Message id is null, there shouldn't be any message for amount {}", transferRequestDto.getAmount());
+        }
+
         WithdrawalEvent withdrawalEvent = new WithdrawalEvent(transferRequestDto.getFromAccountId(), transferRequestDto.getToAccountId(), transferRequestDto.getAmount());
         DepositEvent depositEvent = new DepositEvent(transferRequestDto.getToAccountId(), transferRequestDto.getFromAccountId(), transferRequestDto.getAmount());
+
+        ProducerRecord<Object, Object> withdrawalEventRecord = new ProducerRecord<>(
+                environment.getRequiredProperty("kafka.topics.withdrawals"),
+                transferRequestDto.getAmount().intValue() % 3,
+                transferRequestDto.getFromAccountId().toString(),
+                withdrawalEvent
+        );
+
+        if (Objects.nonNull(messageId)) {
+            withdrawalEventRecord.headers().add("messageId", messageId.toString().getBytes());
+        }
+        kafkaOperations.send(withdrawalEventRecord);
 
         if (Objects.isNull(messageId)) {
             throw new TransferProcessingException("Message id is null");
         }
 
-        ProducerRecord<Object, Object> withdrawalEventRecord = new ProducerRecord<>(
-                environment.getRequiredProperty("kafka.topics.withdrawals"),
-                withdrawalEvent
-        );
-
-        kafkaOperations.send(withdrawalEventRecord);
-
         ProducerRecord<Object, Object> depositEventRecord = new ProducerRecord<>(
-                environment.getRequiredProperty("kafka.topics.withdrawals"),
+                environment.getRequiredProperty("kafka.topics.deposits"),
+                transferRequestDto.getAmount().intValue() % 3,
+                transferRequestDto.getToAccountId().toString(),
                 depositEvent
         );
         depositEventRecord.headers().add("messageId", messageId.toString().getBytes());

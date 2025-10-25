@@ -27,5 +27,10 @@
       "name": "TRANSFER_API_PATH",
       "type": "java.lang.String",
       "description": "Money transfer API path."
+    },
+    {
+      "name": "junit.jupiter.execution.parallel.enabled",
+      "type": "java.lang.String",
+      "description": "Enable parallel execution of tests."
     }
   ] }

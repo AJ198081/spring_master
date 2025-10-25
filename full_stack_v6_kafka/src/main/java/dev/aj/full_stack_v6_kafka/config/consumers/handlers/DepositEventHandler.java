@@ -37,6 +37,6 @@ public class DepositEventHandler {
             return;
         }
 
-        log.info("DepositEvent with id {}, from partition {} is being handled here: {}", messageId, partitionId, depositEvent);
+        log.info("Received request to Deposit with id {}, from partition {} is being handled here: {}", messageId, partitionId, depositEvent);
     }
 }

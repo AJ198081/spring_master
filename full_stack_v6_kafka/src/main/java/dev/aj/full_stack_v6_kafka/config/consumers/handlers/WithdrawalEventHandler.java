@@ -38,6 +38,6 @@ public class WithdrawalEventHandler {
             return;
         }
 
-        log.info("WithdrawalEvent with id {}, from partition {} is being handled here: {}", messageId, partitionId, withdrawalEvent);
+        log.info("Received request to withdraw with id {}, from partition {} is being handled here: {}", messageId, partitionId, withdrawalEvent);
     }
 }

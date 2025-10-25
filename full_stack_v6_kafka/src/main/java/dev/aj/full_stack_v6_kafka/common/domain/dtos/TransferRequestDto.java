@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.modulith.NamedInterface;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @NamedInterface("dtos")
+@ToString
 public final class TransferRequestDto {
     private UUID fromAccountId;
     private UUID toAccountId;

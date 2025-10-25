@@ -22,7 +22,7 @@ public class TestDataFactory {
         return Stream.generate(() -> TransferRequestDto.builder()
                 .fromAccountId(UUID.randomUUID())
                 .toAccountId(UUID.randomUUID())
-                .amount(BigDecimal.valueOf(420L))
+                .amount(BigDecimal.valueOf(faker.random().nextLong(100L, 1000L)))
                 .build());
     }
 

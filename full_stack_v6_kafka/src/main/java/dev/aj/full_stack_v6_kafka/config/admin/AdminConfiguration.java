@@ -48,6 +48,11 @@ public class AdminConfiguration {
         return kafkaBootstrapProperties;
     }
 
+    /**
+     * Creates a topic if it doesn't exist, 3 partitions and 3 replicas.
+     * To increase partitions, just comment out if(topicExists) logic, and then run the application again.
+     * Decreasing partitions might require deleting the topic first, or just delete kafka data directory.
+     */
     public NewTopic createTopic(String topicName, Map<String, String> topicConfig) {
         if (topicExists(topicName)) {
             log.info("Topic {} already exists.", topicName);
@@ -55,6 +60,7 @@ public class AdminConfiguration {
         }
 
         NewTopic configuredTopic = TopicBuilder.name(topicName)
+                .partitions(3)
                 .replicas(3)
                 .configs(topicConfig)
                 .build();
