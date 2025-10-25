@@ -32,5 +32,11 @@
       "name": "junit.jupiter.execution.parallel.enabled",
       "type": "java.lang.String",
       "description": "Enable parallel execution of tests."
+    },
+    {
+      "name": "kafka.consumer.groupId",
+      "type": "java.lang.String",
+      "description": "Identifier of the Kafka consumer group to use for event consumption.",
+      "defaultValue": "test-consumer"
     }
   ] }
