@@ -43,12 +43,6 @@ public class ProducerConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    @Bean
-    @Primary
-    KafkaTransactionManager<Object, Object> kafkaTransactionManager(ProducerFactory<Object, Object> producerFactory) {
-        return new KafkaTransactionManager<>(producerFactory);
-    }
-
     /**
      * Works with the topic's 'min.insync.replicas' setting, which defines minimum replicas
      * required for successful write acknowledgment.

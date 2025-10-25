@@ -1,10 +1,13 @@
 package dev.aj.full_stack_v6_kafka.transfers.service;
 
 import dev.aj.full_stack_v6_kafka.common.domain.dtos.TransferRequestDto;
+import dev.aj.full_stack_v6_kafka.common.domain.entities.TransferRequest;
 import dev.aj.full_stack_v6_kafka.common.domain.events.DepositEvent;
 import dev.aj.full_stack_v6_kafka.common.domain.events.WithdrawalEvent;
+import dev.aj.full_stack_v6_kafka.common.domain.mappers.TransferRequestMapper;
 import dev.aj.full_stack_v6_kafka.common.exceptions.TransferProcessingException;
 import dev.aj.full_stack_v6_kafka.transfers.TransferService;
+import dev.aj.full_stack_v6_kafka.transfers.repositories.TransferRequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -24,6 +27,8 @@ import java.util.UUID;
 public class TransferServiceImpl implements TransferService {
 
     private final KafkaOperations<Object, Object> kafkaOperations;
+    private final TransferRequestMapper transferRequestMapper;
+    private final TransferRequestRepository transferRequestRepository;
     private final Environment environment;
 
     /**
@@ -35,10 +40,13 @@ public class TransferServiceImpl implements TransferService {
      * Checked exceptions do not trigger a rollback unless explicitly configured, using rollbackFor.
      * Specific exceptions, not critical to the transfer flow, might be ignored by using noRollbackFor.
      * <p><u>Note:</u>Additionally, ensure to set Kafka Consumer Isolation Level to READ_COMMITTED.
+     * @implNote 'kafkaTransactionManager' can only manage Kafka transactions.
+     * <p>To have a transaction wrap both database and kafka transaction, use a JpaTransactionManager.
      */
     @Override
     @Transactional(
-            transactionManager = "kafkaTransactionManager",
+//            transactionManager = "kafkaTransactionManager",
+            transactionManager = "transactionManager",
             rollbackFor = TransferProcessingException.class,
             noRollbackFor = ResourceAccessException.class
     )
@@ -46,9 +54,15 @@ public class TransferServiceImpl implements TransferService {
 
         log.info("Producing transfer request: {}", transferRequestDto.toString());
 
+        TransferRequest savedTransferRequest = transferRequestRepository.save(transferRequestMapper.transferRequestDtoToTransferRequest(transferRequestDto));
+
         if (messageId == null) {
             log.info("Message id is null, there shouldn't be any message for amount {}", transferRequestDto.getAmount());
+            log.info("TransferRequest Id: {} should also be reverted.", savedTransferRequest.getId());
+
         }
+
+
 
         WithdrawalEvent withdrawalEvent = new WithdrawalEvent(transferRequestDto.getFromAccountId(), transferRequestDto.getToAccountId(), transferRequestDto.getAmount());
         DepositEvent depositEvent = new DepositEvent(transferRequestDto.getToAccountId(), transferRequestDto.getFromAccountId(), transferRequestDto.getAmount());

@@ -43,5 +43,4 @@ public class TransferRequest {
     @Column(name = "amount", nullable = false)
     @JdbcTypeCode(SqlTypes.DECIMAL)
     private BigDecimal amount;
-
 }
