@@ -62,8 +62,6 @@ public class TransferServiceImpl implements TransferService {
 
         }
 
-
-
         WithdrawalEvent withdrawalEvent = new WithdrawalEvent(transferRequestDto.getFromAccountId(), transferRequestDto.getToAccountId(), transferRequestDto.getAmount());
         DepositEvent depositEvent = new DepositEvent(transferRequestDto.getToAccountId(), transferRequestDto.getFromAccountId(), transferRequestDto.getAmount());
 
