@@ -3,6 +3,7 @@ package dev.aj.full_stack_v6.order.controllers;
 import dev.aj.full_stack_v6.TestConfig;
 import dev.aj.full_stack_v6.TestDataFactory;
 import dev.aj.full_stack_v6.UserAuthFactory;
+import dev.aj.full_stack_v6.common.domain.dtos.OrderHistory;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.common.domain.entities.Payment;
 import dev.aj.full_stack_v6.common.domain.entities.Product;
@@ -11,8 +12,8 @@ import dev.aj.full_stack_v6.common.domain.enums.PaymentStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.modulith.moments.DayHasPassed;
@@ -41,6 +43,7 @@ import org.springframework.web.client.RestClient;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -55,8 +58,9 @@ import static org.springframework.modulith.test.ApplicationModuleTest.BootstrapM
 @TestPropertySource(locations = {
         "/application-performance.properties",
 })
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@Execution(ExecutionMode.SAME_THREAD)
 @Slf4j
 class OrderControllerTest {
 
@@ -87,7 +91,7 @@ class OrderControllerTest {
 
     private RestClient authenticatedProductClient;
 
-    @BeforeEach
+    @BeforeAll
     void init() {
         userAuthFactory.setClients(port);
         userAuthFactory.loginAndReturnNonAdminJwt();
@@ -96,20 +100,22 @@ class OrderControllerTest {
         testDataFactory.saveCustomerWithShippingAndResidentialAddress(authenticatedCustomerClient);
     }
 
-    @AfterEach
+    @AfterAll
     void destroy() {
         userAuthFactory.resetClients();
         this.resetClientsForThisUser();
     }
 
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_METHOD)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @TestMethodOrder(OrderAnnotation.class)
-    @Execution(ExecutionMode.CONCURRENT)
+    @Execution(ExecutionMode.SAME_THREAD)
     class PostOrderTests {
 
+        private Long orderId;
+
         @SneakyThrows
-        @RepeatedTest(value = 4, name = "{displayName} {currentRepetition}/{totalRepetitions}")
+        @RepeatedTest(value = 1, name = "{displayName} {currentRepetition}/{totalRepetitions}")
         @org.junit.jupiter.api.Order(1)
         @DisplayName("Test create order")
         void whenValidOrder_WithValidPayment_thenCreatesOrder(AssertablePublishedEvents assertablePublishedEvents) {
@@ -175,6 +181,8 @@ class OrderControllerTest {
                         Assertions.assertThat(response.getBody())
                                 .isNotNull()
                                 .satisfies(order -> {
+                                            orderId = order.getId();
+
                                             Assertions.assertThat(order)
                                                     .isNotNull()
                                                     .extracting(Order::getPayment)
@@ -308,7 +316,36 @@ class OrderControllerTest {
                                     .toBodilessEntity()
                     )
                     .isInstanceOf(HttpClientErrorException.Conflict.class);
+        }
 
+        @org.junit.jupiter.api.Order(3)
+        @Test
+        void getOrderHistoryById() {
+
+            userAuthFactory.loginAndReturnAdminJwt();
+            instantiateAuthenticatedClientsForThisUser();
+
+            ResponseEntity<List<OrderHistory>> orderHistoryResponse = authenticatedOrderClient.get()
+                    .uri("/history/{orderId}", orderId)
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<>() {
+                    });
+
+            Assertions.assertThat(orderHistoryResponse)
+                    .isNotNull()
+                    .satisfies(response -> {
+                                Assertions.assertThat(response.getStatusCode()).isEqualTo(OK);
+                                Assertions.assertThat(response.getBody())
+                                        .isNotNull()
+                                        .as("Order history")
+                                        .isNotEmpty()
+                                        .satisfies(history -> {
+                                            assertThat(history.size()).isGreaterThanOrEqualTo(1);
+                                            history.forEach(order -> log.info("Order history: {}", order));
+                                        });
+
+                            }
+                    );
         }
     }
 

@@ -1,10 +1,12 @@
 package dev.aj.full_stack_v6.order;
 
+import dev.aj.full_stack_v6.common.domain.dtos.OrderHistory;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent;
 import org.springframework.context.event.EventListener;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 public interface OrderService {
@@ -14,4 +16,6 @@ public interface OrderService {
 
     @EventListener
     void on(PaymentSuccessfulEvent paymentSuccessfulEvent);
+
+    List<OrderHistory> getOrderHistory(Long id, Principal principal);
 }

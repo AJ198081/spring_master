@@ -22,6 +22,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
@@ -35,6 +38,8 @@ import java.util.List;
 @SuperBuilder
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @EntityListeners(value = {AuditingEntityListener.class})
+@Audited
+@AuditTable(value = "person_history")
 public abstract class Person {
 
     @Id
@@ -53,6 +58,7 @@ public abstract class Person {
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
+    @NotAudited
     private List<Address> addresses = new ArrayList<>();
 
     @OneToOne
@@ -64,5 +70,6 @@ public abstract class Person {
 
     @Embedded
     @Builder.Default
+    @NotAudited
     private AuditMetaData auditMetaData = new AuditMetaData();
 }

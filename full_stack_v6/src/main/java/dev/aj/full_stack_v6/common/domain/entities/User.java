@@ -23,6 +23,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -45,6 +47,8 @@ import java.util.Set;
                 @UniqueConstraint(columnNames = "email")
         }
 )
+@Audited
+@AuditTable(value = "user_history")
 public class User implements UserDetails {
 
     @Id

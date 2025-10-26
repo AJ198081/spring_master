@@ -21,6 +21,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -35,6 +38,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@Audited
+@AuditTable(value = "category_history")
 public class Category {
 
     @Id
@@ -61,6 +66,7 @@ public class Category {
     @Builder.Default
     @Embedded
     @JsonIgnore
+    @NotAudited
     private AuditMetaData auditMetaData = new AuditMetaData();
 
     @Override

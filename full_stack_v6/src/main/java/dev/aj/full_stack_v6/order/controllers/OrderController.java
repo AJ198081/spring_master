@@ -1,6 +1,7 @@
 package dev.aj.full_stack_v6.order.controllers;
 
 import dev.aj.full_stack_v6.common.aspects.logging.MeasurePerformance;
+import dev.aj.full_stack_v6.common.domain.dtos.OrderHistory;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.order.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,5 +37,10 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<Order> getOrderById(@PathVariable("orderId") UUID orderId, Principal principal) {
         return ResponseEntity.ok(orderService.getOrderById(orderId, principal));
+    }
+
+    @GetMapping("/history/{id}")
+    public ResponseEntity<List<OrderHistory>> getOrderHistoryById(@PathVariable("id") Long id, Principal principal) {
+        return ResponseEntity.ok(orderService.getOrderHistory(id, principal));
     }
 }

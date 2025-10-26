@@ -24,6 +24,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -40,6 +44,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @EntityListeners(value = {AuditingEntityListener.class})
+@Audited
+@AuditTable(value = "order_history")
 public class Order {
 
     @Id
@@ -53,22 +59,29 @@ public class Order {
     @Column(name = "order_id", nullable = false, updatable = false, columnDefinition = "uuid")
     private UUID orderId = UUID.randomUUID();
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "customer_id", referencedColumnName = "id")
-    @JsonIgnore
-    private Customer customer;
-
     @Builder.Default
     @Column(name = "order_status", nullable = false, columnDefinition = "varchar(20)")
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus = OrderStatus.NEW;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    @JsonIgnore
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    private Customer customer;
+
     @OneToOne(orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "payment_id", referencedColumnName = "id")
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Payment payment;
 
+    /**
+     * @implNote  = RelationTargetAuditMode.NOT_AUDITED) has only one usage:
+     * When you have an audited entity owning the relationship to not audited entity, and you want info in audit data about the id of not audited entity.
+     */
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @NotAudited
     private List<OrderItem> orderItems = new ArrayList<>();
 
     private BigDecimal totalPrice;
@@ -80,6 +93,7 @@ public class Order {
 
     @Builder.Default
     @JsonIgnore
+    @NotAudited
     private AuditMetaData auditMetaData = new AuditMetaData();
 
     @SuppressWarnings("unused")

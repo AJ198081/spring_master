@@ -9,6 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -24,6 +28,8 @@ import java.util.Set;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
+@Audited
+@AuditTable(value = "product_history")
 public class Product {
 
     @Id
@@ -60,16 +66,24 @@ public class Product {
             cascade = CascadeType.REMOVE,
             orphanRemoval = true
     )
+    @NotAudited
     private Set<Image> images = new HashSet<>();
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "seller_id", referencedColumnName = "id",  nullable = false, updatable = false)
     @JsonIgnore
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Seller seller;
 
     @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @NotAudited
     private List<CartItem> cartItems;
+
+    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.MERGE)
+    @JsonIgnore
+    @NotAudited
+    private List<OrderItem> orderItems;
 
     @Version
     @JdbcTypeCode(SqlTypes.INTEGER)
@@ -77,10 +91,6 @@ public class Product {
 
     @Embedded
     @Builder.Default
+    @NotAudited
     private AuditMetaData auditMetaData = new AuditMetaData();
-
-    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.MERGE)
-    @JsonIgnore
-    private List<OrderItem> orderItems;
-
 }

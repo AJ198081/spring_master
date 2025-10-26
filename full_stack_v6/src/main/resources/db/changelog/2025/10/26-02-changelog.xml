@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="1761440122109-1" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="order_history"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="order_history">
+            <column name="rev" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order_history"/>
+            </column>
+            <column name="revtype" type="SMALLINT"/>
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order_history"/>
+            </column>
+            <column name="order_id" type="uuid"/>
+            <column name="customer_id" type="BIGINT"/>
+            <column name="order_status" type="varchar(20)"/>
+            <column name="payment_id" type="BIGINT"/>
+            <column name="total_price" type="DECIMAL"/>
+            <column name="shipping_price" type="DECIMAL"/>
+            <column name="version" type="INT"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1761440122109-2" author="AJ">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_ORDER_HISTORY_ON_REV" />
+            </not>
+        </preConditions>
+
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="order_history"
+                                 constraintName="FK_ORDER_HISTORY_ON_REV" referencedColumnNames="rev"
+                                 referencedTableName="revinfo"/>
+    </changeSet>
+
+</databaseChangeLog>

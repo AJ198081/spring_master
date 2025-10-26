@@ -17,6 +17,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -29,6 +31,8 @@ import java.util.Set;
 @Builder
 @Getter
 @JsonDeserialize(using = RoleDeserializer.class)
+@Audited
+@AuditTable(value = "role_history")
 public class Role implements GrantedAuthority {
 
     @Id

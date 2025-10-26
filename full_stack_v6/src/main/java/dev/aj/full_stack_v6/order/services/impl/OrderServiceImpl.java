@@ -1,6 +1,7 @@
 package dev.aj.full_stack_v6.order.services.impl;
 
 import dev.aj.full_stack_v6.cart.CartService;
+import dev.aj.full_stack_v6.common.domain.dtos.OrderHistory;
 import dev.aj.full_stack_v6.common.domain.entities.Cart;
 import dev.aj.full_stack_v6.common.domain.entities.CartItem;
 import dev.aj.full_stack_v6.common.domain.entities.Customer;
@@ -11,13 +12,17 @@ import dev.aj.full_stack_v6.common.domain.enums.OrderStatus;
 import dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent;
 import dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent;
 import dev.aj.full_stack_v6.common.domain.events.dto.ShippingDetails;
+import dev.aj.full_stack_v6.common.domain.mappers.OrderMapper;
 import dev.aj.full_stack_v6.order.OrderService;
 import dev.aj.full_stack_v6.order.repositories.OrderRepository;
 import dev.aj.full_stack_v6.payment.PaymentService;
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -28,6 +33,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -38,6 +45,8 @@ public class OrderServiceImpl implements OrderService {
     private final CartService cartService;
     private final PaymentService paymentService;
     private final ApplicationEventPublisher eventPublisher;
+    private final EntityManager entityManager;
+    private final OrderMapper orderMapper;
 
     @Override
     @Transactional
@@ -107,6 +116,18 @@ public class OrderServiceImpl implements OrderService {
 
         return orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order ID %s does not exist".formatted(orderId)));
+    }
+
+    @Override
+    @PostAuthorize("hasRole('ADMIN')")
+    public List<OrderHistory> getOrderHistory(Long id, Principal principal) {
+        AuditReader auditReader = AuditReaderFactory.get(entityManager);
+        return auditReader.getRevisions(Order.class, id)
+                .stream()
+                .map(revision -> auditReader.find(Order.class, id, revision))
+                .filter(Objects::nonNull)
+                .map(orderMapper::orderToOrderHistory)
+                .toList();
     }
 
     @EventListener
