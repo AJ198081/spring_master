@@ -1,0 +1,21 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="8" width="240" height="240" rx="40" fill="#FFFFFF"/>
+
+  <!-- Stylized A -->
+  <g stroke="#0B1220" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M64 188 L104 68"/>
+    <path d="M104 68 L144 188"/>
+    <path d="M84 138 L124 138"/>
+  </g>
+
+  <!-- A→Z arrow line -->
+  <path d="M128 132 C160 124, 188 120, 208 120" stroke="#0D6EFD" stroke-width="12" stroke-linecap="round" fill="none"/>
+  <path d="M208 120 l-18 -10 l4 10 l-4 10 Z" fill="#0D6EFD"/>
+
+  <!-- Subtle Z hint (optional; keep faint for cleanliness) -->
+  <g stroke="#0B1220" stroke-opacity="0.25" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M176 96 L224 96"/>
+    <path d="M176 184 L224 184"/>
+    <path d="M224 96 L176 184"/>
+  </g>
+</svg>

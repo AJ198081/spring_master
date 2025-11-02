@@ -120,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @PostAuthorize("hasRole('ADMIN')")
-    public List<OrderHistory> getOrderHistory(Long id, Principal principal) {
+    public List<OrderHistory> getOrderHistory(Long id) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         return auditReader.getRevisions(Order.class, id)
                 .stream()
@@ -135,13 +135,16 @@ public class OrderServiceImpl implements OrderService {
     public void on(PaymentSuccessfulEvent paymentSuccessfulEvent) {
         orderRepository.findByOrderId(paymentSuccessfulEvent.orderId())
                 .ifPresent(order -> {
-
                     if (!order.getPayment().getPaymentIdentifier().equals(paymentSuccessfulEvent.paymentIdentifier())) {
-                        log.error("Payment identifier {} does not match for order id: {}", paymentSuccessfulEvent.paymentIdentifier(), order.getOrderId());
+                        log.error("Payment identifier {} does not match for this order id: {}, which is {}",
+                                paymentSuccessfulEvent.paymentIdentifier(),
+                                order.getOrderId(),
+                                order.getPayment().getPaymentIdentifier()
+                        );
                     }
-
                     order.setOrderStatus(OrderStatus.COMPLETED);
                     orderRepository.save(order);
+                    eventPublisher.publishEvent(orderMapper.orderToOrderSuccessfulEvent(order));
                 });
     }
 

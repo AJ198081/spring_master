@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider", dateTimeProviderRef = "dateTimeProvider")
-public class AuditingEntityConfig {
+public class AuditMetaDataConfig {
 
     @Bean
     public AuditorAware<String> auditorProvider() {

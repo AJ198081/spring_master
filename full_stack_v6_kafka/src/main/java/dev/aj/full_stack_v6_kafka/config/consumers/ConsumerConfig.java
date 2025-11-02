@@ -78,7 +78,8 @@ public class ConsumerConfig {
                 paymentSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent,
                 orderPlacedEvent:dev.aj.full_stack_v6.common.domain.events.OrderPlacedEvent,
                 withdrawalEvent:dev.aj.full_stack_v6_kafka.common.domain.events.WithdrawalEvent,
-                depositEvent:dev.aj.full_stack_v6_kafka.common.domain.events.DepositEvent
+                depositEvent:dev.aj.full_stack_v6_kafka.common.domain.events.DepositEvent,
+                orderSuccessfulEvent:dev.aj.full_stack_v6.common.domain.events.OrderSuccessfulEvent
                 """);
 
         kafkaBootstrapProperties.put(JsonDeserializer.TRUSTED_PACKAGES, """

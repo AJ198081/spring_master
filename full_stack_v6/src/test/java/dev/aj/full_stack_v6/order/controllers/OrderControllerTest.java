@@ -80,15 +80,10 @@ class OrderControllerTest {
     private TimeMachine timeMachine;
 
     private RestClient authenticatedPaymentClient;
-
     private RestClient authenticatedCustomerClient;
-
     private RestClient authenticatedSellerClient;
-
     private RestClient authenticatedOrderClient;
-
     private RestClient authenticatedCartClient;
-
     private RestClient authenticatedProductClient;
 
     @BeforeAll
@@ -320,7 +315,7 @@ class OrderControllerTest {
 
         @org.junit.jupiter.api.Order(3)
         @Test
-        void getOrderHistoryById() {
+        void adminUser_canGetOrderHistory_Successfully() {
 
             userAuthFactory.loginAndReturnAdminJwt();
             instantiateAuthenticatedClientsForThisUser();
@@ -346,6 +341,22 @@ class OrderControllerTest {
 
                             }
                     );
+        }
+
+        @org.junit.jupiter.api.Order(4)
+        @Test
+        void nonAdminUser_getOrderHistory_ThrowsForbidden() {
+
+            userAuthFactory.loginAndReturnNonAdminJwt();
+            instantiateAuthenticatedClientsForThisUser();
+
+            RestClient.ResponseSpec getHistoryResponseSpec = authenticatedOrderClient.get()
+                    .uri("/history/{orderId}", orderId)
+                    .retrieve();
+
+            Assertions.assertThatThrownBy(getHistoryResponseSpec::toBodilessEntity)
+                    .isInstanceOf(HttpClientErrorException.Forbidden.class);
+
         }
     }
 

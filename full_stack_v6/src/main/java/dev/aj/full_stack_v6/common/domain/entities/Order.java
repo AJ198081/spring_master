@@ -36,16 +36,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Table(name = "orders")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(value = {AuditingEntityListener.class})
+@Entity
+@Table(name = "orders")
 @Audited
 @AuditTable(value = "order_history")
+@EntityListeners(value = {AuditingEntityListener.class})
 public class Order {
 
     @Id
@@ -70,15 +70,15 @@ public class Order {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Customer customer;
 
+    /**
+     * @implNote <b>RelationTargetAuditMode.NOT_AUDITED)</b> has only one usage:
+     * When you have an audited entity owning the relationship to not audited entity, and you want info in audit data about the id of not audited entity.
+     */
     @OneToOne(orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "payment_id", referencedColumnName = "id")
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private Payment payment;
 
-    /**
-     * @implNote  = RelationTargetAuditMode.NOT_AUDITED) has only one usage:
-     * When you have an audited entity owning the relationship to not audited entity, and you want info in audit data about the id of not audited entity.
-     */
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @NotAudited
@@ -119,3 +119,4 @@ public class Order {
         customer.getOrders().add(this);
     }
 }
+

@@ -25,6 +25,9 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 public class AdminConfiguration {
 
+    public static final int PREDEFINED_PARTITION_COUNT = 3;
+    public static final int STANDARD_REPLICA_COUNT = 3;
+
     private final Environment environment;
     private final ApplicationContext applicationContext;
 
@@ -50,8 +53,8 @@ public class AdminConfiguration {
 
     /**
      * Creates a topic if it doesn't exist, 3 partitions and 3 replicas.
-     * To increase partitions, just comment out if(topicExists) logic, and then run the application again.
-     * Decreasing partitions might require deleting the topic first, or just delete kafka data directory.
+     * To increase partitions, just comment out if(topicExists) logic and then run the application again.
+     * Decreasing partitions might require deleting the topic first, and also delete kafka data directory.
      */
     public NewTopic createTopic(String topicName, Map<String, String> topicConfig) {
         if (topicExists(topicName)) {
@@ -60,8 +63,8 @@ public class AdminConfiguration {
         }
 
         NewTopic configuredTopic = TopicBuilder.name(topicName)
-                .partitions(3)
-                .replicas(3)
+                .partitions(PREDEFINED_PARTITION_COUNT)
+                .replicas(STANDARD_REPLICA_COUNT)
                 .configs(topicConfig)
                 .build();
 
@@ -87,6 +90,7 @@ public class AdminConfiguration {
                     .names()
                     .get(10, TimeUnit.SECONDS)
                     .contains(topicName);
+
         } catch (InterruptedException | ExecutionException e) {
             log.error("Error while checking topic existence: {}", e.getMessage());
             throw new RetryableException(e);

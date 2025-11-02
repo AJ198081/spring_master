@@ -106,6 +106,7 @@ public class UserAuthFactory {
         try {
             ResponseEntity<Void> response = postANewUser(currentUserCreateRequest);
             if (!response.getStatusCode().is2xxSuccessful()) {
+                log.error("User creation failed with response code: {}; trying again.", response.getStatusCode());
                 return addANewUniqueUserWithAnyRole();
             }
         } catch (HttpClientErrorException.Conflict e) {
@@ -140,7 +141,7 @@ public class UserAuthFactory {
 
     public HttpHeaders getBearerTokenHeader() {
 
-        String tokenPrefixEnvValue = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer ");
+        String tokenPrefixEnvValue = environment.getProperty("authorization.token.header.value.prefix", String.class, "Bearer");
 
         String authTokenPrefix = tokenPrefixEnvValue.endsWith(" ")
                 ? tokenPrefixEnvValue
@@ -204,7 +205,6 @@ public class UserAuthFactory {
 
             loginAndRefreshCurrentJwt(loginRequest);
         }
-
 
         return currentJwt;
     }

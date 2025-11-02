@@ -17,5 +17,5 @@ public interface OrderService {
     @EventListener
     void on(PaymentSuccessfulEvent paymentSuccessfulEvent);
 
-    List<OrderHistory> getOrderHistory(Long id, Principal principal);
+    List<OrderHistory> getOrderHistory(Long id);
 }

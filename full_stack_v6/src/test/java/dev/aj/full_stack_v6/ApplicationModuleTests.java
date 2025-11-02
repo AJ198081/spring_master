@@ -1,6 +1,6 @@
 package dev.aj.full_stack_v6;
 
-import dev.aj.full_stack_v6.common.domain.config.AuditingEntityConfig;
+import dev.aj.full_stack_v6.common.domain.config.AuditMetaDataConfig;
 import dev.aj.full_stack_v6.security.config.beans.AuthManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -14,7 +14,7 @@ import org.springframework.modulith.test.ApplicationModuleTest;
 @Import(
         value = {
                 AuthManager.class,
-                AuditingEntityConfig.class
+                AuditMetaDataConfig.class
         }
 )
 public class ApplicationModuleTests {

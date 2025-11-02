@@ -40,7 +40,7 @@ public class OrderController {
     }
 
     @GetMapping("/history/{id}")
-    public ResponseEntity<List<OrderHistory>> getOrderHistoryById(@PathVariable("id") Long id, Principal principal) {
-        return ResponseEntity.ok(orderService.getOrderHistory(id, principal));
+    public ResponseEntity<List<OrderHistory>> getOrderHistoryById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(orderService.getOrderHistory(id));
     }
 }
