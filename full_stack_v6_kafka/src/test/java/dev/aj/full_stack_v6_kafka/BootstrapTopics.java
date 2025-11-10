@@ -1,10 +1,10 @@
 package dev.aj.full_stack_v6_kafka;
 
 import dev.aj.full_stack_v6_kafka.config.admin.AdminConfiguration;
+import dev.aj.full_stack_v6_kafka.streams.GreetingsTopology;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.core.env.Environment;
 
@@ -24,11 +24,14 @@ public class BootstrapTopics {
     public void createTopics() {
         Map<String, String> commonTopicConfigurations = Map.of("min.insync.replicas", "3");
 
-        NewTopic ordersTopic = adminConfiguration.createTopic(environment.getProperty("kafka.topics.orders"), commonTopicConfigurations);
-        NewTopic paymentsTopic = adminConfiguration.createTopic(PAYMENTS_TOPIC, commonTopicConfigurations);
+        adminConfiguration.createTopic(environment.getProperty("kafka.topics.orders"), commonTopicConfigurations);
+        adminConfiguration.createTopic(PAYMENTS_TOPIC, commonTopicConfigurations);
 
-        NewTopic depositsTopic = adminConfiguration.createTopic(environment.getProperty("kafka.topics.deposits"), commonTopicConfigurations);
-        NewTopic withdrawalsTopic = adminConfiguration.createTopic(environment.getProperty("kafka.topics.withdrawals"), commonTopicConfigurations);
+        adminConfiguration.createTopic(environment.getProperty("kafka.topics.deposits"), commonTopicConfigurations);
+        adminConfiguration.createTopic(environment.getProperty("kafka.topics.withdrawals"), commonTopicConfigurations);
+
+        adminConfiguration.createTopic(GreetingsTopology.GREETINGS, commonTopicConfigurations);
+        adminConfiguration.createTopic(GreetingsTopology.GREETINGS_UPPERCASE, commonTopicConfigurations);
     }
 
 }

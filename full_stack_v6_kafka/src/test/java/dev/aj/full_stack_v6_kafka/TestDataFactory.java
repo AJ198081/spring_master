@@ -26,4 +26,7 @@ public class TestDataFactory {
                 .build());
     }
 
+    public Stream<String> getStreamOfWords() {
+        return Stream.generate(() -> faker.lorem().word());
+    }
 }

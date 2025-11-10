@@ -12,7 +12,6 @@ import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import java.time.Duration;
 
@@ -33,7 +32,7 @@ import static org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_
 /**
  * Producer is needed for publishing any message to Kafka, including to Dead Letter Queue (DLQ).
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @RequiredArgsConstructor
 public class ProducerConfig {
 

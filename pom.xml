@@ -46,6 +46,7 @@
         <module>kafka</module>
         <module>full_stack_v5</module>
         <module>full_stack_v6</module>
+        <module>full_stack_v6_kafka</module>
     </modules>
 
     <properties>
