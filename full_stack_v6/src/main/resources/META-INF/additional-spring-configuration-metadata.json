@@ -12,17 +12,17 @@
     },
     {
       "name": "jwt.expiration.ms",
-      "type": "java.lang.Integer",
+      "type": "java.lang.Long",
       "description": "How long the JWT should be valid for (in milliseconds)."
     },
     {
       "name": "jwt.refresh.expiration.ms",
-      "type": "java.lang.Integer",
+      "type": "java.lang.Long",
       "description": "How long the Refresh Token, also a JWT, should be valid for (in milliseconds)."
     },
     {
       "name": "jwt.refresh.token.cookie.max.age",
-      "type": "java.lang.Integer",
+      "type": "java.lang.Long",
       "description": "How long the Cookie containing the Refresh Token should be valid for (in milliseconds). Should be same as jwt.refresh.expiration.ms."
     },
     {
