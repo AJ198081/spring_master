@@ -81,5 +81,7 @@ class RandomWordProcessorTopologyTest {
                 );
 
         log.info("wordCountByInitial : {}", wordCountByInitial);
+
+        Thread.sleep(10000L);
     }
 }

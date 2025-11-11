@@ -98,12 +98,14 @@ public class RandomWordProcessorTopology implements ApplicationListener<ContextR
         log.info("Starting Kafka Streams {}", event.getApplicationContext().getApplicationName());
 
         Properties streamsProperties = new Properties();
-        streamsProperties.put(StreamsConfig.APPLICATION_ID_CONFIG, "random_word_processor");
         streamsProperties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.bootstrap-servers"));
         streamsProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         try {
+            streamsProperties.put(StreamsConfig.APPLICATION_ID_CONFIG, "upper_case_consonants_topology");
             kafkaStreams = new KafkaStreams(applicationContext.getBean("upperCaseConsonantsTopology", Topology.class), streamsProperties);
+
+            streamsProperties.put(StreamsConfig.APPLICATION_ID_CONFIG, "upper_case_vowels_to_object_topology");
             kafkaObjectStreams = new KafkaStreams(applicationContext.getBean("upperCaseVowelsToObjectTopology", Topology.class), streamsProperties);
 
             kafkaStreams.start();
