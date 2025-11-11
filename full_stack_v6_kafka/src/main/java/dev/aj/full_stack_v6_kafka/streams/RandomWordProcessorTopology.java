@@ -78,20 +78,6 @@ public class RandomWordProcessorTopology implements ApplicationListener<ContextR
         return streamsBuilder.build();
     }
 
-    private boolean vowels(String key, String value) {
-        return getVowelSet().contains(key.toLowerCase());
-    }
-
-    private boolean consonants(String key, String value) {
-
-        return !getVowelSet().contains(key.toLowerCase());
-    }
-
-    private static Set<String> getVowelSet() {
-        return Arrays.stream(VOWEL_SET.split(""))
-                .collect(Collectors.toSet());
-    }
-
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
 
@@ -122,5 +108,19 @@ public class RandomWordProcessorTopology implements ApplicationListener<ContextR
         kafkaStreams.close();
         kafkaObjectStreams.close();
         log.info("Kafka Streams closed");
+    }
+
+    private boolean vowels(String key, String value) {
+        return getVowelSet().contains(key.toLowerCase());
+    }
+
+    private boolean consonants(String key, String value) {
+
+        return !getVowelSet().contains(key.toLowerCase());
+    }
+
+    private static Set<String> getVowelSet() {
+        return Arrays.stream(VOWEL_SET.split(""))
+                .collect(Collectors.toSet());
     }
 }
