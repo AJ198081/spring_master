@@ -33,6 +33,8 @@ public class BootstrapTopics {
         adminConfiguration.createTopic(RandomWordProcessorTopology.GREETINGS, commonTopicConfigurations);
         adminConfiguration.createTopic(RandomWordProcessorTopology.GREETINGS_UPPERCASE, commonTopicConfigurations);
         adminConfiguration.createTopic(RandomWordProcessorTopology.GREETINGS_UPPERCASE_OBJECT, commonTopicConfigurations);
+        adminConfiguration.createTopic(RandomWordProcessorTopology.WORDS_WITH_4_OR_MORE_LETTERS, commonTopicConfigurations);
+        adminConfiguration.createTopic(RandomWordProcessorTopology.WORDS_WITH_LESS_THAN_4_LETTERS, commonTopicConfigurations);
     }
 
 }
