@@ -56,10 +56,10 @@ public class AdminConfiguration {
      * To increase partitions, just comment out if(topicExists) logic and then run the application again.
      * Decreasing partitions might require deleting the topic first, and also delete kafka data directory.
      */
-    public NewTopic createTopic(String topicName, Map<String, String> topicConfig) {
+    public void createTopic(String topicName, Map<String, String> topicConfig) {
         if (topicExists(topicName)) {
             log.info("Topic {} already exists.", topicName);
-            return null;
+            return;
         }
 
         NewTopic configuredTopic = TopicBuilder.name(topicName)
@@ -75,7 +75,6 @@ public class AdminConfiguration {
 
         log.info("Created topic: {}", configuredTopic.name());
 
-        return configuredTopic;
     }
 
     private boolean topicExists(String topicName) {

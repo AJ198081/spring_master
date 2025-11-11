@@ -1,7 +1,7 @@
 package dev.aj.full_stack_v6_kafka;
 
 import dev.aj.full_stack_v6_kafka.config.admin.AdminConfiguration;
-import dev.aj.full_stack_v6_kafka.streams.GreetingsTopology;
+import dev.aj.full_stack_v6_kafka.streams.RandomWordProcessorTopology;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +30,9 @@ public class BootstrapTopics {
         adminConfiguration.createTopic(environment.getProperty("kafka.topics.deposits"), commonTopicConfigurations);
         adminConfiguration.createTopic(environment.getProperty("kafka.topics.withdrawals"), commonTopicConfigurations);
 
-        adminConfiguration.createTopic(GreetingsTopology.GREETINGS, commonTopicConfigurations);
-        adminConfiguration.createTopic(GreetingsTopology.GREETINGS_UPPERCASE, commonTopicConfigurations);
+        adminConfiguration.createTopic(RandomWordProcessorTopology.GREETINGS, commonTopicConfigurations);
+        adminConfiguration.createTopic(RandomWordProcessorTopology.GREETINGS_UPPERCASE, commonTopicConfigurations);
+        adminConfiguration.createTopic(RandomWordProcessorTopology.GREETINGS_UPPERCASE_OBJECT, commonTopicConfigurations);
     }
 
 }
