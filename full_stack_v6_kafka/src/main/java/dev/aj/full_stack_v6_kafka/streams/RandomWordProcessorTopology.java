@@ -105,6 +105,21 @@ public class RandomWordProcessorTopology implements ApplicationListener<ContextR
         return streamsBuilder.build();
     }
 
+
+    /**
+         * Two ways to achieve parallelism in Kafka Streams:
+         * <br><br><b>1. Stream Thread Level Parallelism:</b>
+         *    <li> Set the number of stream threads equal to the number of topic partitions</li>
+         *    <li> Each thread processes a subset of partitions</li>
+         *    <li> Configured via NUM_STREAM_THREADS_CONFIG property</li>
+         * <br><br<b>2. Application Instance Level Parallelism:</b>
+         *    <li> Deploy multiple instances of the same Streams application</li>
+         *    <li> All instances must use the same application.id</li>
+         *    <li>So they belong to the same consumer group. Behind the scene Kafka Stream is just a Topology/pipeline of Producers and Consumers</li>
+         *    <li> Maximum useful instances = number of topic partitions</li>
+         *    <li> Partitions are automatically distributed across instances</li>
+         *    <li> Additional instances beyond partition count will remain idle</li>
+         */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
 
@@ -112,6 +127,7 @@ public class RandomWordProcessorTopology implements ApplicationListener<ContextR
 
         Properties streamsProperties = new Properties();
         streamsProperties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.bootstrap-servers"));
+        streamsProperties.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, "3");
         streamsProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         try {
