@@ -2,6 +2,9 @@ package dev.aj.full_stack_v6_kafka.streams;
 
 import dev.aj.full_stack_v6_kafka.streams.custom_serdes.SerdesFactory;
 import dev.aj.full_stack_v6_kafka.streams.custom_types.StringObject;
+import dev.aj.full_stack_v6_kafka.streams.exception_handlers.StreamsDeserializationExceptionHandler;
+import dev.aj.full_stack_v6_kafka.streams.exception_handlers.StreamsProcessorExceptionHandler;
+import dev.aj.full_stack_v6_kafka.streams.exception_handlers.StreamsSerializationExceptionHandler;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +78,7 @@ public class RandomWordProcessorTopology implements ApplicationListener<ContextR
 
         streamsBuilder
                 .stream(GREETINGS, Consumed.with(serdesFactory.stringSerdes(), serdesFactory.stringSerdes()))
-                .peek(((key, value) -> System.out.println("Greetings Vowel Topology - key: " + key + ", VALUE: " + value)))
+                .peek(((key, value) -> System.out.println("Greeting Vowel Topology - key: " + key + ", VALUE: " + value)))
                 .filter(this::vowels)
                 .mapValues((_, value) -> new StringObject(value.toUpperCase()))
                 .peek(((key, value) -> System.out.println("Vowel Topology - key: " + key + ", VALUE: " + value)))
@@ -107,32 +110,41 @@ public class RandomWordProcessorTopology implements ApplicationListener<ContextR
 
 
     /**
-         * Two ways to achieve parallelism in Kafka Streams:
-         * <br><br><b>1. Stream Thread Level Parallelism:</b>
-         *    <li> Set the number of stream threads equal to the number of topic partitions</li>
-         *    <li> Each thread processes a subset of partitions</li>
-         *    <li> Configured via NUM_STREAM_THREADS_CONFIG property</li>
-         * <br><br<b>2. Application Instance Level Parallelism:</b>
-         *    <li> Deploy multiple instances of the same Streams application</li>
-         *    <li> All instances must use the same application.id</li>
-         *    <li>So they belong to the same consumer group. Behind the scene Kafka Stream is just a Topology/pipeline of Producers and Consumers</li>
-         *    <li> Maximum useful instances = number of topic partitions</li>
-         *    <li> Partitions are automatically distributed across instances</li>
-         *    <li> Additional instances beyond partition count will remain idle</li>
-         */
+     * Two ways to achieve parallelism in Kafka Streams:
+     * <br><br><b>1. Stream Thread Level Parallelism:</b>
+     * <li> Set the number of stream threads equal to the number of topic partitions</li>
+     * <li> Each thread processes a subset of partitions</li>
+     * <li> Configured via NUM_STREAM_THREADS_CONFIG property</li>
+     * <br><br<b>2. Application Instance Level Parallelism:</b>
+     * <li> Deploy multiple instances of the same Streams application</li>
+     * <li> All instances must use the same application.id</li>
+     * <li>So they belong to the same consumer group. Behind the scene Kafka Stream is just a Topology/pipeline of Producers and Consumers</li>
+     * <li> Maximum useful instances = number of topic partitions</li>
+     * <li> Partitions are automatically distributed across instances</li>
+     * <li> Additional instances beyond partition count will remain idle</li>
+     */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
 
         log.info("Starting Kafka Streams {}", event.getApplicationContext().getApplicationName());
 
         Properties streamsProperties = new Properties();
+
         streamsProperties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.bootstrap-servers"));
         streamsProperties.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, "3");
+
+        streamsProperties.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, StreamsDeserializationExceptionHandler.class);
+        streamsProperties.put(StreamsConfig.PROCESSING_EXCEPTION_HANDLER_CLASS_CONFIG, StreamsProcessorExceptionHandler.class);
+        streamsProperties.put(StreamsConfig.DEFAULT_PRODUCTION_EXCEPTION_HANDLER_CLASS_CONFIG, StreamsSerializationExceptionHandler.class);
+
         streamsProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         try {
             streamsProperties.put(StreamsConfig.APPLICATION_ID_CONFIG, "upper_case_consonants_topology");
             kafkaStreams = new KafkaStreams(applicationContext.getBean("upperCaseConsonantsTopology", Topology.class), streamsProperties);
+
+            // Alternative way to set the Stream Processor Exception Handler, per stream
+            kafkaStreams.setUncaughtExceptionHandler(new StreamsProcessorExceptionHandler());
 
             streamsProperties.put(StreamsConfig.APPLICATION_ID_CONFIG, "upper_case_vowels_to_object_topology");
             kafkaObjectStreams = new KafkaStreams(applicationContext.getBean("upperCaseVowelsToObjectTopology", Topology.class), streamsProperties);
