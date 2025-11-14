@@ -5,6 +5,7 @@ import dev.aj.full_stack_v6_kafka.streams.custom_types.StringObject;
 import dev.aj.full_stack_v6_kafka.streams.exception_handlers.StreamsDeserializationExceptionHandler;
 import dev.aj.full_stack_v6_kafka.streams.exception_handlers.StreamsProcessorExceptionHandler;
 import dev.aj.full_stack_v6_kafka.streams.exception_handlers.StreamsSerializationExceptionHandler;
+import dev.aj.full_stack_v6_kafka.streams.exception_handlers.StreamsUncaughtExceptionHandler;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -143,8 +144,8 @@ public class RandomWordProcessorTopology implements ApplicationListener<ContextR
             streamsProperties.put(StreamsConfig.APPLICATION_ID_CONFIG, "upper_case_consonants_topology");
             kafkaStreams = new KafkaStreams(applicationContext.getBean("upperCaseConsonantsTopology", Topology.class), streamsProperties);
 
-            // Alternative way to set the Stream Processor Exception Handler, per stream
-            kafkaStreams.setUncaughtExceptionHandler(new StreamsProcessorExceptionHandler());
+            // Set the exception handler for all uncaught exceptions thrown during stream processing
+            kafkaStreams.setUncaughtExceptionHandler(new StreamsUncaughtExceptionHandler());
 
             streamsProperties.put(StreamsConfig.APPLICATION_ID_CONFIG, "upper_case_vowels_to_object_topology");
             kafkaObjectStreams = new KafkaStreams(applicationContext.getBean("upperCaseVowelsToObjectTopology", Topology.class), streamsProperties);
