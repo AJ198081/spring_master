@@ -73,16 +73,26 @@ public class TestDataFactory {
     public Stream<UserCreateRequest> getStreamOfUserRequests() {
         return Stream.generate(() -> new UserCreateRequest(
                 faker.credentials().username(),
-                faker.internet().emailAddress(),
+                getUniqueEmail(),
                 faker.credentials().password(),
                 roles.get(faker.random().nextInt(roles.size())))
         );
     }
 
+//    Get an almost unique email address, but it might still be taken.
+    private String getUniqueEmail() {
+
+        String[] emailParts = faker.internet().emailAddress().split("@");
+
+        return emailParts[0]
+                .concat("_").concat(faker.numerify("###"))
+                .concat("@").concat(emailParts[1]);
+    }
+
     public UserCreateRequest userCreateRequest(String username) {
         return new UserCreateRequest(
                 username,
-                faker.internet().emailAddress(),
+                getUniqueEmail(),
                 faker.credentials().password(),
                 roles.get(faker.random().nextInt(roles.size()))
         );

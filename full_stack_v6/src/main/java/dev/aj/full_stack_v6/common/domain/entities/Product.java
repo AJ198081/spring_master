@@ -61,7 +61,7 @@ public class Product {
 
     @Builder.Default
     @OneToMany(
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "product",
             cascade = CascadeType.REMOVE,
             orphanRemoval = true
