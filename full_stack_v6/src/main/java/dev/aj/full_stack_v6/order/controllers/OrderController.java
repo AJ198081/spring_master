@@ -3,6 +3,7 @@ package dev.aj.full_stack_v6.order.controllers;
 import dev.aj.full_stack_v6.common.aspects.logging.MeasurePerformance;
 import dev.aj.full_stack_v6.common.domain.dtos.OrderHistory;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
+import dev.aj.full_stack_v6.common.domain.enums.OrderStatus;
 import dev.aj.full_stack_v6.order.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,5 +43,10 @@ public class OrderController {
     @GetMapping("/history/{id}")
     public ResponseEntity<List<OrderHistory>> getOrderHistoryById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(orderService.getOrderHistory(id));
+    }
+
+    @GetMapping("/status/{orderStatus}")
+    public ResponseEntity<List<Order>> findOrderByStatus(@PathVariable("orderStatus") OrderStatus orderStatus) {
+        return ResponseEntity.ok(orderService.getOrdersByStatus(orderStatus));
     }
 }

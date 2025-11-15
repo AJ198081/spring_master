@@ -156,6 +156,11 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new EntityNotFoundException("Customer for Username: %s not found".formatted(name)));
     }
 
+    @Override
+    public Customer getCustomerByLastnameLike(String lastnamePattern) {
+        return customerRepository.findCustomerByLastNameLike("%".concat(lastnamePattern).concat("%"));
+    }
+
     private void updateCustomerIdempotent(Customer existing, Customer modified) {
         if (modified.getFirstName() != null && !Objects.equals(existing.getFirstName(), modified.getFirstName())) {
             existing.setFirstName(modified.getFirstName());

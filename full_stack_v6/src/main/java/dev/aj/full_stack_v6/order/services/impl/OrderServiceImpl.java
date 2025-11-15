@@ -130,6 +130,16 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
+    @Override
+    public List<Order> getOrdersByCustomerId(Long customerId) {
+        return orderRepository.findOrdersByCustomerId(customerId);
+    }
+
+    @Override
+    public List<Order> getOrdersByStatus(OrderStatus orderStatus) {
+        return orderRepository.findOrdersByOrderStatus(orderStatus);
+    }
+
     @EventListener
     @Override
     public void on(PaymentSuccessfulEvent paymentSuccessfulEvent) {

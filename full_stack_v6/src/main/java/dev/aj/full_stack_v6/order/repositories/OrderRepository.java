@@ -15,4 +15,5 @@ public interface OrderRepository extends JpaRepositoryImplementation<Order, Long
 
     List<Order> findOrdersByOrderStatus(OrderStatus orderStatus);
 
+    List<Order> findOrdersByCustomerId(Long customerId);
 }

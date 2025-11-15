@@ -2,6 +2,7 @@ package dev.aj.full_stack_v6.order;
 
 import dev.aj.full_stack_v6.common.domain.dtos.OrderHistory;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
+import dev.aj.full_stack_v6.common.domain.enums.OrderStatus;
 import dev.aj.full_stack_v6.common.domain.events.PaymentSuccessfulEvent;
 import org.springframework.context.event.EventListener;
 
@@ -18,4 +19,8 @@ public interface OrderService {
     void on(PaymentSuccessfulEvent paymentSuccessfulEvent);
 
     List<OrderHistory> getOrderHistory(Long id);
+
+    List<Order> getOrdersByCustomerId(Long customerId);
+
+    List<Order> getOrdersByStatus(OrderStatus orderStatus);
 }

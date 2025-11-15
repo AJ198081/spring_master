@@ -12,4 +12,7 @@ public interface CustomerRepository extends JpaRepositoryImplementation<Customer
 
     @Query("select c from Customer c where c.user.username = ?1")
     Optional<Customer> findCustomerByUsername(String username);
+
+    Customer findCustomerByLastNameLike(String lastnamePattern);
+
 }

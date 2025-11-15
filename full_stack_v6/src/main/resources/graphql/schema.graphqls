@@ -1,6 +1,65 @@
+# GraphQL has 3 types of fundamental - Query, Mutation and Subscription
+# schema.graphqls, where graphqls stands for Graph Query Language Schema
 type Query {
     sayHello: String,
     sayHelloTo(name: String!): String!
     random: Int!
     randomIntegerBetween(min: Int!, max: Int!): Int!
+    allCustomers: [Customer]!,
+    customerById(id: Int): Customer
+    customersLastnameLike(lastName: String!): Customer
+    ordersForCustomer(id: Int): [Order]
+}
+
+type Customer{
+    id: ID,
+    firstName: String,
+    lastName: String,
+    phone: String,
+    addresses: [Address]
+}
+
+type Address{
+    street: String,
+    city: String,
+    state: String,
+    country: String,
+    pinCode: String
+}
+
+type Order {
+id: ID,
+orderDate: String,
+orderStatus: String,
+shippingDate: String,
+shippingAddress: Address,
+customer: Customer,
+orderItems: [OrderItem],
+totalPrice: Float,
+billingInformation: BillingInformation
+}
+
+type OrderItem {
+id: ID,
+product: Product,
+quantity: Int,
+price: Float
+}
+
+type Product {
+id: ID,
+name: String,
+description: String,
+price: Float,
+category: String,
+inventory: Int
+}
+
+type BillingInformation {
+id: ID,
+cardNumber: String,
+cardHolderName: String,
+expiryDate: String,
+cvv: String,
+billingAddress: Address
 }

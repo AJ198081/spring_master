@@ -17,4 +17,6 @@ public interface CustomerService {
     void deleteAddress(Long customerId, Long addressId);
 
     Customer getCustomerByUserName(String name);
+
+    Customer getCustomerByLastnameLike(String lastnamePattern);
 }
