@@ -43,7 +43,7 @@ public class Customer extends Person {
     @NotAudited
     private List<Payment> payments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer", cascade = {ALL}, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "customer", cascade = {ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Order> orders = new ArrayList<>();
 

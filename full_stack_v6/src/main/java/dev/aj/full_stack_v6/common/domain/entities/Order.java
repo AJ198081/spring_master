@@ -39,7 +39,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(staticName = "create")
 @Builder
 @Entity
 @Table(name = "orders")
@@ -80,7 +80,7 @@ public class Order {
     private Payment payment;
 
     @Builder.Default
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @NotAudited
     private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -117,6 +117,14 @@ public class Order {
     public void assignOrderToCustomer(Customer customer) {
         this.customer = customer;
         customer.getOrders().add(this);
+    }
+
+    public void assignOrderItems(List<OrderItem> orderItems) {
+        orderItems.forEach(orderItem -> {
+                    orderItem.setOrder(this);
+                    this.orderItems.add(orderItem);
+                }
+        );
     }
 }
 

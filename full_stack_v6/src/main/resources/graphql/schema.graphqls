@@ -16,7 +16,8 @@ type Customer{
     firstName: String,
     lastName: String,
     phone: String,
-    addresses: [Address]
+    addresses: [Address],
+    orders: [Order]
 }
 
 type Address{
@@ -43,7 +44,7 @@ type OrderItem {
 id: ID,
 product: Product,
 quantity: Int,
-price: Float
+orderItemTotalPrice: Float
 }
 
 type Product {

@@ -80,8 +80,8 @@ public class Product {
     @NotAudited
     private List<CartItem> cartItems;
 
-    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.MERGE)
     @JsonIgnore
+    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @NotAudited
     private List<OrderItem> orderItems;
 

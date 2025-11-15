@@ -71,10 +71,12 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         newOrder.assignPayment(paymentForThisOrder, customerCart.getTotalPrice());
-        newOrder.setOrderItems(customerCart.getCartItems()
+
+        newOrder.assignOrderItems(customerCart.getCartItems()
                 .stream()
                 .map(this::prepareOrderItemFromCartItem)
                 .toList());
+
         newOrder.assignOrderToCustomer(currentCustomer);
 
         String orderId = orderRepository.save(newOrder)
