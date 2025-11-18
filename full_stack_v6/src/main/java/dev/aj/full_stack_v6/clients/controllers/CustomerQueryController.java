@@ -2,8 +2,6 @@ package dev.aj.full_stack_v6.clients.controllers;
 
 import dev.aj.full_stack_v6.clients.CustomerService;
 import dev.aj.full_stack_v6.common.domain.entities.Customer;
-import dev.aj.full_stack_v6.common.domain.entities.User;
-import dev.aj.full_stack_v6.security.UserService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -18,7 +16,6 @@ import java.util.List;
 public class CustomerQueryController {
 
     private final CustomerService customerService;
-    private final UserService userService;
 
     @QueryMapping
     public List<Customer> allCustomers() {
@@ -49,10 +46,4 @@ public class CustomerQueryController {
     public String firstName(@NonNull Customer customer) {
         return customer.getFirstName().toUpperCase();
     }
-
-    @SchemaMapping(typeName = "Customer", field = "user")
-    public User user(@NonNull Customer customer) {
-        return userService.loadUser(customer.getUser().getUsername());
-    }
-
 }

@@ -5,7 +5,7 @@ type Query {
     sayHelloTo(name: String!): String!
     random: Int!
     randomIntegerBetween(min: Int!, max: Int!): Int!
-    allCustomers: [Customer]!,
+    allCustomers: [Customer],
     customerById(id: Int): Customer
     customersLastnameLike(lastName: String!): Customer
     ordersForCustomer(id: Int): [Order]
