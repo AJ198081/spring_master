@@ -34,7 +34,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        log.info("AuthTokenFilter processing request for {}", request.getRequestURI());
+        log.info("AuthTokenFilter processing request path: {}", request.getRequestURI());
 
         String jwt = jwtUtils.getJwt(request);
 
@@ -74,8 +74,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info("Authenticated user: {} for request path: {}", username, request.getRequestURI());
         } catch (UsernameNotFoundException ex) {
-            log.warn("JWT subject user not found: {}. Proceeding without authentication.", username);
+            log.warn("JWT subject user isn't found: {}. Proceeding without authentication.", username);
             SecurityContextHolder.clearContext();
         }
     }
