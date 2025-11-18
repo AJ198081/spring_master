@@ -11,6 +11,7 @@ type Query {
     ordersForCustomer(id: Int): [Order]
 }
 
+# To programmatically register the 'types' in Java, register a bean of type 'RuntimeWiringConfigurer', which gives you a 'configurer' to manipulate
 type Customer{
     id: ID,
     firstName: String,
