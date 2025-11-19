@@ -12,7 +12,7 @@ type Query {
 }
 
 # To programmatically register the 'types' in Java, register a bean of type 'RuntimeWiringConfigurer', which gives you a 'configurer' to manipulate
-type Customer{
+type Customer implements Person{
     id: ID,
     firstName: String,
     lastName: String,
@@ -71,3 +71,11 @@ type User {
     username: String,
     email: String
 }
+
+interface Person {
+    id: ID,
+    firstName: String,
+    lastName: String,
+    phone: String,
+}
+
