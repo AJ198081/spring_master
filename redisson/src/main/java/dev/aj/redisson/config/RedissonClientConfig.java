@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedissonClientConfig {
 
-    private RedissonClient redissonClient;
-
     @Bean(name = "redissonClient")
     public RedissonClient getRedissonClient() {
 
