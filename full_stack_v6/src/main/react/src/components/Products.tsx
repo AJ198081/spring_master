@@ -1,11 +1,19 @@
 import {useEffect, useState} from "react";
 import {FaExclamationTriangle} from "react-icons/fa";
 
+import type {components} from "../assets/schema";
+
 export const Products = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [products, _] = useState<string>('Products');
     const [error, setError] = useState<string | null>('Error fetching products! Recovery initiated..');
+
+    const [product, _setProduct] = useState<components["schemas"]["Product"]>({});
+    const [address, _setAddress] = useState<components["schemas"]["Address"] | null>(null);
+
+    console.log(address?.addressType === 'BILLING');
+    console.log(product.name?.length);
 
     useEffect(() => {
         setTimeout(() => {

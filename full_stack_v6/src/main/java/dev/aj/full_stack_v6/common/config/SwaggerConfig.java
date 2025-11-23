@@ -27,9 +27,6 @@ public class SwaggerConfig {
                 .addList("bearer-jwt");
 
         return new OpenAPI()
-                .addSecurityItem(securityRequirement)
-                .components(new Components()
-                        .addSecuritySchemes("bearer-jwt", securityScheme))
                 .info(new Info()
                         .title("Orders APIs")
                         .version("v1.0.0")
@@ -40,21 +37,24 @@ public class SwaggerConfig {
                                 Includes secure authentication and authorization mechanisms using JWT tokens.
                                 """))
                 .tags(List.of(
-                                new Tag().name("Checkout")
-                                        .description("Checkout and order management related operations"),
-                                new Tag().name("AuthN")
-                                        .description("Authentication and authorization-related operations"),
-                                new Tag().name("Cart")
-                                        .description("Cart-management related operations"),
-                                new Tag().name("Product")
-                                        .description("Product-management operations"),
-                                new Tag().name("Customer")
-                                        .description("Customer-management operations"),
-                                new Tag().name("Vendor")
-                                        .description("Vendor-management operations"),
-                                new Tag().name("Payment")
-                                        .description("Payment-management operations")
-                ));
+                        new Tag().name("Checkout")
+                                .description("Checkout and order management related operations"),
+                        new Tag().name("AuthN")
+                                .description("Authentication and authorization-related operations"),
+                        new Tag().name("Cart")
+                                .description("Cart-management related operations"),
+                        new Tag().name("Product")
+                                .description("Product-management operations"),
+                        new Tag().name("Customer")
+                                .description("Customer-management operations"),
+                        new Tag().name("Vendor")
+                                .description("Vendor-management operations"),
+                        new Tag().name("Payment")
+                                .description("Payment-management operations")))
+                .addSecurityItem(securityRequirement)
+                .components(new Components()
+                        .addSecuritySchemes("bearer-jwt", securityScheme));
     }
+
 
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Objects;
@@ -108,6 +109,7 @@ public class CommonExceptionHandlers {
     public ResponseEntity<ProblemDetail> handleBadCredentialsException(BadCredentialsException ex) {
         HttpStatus unauthorizedStatus = HttpStatus.UNAUTHORIZED;
         ProblemDetail badRequestProblemDetail = ProblemDetail.forStatus(unauthorizedStatus);
+        badRequestProblemDetail.setType(URI.create("https://docs.spring.io/spring-security/reference/api/java/org/springframework/security/authentication/BadCredentialsException.html"));
         badRequestProblemDetail.setProperty("message", ex.getMessage());
 
         return ResponseEntity
