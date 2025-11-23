@@ -6,6 +6,7 @@ import {Circle} from "./components/Circle";
 import {useState} from "react";
 import RectangleImg from "./assets/rectangle.svg";
 import {Products} from "./components/Products.tsx";
+import type {components} from "./assets/schema";
 
 const showAlert = (props: SweetAlertOptions | undefined) => {
     return Swal.fire({
@@ -29,6 +30,15 @@ function App() {
         setClicked(prev => !prev);
     }
 
+    let clickedProduct: components["schemas"]["Product"] | undefined;
+
+    const onProductClick = (product: components["schemas"]["Product"]) => {
+        console.log(`Product clicked: ${product.name}`);
+        clickedProduct = product;
+    };
+
+    console.log(`Clicked product: ${clickedProduct?.name}`);
+
     return (
         <>
             <div className={"container h-screen w-full bg-gray-100 flex justify-center items-center"}>
@@ -36,7 +46,8 @@ function App() {
                 <Circle
                     onClick={() => {
                         void showAlert({
-                            icon: 'success',        title: 'Hello Reet!!'
+                            icon: 'success',
+                            title: 'Hello Reet!!'
                         });
                         handleClick();
                     }}
@@ -58,7 +69,7 @@ function App() {
             </div>
             </div>
 
-            <Products/>
+            <Products onClick={onProductClick}/>
 
             <Toaster/>
         </>

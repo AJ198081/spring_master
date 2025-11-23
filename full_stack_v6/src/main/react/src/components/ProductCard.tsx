@@ -2,7 +2,12 @@ import {useEffect, useState} from "react";
 import toast from "react-hot-toast";
 import type {components} from "../assets/schema";
 
-export const ProductCard = ({name, description, price}: components["schemas"]["Product"]) => {
+interface ProductCardProps {
+    product: components["schemas"]["Product"];
+    onClick: (product: components["schemas"]["Product"]) => void;
+}
+
+export const ProductCard = ({product, onClick}: ProductCardProps) => {
 
     const [openModal, setOpenModal] = useState<boolean>(false);
 
@@ -17,7 +22,7 @@ export const ProductCard = ({name, description, price}: components["schemas"]["P
         }
     }, [openModal]);
 
-    return (<div className={"border rounded-lg shadow-xl overflow-hidden transition-shadow duration-300 min-w-lg"}>
+    return (<div className={"border rounded-lg shadow-xl overflow-hidden transition-shadow duration-300 min-w-lg"} onClick={() => onClick(product)}>
             <div
                 onClick={() => setOpenModal(true)}
                 className={"w-full overflow-hidden aspect-[3/2]"}
@@ -29,9 +34,10 @@ export const ProductCard = ({name, description, price}: components["schemas"]["P
                 />
             </div>
             <div className={"p-4"}>
-                <h2 className={"text-lg font-semibold"}>{name}</h2>
-                <p className={"text-gray-600"}>{description}</p>
-                <p className={"text-gray-600"}><span className={"font-bold"}>Price:</span> ${Number(price).toFixed(2)}
+                <h2 className={"text-lg font-semibold"}>{product.name}</h2>
+                <p className={"text-gray-600"}>{product.description}</p>
+                <p className={"text-gray-600"}>
+                    <span className={"font-bold"}>Price:</span> ${Number(product.price).toFixed(2)}
                 </p>
             </div>
         </div>

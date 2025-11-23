@@ -5,7 +5,11 @@ import type {components} from "../assets/schema";
 import {ProductCard} from "./ProductCard.tsx";
 import {getAllProducts} from "../api-client/BackendClient.tsx";
 
-export const Products = () => {
+interface ProductsProps {
+    onClick: (product: components["schemas"]["Product"]) => void;
+}
+
+export const Products = ({onClick}: ProductsProps) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>();
@@ -42,8 +46,8 @@ export const Products = () => {
 
     const renderProductCards = () => {
 
-        return <div className={"w-screen grid grid-cols-2 gap-5 items-center justify-center"}>
-            {products.map(product => <ProductCard key={product.id} {...product}/>)}
+        return <div className={"w-screen grid md:grid-cols-2 xl:grid-cols-2 gap-5 items-center justify-center"}>
+            {products.map(product => <ProductCard key={product.id} product={product} onClick={onClick}/>)}
         </div>
     }
     
