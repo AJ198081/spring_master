@@ -25,6 +25,8 @@ const showAlert = (props: SweetAlertOptions | undefined) => {
 function App() {
 
     const [clicked, setClicked] = useState(false);
+    const [itemsClicked, setItemsClicked] = useState<number>(0);
+
 
     const handleClick = () => {
         setClicked(prev => !prev);
@@ -33,8 +35,13 @@ function App() {
     let clickedProduct: components["schemas"]["Product"] | undefined;
 
     const onProductClick = (product: components["schemas"]["Product"]) => {
-        console.log(`Product clicked: ${product.name}`);
+        console.log('Total items clicked:', itemsClicked);
+
         clickedProduct = product;
+        setItemsClicked(itemsClicked + 1);
+        setItemsClicked(itemsClicked + 1);
+        setItemsClicked(itemsClicked + 1);
+        setItemsClicked(itemsClicked + 1);
     };
 
     console.log(`Clicked product: ${clickedProduct?.name}`);
