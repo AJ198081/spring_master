@@ -5,8 +5,10 @@ import type {components} from "../assets/schema";
 import {ProductCard} from "./ProductCard.tsx";
 import {getAllProducts} from "../api-client/BackendClient.tsx";
 
+export type Product = components["schemas"]["Product"];
+
 interface ProductsProps {
-    onClick: (product: components["schemas"]["Product"]) => void;
+    onClick: (product: Product, operation?: string) => void;
 }
 
 export const Products = ({onClick}: ProductsProps) => {
@@ -14,8 +16,8 @@ export const Products = ({onClick}: ProductsProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>();
 
-    const [products, setProducts] = useState<components["schemas"]["Product"][]>([{} as components["schemas"]["Product"]]);
-    
+    const [products, setProducts] = useState<Product[]>([{} as Product]);
+
     const [address, _setAddress] = useState<components["schemas"]["Address"] | null>(null);
 
     console.log(address?.addressType === 'BILLING');
@@ -46,9 +48,16 @@ export const Products = ({onClick}: ProductsProps) => {
 
     const renderProductCards = () => {
 
-        return <div className={"w-screen grid md:grid-cols-2 xl:grid-cols-2 gap-5 items-center justify-center"}>
-            {products.map(product => <ProductCard key={product.id} product={product} onClick={onClick}/>)}
-        </div>
+        return <ul className={"grid md:grid-cols-4 xl:grid-cols-2 gap-5 items-center justify-center"}>
+            {products
+                .map(product => <li key={product.id}>
+                        <ProductCard
+                            product={product}
+                            onClick={onClick}
+                        />
+                    </li>
+                )}
+        </ul>
     }
     
     return (

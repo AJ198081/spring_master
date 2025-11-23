@@ -1,10 +1,12 @@
 import {useEffect, useState} from "react";
 import toast from "react-hot-toast";
 import type {components} from "../assets/schema";
+import type {Product} from "./Products.tsx";
+import {Button, Typography} from "@mui/material";
 
 interface ProductCardProps {
     product: components["schemas"]["Product"];
-    onClick: (product: components["schemas"]["Product"]) => void;
+    onClick: (product: Product, operation?: string) => void;
 }
 
 export const ProductCard = ({product, onClick}: ProductCardProps) => {
@@ -22,7 +24,10 @@ export const ProductCard = ({product, onClick}: ProductCardProps) => {
         }
     }, [openModal]);
 
-    return (<div className={"border rounded-lg shadow-xl overflow-hidden transition-shadow duration-300 min-w-lg"} onClick={() => onClick(product)}>
+    return <div
+        className={"border rounded-lg shadow-xl overflow-hidden transition-shadow duration-300 min-w-1/4"}
+        onClick={() => onClick(product)}
+    >
             <div
                 onClick={() => setOpenModal(true)}
                 className={"w-full overflow-hidden aspect-[3/2]"}
@@ -36,10 +41,19 @@ export const ProductCard = ({product, onClick}: ProductCardProps) => {
             <div className={"p-4"}>
                 <h2 className={"text-lg font-semibold"}>{product.name}</h2>
                 <p className={"text-gray-600"}>{product.description}</p>
+                <span className={"flex justify-between items-center mt-2"}>
                 <p className={"text-gray-600"}>
                     <span className={"font-bold"}>Price:</span> ${Number(product.price).toFixed(2)}
                 </p>
+                    <Button
+                        type={"button"}
+                        variant={"contained"}
+                        sx={{color: "secondary"}}
+                        onClick={() => onClick(product, 'DELETE')}
+                    >
+                        <Typography>Delete</Typography>
+                    </Button>
+                </span>
             </div>
         </div>
-    );
 }

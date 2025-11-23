@@ -25,36 +25,43 @@ const showAlert = (props: SweetAlertOptions | undefined) => {
 function App() {
 
     const [clicked, setClicked] = useState(false);
-    const [itemsClicked, setItemsClicked] = useState<number>(0);
+    const [itemsClicked, setItemsClicked] = useState<components["schemas"]["Product"][]>([]);
 
 
     const handleClick = () => {
         setClicked(prev => !prev);
     }
 
-    let clickedProduct: components["schemas"]["Product"] | undefined;
+    const onProductClick = (product: components["schemas"]["Product"], operation?: string) => {
 
-    const onProductClick = (product: components["schemas"]["Product"]) => {
-        console.log('Total items clicked:', itemsClicked);
+        console.log(`Product clicked: ${product.id}`);
 
-        clickedProduct = product;
-        setItemsClicked(itemsClicked + 1);
-        setItemsClicked(itemsClicked + 1);
-        setItemsClicked(itemsClicked + 1);
-        setItemsClicked(itemsClicked + 1);
+        if (operation && operation === 'DELETE') {
+            console.log('Product deleted from the cart');
+            setItemsClicked(prev => prev.filter(item => item.id !== product.id));
+            return;
+        }
+
+        setItemsClicked(prev => {
+            if (prev.some(item => item.id === product.id)) {
+                return prev;
+            } else {
+                return [...prev, product];
+            }
+        });
     };
 
-    console.log(`Clicked product: ${clickedProduct?.name}`);
+    console.log(`${itemsClicked.length} items has been clicked`);
 
     return (
         <>
             <div className={"container h-screen w-full bg-gray-100 flex justify-center items-center"}>
-                <div className={"m-5 px-5 bg-gray-200 grid grid-cols-4 gap-5 items-center justify-center"}>
+                <div className={"m-5 px-5 bg-gray-200 grid grid-cols-3 gap-5 items-center justify-center"}>
                 <Circle
                     onClick={() => {
                         void showAlert({
                             icon: 'success',
-                            title: 'Hello Reet!!'
+                            title: 'Hello AJ!!'
                         });
                         handleClick();
                     }}
