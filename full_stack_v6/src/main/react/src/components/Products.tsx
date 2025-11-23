@@ -2,36 +2,58 @@ import {useEffect, useState} from "react";
 import {FaExclamationTriangle} from "react-icons/fa";
 
 import type {components} from "../assets/schema";
+import {ProductCard} from "./ProductCard.tsx";
+import {getAllProducts} from "../api-client/BackendClient.tsx";
 
 export const Products = () => {
 
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [products, _] = useState<string>('Products');
-    const [error, setError] = useState<string | null>('Error fetching products! Recovery initiated..');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>();
 
-    const [product, _setProduct] = useState<components["schemas"]["Product"]>({});
+    const [products, setProducts] = useState<components["schemas"]["Product"][]>([{} as components["schemas"]["Product"]]);
+    
     const [address, _setAddress] = useState<components["schemas"]["Address"] | null>(null);
 
     console.log(address?.addressType === 'BILLING');
-    console.log(product.name?.length);
+
+    /*    useEffect(() => {
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 2000);
+            setTimeout(() => {
+                setError(null);
+            }, 5000);
+        })*/
 
     useEffect(() => {
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 2000);
-        setTimeout(() => {
-            setError(null);
-        }, 5000);
-    })
+        console.log('Fetching products.');
+        setIsLoading(true);
+        getAllProducts()
+            .then(response => {
+                console.log('Products fetched successfully:');
+                setProducts(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching products:', error);
+                setError(error.message);
+            })
+            .finally(() => setIsLoading(false));
+    }, []);
 
+    const renderProductCards = () => {
 
+        return <div className={"w-screen grid grid-cols-2 gap-5 items-center justify-center"}>
+            {products.map(product => <ProductCard key={product.id} {...product}/>)}
+        </div>
+    }
+    
     return (
         <div className={"lg:px-14 sm:px-8 px-4 py-14 2xl:w-[90%] 2xl:mx-auto"}>
             {
                 isLoading
                     ? <h1 className={"flex flex-col h-[100%] w-[100%] justify-center items-center"}>Loading...</h1>
                     : !error
-                        ? <h1 className={"flex bg-blue-200 justify-center w-[100%] mx-auto"}>{products}</h1>
+                        ? renderProductCards()
                         : <h1 className={"text-red-600 flex justify-center gap-2 mx-auto"}>
                             <FaExclamationTriangle/>
                             {error}

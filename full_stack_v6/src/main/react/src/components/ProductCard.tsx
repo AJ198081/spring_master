@@ -1,7 +1,8 @@
 import {useEffect, useState} from "react";
 import toast from "react-hot-toast";
+import type {components} from "../assets/schema";
 
-export const ProductCard = () => {
+export const ProductCard = ({name, description, price}: components["schemas"]["Product"]) => {
 
     const [openModal, setOpenModal] = useState<boolean>(false);
 
@@ -28,9 +29,10 @@ export const ProductCard = () => {
                 />
             </div>
             <div className={"p-4"}>
-                <h2 className={"text-lg font-semibold"}>Product Name</h2>
-                <p className={"text-gray-600"}>Product Description</p>
-                <p className={"text-gray-600"}><span className={"font-bold"}>Price:</span> ${Number(100).toFixed(2)}</p>
+                <h2 className={"text-lg font-semibold"}>{name}</h2>
+                <p className={"text-gray-600"}>{description}</p>
+                <p className={"text-gray-600"}><span className={"font-bold"}>Price:</span> ${Number(price).toFixed(2)}
+                </p>
             </div>
         </div>
     );

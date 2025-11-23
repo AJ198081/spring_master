@@ -5,6 +5,7 @@ import Swal, {type SweetAlertOptions} from "sweetalert2";
 import {Circle} from "./components/Circle";
 import {useState} from "react";
 import RectangleImg from "./assets/rectangle.svg";
+import {Products} from "./components/Products.tsx";
 
 const showAlert = (props: SweetAlertOptions | undefined) => {
     return Swal.fire({
@@ -29,8 +30,9 @@ function App() {
     }
 
     return (
-        <div className={"container h-screen w-full bg-gray-100 flex justify-center items-center"}>
-            <div className={"m-5 px-5 bg-gray-200 grid grid-cols-3 gap-5 items-center justify-center"}>
+        <>
+            <div className={"container h-screen w-full bg-gray-100 flex justify-center items-center"}>
+                <div className={"m-5 px-5 bg-gray-200 grid grid-cols-4 gap-5 items-center justify-center"}>
                 <Circle
                     onClick={() => {
                         void showAlert({
@@ -54,9 +56,12 @@ function App() {
                                              Boot.</p>
                 </div>
             </div>
+            </div>
+
+            <Products/>
 
             <Toaster/>
-        </div>
+        </>
     );
 }
 

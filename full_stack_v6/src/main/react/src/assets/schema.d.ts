@@ -429,20 +429,7 @@ export interface paths {
         trace?: never;
     };
     "/api/v1/products/all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
         get: operations["getAllProducts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
     };
     "/api/v1/payments/{paymentId}": {
         parameters: {
@@ -669,7 +656,6 @@ export interface paths {
         trace?: never;
     };
 }
-export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         UserCreateRequest: {
@@ -928,13 +914,7 @@ export interface components {
             empty?: boolean;
         };
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
 }
-export type $defs = Record<string, never>;
 export interface operations {
     updateUser: {
         parameters: {
@@ -1940,13 +1920,6 @@ export interface operations {
         };
     };
     getAllProducts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
         responses: {
             /** @description OK */
             200: {

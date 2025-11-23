@@ -5,6 +5,7 @@ import dev.aj.full_stack_v6.security.config.filters.AuthTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -34,11 +35,11 @@ public class SecurityFilterChainConfig {
                                 .anyRequest().authenticated()
                 )
                 .csrf(CsrfConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPointJwt))
                 .sessionManagement(httpSessionConfigurer ->
                         httpSessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
-
 }
