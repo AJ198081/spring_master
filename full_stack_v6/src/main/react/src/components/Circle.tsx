@@ -9,8 +9,6 @@ interface CircleProps {
 
 export const Circle = ({onClick, clicked}: CircleProps) => {
 
-    console.log(`Circle clicked ? ${clicked}`);
-
     return (
         <>
             <img

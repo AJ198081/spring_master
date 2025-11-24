@@ -5,7 +5,7 @@ import Swal, {type SweetAlertOptions} from "sweetalert2";
 import {Circle} from "./components/Circle";
 import {useState} from "react";
 import RectangleImg from "./assets/rectangle.svg";
-import {Products} from "./components/Products.tsx";
+import {type Product, Products} from "./components/Products.tsx";
 import type {components} from "./assets/schema";
 
 const showAlert = (props: SweetAlertOptions | undefined) => {
@@ -22,10 +22,16 @@ const showAlert = (props: SweetAlertOptions | undefined) => {
     });
 }
 
+interface CartItem {
+    product: Product;
+    quantity: number;
+}
+
 function App() {
 
     const [clicked, setClicked] = useState(false);
-    const [itemsClicked, setItemsClicked] = useState<components["schemas"]["Product"][]>([]);
+    const [_itemsClicked, setItemsClicked] = useState<components["schemas"]["Product"][]>([]);
+    const [_cartItems, setCartItems] = useState<CartItem[]>([]);
 
 
     const handleClick = () => {
@@ -34,12 +40,9 @@ function App() {
 
     const onProductClick = (product: components["schemas"]["Product"], operation?: string) => {
 
-        console.log(`Product clicked: ${product.id}`);
-
         if (operation && operation === 'DELETE') {
             console.log('Product deleted from the cart');
-            setItemsClicked(prev => prev.filter(item => item.id !== product.id));
-            return;
+            setCartItems(prev => prev.filter(item => item.product.id !== product.id));
         }
 
         setItemsClicked(prev => {
@@ -49,9 +52,14 @@ function App() {
                 return [...prev, product];
             }
         });
-    };
 
-    console.log(`${itemsClicked.length} items has been clicked`);
+        setCartItems(prevState => prevState.map(item => item.product.id === product.id
+            ? {
+                ...item,
+                quantity: item.quantity + 1
+            }
+            : item));
+    };
 
     return (
         <>

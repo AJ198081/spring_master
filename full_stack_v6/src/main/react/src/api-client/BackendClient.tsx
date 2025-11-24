@@ -15,7 +15,7 @@ export type BackendResponse<T> = T extends BackendOperation ? Awaited<ReturnType
 
 backendClient.interceptors.request.use(config => {
     config.headers.set(
-        'Authorization', `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGlsIiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE3NjM4ODEzNTcsImV4cCI6MTc2Mzk2Nzc1N30.OArMlNsYj9_41Hx-7Rjv3X_seHDKCSdMM0_tsl3iMAHtpdo5Izk3lhqQLyEnlKJcEkor1a_36Jvlrc2_Z9inXw`
+        'Authorization', `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGlsIiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE3NjM5NjkzMDMsImV4cCI6MTc2NDA1NTcwM30.Y414VmCEcfjG1tA9ldBuK83DY4QpryYbhdd7YkIsEfP-IhJY4jdIs7g8F-OGnII4a8jcoyTJOG7-l4yKmYcSrg`
 );
     return config;
 });

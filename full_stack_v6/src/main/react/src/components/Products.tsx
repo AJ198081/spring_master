@@ -18,9 +18,8 @@ export const Products = ({onClick}: ProductsProps) => {
 
     const [products, setProducts] = useState<Product[]>([{} as Product]);
 
-    const [address, _setAddress] = useState<components["schemas"]["Address"] | null>(null);
+    const [_address, _setAddress] = useState<components["schemas"]["Address"] | null>(null);
 
-    console.log(address?.addressType === 'BILLING');
 
     /*    useEffect(() => {
             setTimeout(() => {

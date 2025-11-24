@@ -2,17 +2,16 @@ import RectangleImage from "../assets/rectangle.svg";
 import {useState} from "react";
 import toast from "react-hot-toast";
 
-interface RectangleProps {
+export interface RectangleProps {
     clicked?: boolean;
 }
 
-export const Rectangle = ({clicked}: RectangleProps) => {
+export const Rectangle = () => {
 
     const [imageClickEnabled, setImageClickEnabled] = useState(true);
 
     const handleImageClick = () => {
         if (imageClickEnabled) {
-            console.log('Image click called');
 
             setImageClickEnabled(false);
             toast.success('Product added to cart', {
@@ -25,8 +24,6 @@ export const Rectangle = ({clicked}: RectangleProps) => {
             }, 5000);
         }
     }
-
-    console.log(`Parent component clicked: ${clicked}`)
 
     return (
         <img
