@@ -27,7 +27,6 @@ export const ProductCard = ({product, onClick}: ProductCardProps) => {
 
     return <div
         className={"border rounded-lg shadow-xl overflow-hidden transition-shadow duration-300 min-w-1/4"}
-        onClick={() => onClick(product)}
     >
             <div
                 onClick={() => setOpenModal(true)}
@@ -40,16 +39,28 @@ export const ProductCard = ({product, onClick}: ProductCardProps) => {
                 />
             </div>
             <div className={"p-4"}>
-                <h2 className={"text-lg font-semibold"}>{product.name}</h2>
+                <h2
+                    className={"text-lg font-semibold"}
+                >
+                    {product.name}
+                </h2>
                 <p className={"text-gray-600"}>{product.description}</p>
-                <span className={"flex justify-between items-center mt-2"}>
                 <p className={"text-gray-600"}>
                     <span className={"font-bold"}>Price:</span> ${Number(product.price).toFixed(2)}
                 </p>
+                <span className={"flex justify-between items-center mx-5 mt-3"}>
+                    <Button
+                        type={"submit"}
+                        variant={"contained"}
+                        color={"success"}
+                    onClick={() => onClick(product, "ADD")}
+                    >
+                        <Typography>Add</Typography>
+                    </Button>
                     <Button
                         type={"button"}
                         variant={"contained"}
-                        sx={{color: "secondary"}}
+                        color={"warning"}
                         onClick={() => onClick(product, 'DELETE')}
                     >
                         <Typography>Delete</Typography>
