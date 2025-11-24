@@ -4,11 +4,12 @@ import {FaExclamationTriangle} from "react-icons/fa";
 import type {components} from "../assets/schema";
 import {ProductCard} from "./ProductCard.tsx";
 import {getAllProducts} from "../api-client/BackendClient.tsx";
+import type {OperationType} from "../App.tsx";
 
 export type Product = components["schemas"]["Product"];
 
 interface ProductsProps {
-    onClick: (product: Product, operation?: string) => void;
+    onClick: (product: Product, operation?: OperationType) => void;
 }
 
 export const Products = ({onClick}: ProductsProps) => {
@@ -47,16 +48,20 @@ export const Products = ({onClick}: ProductsProps) => {
 
     const renderProductCards = () => {
 
-        return <ul className={"grid md:grid-cols-4 xl:grid-cols-2 gap-5 items-center justify-center"}>
-            {products
-                .map(product => <li key={product.id}>
+        if (products.length === 0) {
+            return <h1 className={"text-center text-2xl font-bold"}>No products found.</h1>;
+        } else {
+            return <ul className={"grid md:grid-cols-4 xl:grid-cols-2 gap-5 items-center justify-center"}>
+                {products.map(product => (
+                    <li key={product.id!}>
                         <ProductCard
                             product={product}
                             onClick={onClick}
                         />
-                    </li>
-                )}
-        </ul>
+                    </li>))
+                }
+            </ul>
+        }
     }
     
     return (

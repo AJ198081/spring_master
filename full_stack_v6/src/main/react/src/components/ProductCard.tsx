@@ -3,10 +3,11 @@ import toast from "react-hot-toast";
 import type {components} from "../assets/schema";
 import type {Product} from "./Products.tsx";
 import {Button, Typography} from "@mui/material";
+import type {OperationType} from "../App.tsx";
 
 interface ProductCardProps {
     product: components["schemas"]["Product"];
-    onClick: (product: Product, operation?: string) => void;
+    onClick: (product: Product, operation?: OperationType) => void;
 }
 
 export const ProductCard = ({product, onClick}: ProductCardProps) => {
