@@ -15,9 +15,9 @@ interface ProductsProps {
 export const Products = ({onClick}: ProductsProps) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>();
+    const [error, setError] = useState<string | null>(null);
 
-    const [products, setProducts] = useState<Product[]>([{} as Product]);
+    const [products, setProducts] = useState<Product[]>([]);
 
     const [_address, _setAddress] = useState<components["schemas"]["Address"] | null>(null);
 
@@ -48,9 +48,6 @@ export const Products = ({onClick}: ProductsProps) => {
 
     const renderProductCards = () => {
 
-        if (products.length === 0) {
-            return <h1 className={"text-center text-2xl font-bold"}>No products found.</h1>;
-        } else {
             return <ul className={"grid md:grid-cols-4 xl:grid-cols-2 gap-5 items-center justify-center"}>
                 {products.map(product => (
                     <li key={product.id!}>
@@ -61,7 +58,6 @@ export const Products = ({onClick}: ProductsProps) => {
                     </li>))
                 }
             </ul>
-        }
     }
     
     return (
