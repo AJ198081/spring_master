@@ -16,11 +16,8 @@ export const Products = ({onClick}: ProductsProps) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-
     const [products, setProducts] = useState<Product[]>([]);
-
     const [_address, _setAddress] = useState<components["schemas"]["Address"] | null>(null);
-
 
     /*    useEffect(() => {
             setTimeout(() => {

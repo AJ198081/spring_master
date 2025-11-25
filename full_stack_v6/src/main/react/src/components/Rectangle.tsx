@@ -1,12 +1,13 @@
 import RectangleImage from "../assets/rectangle.svg";
 import {useState} from "react";
 import toast from "react-hot-toast";
+import {Typography} from "@mui/material";
 
 export interface RectangleProps {
     clicked?: boolean;
 }
 
-export const Rectangle = () => {
+export const Rectangle = ({clicked}: RectangleProps) => {
 
     const [imageClickEnabled, setImageClickEnabled] = useState(true);
 
@@ -26,15 +27,18 @@ export const Rectangle = () => {
     }
 
     return (
-        <img
-            src={RectangleImage}
-            alt={"Rectangle image"}
-            width={300}
-            aria-disabled={true}
-            onClick={() => {
-                console.log('Image clicked!!');
-                handleImageClick();
-            }}
-        />
-    )
+        <>
+            <img
+                src={RectangleImage}
+                alt={"Rectangle image"}
+                width={300}
+                aria-disabled={true}
+                onClick={() => {
+                    console.log('Image clicked!!');
+                    handleImageClick();
+                }}
+            />
+            <Typography>`Clicked {clicked ? "True" : "False"}`</Typography>
+        </>
+    );
 }
