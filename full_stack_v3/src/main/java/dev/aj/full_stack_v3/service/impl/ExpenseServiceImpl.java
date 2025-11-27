@@ -36,6 +36,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<ExpenseResponse> saveExpenses(List<ExpenseRequest> expenseRequests) {
 
         try {

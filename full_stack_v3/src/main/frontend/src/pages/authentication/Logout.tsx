@@ -16,7 +16,8 @@ export const Logout = (): ReactNode => {
         AxiosInstance.get('/api/v1/auth/logout')
             .then(response => {
                 if (response.status === 200) {
-                    toast.success('Logout successful', {
+                    toast.success('Successfully logged out. See you soon!', {
+                        id: 'logout-success',
                         duration: 3000,
                     });
                 }

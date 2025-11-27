@@ -39,7 +39,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestPropertySource(locations = "/application-compose.properties", properties = {
-        "logging.level.dev.aj.full_stack_v3.service.impl=debug"
+        "logging.level.dev.aj.full_stack_v3.service.impl=debug",
+//        "spring.jpa.hibernate.ddl-auto=create"
 })
 @Import(value = {TestConfig.class, TestData.class})
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
@@ -125,17 +126,18 @@ class ExpenseControllerTest {
     @Test
     @WithMockUser(username = "testuser", password = "<PASSWORD>")
     void saveExpenses() {
+        int numberOfExpenses = 500;
         ResponseEntity<List<ExpenseResponse>> responseEntity = restClient.post()
                 .uri("/bulk")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
-                .body(testData.getExpenseStream().limit(2).toList())
+                .body(testData.getExpenseStream().limit(numberOfExpenses).toList())
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         assertThat(responseEntity.getStatusCode()).is(new Condition<>(HttpStatusCode::is2xxSuccessful, "is 200 OK"));
         assertThat(responseEntity.getBody()).isNotNull();
-        assertThat(Objects.requireNonNull(responseEntity.getBody()).size()).isEqualTo(2);
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).size()).isEqualTo(numberOfExpenses);
     }
 
     @Test

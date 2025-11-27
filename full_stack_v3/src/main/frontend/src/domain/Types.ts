@@ -30,8 +30,8 @@ export const categoryOptions = [
 
 export const expenseSchemaValidations = object({
     name: string()
-        .min(2, 'Expense name can not be less than 2 character')
-        .max(255, 'Expense name can not be more than 255 character')
+        .min(2, 'Expense name cannot be less than character 2')
+        .max(255, 'Expense name cannot be more than character 255')
         .required('Expense name is required'),
 
     note: string()

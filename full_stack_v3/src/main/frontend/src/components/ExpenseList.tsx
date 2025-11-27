@@ -57,15 +57,13 @@ export const ExpenseList = ({columns, data, userName}: ExpenseListProps) => {
         onColumnVisibilityChange: setVisibleColumns,
         enableHiding: true,*/
         mantineTableBodyRowProps: ({row}) => ({
-            onClick: (_event: MouseEvent<HTMLTableRowElement>) => (
+            onClick: (_: MouseEvent<HTMLTableRowElement>) => (
                 navigateTo(`/view/${row.original.expenseId}`, {
                     state: {expense: row.original}
                 })
             ),
             sx: {cursor: "pointer"}
         }),
-        enableRowSelection: true,
-        enableStickyHeader: true,
         renderTopToolbarCustomActions: ({table}) => (
             <Button
                 className={'bg-success-subtle text-dark'}
