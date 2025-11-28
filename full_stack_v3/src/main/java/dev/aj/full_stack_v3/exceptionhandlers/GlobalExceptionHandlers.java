@@ -37,9 +37,13 @@ public class GlobalExceptionHandlers {
                 .getAllErrors().stream()
                 .map(error -> {
                     FieldError fieldErrorDetail = (FieldError) error;
-                    return String.format("Value '%s' for field '%s' is rejected because %s", fieldErrorDetail.getRejectedValue(), fieldErrorDetail.getField(), error.getDefaultMessage());
+                    return String.format("%nValue '%s' for field '%s' is rejected because %s %n",
+                            fieldErrorDetail.getRejectedValue(),
+                            fieldErrorDetail.getField(),
+                            error.getDefaultMessage()
+                    );
                 })
-                .collect(Collectors.joining(" and "))
+                .collect(Collectors.joining("----"))
         );
 
         return problemDetail;

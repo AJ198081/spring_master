@@ -45,7 +45,7 @@ export const expenseSchemaValidations = object({
 
     date: date()
         .default(() => dayjs().toDate())
-        .max(dayjs().add(1, 'year').toDate(), 'Expense date can not be more than a year in future')
+        .max(dayjs().add(2, 'year').toDate(), 'Expense date cannot be more than a year in the future')
         .required('Expense Date is required')
 });
 
@@ -119,6 +119,14 @@ export interface UserLoginResponse {
 export const initialUserLoginRequest: UserLoginRequest = {
     username: '',
     password: ''
+}
+
+export type ProblemDetail = {
+    type: string;
+    title: string;
+    status: number;
+    detail: string;
+    instance: string;
 }
 
 export const UserLoginRequestSchemaValidation = object({

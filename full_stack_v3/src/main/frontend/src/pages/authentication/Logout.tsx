@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom";
 import toast from "react-hot-toast";
 import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext.tsx";
 import {AxiosInstance} from "../../service/api-client.ts";
+import {AxiosError} from "axios";
 
 export const Logout = (): ReactNode => {
 
@@ -13,7 +14,11 @@ export const Logout = (): ReactNode => {
 
         AxiosInstance.defaults.headers.common['Authorization'] = null;
 
-        AxiosInstance.get('/api/v1/auth/logout')
+        const abortController = new AbortController();
+
+        AxiosInstance.get('/api/v1/auth/logout', {
+            signal: abortController.signal
+        })
             .then(response => {
                 if (response.status === 200) {
                     toast.success('Successfully logged out. See you soon!', {
@@ -22,15 +27,27 @@ export const Logout = (): ReactNode => {
                     });
                 }
             })
-            .catch((reason => {
-                toast.error(`Logout failed because of - ${reason.message}`);
+            .catch((error => {
+                if (error instanceof AxiosError) {
+                    if (error.response?.status === 401) {
+                        toast.error('Your session has expired. Please log in again.', {
+                            duration: 3000,
+                        });
+                    } else {
+                        return
+                    }
+                }
+
+                toast.error(`Logout failed because of - ${error.message}`);
             }))
             .finally(() => {
                     navigateTo('/login');
                     setToken(null);
                 }
             );
-    })
+
+        return () => abortController.abort();
+    });
 
     return <div>
         Logout

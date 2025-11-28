@@ -1,5 +1,5 @@
 import {useLocation, useNavigate} from "react-router-dom";
-import {categoryOptions, dateFormat, ExpenseRequest, ExpenseResponse} from "../domain/Types.ts";
+import {categoryOptions, dateFormat, ExpenseRequest, ExpenseResponse, ProblemDetail} from "../domain/Types.ts";
 import {currencyFormatter} from "../utils/Formatter.ts";
 import {ChangeEvent, ChangeEventHandler, useState} from "react";
 import {AxiosInstance} from "../service/api-client.ts";
@@ -39,7 +39,13 @@ export const ExpenseDetails = () => {
 
             await updatePromise;
         } catch (error) {
-            console.log(error);
+            if (error && typeof error === 'object' && 'response' in error && error.response) {
+                console.log("Ist")
+                const problemDetail = error.response as ProblemDetail;
+                toast.error(problemDetail.detail || 'Error deleting expense');
+            } else {
+                toast.error('Error deleting expense');
+            }
         } finally {
             navigateTo("/");
         }

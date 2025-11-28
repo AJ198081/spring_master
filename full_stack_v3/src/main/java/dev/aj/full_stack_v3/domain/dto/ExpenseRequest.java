@@ -33,7 +33,7 @@ public class ExpenseRequest {
 
     @JsonProperty("date")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @NoMoreThanAYearInFuture(message = "Date can only be at most a year in to future")
+    @NoMoreThanAYearInFuture(message = "Date can only be at most a year in the future")
     private LocalDate date;
 
     @Positive(message = "Amount must be positive")

@@ -21,12 +21,10 @@ export interface ExpenseListProps {
 export const ExpenseList = ({columns, data, userName}: ExpenseListProps) => {
 
     const navigateTo = useNavigate();
-    const [visibleColumns, _] = useState<MRT_VisibilityState>(
+    const [_visibleColumns, _setVisibleColumns] = useState<MRT_VisibilityState>(
         Object.fromEntries(columns.map(column => [column.header, true]))
     );
     const priorityColumns = ['ID', 'Name', 'Amount'];
-
-    console.log(JSON.stringify(visibleColumns, null, 4));
 
     columns
         .sort((a, b) => {
