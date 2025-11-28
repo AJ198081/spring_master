@@ -64,13 +64,13 @@ export interface UserRegistrationResponse extends Omit<UserRegistrationRequest, 
 
 export const UserRegistrationRequestSchemaValidations = object({
     firstname: string()
-        .min(2, 'First name can not be less than 2 character')
-        .max(50, 'First name can not be more than 50 character')
-        .required('First name is required'),
+        .min(2, 'The first name cannot be less than two characters')
+        .max(50, 'The first name cannot be more than 50 characters')
+        .required('The first name is required'),
 
     lastname: string()
-        .min(2, 'Last name can not be less than 2 character')
-        .max(50, 'Last name can not be more than 50 character')
+        .min(2, 'Last name cannot be less than two characters')
+        .max(50, 'Last name cannot be more than 50 characters')
         .required('Last name is required'),
 
     email: string()
@@ -78,13 +78,13 @@ export const UserRegistrationRequestSchemaValidations = object({
         .required('Email is required'),
 
     username: string()
-        .min(5, 'Username can not be less than 5 character')
-        .max(50, 'Username can not be more than 50 character')
+        .min(5, 'Username cannot be less than five characters')
+        .max(50, 'Username cannot be more than 50 characters')
         .required('Username is required'),
 
     password: string()
         .required('Password is required')
-        .min(8, 'Password must be at least 8 characters long')
+        .min(8, 'Password must be at least eight characters long')
         .max(50, 'Password must be at most 50 characters long')
         .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
         .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -132,17 +132,17 @@ export type ProblemDetail = {
 export const UserLoginRequestSchemaValidation = object({
     username: string()
         .required('Username is required')
-        .min(2, 'Usernames are usually at least 2 character'),
+        .min(2, 'Usernames are usually at least character 2'),
     password: string()
         .required('Password is required')
-        .min(8, 'Passwords are at least 8 characters long')
+        .min(8, 'Passwords are at least eight characters long')
         .max(50, 'Passwords are at most 50 characters long')
         .matches(/[a-z]/, 'Passwords contain at least one lowercase letter')
         .matches(/[A-Z]/, 'Passwords contain at least one uppercase letter')
         .matches(/[0-9]/, 'Passwords contain at least one number')
         .matches(
             /[!@#$%^&*]/,
-            'Password usually contain at least one special (!@#$%^&*) character'
+            'Password usually contains at least one special (!@#$%^&*) character'
         )
 })
 

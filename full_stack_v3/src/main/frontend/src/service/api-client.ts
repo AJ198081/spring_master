@@ -37,8 +37,10 @@ AxiosInstance.interceptors.response.use(
         if (error.response) {
             switch (error.response.status) {
                 case 400:
+                    console.log(` 400 whilst accessing ${error.config?.url}`);
+                    break;
                 case 401:
-                    console.log(` 400 or 401 whilst accessing ${error.config?.url}`);
+                    console.log(` 401 whilst accessing ${error.config?.url}`);
                     break;
                 case 403:
                     console.log(` 403 whilst accessing ${error.config?.url}`);

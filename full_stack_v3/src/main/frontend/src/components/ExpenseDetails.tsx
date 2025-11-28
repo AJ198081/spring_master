@@ -6,6 +6,7 @@ import {AxiosInstance} from "../service/api-client.ts";
 import dayjs from "dayjs";
 import {Modal} from "./common/Modal.tsx";
 import toast from "react-hot-toast";
+import {AxiosError} from "axios";
 
 
 export const ExpenseDetails = () => {
@@ -34,14 +35,13 @@ export const ExpenseDetails = () => {
             await toast.promise(updatePromise, {
                 loading: 'Updating expense...',
                 success: 'Expense updated successfully',
-                error: 'Error updating expense'
+                // error: 'Error updating expense'
             });
 
             await updatePromise;
         } catch (error) {
-            if (error && typeof error === 'object' && 'response' in error && error.response) {
-                console.log("Ist")
-                const problemDetail = error.response as ProblemDetail;
+            if (error instanceof AxiosError) {
+                const problemDetail = error.response?.data as ProblemDetail;
                 toast.error(problemDetail.detail || 'Error deleting expense');
             } else {
                 toast.error('Error deleting expense');
