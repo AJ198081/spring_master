@@ -17,25 +17,33 @@ export const Registration = (): ReactNode => {
 
     const navigateTo = useNavigate();
 
-    const registerUser = async (values: UserRegistrationRequest) => {
+    const registerUser = (values: UserRegistrationRequest) => {
+        setSubmitting(true);
         AxiosInstance.post('/api/v1/auth/register', values)
             .then((response: AxiosResponse<UserRegistrationResponse>) => {
+                console.log(`Registration response: ${JSON.stringify(response.data)}`);
                 const registrationData = response.data;
                 toast.success(`Registration successful - User ID - ${registrationData.userId} assigned to ${registrationData.username}`, {
                     duration: 10000,
                 });
             })
             .catch(error => {
+                console.log(`Registration error: ${JSON.stringify(error)}`);
                 toast.error(error.response.data.message);
-            }).finally(() => {
-            navigateTo("/login");
-        });
+            })
+            .finally(() => {
+                console.log('Registration finally');
+                setSubmitting(false);
+                navigateTo("/login");
+            });
     };
 
     const {
         values,
         errors,
         touched,
+        isSubmitting,
+        setSubmitting,
         handleChange,
         handleSubmit,
         resetForm,
@@ -45,6 +53,8 @@ export const Registration = (): ReactNode => {
         onSubmit: registerUser,
         validationSchema: UserRegistrationRequestSchemaValidations,
     });
+
+    console.log(`isSubmitting: ${isSubmitting}`);
 
     return (
         <div className={'d-flex justify-content-center align-items-center mt-3'}>
@@ -157,8 +167,19 @@ export const Registration = (): ReactNode => {
                         </div>}
                     </div>
 
-                    <button type="reset" name={"reset"} className="btn btn-outline-danger me-2">Reset</button>
-                    <button type="submit" name={"submit"} className="btn btn-outline-primary">Submit</button>
+                    <button
+                        type="reset"
+                        name={"reset"}
+                        className={`btn btn-outline-danger me-2 ${isSubmitting && 'disabled'}`}>
+                        Reset
+                    </button>
+                    <button
+                        type="submit"
+                        name={"submit"}
+                        className={`btn btn-outline-primary ${isSubmitting && 'disabled'}`}
+                    >
+                        Submit
+                    </button>
                 </form>
             </div>
         </div>
