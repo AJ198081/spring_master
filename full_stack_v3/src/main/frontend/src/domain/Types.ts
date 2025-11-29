@@ -28,11 +28,12 @@ export const categoryOptions = [
     'Other'
 ];
 
-export const expenseSchemaValidations = object({
+export const expenseSchemaValidations = object(
+    {
     name: string()
+        .required('Expense name is required')
         .min(2, 'Expense name cannot be less than character 2')
-        .max(255, 'Expense name cannot be more than character 255')
-        .required('Expense name is required'),
+        .max(255, 'Expense name cannot be more than character 255'),
 
     note: string()
         .nullable(),
@@ -47,7 +48,8 @@ export const expenseSchemaValidations = object({
         .default(() => dayjs().toDate())
         .max(dayjs().add(2, 'year').toDate(), 'Expense date cannot be more than a year in the future')
         .required('Expense Date is required')
-});
+    }
+);
 
 export interface UserRegistrationRequest {
     firstname: string;
@@ -94,12 +96,12 @@ export const UserRegistrationRequestSchemaValidations = object({
         ),
 
     confirmpassword: string()
-        .oneOf([ref('password')], 'Passwords must match')
-        .required('Confirm password is required'),
+        .required('Confirm password is required')
+        .oneOf([ref('password')], 'Passwords must match'),
 });
 
-export const initialUserRegistrationRequest: UserRegistrationRequest = {
-    firstname: '',
+export const defaultUserRegistrationRequest: UserRegistrationRequest = {
+    firstname: 'AJ',
     lastname: '',
     email: '',
     username: '',

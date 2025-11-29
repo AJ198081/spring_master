@@ -2,7 +2,7 @@ import {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
 import {AxiosResponse} from "axios";
 import {
-    initialUserRegistrationRequest,
+    defaultUserRegistrationRequest,
     UserRegistrationRequest,
     UserRegistrationRequestSchemaValidations,
     UserRegistrationResponse
@@ -32,8 +32,16 @@ export const Registration = (): ReactNode => {
         });
     };
 
-    const {values, errors, touched, handleChange, handleSubmit, resetForm, handleBlur} = useFormik({
-        initialValues: initialUserRegistrationRequest,
+    const {
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleSubmit,
+        resetForm,
+        handleBlur
+    } = useFormik<UserRegistrationRequest>({
+        initialValues: defaultUserRegistrationRequest,
         onSubmit: registerUser,
         validationSchema: UserRegistrationRequestSchemaValidations,
     });
@@ -55,7 +63,7 @@ export const Registration = (): ReactNode => {
                                onChange={handleChange}
                                onBlur={handleBlur}
                                placeholder="First name"/>
-                        {touched.firstname && <div className="invalid-feedback">
+                        {<div className="invalid-feedback">
                             {errors.firstname}
                         </div>}
                     </div>
@@ -69,7 +77,7 @@ export const Registration = (): ReactNode => {
                                onChange={handleChange}
                                onBlur={handleBlur}
                                placeholder="Last name"/>
-                        {touched.lastname && <div className="invalid-feedback">
+                        {<div className="invalid-feedback">
                             {errors.lastname}
                         </div>}
                     </div>
@@ -85,7 +93,7 @@ export const Registration = (): ReactNode => {
                             onBlur={handleBlur}
                             placeholder="Your email address">
                         </input>
-                        {touched.email && <div className="invalid-feedback">
+                        {<div className="invalid-feedback">
                             {errors.email}
                         </div>}
                     </div>
@@ -100,7 +108,7 @@ export const Registration = (): ReactNode => {
                                onBlur={handleBlur}
                                autoComplete={'on'}
                                placeholder="Enter username"/>
-                        {touched.username && <div className="invalid-feedback">
+                        {<div className="invalid-feedback">
                             {errors.username}
                         </div>}
                     </div>
@@ -119,14 +127,14 @@ export const Registration = (): ReactNode => {
                                    placeholder="Enter password"/>
                             <Tooltip
                                 className={'input-group-text'}
-                                label={'Must contain at least one uppercase, one lowercase, one number, one special character, and be at least 8 characters long'}
+                                label={'Must contain at least one uppercase, one lowercase, one number, one special character, and be at least eight characters long'}
                             >
                                 <span>
                                     <GoQuestion/>
                                 </span>
                             </Tooltip>
                         </div>
-                        {touched.password && errors.password &&
+                        {
                             <div className="invalid-feedback d-block">
                                 {errors.password}
                             </div>
@@ -144,7 +152,7 @@ export const Registration = (): ReactNode => {
                                onBlur={handleBlur}
                                autoComplete={'on'}
                                placeholder="Confirm password"/>
-                        {touched.confirmpassword && <div className="invalid-feedback">
+                        {<div className="invalid-feedback">
                             {errors.confirmpassword}
                         </div>}
                     </div>
