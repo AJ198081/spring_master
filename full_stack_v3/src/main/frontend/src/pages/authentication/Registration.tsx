@@ -1,8 +1,9 @@
 import {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
-import {AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import {
     defaultUserRegistrationRequest,
+    ProblemDetail,
     UserRegistrationRequest,
     UserRegistrationRequestSchemaValidations,
     UserRegistrationResponse
@@ -10,16 +11,20 @@ import {
 import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
 import {GoQuestion} from "react-icons/go";
-import {AxiosInstance} from "../../service/api-client.ts";
 import toast from "react-hot-toast";
+import {registerNewUser} from "../../service/userClient.ts";
 
 export const Registration = (): ReactNode => {
 
     const navigateTo = useNavigate();
 
     const registerUser = (values: UserRegistrationRequest) => {
-        setSubmitting(true);
-        AxiosInstance.post('/api/v1/auth/register', values)
+
+        const abortController = new AbortController();
+
+        const registrationResponsePromise = registerNewUser(values, abortController);
+
+        registrationResponsePromise
             .then((response: AxiosResponse<UserRegistrationResponse>) => {
                 console.log(`Registration response: ${JSON.stringify(response.data)}`);
                 const registrationData = response.data;
@@ -28,14 +33,42 @@ export const Registration = (): ReactNode => {
                 });
             })
             .catch(error => {
-                console.log(`Registration error: ${JSON.stringify(error)}`);
+                if (error instanceof AxiosError) {
+                    toast.error(((error as AxiosError).response?.data as ProblemDetail).detail || 'Registration failed', {
+                        duration: 5000,
+                    });
+                    return;
+                }
                 toast.error(error.response.data.message);
             })
             .finally(() => {
                 console.log('Registration finally');
-                setSubmitting(false);
                 navigateTo("/login");
             });
+
+        void toast.promise(
+            registrationResponsePromise,
+            {
+                loading: (
+                    <div>
+                        <div className={`d-flex justify-content-between`}>
+                            Registration in progress...
+                        </div>
+
+                        <div>
+                            <button
+                                className={`btn btn-outline-danger m-2`}
+                                onClick={() => {
+                                    abortController.abort('Registration canceled by the user');
+                                    setSubmitting(false);
+                                }}
+                            >
+                                Cancel Registration?
+                            </button>
+                        </div>
+                    </div>),
+            }
+        );
     };
 
     const {
@@ -53,8 +86,6 @@ export const Registration = (): ReactNode => {
         onSubmit: registerUser,
         validationSchema: UserRegistrationRequestSchemaValidations,
     });
-
-    console.log(`isSubmitting: ${isSubmitting}`);
 
     return (
         <div className={'d-flex justify-content-center align-items-center mt-3'}>

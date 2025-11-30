@@ -11,6 +11,7 @@ import dev.aj.full_stack_v3.repository.UserRepository;
 import dev.aj.full_stack_v3.service.UserService;
 import dev.aj.full_stack_v3.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,6 +23,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserMapper userMapper;
@@ -33,10 +35,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserRegistrationResponse registerUser(UserRegistrationRequest userRegistrationRequest) {
 
+        User persistedUser = userRepository.save(
+                userMapper.userRegistrationRequestToUser(userRegistrationRequest)
+        );
+
+        log.info(" = {}", persistedUser);
+
         return userMapper.userToUserRegistrationResponse(
-                userRepository.save(
-                        userMapper.userRegistrationRequestToUser(userRegistrationRequest)
-                )
+                persistedUser
         );
 
     }
