@@ -35,14 +35,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserRegistrationResponse registerUser(UserRegistrationRequest userRegistrationRequest) {
 
-        User persistedUser = userRepository.save(
-                userMapper.userRegistrationRequestToUser(userRegistrationRequest)
-        );
-
-        log.info(" = {}", persistedUser);
-
         return userMapper.userToUserRegistrationResponse(
-                persistedUser
+                userRepository.save(
+                        userMapper.userRegistrationRequestToUser(userRegistrationRequest)
+                )
         );
 
     }
