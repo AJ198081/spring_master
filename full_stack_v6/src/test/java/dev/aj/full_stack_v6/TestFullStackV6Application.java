@@ -12,5 +12,4 @@ class TestFullStackV6Application {
                 .with(EnvironmentConfig.class, CORSOverride.class)
                 .run(args);
     }
-
 }

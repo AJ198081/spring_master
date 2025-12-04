@@ -3,8 +3,9 @@ package dev.aj.full_stack_v6.payment.controllers;
 import dev.aj.full_stack_v6.common.domain.entities.Payment;
 import dev.aj.full_stack_v6.common.domain.entities.PaymentDetails;
 import dev.aj.full_stack_v6.payment.PaymentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +26,10 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/card")
-    public ResponseEntity<HttpStatus> processCardPayment(@RequestBody PaymentDetails paymentDetails, Principal principal) {
+    @Operation(summary = "Process a card payment", responses = {
+            @ApiResponse(responseCode = "201", description = "Payment Created, reference in the 'location' header")
+    })
+    public ResponseEntity<Void> processCardPayment(@RequestBody PaymentDetails paymentDetails, Principal principal) {
         return ResponseEntity
                 .created(URI.create("/"
                                 .concat(paymentService.processCardPayment(paymentDetails, principal))))

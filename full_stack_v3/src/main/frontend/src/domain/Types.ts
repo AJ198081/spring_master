@@ -101,7 +101,7 @@ export const UserRegistrationRequestSchemaValidations = object({
 });
 
 export const defaultUserRegistrationRequest: UserRegistrationRequest = {
-    firstname: 'AJ',
+    firstname: '',
     lastname: '',
     email: '',
     username: '',

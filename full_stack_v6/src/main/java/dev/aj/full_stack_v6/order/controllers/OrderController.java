@@ -5,8 +5,9 @@ import dev.aj.full_stack_v6.common.domain.dtos.OrderHistory;
 import dev.aj.full_stack_v6.common.domain.entities.Order;
 import dev.aj.full_stack_v6.common.domain.enums.OrderStatus;
 import dev.aj.full_stack_v6.order.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +30,10 @@ class OrderController {
 
     @PostMapping("/")
     @MeasurePerformance
-    public ResponseEntity<HttpStatus> createOrder(@RequestParam("paymentIdentifier") UUID paymentIdentifier, Principal principal) {
+    @Operation(summary = "Create order", responses = {
+            @ApiResponse(responseCode = "201", description = "Order Created, reference to the Order in the 'location' header" )
+    })
+    public ResponseEntity<Void> createOrder(@RequestParam("paymentIdentifier") UUID paymentIdentifier, Principal principal) {
         return ResponseEntity
                 .created(URI.create("/".concat(orderService.placeOrder(paymentIdentifier, principal))))
                 .build();

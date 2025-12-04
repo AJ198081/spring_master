@@ -26,7 +26,7 @@ export const Registration = (): ReactNode => {
 
         registrationResponsePromise
             .then((response: AxiosResponse<UserRegistrationResponse>) => {
-                console.log(`Registration response: ${JSON.stringify(response.data)}`);
+                // console.log(`Registration response: ${JSON.stringify(response.data)}`);
                 const registrationData = response.data;
                 toast.success(`Registration successful - User ID - ${registrationData.userId} assigned to ${registrationData.username}`, {
                     duration: 10000,
@@ -37,12 +37,12 @@ export const Registration = (): ReactNode => {
                     toast.error(((error as AxiosError).response?.data as ProblemDetail).detail || 'Registration failed', {
                         duration: 5000,
                     });
-                    return;
+                    // return;
+                } else {
+                    toast.error(error.response.data.message);
                 }
-                toast.error(error.response.data.message);
             })
             .finally(() => {
-                console.log('Registration finally');
                 navigateTo("/login");
             });
 

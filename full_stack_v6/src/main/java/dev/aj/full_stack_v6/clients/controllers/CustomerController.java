@@ -1,13 +1,22 @@
 package dev.aj.full_stack_v6.clients.controllers;
 
+import dev.aj.full_stack_v6.clients.CustomerService;
 import dev.aj.full_stack_v6.common.domain.entities.Address;
 import dev.aj.full_stack_v6.common.domain.entities.Customer;
-import dev.aj.full_stack_v6.clients.CustomerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -34,13 +43,19 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<HttpStatus> putCustomer(@PathVariable("id") Long id, @RequestBody Customer customer) {
+    @Operation(summary = "Update a customer (PUT operation)", responses = {
+            @ApiResponse(description = "Customer updated successfully", responseCode = "202")
+    })
+    public ResponseEntity<Void> putCustomer(@PathVariable("id") Long id, @RequestBody Customer customer) {
         customerService.putCustomer(id, customer);
         return ResponseEntity.accepted().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<HttpStatus> patchCustomer(@PathVariable("id") Long id, @RequestBody Customer customer) {
+    @Operation(summary = "Update a customer (PATCH operation)", responses = {
+            @ApiResponse(description = "Customer updated successfully", responseCode = "202")
+    })
+    public ResponseEntity<Void> patchCustomer(@PathVariable("id") Long id, @RequestBody Customer customer) {
         customerService.patchCustomer(id, customer);
         return ResponseEntity.accepted().build();
     }

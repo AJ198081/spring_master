@@ -2,9 +2,10 @@ package dev.aj.full_stack_v6.cart.controllers;
 
 import dev.aj.full_stack_v6.cart.CartService;
 import dev.aj.full_stack_v6.common.domain.entities.Cart;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,10 @@ class CartController {
     private final CartService cartService;
 
     @PostMapping("/")
-    public ResponseEntity<HttpStatus> addProductToCart(@RequestParam Long productId,
+    @Operation(summary = "Add product to cart", responses = {
+            @ApiResponse(responseCode = "202", description = "Accepted")
+    })
+    public ResponseEntity<Void> addProductToCart(@RequestParam Long productId,
                                                        @RequestParam @Positive Integer quantity,
                                                        Principal principal) {
         cartService.addProductToCart(productId, quantity, principal);
@@ -50,7 +54,10 @@ class CartController {
     }
 
     @DeleteMapping("/product")
-    public ResponseEntity<HttpStatus> deleteCart(@RequestParam Long productId, Principal principal) {
+      @Operation(summary = "Add product to cart", responses = {
+            @ApiResponse(responseCode = "204", description = "Accepted")
+    })
+    public ResponseEntity<Void> deleteCart(@RequestParam Long productId, Principal principal) {
         cartService.deleteProduct(productId, principal);
         return ResponseEntity.noContent().build();
     }
