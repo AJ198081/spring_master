@@ -11,6 +11,13 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * {@link OpenAPI} configuration class. <br/>
+ * <a href="https://swagger.io/specification/">Swagger's take on OpenAPI Specification</a>
+ * @see <a href="https://github.com/OAI/OpenAPI-Specification">OpenAPI Github repo</a>
+ * @see <a href="https://openapi-map.apihandyman.io/">Learn OAS object structure</a>}
+ * @see <a href="https://commonmark.org/help/">Use Common Marks to decorate API spec texts?</a>
+ */
 @Configuration
 public class SwaggerConfig {
 
@@ -50,7 +57,11 @@ public class SwaggerConfig {
                         new Tag().name("Vendor")
                                 .description("Vendor-management operations"),
                         new Tag().name("Payment")
-                                .description("Payment-management operations")))
+                                .description("Payment-management operations"),
+                        new Tag().name("Orders")
+                                .description("Order tracking and management operations"),
+                        new Tag().name("Comments")
+                                .description("Product review and comment operations")))
                 .addSecurityItem(securityRequirement)
                 .components(new Components()
                         .addSecuritySchemes("bearer-jwt", securityScheme));
