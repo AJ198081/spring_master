@@ -38,11 +38,10 @@ class UserController {
                     required = true,
                     content = {
                             @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = UserCreateRequest.class, requiredMode = Schema.RequiredMode.REQUIRED)
-                            )
+                                    schema = @Schema(implementation = UserCreateRequest.class, requiredMode = Schema.RequiredMode.REQUIRED))
                     }
             ),
-            responses = {@ApiResponse(responseCode = "201", description = "User created", content = @Content())}
+            responses = {@ApiResponse(responseCode = "201", description = "User created")}
     )
     public ResponseEntity<Void> saveUser(@RequestBody UserCreateRequest userCreateRequest) {
         userService.createUser(userCreateRequest);
@@ -51,7 +50,11 @@ class UserController {
 
     @GetMapping("/usernameTaken/{username}")
     @Operation(summary = "Check if a username is taken", responses = {
-            @ApiResponse(responseCode = "200", description = "Username taken?", useReturnTypeSchema = true),
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Username taken?",
+                    useReturnTypeSchema = true
+            ),
     })
     public ResponseEntity<Boolean> usernameTaken(@PathVariable
                                                  @Parameter(in = ParameterIn.PATH,
