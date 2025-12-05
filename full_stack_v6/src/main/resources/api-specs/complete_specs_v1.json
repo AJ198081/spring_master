@@ -2196,6 +2196,7 @@
           },
           "password": {
             "type": "string",
+            "format": "password",
             "maxLength": 100,
             "minLength": 2
           },

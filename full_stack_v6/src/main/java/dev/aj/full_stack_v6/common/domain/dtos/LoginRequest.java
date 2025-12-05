@@ -5,7 +5,12 @@ import org.jspecify.annotations.NonNull;
 
 @Schema(description = "Wrapper for Username, Password")
 public record LoginRequest(
-     @Schema(requiredMode = Schema.RequiredMode.REQUIRED) @NonNull String username,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED
-//                hidden = true
-        ) @NonNull String password) { }
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+        @NonNull String username,
+
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                type = "string",
+                format = "password"
+/*                hidden = true */)
+        @NonNull String password) {
+}
