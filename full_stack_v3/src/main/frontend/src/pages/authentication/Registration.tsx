@@ -24,28 +24,6 @@ export const Registration = (): ReactNode => {
 
         const registrationResponsePromise = registerNewUser(values, abortController);
 
-        registrationResponsePromise
-            .then((response: AxiosResponse<UserRegistrationResponse>) => {
-                // console.log(`Registration response: ${JSON.stringify(response.data)}`);
-                const registrationData = response.data;
-                toast.success(`Registration successful - User ID - ${registrationData.userId} assigned to ${registrationData.username}`, {
-                    duration: 10000,
-                });
-            })
-            .catch(error => {
-                if (error instanceof AxiosError) {
-                    toast.error(((error as AxiosError).response?.data as ProblemDetail).detail || 'Registration failed', {
-                        duration: 5000,
-                    });
-                    // return;
-                } else {
-                    toast.error(error.response.data.message);
-                }
-            })
-            .finally(() => {
-                navigateTo("/login");
-            });
-
         void toast.promise(
             registrationResponsePromise,
             {
@@ -66,9 +44,30 @@ export const Registration = (): ReactNode => {
                                 Cancel Registration?
                             </button>
                         </div>
-                    </div>),
+                    </div>)
             }
         );
+
+        registrationResponsePromise
+            .then((response: AxiosResponse<UserRegistrationResponse>) => {
+                const registrationData = response.data;
+                toast.success(`Registration successful - User ID - ${registrationData.userId} assigned to ${registrationData.username}`, {
+                    duration: 10000,
+                });
+            })
+            .catch(error => {
+                console.log('Registration error', error);
+                if (error instanceof AxiosError) {
+                    toast.error(((error as AxiosError).response?.data as ProblemDetail).detail || 'Registration failed', {
+                        duration: 5000,
+                    });
+                } else {
+                    toast.error(error.response.data.message);
+                }
+            })
+            .finally(() => {
+                navigateTo("/login");
+            });
     };
 
     const {

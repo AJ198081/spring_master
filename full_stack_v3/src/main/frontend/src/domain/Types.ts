@@ -101,12 +101,12 @@ export const UserRegistrationRequestSchemaValidations = object({
 });
 
 export const defaultUserRegistrationRequest: UserRegistrationRequest = {
-    firstname: '',
-    lastname: '',
-    email: '',
-    username: '',
-    password: '',
-    confirmpassword: ''
+    firstname: 'AJ',
+    lastname: 'Bhandal',
+    email: 'abg@gmail.com.au',
+    username: 'aj_user_admin',
+    password: 'Password@1',
+    confirmpassword: 'Password@1'
 };
 
 export interface UserLoginRequest {
@@ -119,8 +119,8 @@ export interface UserLoginResponse {
 }
 
 export const initialUserLoginRequest: UserLoginRequest = {
-    username: '',
-    password: ''
+    username: 'aj_admin',
+    password: 'Password@1'
 }
 
 export type ProblemDetail = {

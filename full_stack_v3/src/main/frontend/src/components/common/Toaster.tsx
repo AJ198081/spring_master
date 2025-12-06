@@ -18,14 +18,14 @@ export const ToasterComponent = () => {
                 duration: 20000,
             },
             success: {
-                duration: 3000,
+                duration: 5000,
                 iconTheme: {
                     primary: 'green',
                     secondary: 'white',
                 },
             },
             error: {
-                duration: 3000,
+                duration: 5000,
                 iconTheme: {
                     primary: 'red',
                     secondary: 'white',

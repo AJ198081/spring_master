@@ -18,7 +18,7 @@ export interface ExpenseListProps {
     userName: string;
 }
 
-export const ExpenseList = ({columns, data, userName}: ExpenseListProps) => {
+export const Expenses = ({columns, data, userName}: ExpenseListProps) => {
 
     const navigateTo = useNavigate();
     const [_visibleColumns, _setVisibleColumns] = useState<MRT_VisibilityState>(

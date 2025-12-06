@@ -1,7 +1,7 @@
 import {ReactNode, useContext, useEffect, useMemo, useState} from "react";
 import toast from 'react-hot-toast';
 import {columnsDescription, CustomJwtPayload, ExpenseResponse, isJwtValid} from "../domain/Types.ts";
-import {ExpenseList} from "../components/ExpenseList.tsx";
+import {Expenses} from "../components/Expenses.tsx";
 import {MRT_ColumnDef} from "mantine-react-table";
 import {Spinner} from "../components/common/Spinner.tsx";
 import {useNavigate} from "react-router-dom";
@@ -66,14 +66,14 @@ export const Dashboard = (): ReactNode => {
             setErrors(null);
             setIsLoading(true);
         }
-    }, [])
+    }, [navigateTo, setToken, token])
 
     return <div className={'container'}>
         {
             isLoading
                 ? <Spinner textColor={'text-primary'}/>
                 : errors === null
-                    ? <ExpenseList columns={columns} data={expenses} userName={userName}/>
+                    ? <Expenses columns={columns} data={expenses} userName={userName}/>
                     : <p>`Error fetching data - ${errors.name} occurred with ${errors.message}`</p>
         }
     </div>;

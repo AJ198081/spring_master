@@ -7,22 +7,50 @@ import {
     UserLoginResponse,
 } from "../../domain/Types.ts";
 import {AxiosInstance} from "../../service/api-client.ts";
-import {AxiosError, AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse, CanceledError} from "axios";
 import toast from "react-hot-toast";
 import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
 import {GoQuestion} from "react-icons/go";
 import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext.tsx";
-import { FcGoogle } from "react-icons/fc";
+import {FcGoogle} from "react-icons/fc";
 
 
 export const Login = (): ReactNode => {
     const navigateTo = useNavigate();
-    const {setToken} = useContext(UserAuthenticationContext)
+    const {setToken} = useContext(UserAuthenticationContext);
 
     const loginUser = async (values: UserLoginRequest) => {
 
-        AxiosInstance.post('/api/v1/auth/login', values)
+        const abortController = new AbortController();
+
+        const loginResponsePromise = AxiosInstance.post('/api/v1/auth/login', values, {
+            signal: abortController.signal
+        });
+
+        void toast.promise(loginResponsePromise, {
+            loading: (
+                <div>
+                    <div className={`d-flex justify-content-between`}>
+                        Login request in progress...
+                    </div>
+
+                    <div>
+                        <button
+                            className={`btn btn-outline-danger m-2`}
+                            onClick={() => {
+                                abortController.abort('Login attempt canceled by the user');
+                                setSubmitting(false);
+                            }}
+                        >
+                            Cancel Login?
+                        </button>
+                    </div>
+                </div>)
+        });
+
+        // useFormik needs this await to properly set isSubmitting after login function completion, either 'await' or 'return' promise is required.
+        await loginResponsePromise
             .then((response: AxiosResponse<UserLoginResponse>) => {
                 const loginResponse = response.data;
                 if (response.status === 200) {
@@ -33,14 +61,31 @@ export const Login = (): ReactNode => {
             })
             .catch(error => {
                 if (error instanceof AxiosError) {
-                    toast.error((error as AxiosError).message, {
+                    let errorMessage;
+                    if (error instanceof CanceledError) {
+                        errorMessage = abortController.signal.reason;
+                    } else {
+                        errorMessage = error.message;
+                    }
+
+                    toast.error(errorMessage, {
                         duration: 5000,
                     });
                 }
             });
     };
 
-    const {values, errors, touched, handleChange, handleSubmit, resetForm, handleBlur} = useFormik({
+    const {
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleSubmit,
+        isSubmitting,
+        setSubmitting,
+        resetForm,
+        handleBlur
+    } = useFormik({
         initialValues: initialUserLoginRequest,
         onSubmit: loginUser,
         validationSchema: UserLoginRequestSchemaValidation,
@@ -94,10 +139,23 @@ export const Login = (): ReactNode => {
                         </div>}
                     </div>
 
-                    <button type="reset" name={"reset"} className="btn btn-outline-danger me-2">Reset</button>
-                    <button type="submit" name={"submit"} className="btn btn-outline-primary">Login</button>
+                    <button
+                        type="reset"
+                        name={"reset"}
+                        className={`btn btn-outline-danger me-2 ${isSubmitting && 'disabled'}`}
+                    >Reset
+                    </button>
+                    <button
+                        type="submit"
+                        name={"submit"}
+                        className={`btn btn-outline-primary ${isSubmitting && 'disabled'}`}
+                    >Login
+                    </button>
 
-                    <button type="button" className="btn btn-outline-success d-flex mt-2">
+                    <button
+                        type="button"
+                        className={`btn btn-outline-success d-flex mt-2 ${isSubmitting && 'disabled'}`}
+                    >
                         <FcGoogle className="me-1" style={{width: '20px', height: '20px'}} />
                         Login with Google
                     </button>

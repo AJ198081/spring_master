@@ -435,10 +435,7 @@
                     "type": "string",
                     "format": "binary"
                   }
-                },
-                "required": [
-                  "files"
-                ]
+                }
               }
             }
           }
@@ -1076,10 +1073,7 @@
                       "format": "binary"
                     }
                   }
-                },
-                "required": [
-                  "files"
-                ]
+                }
               }
             }
           }
@@ -1121,10 +1115,7 @@
                       "format": "binary"
                     }
                   }
-                },
-                "required": [
-                  "files"
-                ]
+                }
               }
             }
           }
@@ -1154,6 +1145,7 @@
         ],
         "operationId": "saveImage",
         "requestBody": {
+          "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
@@ -1161,12 +1153,10 @@
                 "properties": {
                   "files": {
                     "type": "string",
-                    "format": "binary"
+                    "format": "binary",
+                    "required": true
                   }
-                },
-                "required": [
-                  "files"
-                ]
+                }
               }
             }
           }
