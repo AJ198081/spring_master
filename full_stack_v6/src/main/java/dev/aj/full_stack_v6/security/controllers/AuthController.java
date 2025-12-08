@@ -28,13 +28,18 @@ class AuthController {
     @Operation(
             summary = "Login",
             description = "Login with user details and get the Authorization JWT",
+            operationId = "login",
+            method = "post",
             tags = {"AuthN"},
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "User credentials - Username and Password",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = LoginRequest.class)
+                            schema = @Schema(
+                                    implementation = LoginRequest.class,
+                                    requiredMode = Schema.RequiredMode.REQUIRED
+                            )
                     )
             )
     )
@@ -46,6 +51,8 @@ class AuthController {
     @Operation(
             summary = "Logout",
             description = "Logout the user from the application",
+            operationId = "logout",
+            method = "post",
             tags = {"AuthN"},
             responses = {
                     @ApiResponse(responseCode = "202", description = "User logged out successfully")
