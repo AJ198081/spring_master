@@ -28,8 +28,7 @@ export const categoryOptions = [
     'Other'
 ];
 
-export const expenseSchemaValidations = object(
-    {
+export const expenseSchemaValidations = object({
     name: string()
         .required('Expense name is required')
         .min(2, 'Expense name cannot be less than character 2')
@@ -48,8 +47,7 @@ export const expenseSchemaValidations = object(
         .default(() => dayjs().toDate())
         .max(dayjs().add(2, 'year').toDate(), 'Expense date cannot be more than a year in the future')
         .required('Expense Date is required')
-    }
-);
+    });
 
 export interface UserRegistrationRequest {
     firstname: string;
@@ -66,23 +64,23 @@ export interface UserRegistrationResponse extends Omit<UserRegistrationRequest, 
 
 export const UserRegistrationRequestSchemaValidations = object({
     firstname: string()
+        .required('The first name is required')
         .min(2, 'The first name cannot be less than two characters')
-        .max(50, 'The first name cannot be more than 50 characters')
-        .required('The first name is required'),
+        .max(50, 'The first name cannot be more than 50 characters'),
 
     lastname: string()
+        .required('Last name is required')
         .min(2, 'Last name cannot be less than two characters')
-        .max(50, 'Last name cannot be more than 50 characters')
-        .required('Last name is required'),
+        .max(50, 'Last name cannot be more than 50 characters'),
 
     email: string()
-        .email('Email is not valid')
-        .required('Email is required'),
+        .required('Email is required')
+        .email('Email is not valid'),
 
     username: string()
+        .required('Username is required')
         .min(5, 'Username cannot be less than five characters')
-        .max(50, 'Username cannot be more than 50 characters')
-        .required('Username is required'),
+        .max(50, 'Username cannot be more than 50 characters'),
 
     password: string()
         .required('Password is required')
@@ -91,9 +89,7 @@ export const UserRegistrationRequestSchemaValidations = object({
         .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
         .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
         .matches(/[0-9]/, 'Password must contain at least one number')
-        .matches(/[!@#$%^&*]/,
-            'Password must contain at least one special (!@#$%^&*) character'
-        ),
+        .matches(/[!@#$%^&*]/, 'Password must contain at least one special (!@#$%^&*) character'),
 
     confirmpassword: string()
         .required('Confirm password is required')
