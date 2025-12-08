@@ -62,4 +62,10 @@ class AuthController {
         authService.logout(request, response);
         return ResponseEntity.accepted().build();
     }
+
+    @PostMapping("/refresh")
+    @Operation(hidden = true)
+    public Exception refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        return new NoSuchMethodException("This method hasn't been implemented yet!!");
+    }
 }

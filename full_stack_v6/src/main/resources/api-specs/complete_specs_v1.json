@@ -14,7 +14,12 @@
   ],
   "security": [
     {
-      "bearer-jwt": []
+      "bearer-jwt": [],
+      "basic-auth": [
+        "If the security scheme is of type oauth2 or openIdConnect, then the value is a list of scope names required for the execution.",
+        "For other security scheme types, the array MUST be empty.",
+        "https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.1.md#oauth-flow-object"
+      ]
     }
   ],
   "tags": [
@@ -2698,6 +2703,10 @@
         "description": "Add JWT for token-based authentication",
         "scheme": "bearer",
         "bearerFormat": "JWT"
+      },
+      "basic-auth": {
+        "type": "http",
+        "scheme": "basic"
       }
     }
   }
