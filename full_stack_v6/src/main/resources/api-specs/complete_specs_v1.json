@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
   "info": {
     "title": "Orders APIs",
     "description": "RESTful APIs for managing customers, vendors, carts, payments, and orders operations in the Ordering Application.\nThese endpoints allow customers to browse products, manage shopping carts, place orders, and process payments.\nIncludes secure authentication and authorization mechanisms using JWT tokens.\n",
