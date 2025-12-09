@@ -6,12 +6,10 @@ GET http://localhost:8080/api-users/api/users/status/check
 * ### Get a 'test' user credentials
 GET http://localhost:8080/api-users/test/user
 
-> {%
-if (response.status === 200) {
+> if (response.status === 200) {
 client.global.set("username", response.body['username']);
 client.global.set("password", response.body['password']);
 }
-%}
 
 * ### Login and receive a JWT
 POST http://localhost:8080/api/users/login
