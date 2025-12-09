@@ -22,11 +22,9 @@ Content-Type: application/json
 "password": "{{password}}"
 }
 
-> {%
-if (response.status === 200) {
+> if (response.status === 200) {
 client.global.set("jwt-token", response.body);
 }
-%}
 
 * ### Status check on API via gateway
 GET http://localhost:8080/api/users/status/check
