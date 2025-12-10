@@ -1,4 +1,4 @@
-import {ReactNode, useContext} from "react";
+import {ReactNode, useContext, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {
     initialUserLoginRequest,
@@ -11,21 +11,29 @@ import {AxiosError, AxiosResponse, CanceledError} from "axios";
 import toast from "react-hot-toast";
 import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack} from "@mui/material";
 import {GoQuestion} from "react-icons/go";
 import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext.tsx";
 import {FcGoogle} from "react-icons/fc";
 
 
 export const Login = (): ReactNode => {
+
     const navigateTo = useNavigate();
+    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+    const [abortController, setAbortController] = useState<AbortController | null>(null);
     const {setToken} = useContext(UserAuthenticationContext);
+
+    const openDialog = () => setDialogOpen(true);
+    const closeDialog = () => setDialogOpen(false);
 
     const loginUser = async (values: UserLoginRequest) => {
 
-        const abortController = new AbortController();
+        const controller = new AbortController();
+        setAbortController(controller);
 
         const loginResponsePromise = AxiosInstance.post('/api/v1/auth/login', values, {
-            signal: abortController.signal
+            signal: controller.signal
         });
 
         void toast.promise(loginResponsePromise, {
@@ -38,14 +46,12 @@ export const Login = (): ReactNode => {
                     <div>
                         <button
                             className={`btn btn-outline-danger m-2`}
-                            onClick={() => {
-                                abortController.abort('Login attempt canceled by the user');
-                                setSubmitting(false);
-                            }}
+                            onClick={openDialog}
                         >
                             Cancel Login?
                         </button>
                     </div>
+
                 </div>)
         });
 
@@ -63,7 +69,7 @@ export const Login = (): ReactNode => {
                 if (error instanceof AxiosError) {
                     let errorMessage;
                     if (error instanceof CanceledError) {
-                        errorMessage = abortController.signal.reason;
+                        errorMessage = controller.signal.reason;
                     } else {
                         errorMessage = error.message;
                     }
@@ -92,75 +98,146 @@ export const Login = (): ReactNode => {
     });
 
     return (
-        <div className={'d-flex justify-content-center align-items-center mt-3'}>
-            <div className={'container col-md-4 col-sm-8 col-xs-12'}>
-                <form className={'needs-validation'} noValidate={false}
-                      onSubmit={handleSubmit}
-                      onReset={() => resetForm()}
-                      onBlur={handleBlur}>
-
-                    <div className="mb-3">
-                        <label htmlFor="username" className="form-label">Username or email</label>
-                        <input type="text"
-                               id="username"
-                               className={`form-control ${errors.username && touched.username ? 'is-invalid' : ''}`}
-                               value={values.username}
-                               onChange={handleChange}
-                               onBlur={handleBlur}
-                               autoComplete={'on'}
-                               placeholder="Enter your username or email"/>
-                        {touched.username && <div className="invalid-feedback">
-                            {errors.username}
-                        </div>}
-                    </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="password" className="form-label">Password</label>
-                        <div className={'input-group'}>
-                            <input type="password"
-                                   id="password"
-                                   autoComplete={"current-password"}
-                                   className={`form-control ${errors.password && touched.password ? 'is-invalid' : ''}`}
-                                   value={values.password}
-                                   onChange={handleChange}
-                                   onBlur={handleBlur}
-                                   placeholder="Enter password"/>
-                            <Tooltip
-                                className={'input-group-text'}
-                                label={'Must container at least one uppercase, one lowercase, one number, one special and min 8 characters'}
-                            >
-                                <span>
-                                <GoQuestion/>
-                                </span>
-                            </Tooltip>
-                        </div>
-                        {touched.password && <div className="invalid-feedback">
-                            {errors.password}
-                        </div>}
-                    </div>
-
-                    <button
-                        type="reset"
-                        name={"reset"}
-                        className={`btn btn-outline-danger me-2 ${isSubmitting && 'disabled'}`}
-                    >Reset
-                    </button>
-                    <button
-                        type="submit"
-                        name={"submit"}
-                        className={`btn btn-outline-primary ${isSubmitting && 'disabled'}`}
-                    >Login
-                    </button>
-
-                    <button
-                        type="button"
-                        className={`btn btn-outline-success d-flex mt-2 ${isSubmitting && 'disabled'}`}
+        <>
+            <Dialog
+                open={dialogOpen}
+                onClose={closeDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Cancel Login Request?"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to cancel the ongoing login request?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        variant={"outlined"}
+                        color={"info"}
+                        onClick={closeDialog}
+                    >No</Button>
+                    <Button
+                        variant={"contained"}
+                        color={"error"}
+                        onClick={() => {
+                            if (abortController) {
+                                abortController.abort('Login attempt canceled by the user');
+                                setSubmitting(false);
+                            }
+                            closeDialog();
+                        }}
+                        autoFocus
                     >
-                        <FcGoogle className="me-1" style={{width: '20px', height: '20px'}} />
-                        Login with Google
-                    </button>
-                </form>
+                        Yes, Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <div className={'d-flex justify-content-center align-items-center mt-3'}>
+                <div className={'container col-md-4 col-sm-8 col-xs-12'}>
+                    <form
+                        className={'needs-validation'}
+                        noValidate={false}
+                        onSubmit={handleSubmit}
+                        onReset={() => resetForm()}
+                        onBlur={handleBlur}
+                    >
+
+                        <div className="mb-3">
+                            <label
+                                htmlFor="username"
+                                className="form-label"
+                            >Username or email</label>
+                            <input
+                                type="text"
+                                id="username"
+                                className={`form-control ${errors.username && touched.username ? 'is-invalid' : ''}`}
+                                value={values.username}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                autoComplete={'on'}
+                                placeholder="Enter your username or email"
+                            />
+                            {touched.username && <div className="invalid-feedback">
+                                {errors.username}
+                            </div>}
+                        </div>
+
+                        <div className="mb-3">
+                            <label
+                                htmlFor="password"
+                                className="form-label"
+                            >Password</label>
+                            <div className={'input-group'}>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    autoComplete={"current-password"}
+                                    className={`form-control ${errors.password && touched.password ? 'is-invalid' : ''}`}
+                                    value={values.password}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    placeholder="Enter password"
+                                />
+                                <Tooltip
+                                    className={'input-group-text'}
+                                    label={'Must container at least one uppercase, one lowercase, one number, one special and min 8 characters'}
+                                >
+                                    <span>
+                                    <GoQuestion/>
+                                    </span>
+                                </Tooltip>
+                            </div>
+                            {touched.password && <div className="invalid-feedback">
+                                {errors.password}
+                            </div>}
+                        </div>
+
+                        <Stack
+                            spacing={1}
+                            direction={"row"}
+                        >
+
+                            <Button
+                                variant={"contained"}
+                                type="reset"
+                                name={"reset"}
+                                color={"warning"}
+                                className={"me-2"}
+                                disabled={isSubmitting}
+                            >
+                                Reset
+                            </Button>
+
+                            <Button
+                                variant={"contained"}
+                                type={"submit"}
+                                color={"info"}
+                                name={"submit"}
+                                disabled={isSubmitting}
+                            >
+                                Login
+                            </Button>
+
+                        </Stack>
+
+
+                        <button
+                            type="button"
+                            className={`btn btn-outline-success d-flex mt-2 ${isSubmitting && 'disabled'}`}
+                        >
+                            <FcGoogle
+                                className="me-1"
+                                style={{width: '20px', height: '20px'}}
+                            />
+                            Login with Google
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
