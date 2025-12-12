@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -32,7 +33,8 @@ public class SecurityConfig {
                                                    UserDetailsService userDetailsService,
                                                    PasswordEncoder passwordEncoder,
                                                    JwtFilter jwtFilter,
-                                                   CorsConfigurationSource corsConfigurationSource
+                                                   CorsConfigurationSource corsConfigurationSource,
+                                                   AuthenticationEntryPoint authenticationEntryPoint
     ) throws Exception {
 
         httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
@@ -56,6 +58,7 @@ public class SecurityConfig {
                 )
 //                .oauth2Login(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
+                .exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

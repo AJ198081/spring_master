@@ -11,31 +11,22 @@ import {AxiosError, AxiosResponse, CanceledError} from "axios";
 import toast from "react-hot-toast";
 import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Paper,
-    Stack,
-    Typography
-} from "@mui/material";
+import {Button, Link, Paper, Stack, Typography} from "@mui/material";
 import {GoQuestion} from "react-icons/go";
 import {UserAuthenticationContext} from "../../contexts/user/UserAuthenticationContext.tsx";
 import {FcGoogle} from "react-icons/fc";
-
+import {ConfirmLoginCancelDialog} from "./dialogs/ConfirmLoginCancelDialog.tsx";
+import {isProblemDetail} from "../../utils/Utils.ts";
 
 export const Login = (): ReactNode => {
 
     const navigateTo = useNavigate();
-    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+    const [isCancelLoginDialogOpen, setIsCancelLoginDialogOpen] = useState<boolean>(false);
     const [abortController, setAbortController] = useState<AbortController | null>(null);
     const {setToken} = useContext(UserAuthenticationContext);
 
-    const openDialog = () => setIsDialogOpen(true);
-    const closeDialog = () => setIsDialogOpen(false);
+    const openDialog = () => setIsCancelLoginDialogOpen(true);
+    const closeDialog = () => setIsCancelLoginDialogOpen(false);
 
     const loginUser = async (values: UserLoginRequest) => {
 
@@ -64,7 +55,6 @@ export const Login = (): ReactNode => {
                             Cancel Login?
                         </Button>
                     </div>
-
                 </div>)
         });
 
@@ -84,11 +74,51 @@ export const Login = (): ReactNode => {
                     if (error instanceof CanceledError) {
                         errorMessage = controller.signal.reason;
                     } else {
-                        errorMessage = error.message;
+                        if (isProblemDetail(error)) {
+                            errorMessage = <Stack
+                                gap={2}
+                                color={"black"}
+                                sx={{
+                                    minWidth: '300px'
+                                }}
+                            >
+                                <div>
+                                    {error.response!.data.detail + ` Find out more? `}
+                                    <a
+                                        href={error.response!.data.type}
+                                        target={"_blank"}
+                                    >
+                                        <Typography
+                                            color={"blue"}
+                                            sx={{display: "inline"}}
+                                        >
+                                            here
+                                        </Typography>
+                                    </a>
+                                </div>
+                                <div>
+                                    <Link
+                                        onClick={() => {
+                                            toast.dismiss('login-error')
+                                            navigateTo('/register');
+                                        }}
+                                    >
+                                        Register new user?
+                                    </Link>
+                                </div>
+                            </Stack>
+                        } else {
+                            errorMessage = error.message;
+                        }
                     }
 
                     toast.error(errorMessage, {
-                        duration: 5000,
+                        id: 'login-error',
+                        duration: 3000,
+                        style: {
+                            // background: 'lightgray',
+                            color: '#fff'
+                        }
                     });
                 }
             });
@@ -110,51 +140,15 @@ export const Login = (): ReactNode => {
         validationSchema: UserLoginRequestSchemaValidation,
     });
 
+    const handleLoginWithGoogle = () => {
+        toast.error('Login with Google is not yet implemented', {
+            id: 'login-with-google-not-yet-implemented',
+            duration: 5000
+        });
+    };
     return (
         <>
-            <Dialog
-                open={isDialogOpen}
-                onClose={closeDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                // disableRestoreFocus={true}
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {"Cancel Login Request?"}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to cancel the ongoing login request?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        variant={"outlined"}
-                        color={"info"}
-                        onClick={closeDialog}
-                        // if you want autofocus, you have to disableRestoreFocus on Dialog,
-                        // which means you won't focus back on where you opened the dialog from
-                        // autoFocus={true}
-                        tabIndex={0}
-                    >No</Button>
-                    <Button
-                        variant={"contained"}
-                        type={"reset"}
-                        color={"error"}
-                        tabIndex={1}
-                        onClick={() => {
-                            if (abortController) {
-                                abortController.abort('Login attempt canceled by the user');
-                                setSubmitting(false);
-                            }
-                            closeDialog();
-                        }}
-                    >
-                        Yes, Cancel
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
+            {ConfirmLoginCancelDialog(isCancelLoginDialogOpen, closeDialog, abortController, setSubmitting)}
 
             <Paper
                 elevation={5}
@@ -174,66 +168,66 @@ export const Login = (): ReactNode => {
                 }
             >
                 <form
-                        className={'needs-validation'}
-                        noValidate={false}
-                        onSubmit={handleSubmit}
-                        onReset={() => resetForm()}
-                        onBlur={handleBlur}
-                    >
+                    className={'needs-validation'}
+                    noValidate={false}
+                    onSubmit={handleSubmit}
+                    onReset={() => resetForm()}
+                    onBlur={handleBlur}
+                >
 
-                        <div className="mb-3">
-                            <label
-                                htmlFor="username"
-                                className="form-label"
-                            >
-                                <Typography>
-                                    Username or email
-                                </Typography>
-                            </label>
+                    <div className="mb-3">
+                        <label
+                            htmlFor="username"
+                            className="form-label"
+                        >
+                            <Typography>
+                                Username or email
+                            </Typography>
+                        </label>
+                        <input
+                            type="text"
+                            id="username"
+                            className={`form-control ${errors.username && touched.username ? 'is-invalid' : ''}`}
+                            value={values.username}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            autoComplete={'on'}
+                            placeholder="Enter your username or email"
+                        />
+                        {touched.username && <div className="invalid-feedback">
+                            {errors.username}
+                        </div>}
+                    </div>
+
+                    <div className="mb-3">
+                        <label
+                            htmlFor="password"
+                            className="form-label"
+                        >Password</label>
+                        <div className={'input-group'}>
                             <input
-                                type="text"
-                                id="username"
-                                className={`form-control ${errors.username && touched.username ? 'is-invalid' : ''}`}
-                                value={values.username}
+                                type="password"
+                                id="password"
+                                autoComplete={"current-password"}
+                                className={`form-control ${errors.password && touched.password ? 'is-invalid' : ''}`}
+                                value={values.password}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                autoComplete={'on'}
-                                placeholder="Enter your username or email"
+                                placeholder="Enter password"
                             />
-                            {touched.username && <div className="invalid-feedback">
-                                {errors.username}
-                            </div>}
-                        </div>
-
-                        <div className="mb-3">
-                            <label
-                                htmlFor="password"
-                                className="form-label"
-                            >Password</label>
-                            <div className={'input-group'}>
-                                <input
-                                    type="password"
-                                    id="password"
-                                    autoComplete={"current-password"}
-                                    className={`form-control ${errors.password && touched.password ? 'is-invalid' : ''}`}
-                                    value={values.password}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    placeholder="Enter password"
-                                />
-                                <Tooltip
-                                    className={'input-group-text'}
-                                    label={'Must container at least one uppercase, one lowercase, one number, one special and min 8 characters'}
-                                >
+                            <Tooltip
+                                className={'input-group-text'}
+                                label={'Must container at least one uppercase, one lowercase, one number, one special and min 8 characters'}
+                            >
                                     <span>
                                     <GoQuestion/>
                                     </span>
-                                </Tooltip>
-                                {touched.password && <div className="invalid-feedback">
-                                    {errors.password}
-                                </div>}
-                            </div>
+                            </Tooltip>
+                            {touched.password && <div className="invalid-feedback">
+                                {errors.password}
+                            </div>}
                         </div>
+                    </div>
                     <div className={"container mt-4 mx-auto d-flex flex-column align-items-center"}>
                         <Stack
                             spacing={1}
@@ -265,6 +259,7 @@ export const Login = (): ReactNode => {
                         <button
                             type="button"
                             className={`btn btn-outline-success d-flex mt-3 ${isSubmitting && 'disabled'}`}
+                            onClick={handleLoginWithGoogle}
                         >
                             <FcGoogle
                                 className="me-1"

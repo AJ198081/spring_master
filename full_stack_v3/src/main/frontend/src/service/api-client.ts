@@ -22,6 +22,7 @@ AxiosInstance.interceptors.request.use(
 )
 
 AxiosInstance.interceptors.response.use(
+
     (response: AxiosResponse) => {
         if (response.config?.url?.includes('login') && response.status === 200) {
             console.log(`Successfully logged in ${dayjs().format('DD/MM/YYYY HH:mm:ss')}`);
