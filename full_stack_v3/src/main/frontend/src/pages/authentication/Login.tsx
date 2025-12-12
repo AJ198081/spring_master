@@ -30,12 +30,12 @@ import {FcGoogle} from "react-icons/fc";
 export const Login = (): ReactNode => {
 
     const navigateTo = useNavigate();
-    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [abortController, setAbortController] = useState<AbortController | null>(null);
     const {setToken} = useContext(UserAuthenticationContext);
 
-    const openDialog = () => setDialogOpen(true);
-    const closeDialog = () => setDialogOpen(false);
+    const openDialog = () => setIsDialogOpen(true);
+    const closeDialog = () => setIsDialogOpen(false);
 
     const loginUser = async (values: UserLoginRequest) => {
 
@@ -54,12 +54,15 @@ export const Login = (): ReactNode => {
                     </div>
 
                     <div>
-                        <button
-                            className={`btn btn-outline-danger m-2`}
+                        <Button
+                            variant={"contained"}
+                            className={`mt-3`}
                             onClick={openDialog}
+                            autoFocus={true}
+                            color={"error"}
                         >
                             Cancel Login?
-                        </button>
+                        </Button>
                     </div>
 
                 </div>)
@@ -110,10 +113,11 @@ export const Login = (): ReactNode => {
     return (
         <>
             <Dialog
-                open={dialogOpen}
+                open={isDialogOpen}
                 onClose={closeDialog}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
+                // disableRestoreFocus={true}
             >
                 <DialogTitle id="alert-dialog-title">
                     {"Cancel Login Request?"}
@@ -128,10 +132,16 @@ export const Login = (): ReactNode => {
                         variant={"outlined"}
                         color={"info"}
                         onClick={closeDialog}
+                        // if you want autofocus, you have to disableRestoreFocus on Dialog,
+                        // which means you won't focus back on where you opened the dialog from
+                        // autoFocus={true}
+                        tabIndex={0}
                     >No</Button>
                     <Button
                         variant={"contained"}
+                        type={"reset"}
                         color={"error"}
+                        tabIndex={1}
                         onClick={() => {
                             if (abortController) {
                                 abortController.abort('Login attempt canceled by the user');
@@ -139,7 +149,6 @@ export const Login = (): ReactNode => {
                             }
                             closeDialog();
                         }}
-                        autoFocus
                     >
                         Yes, Cancel
                     </Button>
