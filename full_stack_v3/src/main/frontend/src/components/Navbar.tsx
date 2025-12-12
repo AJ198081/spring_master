@@ -1,7 +1,7 @@
 import {IoWalletSharp} from "react-icons/io5";
 import {Link, NavLink, useNavigate} from "react-router-dom";
 import {useContext, useMemo} from "react";
-import {UserAuthenticationContext} from "../contexts/UserAuthenticationContext.tsx";
+import {UserAuthenticationContext} from "../contexts/user/UserAuthenticationContext.tsx";
 import {isJwtValid} from "../domain/Types.ts";
 
 export const Navbar = () => {

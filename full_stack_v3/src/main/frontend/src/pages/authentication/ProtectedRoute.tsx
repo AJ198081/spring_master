@@ -1,6 +1,6 @@
 import {ReactNode, useContext} from "react";
 import {Navigate} from "react-router-dom"; // Add Navigate import
-import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext";
+import {UserAuthenticationContext} from "../../contexts/user/UserAuthenticationContext";
 import {jwtDecode} from "jwt-decode";
 import {CustomJwtPayload} from "../../domain/Types.ts";
 

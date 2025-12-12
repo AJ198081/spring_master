@@ -1,7 +1,7 @@
 import {ReactNode, useContext, useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import toast from "react-hot-toast";
-import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext.tsx";
+import {UserAuthenticationContext} from "../../contexts/user/UserAuthenticationContext.tsx";
 import {AxiosInstance} from "../../service/api-client.ts";
 import {AxiosError} from "axios";
 

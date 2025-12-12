@@ -23,7 +23,7 @@ import {
     Typography
 } from "@mui/material";
 import {GoQuestion} from "react-icons/go";
-import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext.tsx";
+import {UserAuthenticationContext} from "../../contexts/user/UserAuthenticationContext.tsx";
 import {FcGoogle} from "react-icons/fc";
 
 
@@ -157,9 +157,10 @@ export const Login = (): ReactNode => {
                         mx: 'auto',
                         padding: 3,
                         position: 'absolute',
-                        top: '33.33%',
+                        top: 'max(20.33%, 60px)',
                         left: '50%',
-                        transform: 'translate(-50%, -50%)'
+                        transform: 'translate(-50%, 0)',
+                        marginTop: '55px'
                     }
                 }
             >

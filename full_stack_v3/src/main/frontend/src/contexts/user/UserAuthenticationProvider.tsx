@@ -1,7 +1,7 @@
 import {UserAuthenticationContext} from "./UserAuthenticationContext.tsx";
 import {ReactNode, useLayoutEffect, useRef, useState} from "react";
-import {AxiosInstance} from "../service/api-client.ts";
-import {isJwtValid} from "../domain/Types.ts";
+import {AxiosInstance} from "../../service/api-client.ts";
+import {isJwtValid} from "../../domain/Types.ts";
 import toast from "react-hot-toast";
 import {jwtDecode, JwtPayload} from "jwt-decode";
 

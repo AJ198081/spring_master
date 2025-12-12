@@ -6,7 +6,7 @@ import {MRT_ColumnDef} from "mantine-react-table";
 import {Spinner} from "../components/common/Spinner.tsx";
 import {useNavigate} from "react-router-dom";
 import {AxiosInstance} from "../service/api-client.ts";
-import {UserAuthenticationContext} from "../contexts/UserAuthenticationContext.tsx";
+import {UserAuthenticationContext} from "../contexts/user/UserAuthenticationContext.tsx";
 import {AxiosError, AxiosResponse} from "axios";
 import {jwtDecode} from "jwt-decode";
 

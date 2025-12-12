@@ -9,10 +9,10 @@ import {Registration} from "./pages/authentication/Registration.tsx";
 import {ExpenseDetails} from "./components/ExpenseDetails.tsx";
 import {ToasterComponent} from "./components/common/Toaster.tsx";
 import {AddExpense} from "./components/AddExpense.tsx";
-import {UserAuthenticationProvider} from "./contexts/UserAuthenticationProvider.tsx";
 import {ProtectedRoute} from "./pages/authentication/ProtectedRoute.tsx";
 import {createTheme, ThemeProvider} from "@mui/material/styles";
 import {alpha, getContrastRatio} from "@mui/material";
+import {ContextProviders} from "./contexts/ContextProviders.tsx";
 
 
 // Augment the palette to include a violet color
@@ -65,35 +65,56 @@ function App() {
     });
 
     return (
-        <UserAuthenticationProvider>
+        <ContextProviders>
             <IconContext.Provider value={{color: 'purple', size: '1.5em'}}>
 
-                <MantineProvider
-                    theme={{
-                        primaryColor: 'red',
-                        primaryShade: 8
-                    }}>
-                    <ThemeProvider theme={theme}>
-                    <ToasterComponent/>
+                    <MantineProvider
+                        theme={{
+                            primaryColor: 'red',
+                            primaryShade: 8
+                        }}
+                    >
+ <ThemeProvider theme={theme}>
+                        <ToasterComponent/>
 
-                    <BrowserRouter>
-                        <Navbar/>
-                        <Routes>
-                            <Route path={'/'} index={true} element={<Dashboard/>}/>
-                            <Route path={'/login'} element={<Login/>}/>
-                            <Route path={'/logout'} element={<Logout/>}/>
-                            <Route path={'/register'} element={<Registration/>}/>
-                                <Route path={'/new'} element={
-                                    <ProtectedRoute><AddExpense/></ProtectedRoute>
-                                }/>
-                                <Route path={'/view/:expenseId'} element={
-                                    <ProtectedRoute><ExpenseDetails/></ProtectedRoute>}/>
-                        </Routes>
-                    </BrowserRouter>
-                    </ThemeProvider>
-                </MantineProvider>
+                        <BrowserRouter>
+                            <Navbar/>
+                            <Routes>
+                                <Route
+                                    path={'/'}
+                                    index={true}
+                                    element={<Dashboard/>}
+                                />
+                                <Route
+                                    path={'/login'}
+                                    element={<Login/>}
+                                />
+                                <Route
+                                    path={'/logout'}
+                                    element={<Logout/>}
+                                />
+                                <Route
+                                    path={'/register'}
+                                    element={<Registration/>}
+                                />
+                                <Route
+                                    path={'/new'}
+                                    element={
+                                        <ProtectedRoute><AddExpense/></ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path={'/view/:expenseId'}
+                                    element={
+                                        <ProtectedRoute><ExpenseDetails/></ProtectedRoute>}
+                                />
+                            </Routes>
+                        </BrowserRouter>
+                </ThemeProvider>
+
+                    </MantineProvider>
             </IconContext.Provider>
-        </UserAuthenticationProvider>
+        </ContextProviders>
     )
 }
 
