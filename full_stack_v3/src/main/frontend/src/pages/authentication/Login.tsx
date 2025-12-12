@@ -11,7 +11,17 @@ import {AxiosError, AxiosResponse, CanceledError} from "axios";
 import toast from "react-hot-toast";
 import {useFormik} from "formik";
 import {Tooltip} from "@mantine/core";
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack} from "@mui/material";
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Paper,
+    Stack,
+    Typography
+} from "@mui/material";
 import {GoQuestion} from "react-icons/go";
 import {UserAuthenticationContext} from "../../contexts/UserAuthenticationContext.tsx";
 import {FcGoogle} from "react-icons/fc";
@@ -136,9 +146,24 @@ export const Login = (): ReactNode => {
                 </DialogActions>
             </Dialog>
 
-            <div className={'d-flex justify-content-center align-items-center mt-3'}>
-                <div className={'container col-md-4 col-sm-8 col-xs-12'}>
-                    <form
+
+            <Paper
+                elevation={5}
+                square={false}
+                sx={
+                    {
+                        minWidth: 500,
+                        minHeight: 320,
+                        mx: 'auto',
+                        padding: 3,
+                        position: 'absolute',
+                        top: '33.33%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)'
+                    }
+                }
+            >
+                <form
                         className={'needs-validation'}
                         noValidate={false}
                         onSubmit={handleSubmit}
@@ -150,7 +175,11 @@ export const Login = (): ReactNode => {
                             <label
                                 htmlFor="username"
                                 className="form-label"
-                            >Username or email</label>
+                            >
+                                <Typography>
+                                    Username or email
+                                </Typography>
+                            </label>
                             <input
                                 type="text"
                                 id="username"
@@ -190,12 +219,12 @@ export const Login = (): ReactNode => {
                                     <GoQuestion/>
                                     </span>
                                 </Tooltip>
+                                {touched.password && <div className="invalid-feedback">
+                                    {errors.password}
+                                </div>}
                             </div>
-                            {touched.password && <div className="invalid-feedback">
-                                {errors.password}
-                            </div>}
                         </div>
-
+                    <div className={"container mt-4 mx-auto d-flex flex-column align-items-center"}>
                         <Stack
                             spacing={1}
                             direction={"row"}
@@ -215,19 +244,17 @@ export const Login = (): ReactNode => {
                             <Button
                                 variant={"contained"}
                                 type={"submit"}
-                                color={"info"}
+                                color={"violet"}
                                 name={"submit"}
                                 disabled={isSubmitting}
                             >
                                 Login
                             </Button>
-
                         </Stack>
-
 
                         <button
                             type="button"
-                            className={`btn btn-outline-success d-flex mt-2 ${isSubmitting && 'disabled'}`}
+                            className={`btn btn-outline-success d-flex mt-3 ${isSubmitting && 'disabled'}`}
                         >
                             <FcGoogle
                                 className="me-1"
@@ -235,9 +262,9 @@ export const Login = (): ReactNode => {
                             />
                             Login with Google
                         </button>
-                    </form>
-                </div>
-            </div>
+                    </div>
+                </form>
+            </Paper>
         </>
     );
 }

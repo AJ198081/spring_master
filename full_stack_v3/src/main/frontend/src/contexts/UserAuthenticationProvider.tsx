@@ -10,14 +10,14 @@ export const UserAuthenticationProvider = ({children}: { children: ReactNode }) 
 
     const [token, setToken] = useState<string | null>(null);
 
-    let timeout: number;
-
     const tokenExpiry = useRef<number | null>(null);
 
     useLayoutEffect(() => {
         if (token && isJwtValid(token)) {
             AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            const jwtPayload = token ? jwtDecode<JwtPayload>(token) : null;
+            const jwtPayload = token
+                ? jwtDecode<JwtPayload>(token)
+                : null;
 
             tokenExpiry.current = jwtPayload?.exp
                 ? (jwtPayload.exp * 1000 - Date.now() - 1500)
@@ -26,6 +26,8 @@ export const UserAuthenticationProvider = ({children}: { children: ReactNode }) 
         } else {
             delete AxiosInstance.defaults.headers.common['Authorization'];
         }
+
+        let timeout: number;
 
         if (tokenExpiry.current !== null) {
             timeout = setTimeout(() => {
