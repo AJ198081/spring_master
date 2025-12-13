@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
 import {CategorySelect} from "./CategoryDropdown.tsx";
+import {Paper} from "@mui/material";
 
 export const AddExpense = () => {
 
@@ -48,7 +49,7 @@ export const AddExpense = () => {
     const {values, errors, touched, handleChange, handleSubmit, resetForm, handleBlur} = useFormik({
         initialValues: {
             name: '',
-            note: 'Default notes',
+            note: '',
             category: '',
             amount: 0,
             date: dayjs().utc(true).format(dateFormat),
@@ -58,8 +59,13 @@ export const AddExpense = () => {
     });
 
     return (
-        <div className={'d-flex justify-content-center align-items-center mt-3'}>
-            <div className={'container col-md-4 col-sm-8 col-xs-12'}>
+        <Paper
+            elevation={5}
+            sx={{p: 2, my: 5, maxWidth: '60%', mx: 'auto'}}
+            square={false}
+        >
+        <div className={'d-flex justify-content-center align-items-center my-3 w-100'}>
+            <div className={'container col-lg-10 col-md-10 col-sm-4 col-xs-8'}>
                 <form className={'needs-validation'} noValidate={false}
                       onSubmit={(e) => handleSubmit(e)}
                       onReset={() => resetForm()}
@@ -135,5 +141,6 @@ export const AddExpense = () => {
                 </form>
             </div>
         </div>
+        </Paper>
     )
 }

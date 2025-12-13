@@ -35,7 +35,8 @@ export const expenseSchemaValidations = object({
         .max(255, 'Expense name cannot be more than character 255'),
 
     note: string()
-        .nullable(),
+        .nullable()
+        .default('Miscellaneous expense'),
 
     category: string()
         .required('Category is required'),
@@ -44,9 +45,9 @@ export const expenseSchemaValidations = object({
         .required('Expense amount is required'),
 
     date: date()
+        .required('Expense Date is required')
         .default(() => dayjs().toDate())
         .max(dayjs().add(2, 'year').toDate(), 'Expense date cannot be more than a year in the future')
-        .required('Expense Date is required')
     });
 
 export interface UserRegistrationRequest {
