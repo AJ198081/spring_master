@@ -1,5 +1,5 @@
 import {ReactNode} from "react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {AxiosError, AxiosResponse} from "axios";
 import {
     defaultUserRegistrationRequest,
@@ -17,6 +17,7 @@ import {registerNewUser} from "../../service/userClient.ts";
 export const Registration = (): ReactNode => {
 
     const navigateTo = useNavigate();
+    const location = useLocation();
 
     const registerUser = (values: UserRegistrationRequest) => {
 
@@ -70,6 +71,15 @@ export const Registration = (): ReactNode => {
             });
     };
 
+    const calculateInitialRegistrationValues = () => {
+        return location.state?.from === '/login'
+            ? {
+                username: location.state.username,
+                password: location.state.password
+            } as UserRegistrationRequest
+            : defaultUserRegistrationRequest;
+    }
+
     const {
         values,
         errors,
@@ -81,7 +91,7 @@ export const Registration = (): ReactNode => {
         resetForm,
         handleBlur
     } = useFormik<UserRegistrationRequest>({
-        initialValues: defaultUserRegistrationRequest,
+        initialValues: calculateInitialRegistrationValues(),
         onSubmit: registerUser,
         validationSchema: UserRegistrationRequestSchemaValidations,
     });

@@ -96,11 +96,18 @@ export const Login = (): ReactNode => {
                                         </Typography>
                                     </a>
                                 </div>
-                                <div>
+                                <div className={"d-flex justify-content-center"}>
                                     <Link
+                                        sx={{cursor: 'pointer'}}
                                         onClick={() => {
                                             toast.dismiss('login-error')
-                                            navigateTo('/register');
+                                            navigateTo('/register', {
+                                                state: {
+                                                    from: '/login',
+                                                    username: values.username,
+                                                    password: values.password
+                                                }
+                                            });
                                         }}
                                     >
                                         Register new user?
