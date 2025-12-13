@@ -1,4 +1,6 @@
 import {AxiosError} from "axios";
+import {jwtDecode} from "jwt-decode";
+import {CustomJwtPayload} from "../domain/Types.ts";
 
 export const isProblemDetail = (error: AxiosError) => {
     if (!error.response) {
@@ -15,4 +17,9 @@ export const isProblemDetail = (error: AxiosError) => {
         'type' in data &&
         'detail' in data
     );
+}
+
+export const isJwtValid = (token: string) => {
+    const decodedToken = jwtDecode<CustomJwtPayload>(token);
+    return !!(decodedToken.exp && decodedToken.exp > Date.now() / 1000);
 }

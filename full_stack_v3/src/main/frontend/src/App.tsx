@@ -21,51 +21,49 @@ function App() {
     return (
         <ContextProviders>
             <IconContext.Provider value={{color: 'purple', size: '1.5em'}}>
-
                     <MantineProvider
                         theme={{
                             primaryColor: 'red',
                             primaryShade: 8
                         }}
                     >
- <ThemeProvider theme={theme}>
-                        <ToasterComponent/>
+                        <ThemeProvider theme={theme}>
+                            <ToasterComponent/>
 
-                        <BrowserRouter>
-                            <Navbar/>
-                            <Routes>
-                                <Route
-                                    path={'/'}
-                                    index={true}
-                                    element={<Dashboard/>}
-                                />
-                                <Route
-                                    path={'/login'}
-                                    element={<Login/>}
-                                />
-                                <Route
-                                    path={'/logout'}
-                                    element={<Logout/>}
-                                />
-                                <Route
-                                    path={'/register'}
-                                    element={<Registration/>}
-                                />
-                                <Route
-                                    path={'/new'}
-                                    element={
-                                        <ProtectedRoute><AddExpense/></ProtectedRoute>
-                                    }
-                                />
-                                <Route
-                                    path={'/view/:expenseId'}
-                                    element={
-                                        <ProtectedRoute><ExpenseDetails/></ProtectedRoute>}
-                                />
-                            </Routes>
-                        </BrowserRouter>
-                </ThemeProvider>
-
+                            <BrowserRouter>
+                                <Navbar/>
+                                <Routes>
+                                    <Route
+                                        path={'/'}
+                                        index={true}
+                                        element={<Dashboard/>}
+                                    />
+                                    <Route
+                                        path={'/login'}
+                                        element={<Login/>}
+                                    />
+                                    <Route
+                                        path={'/logout'}
+                                        element={<Logout/>}
+                                    />
+                                    <Route
+                                        path={'/register'}
+                                        element={<Registration/>}
+                                    />
+                                    <Route
+                                        path={'/new'}
+                                        element={
+                                            <ProtectedRoute><AddExpense/></ProtectedRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path={'/view/:expenseId'}
+                                        element={
+                                            <ProtectedRoute><ExpenseDetails/></ProtectedRoute>}
+                                    />
+                                </Routes>
+                            </BrowserRouter>
+                        </ThemeProvider>
                     </MantineProvider>
             </IconContext.Provider>
         </ContextProviders>
