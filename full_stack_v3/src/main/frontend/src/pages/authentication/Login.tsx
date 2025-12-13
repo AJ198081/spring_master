@@ -15,7 +15,7 @@ import {Button, Link, Paper, Stack, Typography} from "@mui/material";
 import {GoQuestion} from "react-icons/go";
 import {UserAuthenticationContext} from "../../contexts/user/UserAuthenticationContext.tsx";
 import {FcGoogle} from "react-icons/fc";
-import {ConfirmLoginCancelDialog} from "./dialogs/ConfirmLoginCancelDialog.tsx";
+import {renderCancelDialog} from "./dialogs/RenderCancelDialog.tsx";
 import {isProblemDetail} from "../../utils/Utils.ts";
 
 export const Login = (): ReactNode => {
@@ -31,7 +31,6 @@ export const Login = (): ReactNode => {
     const loginUser = async (values: UserLoginRequest) => {
 
         const controller = new AbortController();
-        setAbortController(controller);
 
         const loginResponsePromise = AxiosInstance.post('/api/v1/auth/login', values, {
             signal: controller.signal
@@ -48,7 +47,10 @@ export const Login = (): ReactNode => {
                         <Button
                             variant={"contained"}
                             className={`mt-3`}
-                            onClick={openDialog}
+                            onClick={() => {
+                                setAbortController(controller);
+                                openDialog();
+                            }}
                             autoFocus={true}
                             color={"error"}
                         >
@@ -72,7 +74,7 @@ export const Login = (): ReactNode => {
                 if (error instanceof AxiosError) {
                     let errorMessage;
                     if (error instanceof CanceledError) {
-                        errorMessage = controller.signal.reason;
+                        errorMessage = abortController?.signal.reason || 'Login request canceled by the user, aborting the login process...';
                     } else {
                         if (isProblemDetail(error)) {
                             errorMessage = <Stack
@@ -155,7 +157,7 @@ export const Login = (): ReactNode => {
     };
     return (
         <>
-            {ConfirmLoginCancelDialog(isCancelLoginDialogOpen, closeDialog, abortController, setSubmitting)}
+        {renderCancelDialog(isCancelLoginDialogOpen, closeDialog, abortController, setSubmitting)}
 
             <Paper
                 elevation={5}

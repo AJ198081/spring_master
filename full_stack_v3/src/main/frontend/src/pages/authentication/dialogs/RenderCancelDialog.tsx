@@ -1,6 +1,14 @@
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
 
-export const ConfirmLoginCancelDialog = (isDialogOpen: boolean, closeDialog: () => void, abortController: AbortController | null, setSubmitting: (isSubmitting: boolean) => void) => {
+export const renderCancelDialog = (
+    isDialogOpen: boolean,
+    closeDialog: () => void,
+    abortController: AbortController | null,
+    setSubmitting: (isSubmitting: boolean) => void
+) => {
+
+    if (!abortController) console.log("AbortController is being received as null");
+
     return <Dialog
         open={isDialogOpen}
         onClose={closeDialog}
@@ -32,10 +40,8 @@ export const ConfirmLoginCancelDialog = (isDialogOpen: boolean, closeDialog: () 
                 color={"error"}
                 tabIndex={1}
                 onClick={() => {
-                    if (abortController) {
-                        abortController.abort('Login attempt canceled by the user');
+                        abortController!.abort('Login attempt canceled by the user');
                         setSubmitting(false);
-                    }
                     closeDialog();
                 }}
             >
