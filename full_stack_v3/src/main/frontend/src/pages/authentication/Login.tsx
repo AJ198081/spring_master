@@ -1,4 +1,4 @@
-import {ReactNode, useContext, useState} from "react";
+import {ReactNode, useContext, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {
     initialUserLoginRequest,
@@ -22,7 +22,7 @@ export const Login = (): ReactNode => {
 
     const navigateTo = useNavigate();
     const [isCancelLoginDialogOpen, setIsCancelLoginDialogOpen] = useState<boolean>(false);
-    const [abortController, setAbortController] = useState<AbortController | null>(null);
+    const abortController = useRef<AbortController | null>(null);
     const {setToken} = useContext(UserAuthenticationContext);
 
     const openDialog = () => setIsCancelLoginDialogOpen(true);
@@ -30,10 +30,10 @@ export const Login = (): ReactNode => {
 
     const loginUser = async (values: UserLoginRequest) => {
 
-        const controller = new AbortController();
+        abortController.current = new AbortController();
 
         const loginResponsePromise = AxiosInstance.post('/api/v1/auth/login', values, {
-            signal: controller.signal
+            signal: abortController.current.signal
         });
 
         void toast.promise(loginResponsePromise, {
@@ -48,7 +48,6 @@ export const Login = (): ReactNode => {
                             variant={"contained"}
                             className={`mt-3`}
                             onClick={() => {
-                                setAbortController(controller);
                                 openDialog();
                             }}
                             autoFocus={true}
@@ -71,11 +70,12 @@ export const Login = (): ReactNode => {
                 }
             })
             .catch(error => {
-                if (error instanceof AxiosError) {
-                    let errorMessage;
-                    if (error instanceof CanceledError) {
-                        errorMessage = abortController?.signal.reason || 'Login request canceled by the user, aborting the login process...';
-                    } else {
+
+                let errorMessage;
+
+                if (error instanceof CanceledError) {
+                    errorMessage = abortController?.current?.signal.reason || 'Login request canceled by the user, aborting the login process...';
+                } else if (error instanceof AxiosError) {
                         if (isProblemDetail(error)) {
                             errorMessage = <Stack
                                 gap={2}
@@ -121,15 +121,15 @@ export const Login = (): ReactNode => {
                         }
                     }
 
+                console.log('Error message', errorMessage);
+
                     toast.error(errorMessage, {
                         id: 'login-error',
                         duration: 3000,
                         style: {
-                            // background: 'lightgray',
-                            color: '#fff'
+                            color: '#000'
                         }
                     });
-                }
             });
     };
 
@@ -157,7 +157,7 @@ export const Login = (): ReactNode => {
     };
     return (
         <>
-        {renderCancelDialog(isCancelLoginDialogOpen, closeDialog, abortController, setSubmitting)}
+            {renderCancelDialog(isCancelLoginDialogOpen, closeDialog, abortController.current, setSubmitting)}
 
             <Paper
                 elevation={5}

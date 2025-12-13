@@ -7,7 +7,11 @@ export const renderCancelDialog = (
     setSubmitting: (isSubmitting: boolean) => void
 ) => {
 
-    if (!abortController) console.log("AbortController is being received as null");
+    console.log(
+        "isDialog Open?",
+        isDialogOpen,
+        abortController,
+    )
 
     return <Dialog
         open={isDialogOpen}
@@ -36,12 +40,11 @@ export const renderCancelDialog = (
             >No</Button>
             <Button
                 variant={"contained"}
-                type={"reset"}
                 color={"error"}
                 tabIndex={1}
                 onClick={() => {
-                        abortController!.abort('Login attempt canceled by the user');
-                        setSubmitting(false);
+                    abortController?.abort('Login attempt canceled by the user');
+                    setSubmitting(false);
                     closeDialog();
                 }}
             >
