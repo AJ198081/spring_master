@@ -23,3 +23,16 @@ export const isJwtValid = (token: string) => {
     const decodedToken = jwtDecode<CustomJwtPayload>(token);
     return !!(decodedToken.exp && decodedToken.exp > Date.now() / 1000);
 }
+
+
+export const getUserName = (token: string) => {
+    if (!isJwtValid(token)) {
+        return 'Guest';
+    }
+    const decodedToken = jwtDecode<CustomJwtPayload>(token);
+    return `${decodedToken.lastName}, ${decodedToken.firstName}`.trim();
+}
+
+export const getUserRole = (token: string) => {
+    return jwtDecode<CustomJwtPayload>(token).roles.split("_")[1];
+}

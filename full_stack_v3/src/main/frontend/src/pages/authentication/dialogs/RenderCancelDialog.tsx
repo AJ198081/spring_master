@@ -1,17 +1,12 @@
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
+import {RefObject} from "react";
 
 export const renderCancelDialog = (
     isDialogOpen: boolean,
     closeDialog: () => void,
-    abortController: AbortController | null,
+    abortController: RefObject<AbortController | null>,
     setSubmitting: (isSubmitting: boolean) => void
 ) => {
-
-    console.log(
-        "isDialog Open?",
-        isDialogOpen,
-        abortController,
-    )
 
     return <Dialog
         open={isDialogOpen}
@@ -43,7 +38,7 @@ export const renderCancelDialog = (
                 color={"error"}
                 tabIndex={1}
                 onClick={() => {
-                    abortController?.abort('Login attempt canceled by the user');
+                    abortController?.current?.abort('Login attempt canceled by the user');
                     setSubmitting(false);
                     closeDialog();
                 }}

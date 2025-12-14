@@ -1,4 +1,4 @@
-import {ReactNode, useContext, useRef, useState} from "react";
+import {ReactNode, RefObject, useContext, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {
     initialUserLoginRequest,
@@ -18,11 +18,11 @@ import {FcGoogle} from "react-icons/fc";
 import {renderCancelDialog} from "./dialogs/RenderCancelDialog.tsx";
 import {isProblemDetail} from "../../utils/Utils.ts";
 
-export const Login = (): ReactNode => {
+const Login = (): ReactNode => {
 
     const navigateTo = useNavigate();
     const [isCancelLoginDialogOpen, setIsCancelLoginDialogOpen] = useState<boolean>(false);
-    const abortController = useRef<AbortController | null>(null);
+    const abortController: RefObject<AbortController | null> = useRef<AbortController | null>(null);
     const {setToken} = useContext(UserAuthenticationContext);
 
     const openDialog = () => setIsCancelLoginDialogOpen(true);
@@ -157,7 +157,7 @@ export const Login = (): ReactNode => {
     };
     return (
         <>
-            {renderCancelDialog(isCancelLoginDialogOpen, closeDialog, abortController.current, setSubmitting)}
+            {renderCancelDialog(isCancelLoginDialogOpen, closeDialog, abortController, setSubmitting)}
 
             <Paper
                 elevation={5}
@@ -282,3 +282,4 @@ export const Login = (): ReactNode => {
         </>
     );
 }
+export default Login

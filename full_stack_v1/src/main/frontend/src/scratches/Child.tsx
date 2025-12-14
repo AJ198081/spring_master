@@ -6,7 +6,6 @@ export const Child = ({color}: { color: string }): ReactNode => {
 
     function logClickOnDiv(event: MouseEvent<HTMLDivElement>) {
         event.preventDefault();
-        console.log(`Clicked on div ${event.target}`);
     }
 
     return <div onClick={logClickOnDiv} defaultValue={'test'} ref={divElement} >

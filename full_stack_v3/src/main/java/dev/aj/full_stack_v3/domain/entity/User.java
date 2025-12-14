@@ -32,6 +32,7 @@ public class User {
     private Long id;
 
     private String firstName;
+
     @Column(unique = true, columnDefinition = "varchar(255)")
     @Size(min = 2, max = 255, message = "Email must be between 2 and 255 characters")
     private String lastName;
