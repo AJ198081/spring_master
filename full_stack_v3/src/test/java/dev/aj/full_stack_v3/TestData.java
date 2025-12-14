@@ -29,7 +29,7 @@ public class TestData {
     @Bean
     public Stream<ExpenseRequest> getExpenseStream() {
 
-        List<String> categories = List.of("Food", "Transportation", "Entertainment", "Shopping", "Health", "Utilities");
+        List<String> categories = List.of("Food", "Transportation", "Entertainment", "Shopping", "Health", "Utilities", "Miscellaneous", "Housing");
 
         return Stream.generate(() -> ExpenseRequest.builder()
                 .name(faker.letterify("Expense-???", true))

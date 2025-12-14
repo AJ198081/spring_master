@@ -1,5 +1,5 @@
 import {useLocation, useNavigate} from "react-router-dom";
-import {categoryOptions, dateFormat, ExpenseRequest, ExpenseResponse, ProblemDetail} from "../domain/Types.ts";
+import {dateFormat, ExpenseRequest, ExpenseResponse, ProblemDetail} from "../domain/Types.ts";
 import {currencyFormatter} from "../utils/Formatter.ts";
 import {ChangeEvent, ChangeEventHandler, useState} from "react";
 import {AxiosInstance} from "../service/api-client.ts";
@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import {Modal} from "./common/Modal.tsx";
 import toast from "react-hot-toast";
 import {AxiosError} from "axios";
+import {useCategories} from "../hooks/Categories.ts";
 
 
 export const ExpenseDetails = () => {
@@ -14,6 +15,7 @@ export const ExpenseDetails = () => {
     const currentExpense = useLocation().state.expense as ExpenseResponse;
     const [updatedExpense, setUpdatedExpense] = useState<ExpenseRequest>(currentExpense);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const {categories} = useCategories();
     const navigateTo = useNavigate();
 
     const updateExpenseState: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -134,7 +136,7 @@ export const ExpenseDetails = () => {
                                               onChange={updateExpenseState}
                                               defaultValue={currentExpense.category}>
                                         <option value={currentExpense.category}>{currentExpense.category}</option>
-                                        {categoryOptions
+                                        {categories
                                             .filter(category => category !== currentExpense.category)
                                             .map(category => <option key={category}
                                                                      value={category}>{category}</option>)

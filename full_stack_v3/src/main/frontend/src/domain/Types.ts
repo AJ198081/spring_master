@@ -19,7 +19,7 @@ export interface ExpenseResponse extends Omit<ExpenseRequest, 'date'>{
     date: string;
 }
 
-export const categoryOptions = [
+export const defaultCategories = [
     'Food',
     'Transportation',
     'Entertainment',

@@ -1,7 +1,7 @@
 import {useFormik} from "formik";
 import dayjs from "dayjs";
 import {AxiosInstance} from "../service/api-client.ts";
-import {categoryOptions, dateFormat, ExpenseRequest, expenseSchemaValidations} from "../domain/Types.ts";
+import {dateFormat, ExpenseRequest, expenseSchemaValidations} from "../domain/Types.ts";
 import toast from "react-hot-toast";
 import {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
@@ -113,7 +113,6 @@ export const AddExpense = () => {
                     </div>
 
                     <CategorySelect
-                        valueList={categoryOptions}
                         label={'Expense category'}
                         selectLabel={'Select category'}
                         value={values.category}
