@@ -12,7 +12,6 @@ export const useExpenses = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        setIsLoading(true);
         AxiosInstance.get('/api/v1/expenses')
             .then(response => {
                 if (response.status === 200) {

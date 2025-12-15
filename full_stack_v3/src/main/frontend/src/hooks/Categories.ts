@@ -14,14 +14,18 @@ export const useCategories = () => {
         return navigator.language || navigator.languages?.[0] || 'en-AU';
     };
 
-
     useEffect(() => {
         AxiosInstance.get('/api/v1/expenses')
             .then((response: AxiosResponse<ExpenseResponse[]>) => {
                 if (response.status === 200) {
+
                     const uniqueCategories = new Set(response.data.map(expense => expense.category));
-                    setCategories(uniqueCategories.size === 0 ? defaultCategories : [...uniqueCategories]
-                        .sort((a, b) => a.localeCompare(b, getBrowserLocale(), {sensitivity: 'base'})));
+
+                    setCategories(uniqueCategories.size === 0
+                        ? defaultCategories
+                        : [...uniqueCategories].sort((a, b) => a.localeCompare(b, getBrowserLocale(), {sensitivity: 'base'})));
+                } else {
+                    setCategories(defaultCategories);
                 }
             })
             .catch(error => {
