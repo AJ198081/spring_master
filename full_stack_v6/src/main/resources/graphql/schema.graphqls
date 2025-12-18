@@ -1,4 +1,4 @@
-# GraphQL has 3 types of fundamental - Query, Mutation and Subscription
+# GraphQL has 3 fundamental types - Query, Mutation and Subscription
 # schema.graphqls, where graphqls stands for Graph Query Language Schema
 type Query {
     sayHello: String,
@@ -17,6 +17,7 @@ type Customer implements Person{
     firstName: String,
     lastName: String,
     phone: String,
+    """ List of addresses for the customer """
     addresses: [Address],
     orders: [Order],
     user: User
@@ -31,40 +32,41 @@ type Address{
 }
 
 type Order {
-id: ID,
-orderDate: String,
-orderStatus: String,
-shippingDate: String,
-shippingAddress: Address,
-customer: Customer,
-orderItems: [OrderItem],
-totalPrice: Float,
-billingInformation: BillingInformation
+    id: ID,
+    """ Order date in __ISO format__ """
+    orderDate: String,
+    orderStatus: String,
+    shippingDate: String,
+    shippingAddress: Address,
+    customer: Customer,
+    orderItems: [OrderItem],
+    totalPrice: Float,
+    billingInformation: BillingInformation
 }
 
 type OrderItem {
-id: ID,
-product: Product,
-quantity: Int,
-orderItemTotalPrice: Float
+    id: ID,
+    product: Product,
+    quantity: Int,
+    orderItemTotalPrice: Float
 }
 
 type Product {
-id: ID,
-name: String,
-description: String,
-price: Float,
-category: String,
-inventory: Int
+    id: ID,
+    name: String,
+    description: String,
+    price: Float,
+    category: String,
+    inventory: Int
 }
 
 type BillingInformation {
-id: ID,
-cardNumber: String,
-cardHolderName: String,
-expiryDate: String,
-cvv: String,
-billingAddress: Address
+    id: ID,
+    cardNumber: String,
+    cardHolderName: String,
+    expiryDate: String,
+    cvv: String,
+    billingAddress: Address
 }
 
 type User {

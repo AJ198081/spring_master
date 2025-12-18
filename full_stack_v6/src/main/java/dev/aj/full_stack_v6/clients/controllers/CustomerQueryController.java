@@ -40,8 +40,8 @@ public class CustomerQueryController {
     }
 
     /**
-     * Schema mapping for retrieving the customer's first name.
-     * Spring GraphQL automatically infers the parent type (Customer) from the method parameter.
+     * Schema mapping (commonly known as Resolver Function) for retrieving the customer's first name.
+     * Spring GraphQL can automatically infer the parent type (Customer), either:
      *
      * <ul>From the @SchemaMapping(type="Customer", field="firstName") annotation - takes precedence</ul>
      * <ul>From the Parameter (@NonNull Customer) and method name -firstName</ul>
@@ -54,6 +54,9 @@ public class CustomerQueryController {
         return customer.getFirstName().toUpperCase();
     }
 
+//    There are called 'resolver functions',
+//    which GraphQL uses to resolve the fields when it creates a Graph of elements to fulfil a user request
+//    NOTE: Resolver Functions take precedence during query resolution
     @SchemaMapping(typeName = "Customer", field = "addresses")
     public List<Address> addresses(@NonNull Customer customer) {
         if (!customer.getAddresses().isEmpty()) {
