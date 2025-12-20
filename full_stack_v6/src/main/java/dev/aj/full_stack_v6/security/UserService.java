@@ -9,6 +9,7 @@ import java.security.Principal;
 
 public interface UserService extends UserDetailsService {
     void createUser(UserCreateRequest userCreateRequest);
+    Long createNewUser(UserCreateRequest userCreateRequest);
 
     @PreAuthorize("isAuthenticated()")
     void deleteUser(String username,

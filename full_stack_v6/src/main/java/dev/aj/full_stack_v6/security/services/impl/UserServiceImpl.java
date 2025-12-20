@@ -49,6 +49,23 @@ class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public Long createNewUser(UserCreateRequest userCreateRequest) {
+        log.info("Received request fromGraphQL endpoint to create user: {}", userCreateRequest.username());
+
+        if (this.userExists(userCreateRequest.username())) {
+            throw new EntityExistsException("User already exists: %s".formatted(userCreateRequest.username()));
+        }
+
+        User user = userMapper.userCreateRequestToUser(userCreateRequest);
+        user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
+
+        assignRolesToUser(userCreateRequest.role(), user);
+
+        return userRepository.save(user)
+                .getId();
+    }
+
     private void assignRolesToUser(String roleToBeAssigned, User user) {
 
         roleRepository.findByRole(UserRole.valueOf(roleToBeAssigned.trim().toUpperCase()))
@@ -80,9 +97,7 @@ class UserServiceImpl implements UserService {
 
         User patchedUser = userMapper.patchUserFromUserCreateRequest(existingUser, userCreateRequest, passwordEncoder);
 
-        if (userCreateRequest.role() != null) {
-            assignRolesToUser(userCreateRequest.role(), patchedUser);
-        }
+        assignRolesToUser(userCreateRequest.role(), patchedUser);
 
         userRepository.save(patchedUser);
     }

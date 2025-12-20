@@ -50,10 +50,10 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.modulith.test.ApplicationModuleTest.BootstrapMode.DIRECT_DEPENDENCIES;
+import static org.springframework.modulith.test.ApplicationModuleTest.BootstrapMode.ALL_DEPENDENCIES;
 
 @RecordApplicationEvents
-@ApplicationModuleTest(webEnvironment = RANDOM_PORT, mode = DIRECT_DEPENDENCIES)
+@ApplicationModuleTest(webEnvironment = RANDOM_PORT, mode = ALL_DEPENDENCIES)
 @Import(value = {TestConfig.class, TestDataFactory.class, UserAuthFactory.class})
 @TestPropertySource(locations = {
         "/application-performance.properties",

@@ -11,6 +11,17 @@ type Query {
     ordersForCustomer(id: Int): [Order]
 }
 
+type Mutation {
+    createUser(createUserDto: CreateUserDto): Int
+}
+
+input CreateUserDto {
+    username: String,
+    password: String,
+    role: String,
+    email: String,
+}
+
 # To programmatically register the 'types' in Java, register a bean of type 'RuntimeWiringConfigurer', which gives you a 'configurer' to manipulate
 type Customer implements Person{
     id: ID,

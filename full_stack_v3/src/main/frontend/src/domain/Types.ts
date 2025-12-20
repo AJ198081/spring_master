@@ -203,3 +203,9 @@ export const columnsDescription: MRT_ColumnDef<ExpenseResponse>[] = [
         }
     }
 ];
+
+export type Customer = {
+    id: string;
+    name: string;
+    email: string;
+};

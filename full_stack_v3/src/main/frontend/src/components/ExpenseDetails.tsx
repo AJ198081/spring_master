@@ -8,6 +8,7 @@ import {Modal} from "./common/Modal.tsx";
 import toast from "react-hot-toast";
 import {AxiosError} from "axios";
 import {useCategories} from "../hooks/Categories.ts";
+import {Button} from "@mui/material";
 
 
 export const ExpenseDetails = () => {
@@ -147,27 +148,48 @@ export const ExpenseDetails = () => {
                         </tr>
                         </tbody>
                     </table>
-                    <button className={`btn btn-outline-secondary ${editMode ? 'd-none' : ''}`}
-                            onClick={() => setEditMode(true)}>
-                        Edit
-                    </button>
-                    <Modal
-                        triggerButtonClass={`btn-outline-danger ms-2 ${editMode ? 'd-none' : ''}`}
-                        triggerButtonLabel={'Delete'}
-                        modalHeader={'Delete Confirmation'}
-                        modalBody={'Are you sure you want to delete this expense?'}
-                        cancelButtonLabel={'Cancel'}
-                        confirmButtonLabel={'Delete'}
-                        onConfirm={() => deleteExpense(currentExpense)}
-                    />
-                    <button className={`btn btn-outline-primary ${editMode ? '' : 'd-none'}`}
-                            onClick={() => updateExpense(currentExpense)}>
-                        Save
-                    </button>
-                    <button className={`btn btn-outline-danger ms-2 ${editMode ? '' : 'd-none'}`}
-                            onClick={() => setEditMode(false)}>
-                        Cancel
-                    </button>
+                    <div className="d-flex justify-content-between">
+                        {editMode
+                            ? <div>
+                                <button
+                                    className={`btn btn-outline-primary`}
+                                    onClick={() => updateExpense(currentExpense)}
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    className={`btn btn-outline-danger ms-2`}
+                                    onClick={() => setEditMode(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                            : <div>
+                                <button
+                                    className={`btn btn-outline-secondary`}
+                                    onClick={() => setEditMode(true)}
+                                >
+                                    Edit
+                                </button>
+                                <Modal
+                                    triggerButtonClass={`btn-outline-danger ms-2`}
+                                    triggerButtonLabel={'Delete'}
+                                    modalHeader={'Delete Confirmation'}
+                                    modalBody={'Are you sure you want to delete this expense?'}
+                                    cancelButtonLabel={'Cancel'}
+                                    confirmButtonLabel={'Delete'}
+                                    onConfirm={() => deleteExpense(currentExpense)}
+                                />
+                            </div>
+                        }
+                        <Button
+                            variant="outlined"
+                            color="success"
+                            onClick={() => navigateTo("/")}
+                        >
+                            Back
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
