@@ -33,8 +33,7 @@ type Address{
 
 type Order {
     id: ID,
-    """ Order date in __ISO format__ """
-    orderDate: String,
+    auditMetaData: AuditMetaData,
     orderStatus: String,
     shippingDate: String,
     shippingAddress: Address,
@@ -81,3 +80,10 @@ interface Person {
     phone: String,
 }
 
+type AuditMetaData {
+    createdBy: String,
+    lastModifiedBy: String,
+    """Order date in __ISO Date Format__"""
+    createdDate: String,
+    lastModifiedDate: String
+}

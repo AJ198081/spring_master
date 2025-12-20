@@ -3,6 +3,7 @@ package dev.aj.full_stack_v6.clients.controllers;
 import dev.aj.full_stack_v6.clients.CustomerService;
 import dev.aj.full_stack_v6.common.domain.entities.Address;
 import dev.aj.full_stack_v6.common.domain.entities.Customer;
+import dev.aj.full_stack_v6.common.domain.entities.Order;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +55,7 @@ public class CustomerQueryController {
         return customer.getFirstName().toUpperCase();
     }
 
-//    There are called 'resolver functions',
+    //    There are called 'resolver functions',
 //    which GraphQL uses to resolve the fields when it creates a Graph of elements to fulfil a user request
 //    NOTE: Resolver Functions take precedence during query resolution
     @SchemaMapping(typeName = "Customer", field = "addresses")
@@ -65,6 +66,17 @@ public class CustomerQueryController {
                     .peek(address -> address.setStreet(address.getStreet().toUpperCase()))
                     .toList();
         }
+        return null;
+    }
+
+    @SchemaMapping(typeName = "Customer", field = "orders")
+    public List<Order> orders(@NonNull Customer customer) {
+        if (!customer.getOrders().isEmpty()) {
+            return customer.getOrders().stream()
+//                    .peek(order -> order.setAuditMetaData(new AuditMetaData()))
+                    .toList();
+        }
+        log.info("No orders found for customer: {}", customer.getId());
         return null;
     }
 

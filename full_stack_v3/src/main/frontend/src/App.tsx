@@ -13,6 +13,7 @@ import {ProtectedRoute} from "./pages/authentication/ProtectedRoute.tsx";
 import {ThemeProvider} from "@mui/material/styles";
 import {ContextProviders} from "./contexts/ContextProviders.tsx";
 import {theme} from "./utils/ThemeResolver.ts";
+import {Footer} from "./components/Footer.tsx";
 
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
                                             <ProtectedRoute><ExpenseDetails/></ProtectedRoute>}
                                     />
                                 </Routes>
+                                <Footer/>
                             </BrowserRouter>
                         </ThemeProvider>
                     </MantineProvider>

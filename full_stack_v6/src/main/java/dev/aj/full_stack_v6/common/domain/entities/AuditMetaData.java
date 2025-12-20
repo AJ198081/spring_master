@@ -7,11 +7,13 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 
 import java.time.ZonedDateTime;
 
 @Embeddable
 @Getter
+@SchemaMapping(typeName = "AuditMetaData")
 public class AuditMetaData {
 
     @CreatedBy
