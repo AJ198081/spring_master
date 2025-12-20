@@ -1,9 +1,8 @@
-import {useEffect, useState} from "react";
-import {getAllCustomer} from "../service/graphql-client.ts";
 import {Box, Typography} from "@mui/material";
 import {Spinner} from "./common/Spinner.tsx";
+import {useNumberOfCustomers} from "../hooks/useNumberOfCustomers.ts";
 
-type Customer = {
+export type Customer = {
     id: string;
     name: string;
     email: string;
@@ -11,15 +10,7 @@ type Customer = {
 
 export const Footer = () => {
 
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [customers, setCustomers] = useState<Customer[]>([]);
-
-    useEffect(() => {
-        getAllCustomer()
-            .then(response => setCustomers(response))
-            .finally(() => setIsLoading(false));
-    }, [])
-
+    const {isLoading, numberOfCustomers} = useNumberOfCustomers();
 
     return (
         <Box
@@ -44,8 +35,8 @@ export const Footer = () => {
             {isLoading
                 ? <Spinner height={'100%'} spinnerSize={'2rem'}/>
                 : <Typography variant="h6">
-                    {customers.length > 0
-                        ? `Have ${customers.length} customers registered`
+                    {numberOfCustomers > 0
+                        ? `Have ${numberOfCustomers} customers registered`
                         : 'No customers found'
                     }
                 </Typography>

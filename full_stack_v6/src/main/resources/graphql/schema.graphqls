@@ -17,6 +17,7 @@ type Customer implements Person{
     firstName: String,
     lastName: String,
     phone: String,
+    auditMetaData: AuditMetaData
     """ List of addresses for the customer """
     addresses: [Address],
     orders: [Order],
