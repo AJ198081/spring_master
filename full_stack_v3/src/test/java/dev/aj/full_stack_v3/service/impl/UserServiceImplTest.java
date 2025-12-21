@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestPropertySource(locations = "/application-test.properties", properties = {
+@TestPropertySource(locations = "classpath:/application-test.properties", properties = {
         "logging.level.dev.aj.full_stack_v3.service.impl.UserServiceImpl=debug"
 })
 @Import(value = {PostgresTCConfig.class, TestConfig.class, TestData.class})

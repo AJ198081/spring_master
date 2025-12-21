@@ -1,5 +1,8 @@
 Full Stack V6 – Local Setup and API Test Guide
 
+API Contract
+- https://aj198081.github.io/full_stack_v6/src/main/resources/api-specs
+
 This guide walks you through running the full_stack_v6 app locally, including its dependencies execute the API tests.
 
 Prerequisites

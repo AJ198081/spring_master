@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import {useContext, useEffect} from "react";
 import {UserAuthenticationContext} from "../contexts/user/UserAuthenticationContext.tsx";
 
-export const useJwt = () => {
+export const useValidatedJwt = () => {
 
     const {token, setToken} = useContext(UserAuthenticationContext)
     

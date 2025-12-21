@@ -8,7 +8,7 @@ import {useNavigate} from "react-router-dom";
 import {AxiosInstance} from "../service/api-client.ts";
 import {AxiosError, AxiosResponse} from "axios";
 import {getUserName} from "../utils/Utils.ts";
-import {useJwt} from "../hooks/useJwt.ts";
+import {useValidatedJwt} from "../hooks/useValidatedJwt.ts";
 
 export const Dashboard = (): ReactNode => {
 
@@ -20,7 +20,7 @@ export const Dashboard = (): ReactNode => {
     const [errors, setErrors] = useState<Error | null>(null);
     const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
 
-    const {token} = useJwt()
+    const {token} = useValidatedJwt()
 
     useEffect(() => {
 

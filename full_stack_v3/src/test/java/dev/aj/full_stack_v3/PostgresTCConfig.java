@@ -11,12 +11,14 @@ import org.springframework.context.annotation.Bean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-@TestConfiguration(proxyBeanMethods = false)
+@TestConfiguration
 public class PostgresTCConfig {
 
     @Bean
     @ServiceConnection
     PostgreSQLContainer<?> postgresContainer() {
+
+        // Configures database name, credentials, host access, and port
         return new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"))
                 .withDatabaseName("full_stack_v3")
                 .withUsername("admin")

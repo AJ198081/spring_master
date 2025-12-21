@@ -1,6 +1,5 @@
 package dev.aj.full_stack_v3.controller;
 
-import dev.aj.full_stack_v3.PostgresTCConfig;
 import dev.aj.full_stack_v3.TestConfig;
 import dev.aj.full_stack_v3.TestData;
 import dev.aj.full_stack_v3.domain.dto.UserLoginRequest;
@@ -16,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -28,10 +28,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestPropertySource(locations = "/application-test.properties", properties = {
+@ActiveProfiles("compose")
+@TestPropertySource(properties = {
         "logging.level.dev.aj.full_stack_v3.controller.AuthControllerTest=debug"
 })
-@Import(value = {PostgresTCConfig.class, TestConfig.class, TestData.class})
+@Import(value = {TestConfig.class, TestData.class})
 class AuthControllerTest {
 
     private static final String AUTHORIZATION_ENDPOINT = "/api/v1/auth";
