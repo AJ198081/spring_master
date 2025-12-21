@@ -8,7 +8,7 @@ export type CustomerFields = {
     orders?: boolean;
 };
 
-const jwt = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhal91c2VyIiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE3NjYxNzk2NTAsImV4cCI6MTc2NjI2NjA1MH0.9UXuYrfre3wYj9rY-RXZVPf_cg-gq06yPwFn9fDBIwGCrzCuN86Sk5egCjYygRm-hqrySw--nF3x4rSyqWoTVA";
+const jwt = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhal9hZG1pbiIsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXSwiaWF0IjoxNzY2MjgzOTQ3LCJleHAiOjE3NjYzNzAzNDd9.DxzY2tCgVVec3quJ4mT9F_BMK3UiOpLU3lCycioDij6QGJHJmhGI34_b1eu8Bdc32M0zRoY1SWIYGgJKf-WouA";
 
 const graphQLClient = new GraphQLClient('http://localhost:11000/graphql-query', {
     headers: {

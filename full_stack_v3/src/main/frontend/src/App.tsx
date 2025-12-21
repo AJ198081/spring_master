@@ -53,13 +53,18 @@ function App() {
                                     <Route
                                         path={'/new'}
                                         element={
-                                            <ProtectedRoute><AddExpense/></ProtectedRoute>
+                                            <ProtectedRoute>
+                                                <AddExpense/>
+                                            </ProtectedRoute>
                                         }
                                     />
                                     <Route
                                         path={'/view/:expenseId'}
                                         element={
-                                            <ProtectedRoute><ExpenseDetails/></ProtectedRoute>}
+                                            <ProtectedRoute>
+                                                <ExpenseDetails/>
+                                            </ProtectedRoute>
+                                    }
                                     />
                                 </Routes>
                                 <Footer/>
